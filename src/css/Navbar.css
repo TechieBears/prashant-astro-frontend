@@ -1,0 +1,43 @@
+/* ===================== navbar section styles ======================== */
+.navbar-section {
+    position: absolute;
+    width: calc(100% - 15rem);
+    top: 0;
+    right: 0;
+}
+
+.bg-lightPrimary {
+    --tw-bg-opacity: 1;
+    background-color: rgb(244 247 254/var(--tw-bg-opacity));
+}
+
+.navbar-section-active {
+    position: absolute;
+    width: calc(100% - 5rem);
+    top: 0;
+    right: 0;
+}
+
+/* ========================== media query ============================ */
+
+@media screen and (max-width: 425px) {
+    .navbar-section {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        right: 0;
+    }
+}
+
+@media screen and (max-width: 767px) {}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .navbar-section {
+        position: absolute;
+        width: 100%;
+        top: 0;
+        right: 0;
+    }
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1600px) {}
