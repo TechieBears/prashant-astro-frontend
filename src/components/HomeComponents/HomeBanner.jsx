@@ -1,57 +1,203 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { formBtn1 } from '../../utils/CustomClass'
-import image2 from '../../assets/arrow.gif'
-import { useGSAP } from '@gsap/react';
-import { gsap } from 'gsap';
-import { SplitText } from 'gsap/all';
+// import { useGSAP } from '@gsap/react';
+// import { gsap } from 'gsap';
+// import { SplitText } from 'gsap/all';
 
-const HomeBanner = ({ image, title, description, button, background, onClick }) => {
+const HomeBanner = ({ slidesData }) => {
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [isAutoPlay, setIsAutoPlay] = useState(true);
 
-    useGSAP(() => {
-        let split = SplitText.create(".split", { type: "words" });
+    // GSAP Animation Hook (uncomment when you have GSAP installed)
+    // useGSAP(() => {
+    //     let split = SplitText.create(".split", { type: "words" });
 
-        const tl = gsap.timeline({
-            defaults: {
-                duration: 1,
-                ease: "power1.inOut",
-            },
-        });
+    //     const tl = gsap.timeline({
+    //         defaults: {
+    //             duration: 1,
+    //             ease: "power1.inOut",
+    //         },
+    //     });
 
-        tl.from(split.words, {
-            y: 100,
-            autoAlpha: 0,
-            stagger: 0.05
-        })
+    //     tl.from(split.words, {
+    //         y: 100,
+    //         autoAlpha: 0,
+    //         stagger: 0.05
+    //     })
 
-        tl.from(".discrption", {
-            y: 100,
-            opacity: 0,
-        })
+    //     tl.from(".discrption", {
+    //         y: 100,
+    //         opacity: 0,
+    //     })
 
-        tl.from(".btn", {
-            y: 100,
-            opacity: 0,
-        })
-    }, [])
+    //     tl.from(".btn", {
+    //         y: 100,
+    //         opacity: 0,
+    //     })
+    // }, [currentSlide]) // Re-run animation when slide changes
+
+    // Auto-play functionality
+    useEffect(() => {
+        let interval;
+        if (isAutoPlay && slidesData && slidesData.length > 1) {
+            interval = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % slidesData.length);
+            }, 6000); // 6 seconds per slide to allow GSAP animations to complete
+        }
+        return () => clearInterval(interval);
+    }, [isAutoPlay, slidesData]);
+
+    const nextSlide = () => {
+        if (slidesData && slidesData.length > 1) {
+            setCurrentSlide((prev) => (prev + 1) % slidesData.length);
+        }
+    };
+
+    const prevSlide = () => {
+        if (slidesData && slidesData.length > 1) {
+            setCurrentSlide((prev) => (prev - 1 + slidesData.length) % slidesData.length);
+        }
+    };
+
+    const goToSlide = (index) => {
+        setCurrentSlide(index);
+    };
+
+    const toggleAutoPlay = () => {
+        setIsAutoPlay(!isAutoPlay);
+    };
+
+    // If no slides data provided, return null or a default message
+    if (!slidesData || slidesData.length === 0) {
+        return <div>No slides available</div>;
+    }
+
+    const currentSlideData = slidesData[currentSlide];
 
     return (
-        <section className='relative flex h-screen items-center justify-center  overflow-hidden' >
-            {background && <div className='absolute inset-0 z-10 h-full w-full overflow-hidden bg-gradient-to-t from-transparent from-30% to-black ' />}
-            <img src={image} alt="Home Banner" className='w-full h-full object-cover' />
-            {/* <video src="https://pikaso.cdnpk.net/public/media/banners/google_veo3_banner.mp4" class="relative w-full size-full object-cover" loop autoPlay playsInline muted>
-            </video>
-            <div class="absolute inset-0 z-0 bg-black/50"></div> */}
-            <div className='absolute inset-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center flex justify-center items-center flex-col space-y-3 container mx-auto z-40 px-4 md:px-8 ' >
-                <h1 className='split text-2xl md:text-4xl lg:text-6xl pb-2  font-tbLex font-bold text-neutral-50 overflow-hidden' >{title}</h1>
-                <p className='discrption text-xs md:text-base font-tbPop font-normal text-white max-w-4xl !mb-5 overflow-hidden' >{description}</p>
-                {button && <button className={`btn ${formBtn1}`} onClick={onClick} >Register to join</button>}
+        <div className="relative">
+            {/* Custom CSS for animations */}
+         
+
+            {/* Slider Container */}
+            <div className="relative overflow-hidden">
+                <div 
+                    className="flex transition-transform duration-1000 ease-in-out"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                    {slidesData.map((slide) => (
+                        <div key={slide.id} className="w-full flex-shrink-0">
+                            <section className='relative flex h-screen items-center justify-center overflow-hidden'>
+                                {slide.background && <div className='absolute inset-0 z-10 h-full w-full overflow-hidden bg-gradient-to-t from-transparent from-30% to-black' />}
+                                
+                                <img src={slide.image} alt="Home Banner" className='w-full h-full object-cover' />
+                                
+                                {/* Video overlay - uncomment if needed */}
+                                {slide.video && (
+                                    <video 
+                                        src={slide.video} 
+                                        className="absolute w-full h-full object-cover" 
+                                        loop 
+                                        autoPlay 
+                                        playsInline 
+                                        muted
+                                    />
+                                )}
+                                
+                                <div className="absolute inset-0 z-0 bg-black/50"></div>
+                                
+                                <div className='absolute inset-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center flex justify-center items-center flex-col space-y-3 container mx-auto z-40 px-4 md:px-8'>
+                                    <h1 className='split text-2xl md:text-4xl lg:text-6xl pb-2 font-tbLex font-bold text-neutral-50 overflow-hidden'>
+                                        {slide.title}
+                                    </h1>
+                                    <p className='discrption text-xs md:text-base font-tbPop font-normal text-white max-w-4xl !mb-5 overflow-hidden'>
+                                        {slide.description}
+                                    </p>
+                                    {slide.button && (
+                                        <button 
+                                            className={`btn ${formBtn1}`} 
+                                            onClick={slide.onClick}
+                                        >
+                                            Register to join
+                                        </button>
+                                    )}
+                                </div>
+                                
+                              
+                            </section>
+                        </div>
+                    ))}
+                </div>
             </div>
-            {background && <div className='absolute inset-0 z-40 h-full w-full overflow-hidden bg-gradient-to-b from-transparent from-10% via-transparent via-70% to-white to-90% pointer-events-none' />}
-            {button && <div className='absolute  bottom-10 left-1/2 transform -translate-x-1/2 z-40 ' >
-                <img loading="lazy" src={image2} alt="Home Banner" className='w-16 h-16 object-cover' />
-            </div>}
 
-        </section>
-    )
-}
+            {/* Show controls only if there are multiple slides */}
+            {slidesData.length > 1 && (
+                <>
+                    {/* Navigation Arrows */}
+                    <button
+                        onClick={prevSlide}
+                        className="absolute left-4 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-3 sm:p-2 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
+                        aria-label="Previous slide"
+                    >
+                        <ChevronLeft className="w-6 h-6 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                    </button>
 
-export default HomeBanner
+                    <button
+                        onClick={nextSlide}
+                        className="absolute right-4 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-3 sm:p-2 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
+                        aria-label="Next slide"
+                    >
+                        <ChevronRight className="w-6 h-6 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                    </button>
+
+                    {/* Slide Indicators */}
+                    <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-50">
+                        {slidesData.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => goToSlide(index)}
+                                className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${
+                                    index === currentSlide
+                                        ? 'bg-orange-400 scale-125 shadow-lg'
+                                        : 'bg-white bg-opacity-60 hover:bg-orange-300'
+                                }`}
+                                aria-label={`Go to slide ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Auto-play Control */}
+                    {/* <button
+                        onClick={toggleAutoPlay}
+                        className="absolute top-6 sm:top-8 right-4 sm:right-6 lg:right-8 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-3 sm:p-4 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 shadow-lg z-50"
+                        aria-label={isAutoPlay ? "Pause autoplay" : "Start autoplay"}
+                    >
+                        {isAutoPlay ? (
+                            <Pause className="w-5 h-5 sm:w-6 sm:h-6" />
+                        ) : (
+                            <Play className="w-5 h-5 sm:w-6 sm:h-6" />
+                        )}
+                    </button> */}
+
+                    {/* Slide Counter */}
+                    {/* <div className="absolute top-6 sm:top-8 left-4 sm:left-6 lg:left-8 bg-orange-500 bg-opacity-80 text-white px-4 py-2 rounded-full backdrop-blur-sm shadow-lg z-50">
+                        <span className="text-sm sm:text-base font-medium">
+                            {currentSlide + 1} / {slidesData.length}
+                        </span>
+                    </div> */}
+
+                    {/* Progress Bar */}
+                    {/* <div className="absolute bottom-0 left-0 w-full h-2 bg-black bg-opacity-20 z-50">
+                        <div 
+                            className="h-full bg-gradient-to-r from-orange-400 to-red-500 transition-all duration-1000 ease-out shadow-lg"
+                            style={{ width: `${((currentSlide + 1) / slidesData.length) * 100}%` }}
+                        />
+                    </div> */}
+                </>
+            )}
+        </div>
+    );
+};
+
+export default HomeBanner;

@@ -16,6 +16,7 @@ export default {
                 tbLex: ["Lexend", "sans-serif"],
                 tbPop: ["Poppins", "sans-serif"],
                 tbMon: ["Montserrat", "sans-serif"],
+                procSans: ["Prociono", "sans-serif"],
             },
             backgroundColor: {
                 primary: "#f97316",

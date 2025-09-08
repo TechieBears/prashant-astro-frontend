@@ -27,7 +27,9 @@ const HomeNavbar = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.pageYOffset > 80);
+        const handleScroll = () => {
+            setIsScrolled(window.pageYOffset > 80);
+        };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -49,9 +51,15 @@ const HomeNavbar = () => {
 
     return (
         <>
-            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow">
-                {/* Top Row */}
-                <div className="flex items-center justify-between py-3 px-10 md:px-14 gap-4">
+            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500">
+                {/* Top Row - Hidden on Scroll */}
+                <div
+                    className={`flex items-center justify-between px-10 md:px-14 gap-4 transition-all duration-500 ease-in-out
+                    ${isScrolled
+                            ? "opacity-0 -translate-y-5 pointer-events-none h-0 overflow-hidden"
+                            : "opacity-100 translate-y-0 py-3"
+                        }`}
+                >
                     {/* Logo */}
                     <button
                         onClick={() => {
@@ -136,7 +144,6 @@ const HomeNavbar = () => {
                         ))}
                     </div>
 
-
                     {/* Cart & Profile */}
                     <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
                         <ShoppingCart size={20} className="cursor-pointer" />
@@ -214,7 +221,7 @@ const HomeNavbar = () => {
     );
 };
 
-// Your same ProfileSection kept as-is
+// ProfileSection kept same
 const ProfileSection = ({ card, setCard, logout }) => {
     const user = useSelector((state) => state.user.userDetails);
     return (
@@ -226,46 +233,45 @@ const ProfileSection = ({ card, setCard, logout }) => {
         >
             <div className='absolute -top-2 right-6 bg-white z-20 h-4 w-4 rotate-45 rounded-sm' />
             <div
-                className="z-20 items-center  text-start transition-opacity duration-100 border-none bg-white/90 backdrop-blur-[3px] text-lg  focus:outline-none w-screen sm:w-[11rem] py-3 rounded-xl shadow-xl"
+                className="z-20 items-center text-start transition-opacity duration-100 border-none bg-white/90 backdrop-blur-[3px] text-lg focus:outline-none w-screen sm:w-[11rem] py-3 rounded-xl shadow-xl"
                 role="menu"
                 aria-labelledby="user-profile-button"
                 aria-orientation="vertical"
             >
                 <ul className="focus:outline-none">
                     <div className="max-h-[300px] overflow-y-auto">
-                        <div className="flex items-center flex-col  justify-center">
-                            <h3 className='text-sm md:text-sm font-tbPop font-medium text-black'>{formatRole(user?.user?.role == "primary" ? "Primary Actor" : user?.user?.role == "secondary" ? "Secondary Actor" : user?.user?.role == "castingTeam" ? "Casting Team" : "Production Team")}</h3>
+                        <div className="flex items-center flex-col justify-center">
+                            <h3 className='text-sm md:text-sm font-tbPop font-medium text-black'>
+                                {formatRole(
+                                    user?.user?.role === "primary" ? "Primary Actor" :
+                                        user?.user?.role === "secondary" ? "Secondary Actor" :
+                                            user?.user?.role === "castingTeam" ? "Casting Team" :
+                                                "Production Team"
+                                )}
+                            </h3>
                             <span className='w-full h-0.5 rounded-full bg-primary inline-block my-2' />
                         </div>
-                        <li role="menuitem" className="focus:outline-none">
+                        <li role="menuitem">
                             <NavLink to={"/profile"} onClick={() => setCard(!card)}
-                                className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-4 py-2 flex justify-between items-center bg-hover group/link w-full"
+                                className="cursor-pointer text-sm text-ld hover:text-primary px-4 py-2 flex items-center bg-hover group/link"
                             >
-                                <div className="flex items-center w-full">
-                                    <div className="h-8 w-8 flex-shrink-0 rounded-md flex justify-center items-center bg-lightprimary">
-                                        <Profile size={25} className='group-hover/link:text-primary' variant='TwoTone' />
-                                    </div>
-                                    <div className="ps-2 flex justify-between w-full">
-                                        <div className="w-3/4 -space-y-0.5">
-                                            <h5 className="mb-1 text-sm font-tbLex group-hover/link:text-primary">My Profile</h5>
-                                        </div>
-                                    </div>
+                                <div className="h-8 w-8 flex-shrink-0 rounded-md flex justify-center items-center bg-lightprimary">
+                                    <Profile size={25} className='group-hover/link:text-primary' variant='TwoTone' />
+                                </div>
+                                <div className="ps-2">
+                                    <h5 className="mb-1 text-sm font-tbLex group-hover/link:text-primary">My Profile</h5>
                                 </div>
                             </NavLink>
                         </li>
-                        <li role="menuitem" className="focus:outline-none">
+                        <li role="menuitem">
                             <NavLink onClick={logout}
-                                className="cursor-pointer text-sm text-ld hover:text-red-500 focus:bg-hover focus:outline-none px-4 py-2 flex justify-between items-center bg-hover group/link w-full"
+                                className="cursor-pointer text-sm text-ld hover:text-red-500 px-4 py-2 flex items-center bg-hover group/link"
                             >
-                                <div className="flex items-center w-full">
-                                    <div className="h-8 w-8 flex-shrink-0 rounded-md flex justify-center items-center bg-lightprimary">
-                                        <LoginCurve size={25} className='group-hover/link:text-red-500' variant='TwoTone' />
-                                    </div>
-                                    <div className="ps-2 flex justify-between w-full">
-                                        <div className="w-3/4 -space-y-0.5">
-                                            <h5 className="mb-1 text-sm font-tbLex group-hover/link:text-red-500">Logout</h5>
-                                        </div>
-                                    </div>
+                                <div className="h-8 w-8 flex-shrink-0 rounded-md flex justify-center items-center bg-lightprimary">
+                                    <LoginCurve size={25} className='group-hover/link:text-red-500' variant='TwoTone' />
+                                </div>
+                                <div className="ps-2">
+                                    <h5 className="mb-1 text-sm font-tbLex group-hover/link:text-red-500">Logout</h5>
                                 </div>
                             </NavLink>
                         </li>

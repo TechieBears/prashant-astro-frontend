@@ -17,7 +17,7 @@ import LoginPage from '../pages/Home/LoginPage';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
-import PrivacyPolicy from '../components/HomeComponents/PrivacyPolicy';
+// import PrivacyPolicy from '../components/HomeComponents/PrivacyPolicy';
 import DeepLinkRedirect from '../pages/DeepLinkRedirect';
 import EmployeeDashboard from '../pages/Employee/Dashboard/EmployeeDashboard';
 
@@ -47,7 +47,7 @@ const ProjectRoutes = () => {
             window.removeEventListener('offline', updateNetworkStatus);
         };
     }, []);
-
+     
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
@@ -75,7 +75,7 @@ const ProjectRoutes = () => {
                             <Route path="/register" element={<RegisterPage />} />
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                            {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
                     </div>
