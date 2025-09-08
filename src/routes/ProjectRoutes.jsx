@@ -13,7 +13,10 @@ import HomeFooter from '../components/HomeComponents/HomeFooter';
 import AllUserProfiles from '../pages/Admin/AllUserProfiles/AllUserProfiles';
 import AboutPage from '../pages/Home/AboutPage';
 import ContactPage from '../pages/Home/ContactPage';
-import LoginPage from '../pages/Home/LoginPage';
+import LoginPage from '../pages/Login';
+import ForgetPassword from '../pages/ForgetPassword';
+import ResetPassword from '../pages/ResetPassword';
+import Register from '../pages/Register';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
@@ -25,7 +28,8 @@ const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
     const login = useSelector(state => state.user.isLogged)
     const user = useSelector(state => state.user.userDetails)
-    console.log("⚡️🤯 ~ ProjectRoutes.jsx:32 ~ ProjectRoutes ~ user:", user)
+    // const login = true;
+    // const user = { user: { baseRole: "admin" } };
 
     // ================ loading ================
     useEffect(() => {
@@ -72,8 +76,10 @@ const ProjectRoutes = () => {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/register" element={<RegisterPage />} />
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/forget-password" element={<ForgetPassword />} />
+                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/register" element={<Register />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
                             {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                             <Route path='*' element={<ErrorPage />} />
