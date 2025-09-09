@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import UserProfile from '../pages/Admin/UserProfile/UserProfile';
 import toast, { Toaster } from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
+import ServicesPage from '../pages/Home/ServicesPage';
+import ProductsPage from '../pages/Home/ProductsPage';
 import RegisterPage from '../pages/Home/RegisterPage';
 import HomeNavbar from '../components/HomeComponents/HomeNavbar';
 import ErrorPage from './ErrorPage';
@@ -18,7 +20,7 @@ import ForgetPassword from '../pages/ForgetPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Register from '../pages/Register';
 import MyAccount from '../pages/Home/Profile/MyAccount';
-import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
+// import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
 import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
 import Address from '../pages/Home/Profile/Address';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
@@ -111,13 +113,14 @@ const ProjectRoutes = () => {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/products" element={<ProductsPage />} />
+                            <Route path="/services" element={<ServicesPage />} />
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/forget-password" element={<ForgetPassword />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/my-account" element={<MyAccount />} />
                             <Route path="/customer-support" element={<CustomerSupport />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
                             <Route path="/address" element={<Address />} />
                             <Route path='*' element={<ErrorPage />} />
