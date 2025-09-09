@@ -20,7 +20,7 @@ import ForgetPassword from '../pages/ForgetPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Register from '../pages/Register';
 import MyAccount from '../pages/Home/Profile/MyAccount';
-import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
+// import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
 import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
 import Address from '../pages/Home/Profile/Address';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
@@ -94,7 +94,6 @@ const ProjectRoutes = () => {
                             <Route path="/register" element={<Register />} />
                             <Route path="/my-account" element={<MyAccount />} />
                             <Route path="/customer-support" element={<CustomerSupport />} />
-                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
                             <Route path="/address" element={<Address />} />
                             {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
