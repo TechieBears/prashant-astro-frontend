@@ -54,7 +54,7 @@ const HomeNavbar = () => {
             <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500">
                 {/* Top Row - Hidden on Scroll */}
                 <div
-                    className={`flex items-center justify-between px-10 md:px-14 gap-4 transition-all duration-500 ease-in-out
+                    className={`flex items-center justify-between px-10 md:px-40 gap-4 transition-all duration-500 ease-in-out
                     ${isScrolled
                             ? "opacity-0 -translate-y-5 pointer-events-none h-0 overflow-hidden"
                             : "opacity-100 translate-y-0 py-3"
@@ -121,7 +121,7 @@ const HomeNavbar = () => {
                 </div>
 
                 {/* Bottom Row */}
-                <div className="bg-light-gradient-orange flex items-center justify-between px-6 md:px-16">
+                <div className="bg-light-gradient-orange flex items-center justify-between px-6 md:px-40">
                     {/* Nav Links */}
                     <div className="hidden lg:flex gap-6 text-white font-medium">
                         {navLinks.map((link, i) => (

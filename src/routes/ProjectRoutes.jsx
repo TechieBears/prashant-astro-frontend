@@ -19,6 +19,10 @@ import LoginPage from '../pages/Login';
 import ForgetPassword from '../pages/ForgetPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Register from '../pages/Register';
+import MyAccount from '../pages/Home/Profile/MyAccount';
+import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
+import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
+import Address from '../pages/Home/Profile/Address';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
@@ -28,16 +32,15 @@ import EmployeeDashboard from '../pages/Employee/Dashboard/EmployeeDashboard';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
-    const login = useSelector(state => state.user.isLogged)
-    const user = useSelector(state => state.user.userDetails)
+    const login = useSelector(state => state.user.isLogged);
+    const user = useSelector(state => state.user.userDetails);
+    const role = user?.user?.role;
     // const login = true;
-    // const user = { user: { baseRole: "admin" } };
+    // const user = { user: { role: "admin" } };
 
     // ================ loading ================
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false);
-        }, 2800);
+        setTimeout(() => setLoading(false), 2800);
     }, []);
 
     useEffect(() => {
@@ -53,19 +56,24 @@ const ProjectRoutes = () => {
             window.removeEventListener('offline', updateNetworkStatus);
         };
     }, []);
-     
+
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
                 <Preloaders />
-            ) : login && user?.user?.baseRole ? (
+            ) : login && role ? (
                 // === Dashboard routes for logged-in admin/employee ===
                 <Sidebar>
                     <Routes>
-                        <Route path="/" element={user.user.baseRole === "admin" ? <Dashboard /> : <EmployeeDashboard />} />
-                        <Route path="/admin-actors" element={<AllUserProfiles />} />
-                        <Route path="/enquiries" element={<AdminContactUs />} />
-                        <Route path="/profile" element={<UserProfile />} />
+                        <Route path="/" element={role === "admin" ? <Dashboard /> : <EmployeeDashboard />} />
+                        {role === "admin" && (
+                            <>
+                                <Route path="/admin-actors" element={<AllUserProfiles />} />
+                                <Route path="/enquiries" element={<AdminContactUs />} />
+                                <Route path="/profile" element={<UserProfile />} />
+                                <Route path='*' element={<ErrorPage />} />
+                            </>
+                        )}
                         <Route path='*' element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>
@@ -84,7 +92,11 @@ const ProjectRoutes = () => {
                             <Route path="/forget-password" element={<ForgetPassword />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
+                            <Route path="/my-account" element={<MyAccount />} />
+                            <Route path="/customer-support" element={<CustomerSupport />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
+                            <Route path="/address" element={<Address />} />
                             {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
