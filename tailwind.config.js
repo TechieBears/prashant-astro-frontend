@@ -40,6 +40,7 @@ export default {
                 "light-gradient-orange": "linear-gradient(to right, #EB5E3A, #FA944D, #FF3F3F)",
                 "text-gradient-orange": "linear-gradient(to bottom, #EB5E3A, #FA944D, #FF3F3F, #EB5E3A)",
                 "button-gradient-orange": "linear-gradient(to right, #FBBF24, #FB923C, #F43F5E)",
+                "button-vertical-gradient-orange": "linear-gradient(to bottom, #FBBF24, #FB923C, #F43F5E)",
             },
         },
     },

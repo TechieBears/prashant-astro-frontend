@@ -17,6 +17,10 @@ import LoginPage from '../pages/Login';
 import ForgetPassword from '../pages/ForgetPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Register from '../pages/Register';
+import MyAccount from '../pages/Home/Profile/MyAccount';
+import PrivacyPolicy from '../pages/Home/Profile/PrivacyPolicy';
+import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
+import Address from '../pages/Home/Profile/Address';
 import AdminContactUs from '../pages/Admin/ContactUs/AdminContactUs';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
@@ -51,7 +55,7 @@ const ProjectRoutes = () => {
             window.removeEventListener('offline', updateNetworkStatus);
         };
     }, []);
-     
+
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
@@ -80,7 +84,11 @@ const ProjectRoutes = () => {
                             <Route path="/forget-password" element={<ForgetPassword />} />
                             <Route path="/reset-password" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
+                            <Route path="/my-account" element={<MyAccount />} />
+                            <Route path="/customer-support" element={<CustomerSupport />} />
+                            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
+                            <Route path="/address" element={<Address />} />
                             {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
