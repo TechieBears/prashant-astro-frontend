@@ -33,8 +33,9 @@ import EmployeeDashboard from '../pages/Employee/Dashboard/EmployeeDashboard';
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
     const login = useSelector(state => state.user.isLogged);
-    const user = useSelector(state => state.user.userDetails);
-    const role = user?.user?.role;
+    const userDetails = useSelector(state => state.user.userDetails);
+    const role = userDetails?.user?.role;
+
     // const login = true;
     // const user = { user: { role: "admin" } };
 
@@ -62,23 +63,49 @@ const ProjectRoutes = () => {
             {loading ? (
                 <Preloaders />
             ) : login && role ? (
-                // === Dashboard routes for logged-in admin/employee ===
-                <Sidebar>
-                    <Routes>
-                        <Route path="/" element={role === "admin" ? <Dashboard /> : <EmployeeDashboard />} />
-                        {role === "admin" && (
-                            <>
-                                <Route path="/admin-actors" element={<AllUserProfiles />} />
-                                <Route path="/enquiries" element={<AdminContactUs />} />
-                                <Route path="/profile" element={<UserProfile />} />
+                role === "admin" || role === "employee" ? (
+                    <Sidebar>
+                        <Routes>
+                            <Route
+                                path="/"
+                                element={role === "admin" ? <Dashboard /> : <EmployeeDashboard />}
+                            />
+                            {role === "admin" && (
+                                <>
+                                    <Route path="/admin-actors" element={<AllUserProfiles />} />
+                                    <Route path="/enquiries" element={<AdminContactUs />} />
+                                    <Route path="/profile" element={<UserProfile />} />
+                                </>
+                            )}
+                            <Route path='*' element={<ErrorPage />} />
+                        </Routes>
+                    </Sidebar>
+                ) : (
+                    // customer sees public website
+                    <main className="flex flex-col min-h-screen">
+                        <HomeNavbar />
+                        <div className="flex-1 pt-28">
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/about" element={<AboutPage />} />
+                                <Route path="/contact" element={<ContactPage />} />
+                                <Route path="/login" element={<LoginPage />} />
+                                <Route path="/forget-password" element={<ForgetPassword />} />
+                                <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/register" element={<Register />} />
+                                <Route path="/my-account" element={<MyAccount />} />
+                                <Route path="/customer-support" element={<CustomerSupport />} />
+                                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                <Route path="/terms-conditions" element={<TermsConditions />} />
+                                <Route path="/address" element={<Address />} />
                                 <Route path='*' element={<ErrorPage />} />
-                            </>
-                        )}
-                        <Route path='*' element={<ErrorPage />} />
-                    </Routes>
-                </Sidebar>
+                            </Routes>
+                        </div>
+                        <HomeFooter />
+                    </main>
+                )
             ) : (
-                // === Public website routes ===
+                // not logged in
                 <main className="flex flex-col min-h-screen">
                     <HomeNavbar />
                     <div className="flex-1 pt-28">
@@ -96,13 +123,13 @@ const ProjectRoutes = () => {
                             <Route path="/customer-support" element={<CustomerSupport />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
                             <Route path="/address" element={<Address />} />
-                            {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
                     </div>
                     <HomeFooter />
                 </main>
             )}
+
 
             <Toaster position="top-right" reverseOrder={false} />
         </div>
