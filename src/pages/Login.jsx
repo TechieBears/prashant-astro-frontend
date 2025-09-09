@@ -1,5 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../redux/Slices/loginSlice";
+import { useNavigate } from "react-router-dom";
 import google from "../assets/google-icon.png";
 import facebook from "../assets/facebook-icon.png";
 import apple from "../assets/apple-icon.png";
@@ -7,7 +10,21 @@ import apple from "../assets/apple-icon.png";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { loading, error, roleIs } = useSelector((state) => state.user);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        dispatch(loginUser({ email, password }))
+            .unwrap()
+            .then(() => {
+                navigate("/");
+            })
+            .catch(() => {
+            });
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-yellow-50">
@@ -15,7 +32,7 @@ const Login = () => {
                 <h2 className="text-2xl font-bold text-center mb-6 text-primary">
                     Login
                 </h2>
-                <form className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1">Email *</label>
                         <input
@@ -47,9 +64,10 @@ const Login = () => {
                     </div>
                     <button
                         type="submit"
+                        disabled={loading}
                         className="bg-gradient-orange w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition"
                     >
-                        Login
+                        {loading ? "Logging in..." : "Login"}
                     </button>
                 </form>
                 <p className="text-center text-sm text-gray-500 mt-4">
