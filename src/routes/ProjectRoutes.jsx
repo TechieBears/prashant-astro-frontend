@@ -30,16 +30,15 @@ import EmployeeDashboard from '../pages/Employee/Dashboard/EmployeeDashboard';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
-    const login = useSelector(state => state.user.isLogged)
-    const user = useSelector(state => state.user.userDetails)
+    const login = useSelector(state => state.user.isLogged);
+    const user = useSelector(state => state.user.userDetails);
+    const role = user?.user?.role;
     // const login = true;
-    // const user = { user: { baseRole: "admin" } };
+    // const user = { user: { role: "admin" } };
 
     // ================ loading ================
     useEffect(() => {
-        setTimeout(() => {
-            setLoading(false);
-        }, 2800);
+        setTimeout(() => setLoading(false), 2800);
     }, []);
 
     useEffect(() => {
@@ -60,14 +59,19 @@ const ProjectRoutes = () => {
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
                 <Preloaders />
-            ) : login && user?.user?.baseRole ? (
+            ) : login && role ? (
                 // === Dashboard routes for logged-in admin/employee ===
                 <Sidebar>
                     <Routes>
-                        <Route path="/" element={user.user.baseRole === "admin" ? <Dashboard /> : <EmployeeDashboard />} />
-                        <Route path="/admin-actors" element={<AllUserProfiles />} />
-                        <Route path="/enquiries" element={<AdminContactUs />} />
-                        <Route path="/profile" element={<UserProfile />} />
+                        <Route path="/" element={role === "admin" ? <Dashboard /> : <EmployeeDashboard />} />
+                        {role === "admin" && (
+                            <>
+                                <Route path="/admin-actors" element={<AllUserProfiles />} />
+                                <Route path="/enquiries" element={<AdminContactUs />} />
+                                <Route path="/profile" element={<UserProfile />} />
+                                <Route path='*' element={<ErrorPage />} />
+                            </>
+                        )}
                         <Route path='*' element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>
