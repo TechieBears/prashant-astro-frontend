@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 import UserProfile from '../pages/Admin/UserProfile/UserProfile';
 import toast, { Toaster } from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
+import ServicesPage from '../pages/Home/ServicesPage';
+import ProductsPage from '../pages/Home/ProductsPage';
 import RegisterPage from '../pages/Home/RegisterPage';
 import HomeNavbar from '../components/HomeComponents/HomeNavbar';
 import ErrorPage from './ErrorPage';
@@ -76,6 +78,8 @@ const ProjectRoutes = () => {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/products" element={<ProductsPage />} />
+                            <Route path="/services" element={<ServicesPage />} />
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/forget-password" element={<ForgetPassword />} />
                             <Route path="/reset-password" element={<ResetPassword />} />

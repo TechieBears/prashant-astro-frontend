@@ -36,7 +36,7 @@ export default {
                 "custom-bg": "#FFF5EE",
             },
             backgroundImage: {
-                "gradient-orange": "linear-gradient(to right, #fb923c, #ef4444)",
+                "gradient-orange": "linear-gradient(to right, #fb923c, #fb923c, #ef4444)",
                 "light-gradient-orange": "linear-gradient(to right, #EB5E3A, #FA944D, #FF3F3F)",
                 "text-gradient-orange": "linear-gradient(to bottom, #EB5E3A, #FA944D, #FF3F3F, #EB5E3A)",
                 "button-gradient-orange": "linear-gradient(to right, #FBBF24, #FB923C, #F43F5E)",

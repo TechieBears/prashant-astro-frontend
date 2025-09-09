@@ -7,7 +7,7 @@ const TextInput = ({ label, type, props, errors, registerName, style }) => {
     const isPasswordField = type === 'password';
 
     return (
-        <>
+        <div className="flex flex-col w-full">
             <div className="h-[53px] relative flex rounded-lg w-full">
                 <input
                     type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
@@ -45,7 +45,7 @@ const TextInput = ({ label, type, props, errors, registerName, style }) => {
                     }
                 />
             )}
-        </>
+        </div>
     );
 };
 

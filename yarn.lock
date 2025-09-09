@@ -3099,6 +3099,11 @@ hoist-non-react-statics@^3.2.0, hoist-non-react-statics@^3.3.0, hoist-non-react-
   dependencies:
     react-is "^16.7.0"
 
+hugeicons-react@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/hugeicons-react/-/hugeicons-react-0.3.0.tgz#a788db21b116f16062b75ccf3a3633575722ec9f"
+  integrity sha512-znmC+uX7xVqcIs0q09LvwEvJkjX0U3xgT05BSiRV19farS4lPONOKjYT0JkcQG5cvfV0rXHSEAEVNjbHAu81rg==
+
 hyphenate-style-name@^1.0.3:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.1.0.tgz#1797bf50369588b47b72ca6d5e65374607cf4436"
