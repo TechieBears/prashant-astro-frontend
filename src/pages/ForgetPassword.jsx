@@ -1,27 +1,33 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { forgetUserPassword } from "../redux/Slices/loginSlice";
+import toast, { Toaster } from "react-hot-toast";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     const handleForgetUserPassword = (e) => {
         e.preventDefault();
+        setLoading(true);
 
         dispatch(forgetUserPassword({ email }))
             .unwrap()
             .then((res) => {
                 if (res.success) {
-                    setMessage(res.message);
+                    toast.success(res.message || "Password reset email sent!");
                 } else {
-                    setError(res.message || "Something went wrong");
+                    toast.error(res.message || "Something went wrong");
                 }
             })
-            .catch(() => {
-                alert(err || "Forget password failed");
+            .catch((err) => {
+                toast.error(err || "Forget password failed");
+            })
+            .finally(() => {
+                setLoading(false);
             });
     };
 
@@ -49,24 +55,22 @@ const ForgotPassword = () => {
                     </div>
                     <button
                         type="submit"
-                        className="bg-gradient-orange w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition"
+                        disabled={loading}
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gradient-orange hover:opacity-90"
+                            }`}
                     >
-                        Continue
+                        {loading ? "Please wait..." : "Continue"}
                     </button>
                 </form>
-                {message && (
-                    <p className="text-center text-green-500 mt-3 text-sm">{message}</p>
-                )}
-                {error && (
-                    <p className="text-center text-red-500 mt-3 text-sm">{error}</p>
-                )}
-
                 <div className="mt-4 text-center">
                     <a href="/login" className="text-primary hover:underline text-sm flex items-center justify-center">
                         ← Back to Login
                     </a>
                 </div>
             </div>
+            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };
