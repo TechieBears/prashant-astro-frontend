@@ -1,8 +1,29 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { forgetUserPassword } from "../redux/Slices/loginSlice";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const dispatch = useDispatch();
+
+    const handleForgetUserPassword = (e) => {
+        e.preventDefault();
+
+        dispatch(forgetUserPassword({ email }))
+            .unwrap()
+            .then((res) => {
+                if (res.success) {
+                    setMessage(res.message);
+                } else {
+                    setError(res.message || "Something went wrong");
+                }
+            })
+            .catch(() => {
+                alert(err || "Forget password failed");
+            });
+    };
 
     return (
         <div className="m-10 flex items-center justify-center bg-yellow-50">
@@ -14,7 +35,7 @@ const ForgotPassword = () => {
                     No worries, we’ll send you reset instructions.
                 </p>
 
-                <form className="space-y-4">
+                <form onSubmit={handleForgetUserPassword} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1">Email *</label>
                         <input
@@ -33,9 +54,11 @@ const ForgotPassword = () => {
                         Continue
                     </button>
                 </form>
-
                 {message && (
                     <p className="text-center text-green-500 mt-3 text-sm">{message}</p>
+                )}
+                {error && (
+                    <p className="text-center text-red-500 mt-3 text-sm">{error}</p>
                 )}
 
                 <div className="mt-4 text-center">

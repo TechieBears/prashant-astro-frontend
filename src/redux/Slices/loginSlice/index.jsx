@@ -64,6 +64,21 @@ export const registerUser = createAsyncThunk(
         }
     }
 )
+export const forgetUserPassword = createAsyncThunk(
+    "user/forgetPassword",
+    async ({ email }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/api/customer-users/forgot-password`,
+                { email },
+                { headers: { "Content-Type": "application/json" } }
+            );
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Forget user password failed");
+        }
+    }
+)
 const loginSlice = createSlice({
     name: 'user',
     initialState,
@@ -132,6 +147,18 @@ const loginSlice = createSlice({
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+            })
+            .addCase(forgetUserPassword.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(forgetUserPassword.fulfilled, (state, action) => {
+                state.loading = false;
+                state.message = action.payload.message || "Password reset email sent successfully";
+            })
+            .addCase(forgetUserPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.loading = action.payload;
             });
     }
 })
