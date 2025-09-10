@@ -6,6 +6,15 @@ import aboutImg from '../../assets/user/home/about.png';
 import certifiedExpert from '../../assets/user/home/certifiedExpert.png';
 import clients from '../../assets/user/home/clients.png';
 import multipleLanguage from '../../assets/user/home/multipleLanguage.png';
+import Flowers from '../../assets/user/home/flowers.png';
+import Testimonial1 from '../../assets/user/home/t1.png';
+import Testimonial2 from '../../assets/user/home/t2.png';
+import Testimonial3 from '../../assets/user/home/t3.jpg';
+import Profile1 from '../../assets/user/home/profile1.png';
+import Profile2 from '../../assets/user/home/profile2.png';
+import Profile3 from '../../assets/user/home/profile3.png';
+import Comment from '../../assets/user/home/comment.png';
+
 import { Medal06Icon, FavouriteIcon } from 'hugeicons-react';
 
 const HomePage = () => {
@@ -148,6 +157,38 @@ const HomePage = () => {
             </div>
         );
     }
+    const testimonialsData = [
+        {
+            name: "Vikram Singh",
+            location: "Pune, Maharashtra",
+            category: "Business Consultation",
+            description:
+                "I was skeptical about astrology, but Pandit Prashant’s predictions about my business were remarkably accurate. His spiritual remedies brought positive changes I never expected.",
+            image: Testimonial1,
+            video: "https://via.placeholder.com/400x250",
+            image2: Profile1,
+        },
+        {
+            name: "Priya Sharma",
+            location: "Mumbai, Maharashtra",
+            category: "Kundli Analysis",
+            description:
+                "Pandit Prashant’s guidance brought clarity when nothing else helped. His Kundli analysis was incredibly accurate and the remedies he suggested transformed my career completely.",
+            image: Testimonial2,
+            video: "https://via.placeholder.com/400x250",
+            image2: Profile2,
+        },
+        {
+            name: "Rajesh Kumar",
+            location: "Delhi, NCR",
+            category: "Vastu Consultation",
+            description:
+                "The Vastu consultation for our new home was exceptional. Within months of implementing his suggestions, our family experienced unprecedented peace and prosperity.",
+            image: Testimonial3,
+            video: "https://via.placeholder.com/400x250",
+            image2: Profile3,
+        },
+    ];
 
 
     return (
@@ -314,10 +355,86 @@ const HomePage = () => {
                     </div>
                 </div>
             </div>
+            {/* Testmonials Section */}
+            <div className="relative bg-[#F7E8D4] w-full pb-10 sm:pb-20">
+                {/* Left Flower */}
+                <img
+                    src={Flowers}
+                    alt="Flowers left"
+                    className="absolute left-4 sm:left-16 md:left-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80"
+                />
+                {/* Right Flower */}
+                <img
+                    src={Flowers}
+                    alt="Flowers right"
+                    className="absolute right-4 sm:right-16 md:right-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]"
+                />
+
+                {/* Section Header */}
+                <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
+                    <SectionHeader prefix="Our" highlight="Testimonials" />
+                    <SectionHeader prefix="What" highlight="Our" suffix="Patients Say" showImage={false} />
+                    <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
+                        Read the testimonials by our patients find more about our clinic.
+                    </p>
+                </div>
+
+                {/* Orange block behind testimonials */}
+                <div className="hidden sm:block absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 w-40 sm:w-1/2 md:w-[50%] h-48 sm:h-64 md:h-80 bg-orange-light z-0 rounded-lg"></div>
+
+                {/* Testimonial cards */}
+                <div className="mt-2 px-6 flex flex-wrap justify-center gap-4 sm:gap-6 relative z-10">
+                    {testimonialsData.map((item, index) => (
+                        <div
+                            key={index}
+                            className="relative bg-white rounded-lg p-4 sm:p-6 shadow-md w-full sm:w-72 md:w-80 flex flex-col"
+                        >
+                            {/* Comment icon */}
+                            <img
+                                src={Comment}
+                                alt="Comment"
+                                className="absolute -top-3 -right-3 w-10 sm:w-10 h-10 sm:h-10"
+                            />
+
+                            {/* Top: User info */}
+                            <div className="flex items-center gap-3 mb-4">
+                                <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-10 sm:w-12 h-10 sm:h-12 rounded-full object-cover"
+                                />
+                                <div>
+                                    <h3 className="text-sm sm:text-sm font-semibold text-slate-800">{item.name}</h3>
+                                    <p className="text-xs sm:text-xs text-slate-500">{item.location}</p>
+                                </div>
+                            </div>
+
+                            {/* Category Tag */}
+                            <span className="w-fit inline-block mb-3 px-2 sm:px-3 py-1 text-xs sm:text-xs font-medium text-white bg-primary-orange rounded-full">
+                                {item.category}
+                            </span>
+
+                            {/* Description */}
+                            <p className="text-sm sm:text-sm text-slate-600 mb-4 flex-1">{item.description}</p>
+
+                            {/* Video/Image */}
+                            <div className="rounded-md overflow-hidden mt-auto">
+                                <img
+                                    src={item.image2}
+                                    alt="testimonial"
+                                    className="w-full h-32 sm:h-40 object-cover"
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
 
 
-            <div className="px-4 sm:px-6 lg:px-16 py-16 w-full max-w-[1280px] mx-auto">
+
+
+            <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-16 w-full max-w-[1280px] mx-auto">
                 {/* Header */}
 
                 <div className='flex items-center flex-col gap-5'>
@@ -337,7 +454,7 @@ const HomePage = () => {
                             Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
                         </p>
                         <div>
-                           <iframe width="560" height="315" src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                         </div>
                         <div>
                             <button className='bg-gradient-orange text-white px-4 py-2 rounded-md'>

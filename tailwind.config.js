@@ -28,12 +28,14 @@ export default {
             },
             colors: {
                 primary: "#f97316",
+                "primary-orange": "#FF8835",
                 "primary-light": "#ffedd5",
                 "base-bg": "#fff7ed",
                 "light-pg": "#F1F5F9",
                 slate1: "#FEF8EF",
                 "base-font": "#62748E",
                 "custom-bg": "#FFF5EE",
+                "orange-light": "#FFD8A4"
             },
             backgroundImage: {
                 "gradient-orange": "linear-gradient(to right, #fb923c, #fb923c, #ef4444)",
@@ -41,6 +43,7 @@ export default {
                 "text-gradient-orange": "linear-gradient(to bottom, #EB5E3A, #FA944D, #FF3F3F, #EB5E3A)",
                 "button-gradient-orange": "linear-gradient(to right, #FBBF24, #FB923C, #F43F5E)",
                 "button-vertical-gradient-orange": "linear-gradient(to bottom, #FBBF24, #FB923C, #F43F5E)",
+                "light-orange": "#F7E8D4"
             },
         },
     },
