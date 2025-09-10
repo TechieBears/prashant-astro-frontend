@@ -3,7 +3,7 @@ import axios from "axios";
 
 const initialState = {
     isLogged: false,
-    roleIs: undefined,
+    roleIs: null,
     loggedUserDetails: {},
     registerFormDetails: {},
     userDetails: {},
@@ -27,6 +27,43 @@ export const loginUser = createAsyncThunk(
         }
     }
 );
+export const logoutUser = createAsyncThunk(
+    "user/logoutUser",
+    async (_, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/api/auth/logout`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+            return response.data.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Logout failed");
+        }
+    }
+);
+export const registerUser = createAsyncThunk(
+    "user/register",
+    async ({ title, firstName, lastName, email, password, mobileNo }, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/api/customer-users/register`,
+                { title, firstName, lastName, email, password, mobileNo },
+                { headers: { "Content-type": "application/json" } }
+            );
+            return response.data.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Registration failed");
+
+        }
+    }
+)
 const loginSlice = createSlice({
     name: 'user',
     initialState,
@@ -67,6 +104,32 @@ const loginSlice = createSlice({
                 localStorage.setItem("role", action.payload.user.role);
             })
             .addCase(loginUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(logoutUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(logoutUser.fulfilled, (state) => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+
+                return initialState;
+            })
+            .addCase(logoutUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(registerUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(registerUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.userDetails = action.payload;
+            })
+            .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });
