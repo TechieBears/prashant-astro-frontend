@@ -3,12 +3,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { formBtn1 } from "../../utils/CustomClass";
 import { List, X } from "@phosphor-icons/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LoginCurve, Profile } from "iconsax-reactjs";
 import { formatRole } from "../../helper/Helper";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone } from "lucide-react";
+import { logoutUser } from "../../redux/Slices/loginSlice";
 
 const HomeNavbar = () => {
     const navLinks = [
@@ -25,6 +26,7 @@ const HomeNavbar = () => {
     const login = useSelector((state) => state.user.isLogged);
     const user = useSelector((state) => state.user.userDetails);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -34,11 +36,15 @@ const HomeNavbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    const logout = () => {
-        setCard(!card);
-        localStorage.removeItem("persist:root");
-        window.location.href = "/";
-    };
+    const handleLogout = async () => {
+        try {
+            await dispatch(logoutUser()).unwrap();
+            setCard(true);
+            navigate("/");
+        } catch (err) {
+            console.error("Logout Failed:", err);
+        }
+    }
 
     useGSAP(() => {
         gsap.from(".navbar", {
@@ -207,7 +213,7 @@ const HomeNavbar = () => {
                     ) : (
                         <button
                             className={`${formBtn1} !bg-red-500`}
-                            onClick={logout}
+                            onClick={handleLogout}
                         >
                             Logout
                         </button>
@@ -216,13 +222,13 @@ const HomeNavbar = () => {
             </nav>
 
             {/* Profile Dropdown */}
-            <ProfileSection card={card} setCard={setCard} logout={logout} />
+            <ProfileSection card={card} setCard={setCard} onLogout={handleLogout} />
         </>
     );
 };
 
 // ProfileSection kept same
-const ProfileSection = ({ card, setCard, logout }) => {
+const ProfileSection = ({ card, setCard, onLogout }) => {
     const user = useSelector((state) => state.user.userDetails);
     return (
         <div
@@ -264,7 +270,7 @@ const ProfileSection = ({ card, setCard, logout }) => {
                             </NavLink>
                         </li>
                         <li role="menuitem">
-                            <NavLink onClick={logout}
+                            <NavLink onClick={onLogout}
                                 className="cursor-pointer text-sm text-ld hover:text-red-500 px-4 py-2 flex items-center bg-hover group/link"
                             >
                                 <div className="h-8 w-8 flex-shrink-0 rounded-md flex justify-center items-center bg-lightprimary">

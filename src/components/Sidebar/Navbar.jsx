@@ -1,11 +1,12 @@
 import "../../css/Navbar.css"
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { HamburgerMenu, Profile, SmsNotification } from 'iconsax-reactjs';
-import { useSelector } from 'react-redux';
-import { NavLink } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import LogoutModal from '../Modals/NavbarModals/LogoutModal';
 import { formBtn1 } from '../../utils/CustomClass';
+import { logoutUser } from "../../redux/Slices/loginSlice";
 
 const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink }) => {
     const user = useSelector((state) => state.user.userDetails)
@@ -13,11 +14,20 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
     const [card, setCard] = useState(true)
     const [openSlide, setOpenSlide] = useState(false)
     const [Notification, setNotification] = useState(false)
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     // ============================= logout user dashbaord ================================
-    const logOut = () => {
-        setOpen(!open)
-        setCard(!card)
-    }
+
+    const handleLogout = async () => {
+        try {
+            await dispatch(logoutUser()).unwrap();
+            setCard(true);  // close profile card
+            setOpen(false); // close modal
+            navigate("/");  // redirect home
+        } catch (err) {
+            console.error("Logout failed:", err);
+        }
+    };
 
     const [scrolled, setScrolled] = useState(false);
     const [prevScrollPos, setPrevScrollPos] = useState(0);
@@ -67,7 +77,7 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
             </div>
 
             {/* ============= profile seacation ========= */}
-            <ProfileSection card={card} setCard={setCard} logOut={logOut} />
+            <ProfileSection card={card} setCard={setCard} onLogout={handleLogout} />
 
             {/* ============= notification seacation ========= */}
             {/* <NotificationSection notification={Notification} setNotification={setNotification} /> */}
@@ -77,7 +87,7 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
     )
 }
 
-const ProfileSection = ({ card, setCard, logOut }) => {
+const ProfileSection = ({ card, setCard, onLogout }) => {
     const user = useSelector((state) => state.user.userDetails)
     return (
         <div className={`${card ? "top-20 -right-96 opacity-0" : "top-20 right-5 opacity-100"} bg-white/90 backdrop-blur-[3px]  transition-all ease-in-out duration-700 fixed shadow-lg  z-20 rounded-lg `}>
@@ -165,7 +175,7 @@ const ProfileSection = ({ card, setCard, logOut }) => {
                         </li> */}
                     </div>
                     <div className="pt-5 px-5">
-                        <button type='submit' onClick={logOut} className={`${formBtn1}  bg-red-500 hover:bg-red-500/90 w-full tracking-tight text-sm`}>Logout</button>
+                        <button type='submit' onClick={onLogout} className={`${formBtn1}  bg-red-500 hover:bg-red-500/90 w-full tracking-tight text-sm`}>Logout</button>
                     </div>
                 </ul>
             </div>

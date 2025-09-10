@@ -95,7 +95,7 @@ const ProjectRoutes = () => {
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/my-account" element={<MyAccount />} />
                                 <Route path="/customer-support" element={<CustomerSupport />} />
-                                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                                 <Route path="/terms-conditions" element={<TermsConditions />} />
                                 <Route path="/address" element={<Address />} />
                                 <Route path='*' element={<ErrorPage />} />

@@ -23,6 +23,7 @@ const Login = () => {
                 navigate("/");
             })
             .catch(() => {
+                alert(err || "Login failed");
             });
     };
 
