@@ -603,7 +603,7 @@ export const getProductCategories = async (data) => {
 }
 
 export const addProductCategory = async (data) => {
-    const url = `${environment.baseUrl}product-categories`;
+    const url = `${environment.baseUrl}product-categories/create`;
     try {
         const response = await axios.post(url, data)
         return response.data
@@ -615,7 +615,7 @@ export const addProductCategory = async (data) => {
 };
 
 export const editProductCategory = async (id, data) => {
-    const url = `${environment.baseUrl}product-categories/${id}`;
+    const url = `${environment.baseUrl}product-categories/update?id=${id}`;
     try {
         const response = await axios.put(url, data)
         return response.data
@@ -642,7 +642,7 @@ export const getProductSubCategories = async (data) => {
 }
 
 export const addProductSubCategory = async (data) => {
-    const url = `${environment.baseUrl}product-subcategories`;
+    const url = `${environment.baseUrl}product-subcategories/create`;
     try {
         const response = await axios.post(url, data)
         return response.data
@@ -654,7 +654,7 @@ export const addProductSubCategory = async (data) => {
 }
 
 export const editProductSubCategory = async (id, data) => {
-    const url = `${environment.baseUrl}product-subcategories/${id}`;
+    const url = `${environment.baseUrl}product-subcategories/update?id=${id}`;
     try {
         const response = await axios.put(url, data)
         return response.data
@@ -666,13 +666,62 @@ export const editProductSubCategory = async (id, data) => {
 }
 
 export const deleteProductSubCategory = async (id) => {
-    const url = `${environment.baseUrl}product-subcategories/${id}`;
+    const url = `${environment.baseUrl}product-subcategories/delete?id=${id}`;
     try {
         const response = await axios.delete(url)
         return response.data
     }
     catch (err) {
         console.log("==========error in deleteProductSubCategory api file", err);
+        return err?.response?.data
+    }
+}
+
+// ======================= Products Api ======================
+export const getProducts = async (data) => {
+    try {
+        const url = `${environment.baseUrl}products?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProducts api file", err);
+        return err?.response?.data
+    }
+}
+
+export const addProduct = async (data) => {
+    const url = `${environment.baseUrl}products/create`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addProduct api file", err);
+        return err?.response?.data
+    }
+}
+
+export const editProduct = async (id, data) => {
+    const url = `${environment.baseUrl}products/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editProduct api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteProduct = async (id) => {
+    const url = `${environment.baseUrl}products/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deleteProduct api file", err);
         return err?.response?.data
     }
 }
@@ -692,7 +741,7 @@ export const addEmployee = async (data) => {
 }
 
 export const editEmployee = async (id, data) => {
-    const url = `${environment.baseUrl}employee-users/${id}`;
+    const url = `${environment.baseUrl}employee-users/update?id=${id}`;
     try {
         const response = await axios.put(url, data)
         return response.data
@@ -703,14 +752,125 @@ export const editEmployee = async (id, data) => {
     }
 }
 
-export const deleteEmployee = async (id) => {
-    const url = `${environment.baseUrl}employee-users/${id}`;
+// ================== Banner Api ==================
+
+export const getAllBanners = async (data) => {
+    try {
+        const url = `${environment.baseUrl}banners/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAllBanners api file", err);
+        return err?.response?.data
+    }
+}
+
+
+export const addBanner = async (data) => {
+    const url = `${environment.baseUrl}banners/create`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addBanner api file", err);
+        return err?.response?.data
+    }
+}
+
+export const editBanner = async (id, data) => {
+    const url = `${environment.baseUrl}banners/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editBanner api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteBanner = async (id) => {
+    const url = `${environment.baseUrl}banners/delete?id=${id}`;
     try {
         const response = await axios.delete(url)
         return response.data
     }
     catch (err) {
-        console.log("==========error in deleteEmployee api file", err);
+        console.log("==========error in deleteBanner api file", err);
+        return err?.response?.data
+    }
+}
+
+
+// ==================== Website APi Binding ====================
+
+
+// ==================== Authendication Api===================
+// export const registerUser = async (data) => {
+//     const url = `${environment.baseUrl}customer-users/register`;
+//     try {
+//         console.log('Register Data:', data);
+//         const response = await axios.post(url, data)
+//         return response.data
+
+//     }
+//     catch (err) {
+//         console.log("==========error in Register User api file", err);
+//         return err?.response?.data
+//     }
+// };
+
+// export const loginUser = async (data) => {
+//     const url = `${environment.baseUrl}auth/login`;
+//     console.log('Login URL:', url);
+//     console.log('Login Data:', data);
+//     try {
+//         const response = await axios.post(url, data)
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log("==========error in login User api file", err);
+//         console.log('Error response:', err?.response?.data);
+//         return err?.response?.data
+//     }
+// };
+
+// export const forgetUser = async (data) => {
+//     const url = `${environment.baseUrl}customer-users/forgot-password`;
+//     try {
+//         const response = await axios.post(url, data)
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log("==========error in forget User api file", err.response.data);
+//         return err?.response?.data
+//     }
+// };
+// export const resetPassword = async (data) => {
+//     const url = `${environment.baseUrl}customer-users/reset-password`;
+//     console.log('Reset password data:', data);
+//     try {
+//         const response = await axios.post(url, data)
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log("==========error in reset password api file", err);
+//         console.log('Reset password error response:', err?.response?.data);
+//         return err?.response?.data
+//     }
+// };
+
+// ====================CUstomer(User) Banner  Api===================
+export const getCustomerBanners = async (data) => {
+    try {
+        const url = `${environment.baseUrl}banners/active?type=website`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
         return err?.response?.data
     }
 }

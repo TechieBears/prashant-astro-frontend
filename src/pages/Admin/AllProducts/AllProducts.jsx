@@ -21,7 +21,7 @@ const initialFilterState = {
     role: '',
 };
 
-function AllProducts() {
+function AllUserProfiles() {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -328,4 +328,4 @@ function AllProducts() {
     );
 }
 
-export default AllProducts;
+export default AllUserProfiles;

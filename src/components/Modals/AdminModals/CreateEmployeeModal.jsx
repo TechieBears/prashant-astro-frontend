@@ -1,13 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formBtn1, formBtn2, tableBtn } from '../../../utils/CustomClass';
+import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import { validateAlphabets, validateEmail, validatePhoneNumber } from '../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import { addEmployee, editEmployee } from '../../../api';
+import { TableTitle } from '../../../helper/Helper';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
@@ -62,6 +63,10 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
+            setValue('firstName', userData?.firstName);
+            setValue('lastName', userData?.lastName);
+            setValue('email', userData?.email);
+            setValue('mobileNo', userData?.mobileNo);
         }
     }, [edit, userData, reset, setValue]);
 
@@ -100,13 +105,10 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
-
-                                    <Dialog.Title
-                                        as="h2"
-                                        className="text-lg text-white w-full bg-primary font-tbLex leading-6  py-5 px-5"
-                                    >
-                                        Create New Employee
-                                    </Dialog.Title>
+                                    <TableTitle
+                                        title={edit ? "Edit Employee" : "Create New Employee"}
+                                        toggle={toggle}
+                                    />
                                     <div className=" bg-white">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
@@ -137,7 +139,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         placeholder="Enter Last Name"
                                                         type="text"
                                                         registerName="lastName"
-                                                        props={{ ...register('name', { required: "Last name is required", validate: validateAlphabets }), minLength: 3 }}
+                                                        props={{ ...register('lastName', { required: "Last name is required", validate: validateAlphabets }), minLength: 3 }}
                                                         errors={errors.lastName}
                                                     />
                                                 </div>
@@ -174,7 +176,6 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                             </div>
 
                                             <footer className="py-3 flex bg-slate-100 justify-end px-4 space-x-3">
-                                                <button type='button' className={formBtn2} onClick={() => toggle()}>close</button>
                                                 {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-primary hover:bg-primary capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>

@@ -8,10 +8,10 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProductSubCategory, editProductSubCategory } from '../../../api';
+import { addProduct, editProduct } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 
-function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
+function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
@@ -22,12 +22,12 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
             setLoader(true);
             const updatedData = {
                 name: data?.name,
-                categoryId: data?.categoryId,
+                productCategoryId: data?.productCategoryId,
                 image: data?.image
             }
 
             if (edit) {
-                await editProductSubCategory(userData?._id, updatedData).then(res => {
+                await editProduct(userData?._id, updatedData).then(res => {
                     if (res?.status == 200) {
                         toast.success(res?.data?.message)
                         setLoader(false);
@@ -40,13 +40,13 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addProductSubCategory(updatedData).then(res => {
+                await addProduct(updatedData).then(res => {
                     if (res?.status === 200) {
                         setLoader(false);
                         reset();
                         setRefreshTrigger(prev => prev + 1); // Trigger refreshz
                         toggle();
-                        toast.success("Product Sub Category Added Successfully");
+                        toast.success("Product Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
@@ -56,7 +56,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
         } catch (error) {
             console.log('Error submitting form:', error);
             setLoader(false);
-            toast.error("Failed to add Product Sub Category");
+            toast.error("Failed to add Product");
         }
     }
 
@@ -64,7 +64,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
     useEffect(() => {
         if (edit && userData) {
             setValue('name', userData?.name);
-            setValue('categoryId', userData?.categoryId);
+            setValue('productCategoryId', userData?.productCategoryId);
             setValue('image', userData?.image);
         }
     }, [edit, userData, reset, setValue]);
@@ -75,7 +75,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                 edit ? <button onClick={toggle}>
                     <Edit className='text-yellow-500' size={20} />
                 </button> : <button onClick={toggle} className={tableBtn}>
-                    Create New Sub Category
+                    Create New Product
                 </button>
             }
 
@@ -105,7 +105,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
-                                        title={edit ? "Edit Sub Category" : "Create New Sub Category"}
+                                        title={edit ? "Edit Product" : "Create New Product"}
                                         toggle={toggle}
                                     />
                                     <div className=" bg-slate1">
@@ -117,27 +117,26 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category
+                                                            Product Category
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
-                                                                label="Select Sub Category"
-                                                                registerName="categoryId"
+                                                                label="Select Product Category"
+                                                                registerName="productCategoryId"
                                                                 options={[
-                                                                    { value: '', label: 'Select Category' },
-                                                                    { value: 'category1', label: 'Category 1' },
-                                                                    { value: 'category2', label: 'Category 2' },
-                                                                    { value: 'category3', label: 'Category 3' },
-                                                                    { value: 'category4', label: 'Category 4' },
+                                                                    { value: '', label: 'Select Product Category' },
+                                                                    { value: 'productCategory1', label: 'Product Category 1' },
+                                                                    { value: 'productCategory2', label: 'Product Category 2' },
+                                                                    { value: 'productCategory3', label: 'Product Category 3' },
+                                                                    { value: 'productCategory4', label: 'Product Category 4' },
                                                                     { value: 'category5', label: 'Category 5' },
                                                                 ]}
-                                                                placeholder="Select Category"
+                                                                placeholder="Select Product Category"
                                                                 props={{
-                                                                    ...register('categoryId', { required: true }),
-                                                                    value: watch('categoryId') || ''
+                                                                    ...register('productCategoryId', { required: true }),
+                                                                    value: watch('productCategoryId') || ''
                                                                 }}
-                                                                errors={errors.categoryId}
-                                                                defaultValue={userData?.categoryId}
+                                                                errors={errors.productCategoryId}
                                                             />
                                                         </div>
                                                     </div>
@@ -145,34 +144,33 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category Name
+                                                            Product Name
                                                         </h4>
                                                         <TextInput
-                                                            label="Enter Sub Category Name"
-                                                            placeholder="Enter Sub Category Name"
+                                                            label="Enter Product Name"
+                                                            placeholder="Enter Product Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name', { required: "Sub Category is required" }) }}
+                                                            props={{ ...register('name', { required: "Product is required" }) }}
                                                             errors={errors.name}
-                                                            defaultValue={userData?.name}
                                                         />
                                                     </div>
                                                     <div className=''>
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category Image
+                                                            Product Image
                                                         </h4>
                                                         <ImageUploadInput
-                                                            label="Upload Category Image"
+                                                            label="Upload Product Image"
                                                             multiple={false}
                                                             registerName="image"
                                                             errors={errors.image}
-                                                            {...register("image", { required: "Sub Category Image is required" })}
+                                                            {...register("image", { required: "Product Image is required" })}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
-                                                            defaultValue={userData?.image}
+                                                        // defaultValue={user?.user?.profilePicture}
                                                         />
 
                                                     </div>
@@ -193,4 +191,4 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
     )
 }
 
-export default ProductSubCategoriesModal
+export default CreateServiceModal

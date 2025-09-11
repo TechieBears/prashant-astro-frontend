@@ -1,14 +1,15 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formBtn1, formBtn2, tableBtn } from '../../../utils/CustomClass';
+import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
-import { validateEmail } from '../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
+import { addProduct, editProduct } from '../../../api';
+import { TableTitle } from '../../../helper/Helper';
 
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
@@ -20,10 +21,13 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
         try {
             setLoader(true);
             const updatedData = {
+                name: data?.name,
+                productCategoryId: data?.productCategoryId,
+                image: data?.image
             }
 
             if (edit) {
-                await editProductCategory(userData?._id, updatedData).then(res => {
+                await editProduct(userData?._id, updatedData).then(res => {
                     if (res?.status == 200) {
                         toast.success(res?.data?.message)
                         setLoader(false);
@@ -36,13 +40,13 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addProductCategory(updatedData).then(res => {
+                await addProduct(updatedData).then(res => {
                     if (res?.status === 200) {
                         setLoader(false);
                         reset();
                         setRefreshTrigger(prev => prev + 1); // Trigger refreshz
                         toggle();
-                        toast.success("Product Category Added Successfully");
+                        toast.success("Product Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
@@ -52,13 +56,16 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
         } catch (error) {
             console.log('Error submitting form:', error);
             setLoader(false);
-            toast.error("Failed to add Product Category");
+            toast.error("Failed to add Product");
         }
     }
 
 
     useEffect(() => {
         if (edit && userData) {
+            setValue('name', userData?.name);
+            setValue('productCategoryId', userData?.productCategoryId);
+            setValue('image', userData?.image);
         }
     }, [edit, userData, reset, setValue]);
 
@@ -97,13 +104,10 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
-
-                                    <Dialog.Title
-                                        as="h2"
-                                        className="text-lg text-white w-full bg-primary font-tbLex leading-6  py-5 px-5"
-                                    >
-                                        Create New Product
-                                    </Dialog.Title>
+                                    <TableTitle
+                                        title={edit ? "Edit Product" : "Create New Product"}
+                                        toggle={toggle}
+                                    />
                                     <div className=" bg-slate1">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
@@ -147,8 +151,8 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                             placeholder="Enter Product Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name'), valdate: validateEmail, required: "Product is required" }}
-                                                            errors={errors.email}
+                                                            props={{ ...register('name', { required: "Product is required" }) }}
+                                                            errors={errors.name}
                                                         />
                                                     </div>
                                                     <div className=''>
@@ -173,7 +177,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                <button type='button' className={formBtn2} onClick={() => { setOpen(false), reset() }}>close</button>
                                                 {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>

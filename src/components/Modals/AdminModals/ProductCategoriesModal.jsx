@@ -1,14 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formBtn1, formBtn2, tableBtn } from '../../../utils/CustomClass';
+import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
-import { validateEmail } from '../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import { addProductCategory, editProductCategory } from '../../../api';
+import { TableTitle } from '../../../helper/Helper';
 
 function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
@@ -20,6 +20,8 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
         try {
             setLoader(true);
             const updatedData = {
+                name: data?.name,
+                image: data?.image
             }
 
             if (edit) {
@@ -59,6 +61,8 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
+            setValue('name', userData?.name);
+            setValue('image', userData?.image);
         }
     }, [edit, userData, reset, setValue]);
 
@@ -97,13 +101,10 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                 leaveTo="opacity-0 scale-95"
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
-
-                                    <Dialog.Title
-                                        as="h2"
-                                        className="text-lg text-white w-full bg-primary font-tbLex leading-6  py-5 px-5"
-                                    >
-                                        Create New Category
-                                    </Dialog.Title>
+                                    <TableTitle
+                                        title={edit ? "Edit Category" : "Create New Category"}
+                                        toggle={toggle}
+                                    />
                                     <div className=" bg-slate1">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
@@ -120,8 +121,8 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                             placeholder="Enter Category Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name'), valdate: validateEmail, required: "Category is required" }}
-                                                            errors={errors.email}
+                                                            props={{ ...register('name', { required: "Category is required" }) }}
+                                                            errors={errors.name}
                                                         />
                                                     </div>
                                                     <div className=''>
@@ -146,7 +147,6 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                <button type='button' className={formBtn2} onClick={() => { setOpen(false), reset() }}>close</button>
                                                 {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>

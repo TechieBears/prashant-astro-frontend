@@ -1,4 +1,6 @@
 import { StepConnector, stepConnectorClasses, styled } from '@mui/material';
+import { X } from 'lucide-react';
+import { Dialog } from '@headlessui/react';
 
 
 export const imageComponet = (row) => (<div className="w-16 h-16">
@@ -43,3 +45,20 @@ export const QontoConnector = styled(StepConnector)(({ theme }) => ({
         borderColor: '#cbd5e1',
     },
 }));
+
+
+export const TableTitle = ({ title, toggle }) => {
+    return (
+        <Dialog.Title
+            as="h2"
+            className="text-lg text-white w-full bg-primary font-tbLex leading-6  py-5 px-5 relative z-10"
+        >
+
+            {title}
+
+            <div className="absolute right-5 top-5">
+                <X onClick={() => toggle()} className='text-white   hover:text-slate-200 cursor-pointer' size={30} />
+            </div>
+        </Dialog.Title>
+    )
+}
