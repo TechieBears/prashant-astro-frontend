@@ -91,7 +91,7 @@ const ProjectRoutes = () => {
                                 <Route path="/contact" element={<ContactPage />} />
                                 <Route path="/login" element={<LoginPage />} />
                                 <Route path="/forget-password" element={<ForgetPassword />} />
-                                <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/password/reset/:token" element={<ResetPassword />} />
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/my-account" element={<MyAccount />} />
                                 <Route path="/customer-support" element={<CustomerSupport />} />
@@ -117,7 +117,7 @@ const ProjectRoutes = () => {
                             <Route path="/services" element={<ServicesPage />} />
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/forget-password" element={<ForgetPassword />} />
-                            <Route path="/reset-password" element={<ResetPassword />} />
+                            <Route path="/password/reset/:token" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/my-account" element={<MyAccount />} />
                             <Route path="/customer-support" element={<CustomerSupport />} />

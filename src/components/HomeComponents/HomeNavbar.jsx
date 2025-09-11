@@ -10,6 +10,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone } from "lucide-react";
 import { logoutUser } from "../../redux/Slices/loginSlice";
+import toast, { Toaster } from "react-hot-toast";
 
 const HomeNavbar = () => {
     const navLinks = [
@@ -38,13 +39,20 @@ const HomeNavbar = () => {
 
     const handleLogout = async () => {
         try {
-            await dispatch(logoutUser()).unwrap();
-            setCard(true);
-            navigate("/");
+            const res = await dispatch(logoutUser()).unwrap();
+
+            if (res?.success) {
+                toast.success(res.message || "Logged out successfully");
+                navigate("/");
+                setCard(true);
+            } else {
+                toast.error(res?.message || "Something went wrong");
+            }
         } catch (err) {
+            toast.error(err || "Logout failed");
             console.error("Logout Failed:", err);
         }
-    }
+    };
 
     useGSAP(() => {
         gsap.from(".navbar", {

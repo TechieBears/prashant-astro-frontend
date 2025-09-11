@@ -5,6 +5,7 @@ import apple from "../assets/apple-icon.png";
 import { useDispatch } from "react-redux";
 import { registerUser, loginUser } from "../redux/Slices/loginSlice";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Register = () => {
     const [title, setTitle] = useState("");
@@ -30,8 +31,15 @@ const Register = () => {
             .then(() => {
                 dispatch(loginUser({ email, password }))
                     .unwrap()
-                    .then(() => navigate("/"))
-                    .catch(err => alert(err || "Login after Registration failed"))
+                    .then((res) => {
+                        if (res.success) {
+                            toast.success(res.message);
+                            navigate("/");
+                        } else {
+                            toast.error(res.message || "Something went wrong");
+                        }
+                    })
+                    .catch(err => toast.error(err || "Login after Registration failed"));
             })
             .catch(err => alert(err || "Registration failed"));
     }
@@ -174,6 +182,7 @@ const Register = () => {
                     </div>
                 </div>
             </div>
+            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };

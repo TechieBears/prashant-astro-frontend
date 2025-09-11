@@ -1,9 +1,46 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { resetUserPassword } from "../redux/Slices/loginSlice";
+import toast, { Toaster } from "react-hot-toast";
 
 const ResetPassword = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+    const dispatch = useDispatch();
+    const { token } = useParams();
+    const navigate = useNavigate();
+
+    const handleResetPassword = (e) => {
+        e.preventDefault();
+        setMessage("");
+        setError("");
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        try {
+            dispatch(resetUserPassword({ token, password }))
+                .unwrap()
+                .then((res) => {
+                    if (res.success) {
+                        toast.success(res.message);
+                        navigate("/login");
+                    } else {
+                        toast.error(res.message || "Something went wrong");
+                    }
+                })
+                .catch((err) => {
+                    toast.error(err || "Password reset failed");
+                });
+        } catch (err) {
+            console.error("Logout Failed:", err);
+        }
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-yellow-50">
@@ -15,7 +52,7 @@ const ResetPassword = () => {
                     Enter your new password to reset your account
                 </p>
 
-                <form className="space-y-4">
+                <form onSubmit={handleResetPassword} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-1">Password *</label>
                         <input
@@ -38,6 +75,7 @@ const ResetPassword = () => {
                             className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
                         />
                     </div>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
                     <button
                         type="submit"
                         className="bg-gradient-orange w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition"
@@ -45,17 +83,13 @@ const ResetPassword = () => {
                         Reset your Password
                     </button>
                 </form>
-
-                {message && (
-                    <p className="text-center text-green-500 mt-3 text-sm">{message}</p>
-                )}
-
                 <div className="mt-6 text-center">
                     <a href="/login" className="text-primary hover:underline text-sm flex items-center justify-center">
                         ← Back to Login
                     </a>
                 </div>
             </div>
+            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };

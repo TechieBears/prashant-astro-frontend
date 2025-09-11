@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import LogoutModal from '../Modals/NavbarModals/LogoutModal';
 import { formBtn1 } from '../../utils/CustomClass';
 import { logoutUser } from "../../redux/Slices/loginSlice";
+import toast, { Toaster } from "react-hot-toast";
 
 const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink }) => {
     const user = useSelector((state) => state.user.userDetails)
@@ -20,11 +21,18 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
 
     const handleLogout = async () => {
         try {
-            await dispatch(logoutUser()).unwrap();
-            setCard(true);  // close profile card
-            setOpen(false); // close modal
-            navigate("/");  // redirect home
+            const res = await dispatch(logoutUser()).unwrap();
+
+            if (res?.success) {
+                toast.success(res?.message || "Logged out successfully");
+                setCard(true);
+                setOpen(false);
+                navigate("/");
+            } else {
+                toast.error(res?.message || "Something went wrong");
+            }
         } catch (err) {
+            toast.error(err || "Logout failed");
             console.error("Logout failed:", err);
         }
     };

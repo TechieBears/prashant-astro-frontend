@@ -5,11 +5,13 @@ import titleImage from "../../assets/titleImage.png";
 const SectionHeader = ({
   prefix,
   highlight,
+  suffix,
   white = false,
   image = titleImage,
   imageAlt = "Section Header",
   prefixColor = "text-black",
-  highlightColor = "bg-text-gradient-orange bg-clip-text text-transparent"
+  highlightColor = "bg-text-gradient-orange bg-clip-text text-transparent",
+  showImage = true,
 }) => {
   return (
     <div className="flex flex-col items-center gap-2">
@@ -20,23 +22,30 @@ const SectionHeader = ({
         >
           {prefix}
         </h2>
-        <h2
-          className={`text-xl sm:text-2xl md:text-3xl font-procSans ${highlightColor}`}
-        >
-          {highlight}
-        </h2>
+        {highlight && (
+          <h2 className={`text-xl sm:text-2xl md:text-3xl font-procSans ${highlightColor}`}>
+            {highlight}
+          </h2>
+        )}
+
+        {suffix && (
+          <h2 className={`text-xl sm:text-2xl md:text-3xl font-procSans ${prefixColor}`}>
+            {suffix}
+          </h2>
+        )}
       </div>
 
       {/* Title Image */}
-      <img
-        loading="lazy"
-        src={image}
-        alt={imageAlt}
-        width={150}
-        className={`object-contain transition-all duration-300 ${
-          white ? "filter brightness-0 invert" : ""
-        }`}
-      />
+      {showImage && (
+        <img
+          loading="lazy"
+          src={image}
+          alt={imageAlt}
+          width={150}
+          className={`object-contain transition-all duration-300 ${white ? "filter brightness-0 invert" : ""
+            }`}
+        />
+      )}
     </div>
   );
 };
@@ -49,6 +58,7 @@ SectionHeader.propTypes = {
   imageAlt: PropTypes.string,
   prefixColor: PropTypes.string,
   highlightColor: PropTypes.string,
+  showImage: PropTypes.bool,
 };
 
 export default SectionHeader;
