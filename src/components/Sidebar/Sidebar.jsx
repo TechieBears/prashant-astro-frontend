@@ -39,7 +39,7 @@ const Sidebar = ({ children }) => {
                     {/* ====================== Navbar start ===================== */}
                     <Navbar setMobileSidebar={setMobileSidebar} mobileSidebar={mobileSidebar} setIsActiveLink={setIsActiveLink} isActiveLink={isActiveLink} />
                     {/* ====================== sidebar end ===================== */}
-                    <main className="pb-5 pt-20" >
+                    <main className="pb-5 px-2 w-full" >
                         {/* ====================== Routes start ===================== */}
                         {children}
                         {/* ======================Routes start ===================== */}

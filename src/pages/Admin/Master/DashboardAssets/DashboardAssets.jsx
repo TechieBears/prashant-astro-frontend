@@ -9,7 +9,7 @@ const DashboardAssets = () => {
             <Tabs selectedIndex={selectedTab} onSelect={index => setSelectedTab(index)} >
                 <TabList className="flex space-x-4 border-b mx-6">
                     <Tab
-                        className={`p-3 cursor-pointer font-tbPop font-medium  transitionw ${selectedTab === 0 ? 'text-blue-500 border-b-2  border-primary outline-0' : 'text-gray-500 border-b'
+                        className={`p-3 cursor-pointer font-tbPop font-medium  transitionw ${selectedTab === 0 ? 'text-primary border-b-2  border-primary outline-0' : 'text-gray-500 border-b'
                             }`}
                     >
                         Home Banner

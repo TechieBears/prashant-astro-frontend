@@ -1,49 +1,144 @@
-import { NavLink } from "react-router-dom";
-import { Power } from "lucide-react";
+import React from "react";
+import { Icon } from "@iconify/react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setLoggedUser,
+  setLoggedUserDetails,
+} from "../../redux/Slices/loginSlice";
+import toast from "react-hot-toast";
+import { Profile } from "iconsax-reactjs";
 
-const ProfileSidebar = () => {
-    const menuItems = [
-        { name: "My Account", path: "/my-account" },
-        { name: "My Orders", path: "/orders" },
-        { name: "My Address", path: "/address" },
-        { name: "Customer Support", path: "/customer-support" },
-        { name: "Privacy Policy", path: "/privacy-policy" },
-    ];
+const ProfileSidebar = ({ children }) => {
+  const user = useSelector((state) => state.user);
+  const isLoggedIn = user?.isLogged;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    return (
-        <div className="w-64 bg-white rounded-xl py-4 border border-[#CAD5E2]">
-            <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
-            <ul>
-                {menuItems.map((item) => (
-                    <li key={item.path}>
-                        <NavLink
-                            to={item.path}
-                            end
-                            className={({ isActive }) =>
-                                `block px-4 py-4 border border-[#E2E8F0] cursor-pointer ${isActive
-                                    ? "bg-button-vertical-gradient-orange text-white"
-                                    : "hover:bg-gray-100"
-                                }`
-                            }
-                        >
-                            {item.name}
-                        </NavLink>
-                    </li>
+  // Utility to check if a link is active
+  const isActive = (path) => location.pathname === path;
+
+  const navItems = [
+    { label: "My Account", path: "/profile/account" },
+    { label: "My Orders", path: "/profile/my-orders" },
+    { label: "My Address", path: "/profile/address" },
+    { label: "Customer Support", path: "/profile/customer-support" },
+    { label: "Privacy Policy", path: "/profile/privacy-policy" },
+  ];
+
+  const handleLogout = async () => {
+    try {
+      // TODO: Implement actual logout API call
+      localStorage.removeItem("token");
+      dispatch(setLoggedUser(false));
+      dispatch(setLoggedUserDetails({}));
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      toast.error("Logout failed");
+    }
+  };
+
+  return (
+    <div className="bg-gray-100 py-12 mt-12 px-4">
+      <div className="max-w-[1200px] w-full mx-auto">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Sidebar */}
+          <aside className="w-full lg:w-1/4 bg-white border rounded-2xl p-4 flex flex-col justify-between h-full min-h-[600px]">
+            <div>
+              <h2 className="text-xl lg:text-2xl font-semibold text-[#1d2e36] mb-6">
+                My Profile
+              </h2>
+
+              <nav className="flex flex-col gap-y-2">
+                {navItems.map((item, index) => (
+                  <React.Fragment key={item.label}>
+                    {item.path.startsWith("/") ? (
+                      <Link
+                        to={item.path}
+                        className={`flex items-center justify-between px-3 py-3 rounded-lg font-medium transition ${
+                          isActive(item.path)
+                            ? "bg-purple-100 text-purple-600 border-b"
+                            : "hover:bg-gray-100 text-[#1d2e36]"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Icon icon={item.icon} width={22} height={22} />
+                          {item.label}
+                        </span>
+                        <Icon
+                          icon="material-symbols-light:keyboard-arrow-right"
+                          width={24}
+                          height={24}
+                        />
+                      </Link>
+                    ) : (
+                      <button
+                        className={`flex items-center justify-between px-3 py-3 rounded-lg font-medium transition ${
+                          isActive(item.path)
+                            ? "bg-purple-100 text-purple-600 border-b"
+                            : "hover:bg-gray-100 text-[#1d2e36]"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Icon icon={item.icon} width={22} height={22} />
+                          {item.label}
+                        </span>
+                        <Icon
+                          icon="material-symbols-light:keyboard-arrow-right"
+                          width={24}
+                          height={24}
+                        />
+                      </button>
+                    )}
+                  </React.Fragment>
                 ))}
-            </ul>
-
-            <div className="mt-14 flex flex-col space-y-4 px-4">
-                <button className="rounded-lg py-2 hover:bg-gray-100 transition border border-black flex items-center justify-center gap-1">
-                    Logout
-                    <Power className="w-4 h-4" />
-                </button>
-                <button className="bg-red-500 text-white rounded-lg py-2 hover:bg-red-600 transition">
-                    Delete Account 🗑
-                </button>
+              </nav>
             </div>
 
+            {/* Bottom Action Buttons */}
+            {/* {isLoggedIn && ( */}
+            <div className="mt-12 space-y-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center py-3 bg-red-100 text-red-600 border border-black font-semibold rounded-lg hover:bg-red-200 transition"
+              >
+                Logout
+                <Icon
+                  icon="uiw:poweroff"
+                  className="ml-2"
+                  width={18}
+                  height={18}
+                />
+              </button>
+
+              <button
+                disabled
+                className="w-full flex items-center justify-center py-3 bg-red-600 text-white font-semibold rounded-lg 
+                        transition opacity-50 cursor-not-allowed"
+              >
+                Delete Account
+                <Icon
+                  icon="material-symbols:delete-outline"
+                  width={24}
+                  height={24}
+                  className="ml-2"
+                />
+              </button>
+            </div>
+            {/* )} */}
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 bg-white rounded-2xl p-4 lg:p-6 border border-[#CAD5E2]">
+            {children}
+          </main>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ProfileSidebar;

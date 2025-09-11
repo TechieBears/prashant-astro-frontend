@@ -8,8 +8,8 @@ const DropdownMenu = ({ items, isActiveLink }) => {
                     {!isActiveLink && <div className="absolute top-0 left-0 transition-all duration-300 origin-left w-1.5 h-full rounded-r-md left-border opacity-0"></div>
                     }
                     <div className="flex items-center  space-x-2">
-                        <span className="text-slate-700  group-hover:text-primary duration-500 transition-all origin-left icon-wrapper">{item?.icon}</span>
-                        {!isActiveLink && <h4 className="text-sm font-tbLex font-medium tracking-tight origin-left text-slate-600 group-hover:text-primary duration-500 whitespace-nowrap transition-all  text-title">{item?.title}</h4>}
+                        <span className="text-slate-600  group-hover:text-primary duration-500 transition-all origin-left icon-wrapper">{item?.icon}</span>
+                        {!isActiveLink && <h4 className="text-sm font-tbLex font-medium tracking-tight origin-left text-slate-500 group-hover:text-primary duration-500 whitespace-nowrap transition-all  text-title">{item?.title}</h4>}
                     </div>
                 </NavLink >
             ))}

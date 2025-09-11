@@ -9,17 +9,19 @@ import { adminGetFilteredActors, blacklistUser, blockUser, deleteUser, premiumUs
 import Table from '../../../components/Table/Table';
 import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import TextInput from '../../../components/TextInput/TextInput';
-import { imageComponet, paymentBody, statusBody } from '../../../helper/Helper';
+import { imageComponet, statusBody } from '../../../helper/Helper';
 import { formBtn1 } from '../../../utils/CustomClass';
 import usePagination from '../../../utils/customHooks/usePagination';
-import DeleteModal from '../../../components/Modals/DeleteModal/DeleteModal';
+import CreateProductModal from '../../../components/Modals/AdminModals/CreateProductModal';
+import TableHeader from '../../../components/Table/TableHeader';
+// import AdminPrimaryActorModal from '../../../components/Modals/PrimaryActorModal/AdminPrimaryActorModal';
 
 const initialFilterState = {
     email: '',
     role: '',
 };
 
-function AllUserProfiles() {
+function AllProducts() {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -194,36 +196,34 @@ function AllUserProfiles() {
     )
 
     const columns = [
-        { field: "profile", header: "Profile", body: imageComponet, style: true },
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
-        { field: 'role', header: 'Role', body: (row) => <span className='capitalize'>{row?.role || "---- -----"}</span>, style: true },
-        { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
+        { field: "image", header: "Image", body: imageComponet, style: true },
+        { field: 'name', header: 'Product Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true },
+        { field: 'category', header: 'Category', body: (row) => <span className='capitalize'>{row?.category || "---- -----"}</span>, style: true },
+        { field: 'price', header: 'Price', body: (row) => <span>₹{row?.price || "0"}</span>, style: true },
+        { field: 'duration', header: 'Duration', body: (row) => <span>{row?.duration || "---- -----"}</span>, style: true },
         {
             field: 'createdAt',
-            header: 'Registration date',
+            header: 'Created Date',
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}</>,
             style: true
         },
-        { field: 'rejectionCount', header: 'Rejection Count', style: true },
         { field: 'status', header: 'Status', body: statusBody, style: true },
-        { field: 'paymentStatus', header: 'Payment Status', body: paymentBody, style: true },
         {
-            field: 'isVerified',
-            header: 'Verification',
-            body: varificationBody,
+            field: 'isApproved',
+            header: 'Approved',
+            // body: approvalBody,
             style: true
         },
         {
-            field: 'isBlacklisted',
-            header: 'Blacklisted',
-            body: blackListBody,
+            field: 'isVisible',
+            header: 'Visible',
+            // body: visibilityBody,
             style: true
         },
         {
-            field: 'premium',
-            header: 'Premium',
-            body: premiumBody,
+            field: 'isFeatured',
+            header: 'Featured',
+            // body: featuredBody,
             style: true
         },
         {
@@ -239,26 +239,47 @@ function AllUserProfiles() {
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 w-full gap-2">
                         <TextInput
-                            label="Enter Email*"
-                            placeholder="Enter Email"
-                            type="email"
-                            registerName="email"
-                            props={{ ...register('email') }}
+                            label="Product Name*"
+                            placeholder="Enter Product Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name') }}
                         />
                         <div className="">
                             <SelectTextInput
-                                label="Select Role*"
-                                registerName="role"
+                                label="Select Category*"
+                                registerName="category"
                                 options={[
-                                    { value: '', label: 'Select Role' },
-                                    { value: 'primary', label: 'Primary' },
-                                    { value: 'secondary', label: 'Secondary' },
+                                    { value: '', label: 'Select Category' },
+                                    { value: 'astrology', label: 'Astrology' },
+                                    { value: 'palmistry', label: 'Palmistry' },
+                                    { value: 'numerology', label: 'Numerology' },
+                                    { value: 'tarot', label: 'Tarot Reading' },
+                                    { value: 'vastu', label: 'Vastu Shastra' },
                                 ]}
                                 props={{
-                                    ...register('role', { required: true }),
-                                    value: watch('role') || ''
+                                    ...register('category', { required: true }),
+                                    value: watch('category') || ''
+                                }}
+                            />
+                        </div>
+                        <div className="">
+                            <SelectTextInput
+                                label="Select Status*"
+                                registerName="status"
+                                options={[
+                                    { value: '', label: 'Select Status' },
+                                    { value: 'active', label: 'Active' },
+                                    { value: 'inactive', label: 'Inactive' },
+                                    { value: 'draft', label: 'Draft' },
+                                    { value: 'approved', label: 'Approved' },
+                                    { value: 'rejected', label: 'Rejected' },
+                                ]}
+                                props={{
+                                    ...register('status', { required: true }),
+                                    value: watch('status') || ''
                                 }}
                             />
                         </div>
@@ -271,15 +292,9 @@ function AllUserProfiles() {
                 </form>
             </div>
 
-            {/* User Table Section */}
+            {/* Product Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <div className="flex justify-between flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
-                    <div className="lg:space-y-[1px]">
-                        <h2 className='font-tbPop text-base md:text-lg lg:text-xl font-semibold text-black'>All Actors</h2>
-                        <h6 className='text-slate-500 font-tbLex font-normal text-xs lg:text-sm'>Recently registered actors will appear here</h6>
-                    </div>
-                    {/* <AdminPrimaryActorModal title='Add Primary Actor' edit={false} data={null} setRefreshTrigger={setRefreshTrigger} /> */}
-                </div>
+                <TableHeader title='All Products' subtitle='List of all Products' component={<CreateProductModal />} />
                 <Table data={filterData} columns={columns} paginator={false} />
 
                 {/* Pagination Controls */}
@@ -309,13 +324,8 @@ function AllUserProfiles() {
                     </div>
                 </div>
             </div>
-            <DeleteModal
-                title={'Delete User'}
-                description={'Are you sure you want to delete this user, this is irreversible and can not be changed later'}
-                deleteBtn={deleteBtn}
-                open={open} toggleModalBtn={toggleModal} />
         </div>
     );
 }
 
-export default AllUserProfiles;
+export default AllProducts;

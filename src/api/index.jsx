@@ -586,3 +586,131 @@ export const editProfile = async (id, data) => {
         console.log('error in edit profile api file', error)
     }
 }
+
+
+
+// ====================== Product Categories Api ======================
+export const getProductCategories = async (data) => {
+    try {
+        const url = `${environment.baseUrl}product-categories?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+
+export const addProductCategory = async (data) => {
+    const url = `${environment.baseUrl}product-categories`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addProductCategory api file", err);
+        return err?.response?.data
+    }
+};
+
+export const editProductCategory = async (id, data) => {
+    const url = `${environment.baseUrl}product-categories/${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editProductCategory api file", err);
+        return err?.response?.data
+    }
+};
+
+
+
+// ======================= Product Sub Categories Api ======================
+export const getProductSubCategories = async (data) => {
+    try {
+        const url = `${environment.baseUrl}product-subcategories?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+
+export const addProductSubCategory = async (data) => {
+    const url = `${environment.baseUrl}product-subcategories`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addProductSubCategory api file", err);
+        return err?.response?.data
+    }
+}
+
+export const editProductSubCategory = async (id, data) => {
+    const url = `${environment.baseUrl}product-subcategories/${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editProductSubCategory api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteProductSubCategory = async (id) => {
+    const url = `${environment.baseUrl}product-subcategories/${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deleteProductSubCategory api file", err);
+        return err?.response?.data
+    }
+}
+
+// ==================== Employee Api ====================
+
+export const addEmployee = async (data) => {
+    const url = `${environment.baseUrl}employee-users/register`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addEmployee api file", err);
+        return err?.response?.data
+    }
+}
+
+export const editEmployee = async (id, data) => {
+    const url = `${environment.baseUrl}employee-users/${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editEmployee api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteEmployee = async (id) => {
+    const url = `${environment.baseUrl}employee-users/${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deleteEmployee api file", err);
+        return err?.response?.data
+    }
+}
