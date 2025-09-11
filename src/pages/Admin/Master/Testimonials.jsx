@@ -6,9 +6,6 @@ import toast from 'react-hot-toast'
 import { getAllEqnuires } from '../../../api'
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
-import SelectTextInput from '../../../components/TextInput/SelectTextInput'
-import TextInput from '../../../components/TextInput/TextInput'
-import { formBtn1 } from '../../../utils/CustomClass'
 import usePagination from '../../../utils/customHooks/usePagination'
 
 const initialFilterState = {
@@ -18,7 +15,7 @@ const initialFilterState = {
     phoneNumber: '',
 };
 
-export default function AdminContactUs() {
+export default function Testimonials() {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -44,80 +41,20 @@ export default function AdminContactUs() {
         if (error) toast.error('Failed to fetch users');
     }, [error]);
 
-    // Form submit handler
-    const handleFilterSubmit = (data) => {
-        setFilterCriteria(data);
-        pageChangeHandler(1);
-    };
-
-    // Clear filters
-    const handleClearFilters = () => {
-        reset(initialFilterState);
-        setFilterCriteria(initialFilterState);
-        toast.success('Filters cleared');
-    };
-
-
-
     const columns = [
         { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
         { field: 'phoneNumber', header: 'Phone No', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
-        { field: 'reasonType', header: 'Reason Type', style: true },
-        { field: 'age', header: 'Age', body: (row) => <span className='capitalize'>{row?.age || "---- -----"}</span>, style: true },
         { field: 'createdAt', header: 'Enquiry Date', body: (row) => <>{moment(row?.createdAt)?.format('DD-MM-YYYY') || "---- -----"}</>, style: true },
         { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
         { field: 'status', header: 'Status', body: (row) => <h6 className={`${row?.status == 'rejected' ? 'text-red-500 bg-red-200' : row?.status == 'accepted' ? 'text-green-500 bg-green-200' : 'text-yellow-500 bg-yellow-100/80'} p-2 text-center rounded-full capitalize px-5`}>{row?.status}</h6>, sortable: true, style: true },
     ];
     return (
         <div className="space-y-5">
-            {/* Filter Form */}
-            <div className="bg-white p-4 sm:m-5 rounded-xl">
-                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-2">
-                        <TextInput
-                            label="Enter Full Name*"
-                            placeholder="Enter Full Name"
-                            type="text"
-                            registerName="name"
-                            props={{ ...register('name') }}
-                        />
-                        <TextInput
-                            label="Enter Phone Number*"
-                            placeholder="Enter Phone Number"
-                            type="tel"
-                            registerName="phoneNumber"
-                            props={{ ...register('phoneNumber') }}
-                        />
-                        <div className="">
-                            <SelectTextInput
-                                label="Select Status*"
-                                registerName="status"
-                                options={[
-                                    { value: '', label: 'Select Status' },
-                                    { value: 'pending', label: 'Pending' },
-                                    { value: 'resolved', label: 'Resolved' },
-                                    { value: 'closed', label: 'Closed' },
-                                    { value: 'rejected', label: 'Rejected' },
-                                ]}
-                                props={{
-                                    ...register('status'),
-                                    value: watch('status') || ''
-                                }}
-                            />
-                        </div>
-
-                    </div>
-                    <div className="flex space-x-2">
-                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
-                    </div>
-                </form>
-            </div>
 
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title={`Enquiries (${filterData?.length || 0})`} subtitle={'Recently users enquiries will appear here'} />
+                <TableHeader title={`Testimonials (${filterData?.length || 0})`} subtitle={'Recently users testimonials will appear here'} />
 
                 <Table data={filterData} columns={columns} paginator={false} />
 

@@ -55,7 +55,7 @@ const DashboardBannerPanel = () => {
 
     return (
         <>
-            <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7  " >
+            <div className="bg-white rounded-xl  sm:m-5 shadow-sm  p-5 sm:p-7  " >
                 <TableHeader title='Home Banners' subtitle='List of all Home Banners' />
                 <Table data={homeBanners} columns={columns} />
             </div>

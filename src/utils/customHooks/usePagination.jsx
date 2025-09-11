@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
     const [state, setState] = useState({
@@ -11,12 +11,15 @@ const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
         error: null
     });
 
+    // Memoize filters to prevent infinite re-renders
+    const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+
     const fetchData = async () => {
         try {
             const params = {
                 p: state.page,
                 records: state.records,
-                ...filters
+                ...memoizedFilters
             };
 
             const response = await fetchFunction(params);
@@ -38,7 +41,7 @@ const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
 
     useEffect(() => {
         fetchData();
-    }, [state.page, state.records, filters]);
+    }, [state.page, state.records, memoizedFilters]);
 
     const handlePageChange = (newPage) => {
         if (newPage !== state.page) {
