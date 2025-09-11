@@ -6,6 +6,9 @@ const SectionHeader = ({
   prefix,
   highlight,
   suffix,
+  prefixClass = "",
+  highlightClass = "",
+  suffixClass = "",
   white = false,
   image = titleImage,
   imageAlt = "Section Header",
@@ -18,18 +21,20 @@ const SectionHeader = ({
       {/* Title */}
       <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-center">
         <h2
-          className={`text-xl sm:text-2xl md:text-3xl font-procSans ${prefixColor}`}
+          className={`text-xl sm:text-2xl md:text-3xl font-procSans ${prefixColor} ${prefixClass}`}
         >
           {prefix}
         </h2>
         {highlight && (
-          <h2 className={`text-xl sm:text-2xl md:text-3xl font-procSans ${highlightColor}`}>
+          <h2 className={`text-xl sm:text-2xl md:text-3xl font-procSans ${highlightColor} ${highlightClass}`}>
             {highlight}
           </h2>
         )}
 
         {suffix && (
-          <h2 className={`text-xl sm:text-2xl md:text-3xl font-procSans ${prefixColor}`}>
+          <h2
+            className={`text-xl sm:text-2xl md:text-3xl font-procSans ${prefixColor} ${suffixClass}`}
+          >
             {suffix}
           </h2>
         )}
@@ -46,19 +51,24 @@ const SectionHeader = ({
             }`}
         />
       )}
-    </div>
+    </div >
   );
 };
 
 SectionHeader.propTypes = {
   prefix: PropTypes.string.isRequired,
   highlight: PropTypes.string.isRequired,
+  suffix: PropTypes.string,
   white: PropTypes.bool,
   image: PropTypes.string,
   imageAlt: PropTypes.string,
   prefixColor: PropTypes.string,
   highlightColor: PropTypes.string,
   showImage: PropTypes.bool,
+
+  prefixClass: PropTypes.string,
+  highlightClass: PropTypes.string,
+  suffixClass: PropTypes.string,
 };
 
 export default SectionHeader;

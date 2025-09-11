@@ -7,6 +7,7 @@ import certifiedExpert from '../../assets/user/home/certifiedExpert.png';
 import clients from '../../assets/user/home/clients.png';
 import multipleLanguage from '../../assets/user/home/multipleLanguage.png';
 import Flowers from '../../assets/user/home/flowers.png';
+import Flower from '../../assets/user/home/flower2.png';
 import Testimonial1 from '../../assets/user/home/t1.png';
 import Testimonial2 from '../../assets/user/home/t2.png';
 import Testimonial3 from '../../assets/user/home/t3.jpg';
@@ -14,6 +15,10 @@ import Profile1 from '../../assets/user/home/profile1.png';
 import Profile2 from '../../assets/user/home/profile2.png';
 import Profile3 from '../../assets/user/home/profile3.png';
 import Comment from '../../assets/user/home/comment.png';
+import GooglePlay from '../../assets/user/home/googleplay.png';
+import Mobile from '../../assets/user/home/mobile.png';
+import Group from '../../assets/user/home/Group.png';
+import Chakra from '../../assets/user/home/chakra.png';
 
 import { Medal06Icon, FavouriteIcon } from 'hugeicons-react';
 
@@ -357,20 +362,17 @@ const HomePage = () => {
             </div>
             {/* Testmonials Section */}
             <div className="relative bg-[#F7E8D4] w-full pb-10 sm:pb-20">
-                {/* Left Flower */}
                 <img
                     src={Flowers}
                     alt="Flowers left"
                     className="absolute left-4 sm:left-16 md:left-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80"
                 />
-                {/* Right Flower */}
                 <img
                     src={Flowers}
                     alt="Flowers right"
                     className="absolute right-4 sm:right-16 md:right-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]"
                 />
 
-                {/* Section Header */}
                 <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
                     <SectionHeader prefix="Our" highlight="Testimonials" />
                     <SectionHeader prefix="What" highlight="Our" suffix="Patients Say" showImage={false} />
@@ -379,7 +381,6 @@ const HomePage = () => {
                     </p>
                 </div>
 
-                {/* Orange block behind testimonials */}
                 <div className="hidden sm:block absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 w-40 sm:w-1/2 md:w-[50%] h-48 sm:h-64 md:h-80 bg-orange-light z-0 rounded-lg"></div>
 
                 {/* Testimonial cards */}
@@ -430,43 +431,73 @@ const HomePage = () => {
                 </div>
             </div>
 
+            <div className="relative">
+                <img
+                    src={Flower}
+                    className="absolute right-0 top-1/1 -translate-y-1/2 w-20 sm:w-28 md:w-32 z-0 rotate-270"
+                />
+                {/* Social Media */}
+                <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-16 w-full max-w-[1280px] mx-auto">
+                    {/* Header */}
 
-
-
-
-            <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-16 w-full max-w-[1280px] mx-auto">
-                {/* Header */}
-
-                <div className='flex items-center flex-col gap-5'>
-                    <SectionHeader
-                        prefix="Our"
-                        highlight="Social Media"
-                    />
-                    <p className='w-11/12 md:w-6/12 text-center text-sm text-slate-600 mb-10'>
-                        Connect with us on social media and watch our educational content on astrology and spiritual guidance
-                    </p>
-                </div>
-
-                <div className='flex flex-row'>
-                    <div className='bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
-                        <h2 className='text-lg text-slate-800'>Watch Our Introduction Video</h2>
-                        <p className='text-sm text-slate-600 my-4'>
-                            Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
+                    <div className='flex items-center flex-col gap-5'>
+                        <SectionHeader
+                            prefix="Our"
+                            highlight="Social Media"
+                        />
+                        <p className='w-11/12 md:w-6/12 text-center text-sm text-slate-600 mb-10'>
+                            Connect with us on social media and watch our educational content on astrology and spiritual guidance
                         </p>
-                        <div>
-                            <iframe width="560" height="315" src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
-                        <div>
-                            <button className='bg-gradient-orange text-white px-4 py-2 rounded-md'>
-                                Watch Now
-                            </button>
+                    </div>
+
+                    <div className='flex flex-row'>
+                        <div className='bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
+                            <h2 className='text-lg text-slate-800'>Watch Our Introduction Video</h2>
+                            <p className='text-sm text-slate-600 my-4'>
+                                Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
+                            </p>
+                            <div>
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            </div>
+                            <div>
+                                <button className='bg-gradient-orange text-white px-4 py-2 rounded-md'>
+                                    Watch Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-
+                <img
+                    src={Flower}
+                    className="absolute left-0 top-1/1 -translate-y-1/2 w-20 sm:w-28 md:w-32 z-0 rotate-180"
+                />
+                {/* Download app */}
+                <div className="bg-custom-linear py-20">
+                    <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
+                        <div className="flex-1 flex flex-col items-start justify-start">
+                            <SectionHeader
+                                prefix={`Download Our\nCustomer App\nToday`}
+                                prefixClass="text-left text-5xl sm:text-6xl md:text-7xl whitespace-pre-line"
+                                showImage={false}
+                            />
+                            <p className="mt-4 w-full md:w-8/12 text-left text-sm sm:text-base text-slate-600">
+                                For seamless experience, download our apps on your phone
+                            </p>
+                            <img src={GooglePlay} className="w-44 mt-6" />
+                        </div>
+                        <div className="flex-1 flex justify-center md:justify-end relative">
+                            <img
+                                src={Mobile}
+                                className="max-w-xs sm:max-w-sm md:max-w-md relative z-10"
+                            />
+                            <img
+                                src={Group}
+                                className="w-20 sm:w-28 md:w-26 absolute bottom-0 left-10 z-0 translate-y-6 sm:translate-y-4"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </div>
     );
 };
