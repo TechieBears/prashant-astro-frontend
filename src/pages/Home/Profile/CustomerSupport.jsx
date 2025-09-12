@@ -11,7 +11,7 @@ const CustomerSupport = () => {
             <div className="flex px-40 py-12">
                 <ProfileSidebar />
 
-                <div className="flex-1 ml-6 bg-white p-4">
+                <div className="flex-1 ml-6 rounded-lg bg-white p-4">
                     <h2 className="font-semibold text-lg mb-6">Customer Care</h2>
 
                     <div className="flex items-stretch gap-4">
