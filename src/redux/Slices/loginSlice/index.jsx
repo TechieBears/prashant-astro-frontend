@@ -94,6 +94,27 @@ export const resetUserPassword = createAsyncThunk(
         }
     }
 );
+
+export const deleteUser = createAsyncThunk(
+    "user/deleteUser",
+    async (_, { rejectWithValue }) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.delete(
+                `${import.meta.env.VITE_BASE_URL}/api/customer-users/delete`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || "Account deletion failed");
+        }
+    }
+);
 const loginSlice = createSlice({
     name: 'user',
     initialState,
@@ -182,6 +203,19 @@ const loginSlice = createSlice({
                 state.message = action.payload.message || "Password reset successfully";
             })
             .addCase(resetUserPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(deleteUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteUser.fulfilled, (state) => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                return initialState;
+            })
+            .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

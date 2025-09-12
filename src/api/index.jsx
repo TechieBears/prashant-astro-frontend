@@ -51,6 +51,80 @@ export const resetPassword = async (data) => {
     }
 };
 
+// ==================== Customer Address APIs ===================
+
+export const getAllCustomerAddresses = async () => {
+    const token = localStorage.getItem("token");
+    const url = `${environment.baseUrl}customer-address/get-all`;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    }
+    catch (err) {
+        console.log("==========error in getAllCustomerAddresses api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const createCustomerAddress = async (addressData) => {
+    const token = localStorage.getItem("token");
+    const url = `${environment.baseUrl}customer-address/create`;
+    try {
+        const response = await axios.post(url, addressData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    }
+    catch (err) {
+        console.log("==========error in createCustomerAddress api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const updateCustomerAddress = async (addressId, addressData) => {
+    const token = localStorage.getItem("token");
+    const url = `${environment.baseUrl}customer-address/update?id=${addressId}`;
+    try {
+        const response = await axios.put(url, addressData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    }
+    catch (err) {
+        console.log("==========error in updateCustomerAddress api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const deleteCustomerAddress = async (addressId) => {
+    const token = localStorage.getItem("token");
+    const url = `${environment.baseUrl}customer-address/delete?id=${addressId}`;
+    try {
+        const response = await axios.delete(url, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    }
+    catch (err) {
+        console.log("==========error in deleteCustomerAddress api file", err);
+        return err?.response?.data;
+    }
+};
+
 export const registerUserEdit = async (id, data) => {
     try {
         const url = `${environment.baseUrl}user/add-user/${id}`
@@ -874,3 +948,13 @@ export const getCustomerBanners = async (data) => {
         return err?.response?.data
     }
 }
+
+export const getActiveBanners = async (type = "website") => {
+    try {
+        const res = await axios.get(`${environment.baseUrl}banners/active?type=${type}`);
+        return res.data?.data || [];
+    } catch (err) {
+        console.error("Error fetching banners:", err);
+        return [];
+    }
+};

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/Slices/loginSlice";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import google from "../assets/google-icon.png";
 import facebook from "../assets/facebook-icon.png";
 import apple from "../assets/apple-icon.png";
@@ -22,8 +23,8 @@ const Login = () => {
             .then(() => {
                 navigate("/");
             })
-            .catch(() => {
-                alert(err || "Login failed");
+            .catch((err) => {
+                toast.error(err || "Login failed");
             });
     };
 
