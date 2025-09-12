@@ -68,7 +68,6 @@ const HomeBanner = ({ slidesData }) => {
         setIsAutoPlay(!isAutoPlay);
     };
 
-    // If no slides data provided, return null or a default message
     if (!slidesData || slidesData.length === 0) {
         return <div>No slides available</div>;
     }
@@ -78,11 +77,11 @@ const HomeBanner = ({ slidesData }) => {
     return (
         <div className="relative">
             {/* Custom CSS for animations */}
-         
+
 
             {/* Slider Container */}
             <div className="relative overflow-hidden">
-                <div 
+                <div
                     className="flex transition-transform duration-1000 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
@@ -90,23 +89,40 @@ const HomeBanner = ({ slidesData }) => {
                         <div key={slide.id} className="w-full flex-shrink-0">
                             <section className='relative flex h-screen items-center justify-center overflow-hidden'>
                                 {slide.background && <div className='absolute inset-0 z-10 h-full w-full overflow-hidden bg-gradient-to-t from-transparent from-30% to-black' />}
-                                
-                                <img src={slide.image} alt="Home Banner" className='w-full h-full object-cover' />
-                                
+
+                                <img
+                                    src={slide.image}
+                                    alt="Home Banner"
+                                    className='w-full h-full object-cover'
+                                    onError={(e) => {
+                                        console.error("Image failed to load:", slide.image);
+                                        if (slide.onImageError) {
+                                            slide.onImageError(e);
+                                        }
+                                    }}
+                                    referrerPolicy="no-referrer"
+                                    style={{
+                                        display: 'block',
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+
                                 {/* Video overlay - uncomment if needed */}
                                 {slide.video && (
-                                    <video 
-                                        src={slide.video} 
-                                        className="absolute w-full h-full object-cover" 
-                                        loop 
-                                        autoPlay 
-                                        playsInline 
+                                    <video
+                                        src={slide.video}
+                                        className="absolute w-full h-full object-cover"
+                                        loop
+                                        autoPlay
+                                        playsInline
                                         muted
                                     />
                                 )}
-                                
+
                                 <div className="absolute inset-0 z-0 bg-black/50"></div>
-                                
+
                                 <div className='absolute inset-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center flex justify-center items-center flex-col space-y-3 container mx-auto z-40 px-4 md:px-8'>
                                     <h1 className='split text-2xl md:text-4xl lg:text-6xl pb-2 font-tbLex font-bold text-neutral-50 overflow-hidden'>
                                         {slide.title}
@@ -115,16 +131,16 @@ const HomeBanner = ({ slidesData }) => {
                                         {slide.description}
                                     </p>
                                     {slide.button && (
-                                        <button 
-                                            className={`btn ${formBtn1}`} 
+                                        <button
+                                            className={`btn ${formBtn1}`}
                                             onClick={slide.onClick}
                                         >
                                             Register to join
                                         </button>
                                     )}
                                 </div>
-                                
-                              
+
+
                             </section>
                         </div>
                     ))}
@@ -157,11 +173,10 @@ const HomeBanner = ({ slidesData }) => {
                             <button
                                 key={index}
                                 onClick={() => goToSlide(index)}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${
-                                    index === currentSlide
-                                        ? 'bg-orange-400 scale-125 shadow-lg'
-                                        : 'bg-white bg-opacity-60 hover:bg-orange-300'
-                                }`}
+                                className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${index === currentSlide
+                                    ? 'bg-orange-400 scale-125 shadow-lg'
+                                    : 'bg-white bg-opacity-60 hover:bg-orange-300'
+                                    }`}
                                 aria-label={`Go to slide ${index + 1}`}
                             />
                         ))}

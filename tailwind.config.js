@@ -35,7 +35,8 @@ export default {
                 slate1: "#FEF8EF",
                 "base-font": "#62748E",
                 "custom-bg": "#FFF5EE",
-                "orange-light": "#FFD8A4"
+                "orange-light": "#FFD8A4",
+                "form-bg": "#F8FAFC",
             },
             backgroundImage: {
                 "gradient-orange": "linear-gradient(to right, #fb923c, #fb923c, #ef4444)",

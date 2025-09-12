@@ -9,22 +9,36 @@ import {
     User,
 } from 'iconsax-reactjs';
 import { useSelector } from 'react-redux';
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from 'react';
 import LogoutModal from '../Modals/NavbarModals/LogoutModal';
 import { formBtn1 } from '../../utils/CustomClass';
 import greetingTime from "greeting-time";
 import moment from "moment";
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../../redux/Slices/loginSlice';
+import toast, { Toaster } from "react-hot-toast";
 
 const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink }) => {
     const user = useSelector((state) => state.user.userDetails)
     const [open, setOpen] = useState(false)
     const [card, setCard] = useState(true)
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     // ============================= logout user dashbaord ================================
-    const logOut = () => {
-        setOpen(!open)
-        setCard(!card)
-    }
+    const logOut = async () => {
+        try {
+            const res = await dispatch(logoutUser()).unwrap();
+            setOpen(false);
+            setCard(true);
+            navigate("/");
+
+            toast.success(res.message || "Logged out successfully!");
+        } catch (error) {
+            toast.error(error || "Logout failed");
+            console.error("Logout failed:", error);
+        }
+    };
     return (
         <>
             <div className={`${mobileSidebar ? "left-[15rem]" : ""} ${isActiveLink ? "left-[5rem]" : "left-0 xl:left-[15rem]"}  duration-700 transition-all ease-in-out  pt-3.5 py-2 px-4 z-50 md:px-3 m-5 mx-7 rounded-xl bg-white mt-7`} >
@@ -54,7 +68,7 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
                         </div>
                         <div className="flex items-center space-x-6">
                             <NotificationSection />
-                            <ProfilePage />
+                            <ProfilePage logOut={logOut} />
                             {/* <div className="" onClick={() => setCard(!card)}>
                                 <div className="bg-white shadow-md rounded-3xl px-1.5 pr-2 py-1 w-full flex items-center space-x-2 cursor-pointer">
                                     <img loading="lazy" className="h-10 w-10 rounded-full object-cover bg-slate1 border-2 border-primary " src={'https://bootstrapdemos.wrappixel.com/materialM/dist/assets/images/profile/user-1.jpg'} alt="user" />
@@ -169,7 +183,13 @@ const ProfileSection = ({ card, setCard, logOut }) => {
                         </li> */}
                     </div>
                     <div className="pt-5 px-5">
-                        <button type='submit' onClick={logOut} className={`${formBtn1}  bg-red-500 hover:bg-red-500/90 w-full tracking-tight text-sm`}>Logout</button>
+                        <button
+                            type='submit'
+                            onClick={logOut}
+                            className={`${formBtn1} bg-red-500 hover:bg-red-500/90 w-full tracking-tight text-sm`}
+                        >
+                            Logout
+                        </button>
                     </div>
                 </ul>
             </div>
@@ -179,7 +199,7 @@ const ProfileSection = ({ card, setCard, logOut }) => {
 }
 
 
-const ProfilePage = () => {
+const ProfilePage = ({ logOut }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const trigger = useRef(null);
@@ -271,7 +291,10 @@ const ProfilePage = () => {
                                 </a>
                             </div>
                             <div>
-                                <button className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-red-500 hover:bg-gray-50 ">
+                                <button
+                                    onClick={logOut}
+                                    className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-red-500 hover:bg-gray-50 "
+                                >
                                     <span className="flex items-center gap-2">
                                         <LoginCurve size={22} variant="TwoTone" />
                                         Log out

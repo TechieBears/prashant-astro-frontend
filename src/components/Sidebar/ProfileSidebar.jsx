@@ -1,142 +1,99 @@
-import React from "react";
-import { Icon } from "@iconify/react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  setLoggedUser,
-  setLoggedUserDetails,
-} from "../../redux/Slices/loginSlice";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Power } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser, deleteUser } from "../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
-import { Profile } from "iconsax-reactjs";
+import { useState } from "react";
+import DeleteModal from "../Modals/DeleteModal/DeleteModal";
 
-const ProfileSidebar = ({ children }) => {
-  const user = useSelector((state) => state.user);
-  const isLoggedIn = user?.isLogged;
-  const location = useLocation();
-  const navigate = useNavigate();
+const ProfileSidebar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.user);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Utility to check if a link is active
-  const isActive = (path) => location.pathname === path;
-
-  const navItems = [
-    { label: "My Account", path: "/profile/account" },
-    { label: "My Orders", path: "/profile/my-orders" },
-    { label: "My Address", path: "/profile/address" },
-    { label: "Customer Support", path: "/profile/customer-support" },
-    { label: "Privacy Policy", path: "/profile/privacy-policy" },
+  const menuItems = [
+    { name: "My Account", path: "/my-account" },
+    { name: "My Orders", path: "/orders" },
+    { name: "My Address", path: "/address" },
+    { name: "Customer Support", path: "/customer-support" },
+    { name: "Privacy Policy", path: "/privacy-policy" },
   ];
 
   const handleLogout = async () => {
     try {
-      // TODO: Implement actual logout API call
-      localStorage.removeItem("token");
-      dispatch(setLoggedUser(false));
-      dispatch(setLoggedUserDetails({}));
-      toast.success("Logged out successfully!");
+      const res = await dispatch(logoutUser()).unwrap();
+      toast.success(res.message || "Logged out successfully!");
       navigate("/");
-    } catch (err) {
-      console.error("Logout failed:", err);
-      toast.error("Logout failed");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error(error || "Logout failed");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      navigate("/");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const res = await dispatch(deleteUser()).unwrap();
+      toast.success(res.message || "Account deleted successfully!");
+      setShowDeleteModal(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+      toast.error(error || "Account deletion failed");
+      setShowDeleteModal(false);
     }
   };
 
   return (
-    <div className="bg-gray-100 py-12 mt-12 px-4">
-      <div className="max-w-[1200px] w-full mx-auto">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-1/4 bg-white border rounded-2xl p-4 flex flex-col justify-between h-full min-h-[600px]">
-            <div>
-              <h2 className="text-xl lg:text-2xl font-semibold text-[#1d2e36] mb-6">
-                My Profile
-              </h2>
+    <div className="w-64 bg-white rounded-xl py-4 border border-[#CAD5E2]">
+      <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
+      <ul>
+        {menuItems.map((item) => (
+          <li key={item.path}>
+            <NavLink
+              to={item.path}
+              end
+              className={({ isActive }) =>
+                `block px-4 py-4 border border-[#E2E8F0] cursor-pointer ${isActive
+                  ? "bg-button-vertical-gradient-orange text-white"
+                  : "hover:bg-gray-100"
+                }`
+              }
+            >
+              {item.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
 
-              <nav className="flex flex-col gap-y-2">
-                {navItems.map((item, index) => (
-                  <React.Fragment key={item.label}>
-                    {item.path.startsWith("/") ? (
-                      <Link
-                        to={item.path}
-                        className={`flex items-center justify-between px-3 py-3 rounded-lg font-medium transition ${
-                          isActive(item.path)
-                            ? "bg-purple-100 text-purple-600 border-b"
-                            : "hover:bg-gray-100 text-[#1d2e36]"
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Icon icon={item.icon} width={22} height={22} />
-                          {item.label}
-                        </span>
-                        <Icon
-                          icon="material-symbols-light:keyboard-arrow-right"
-                          width={24}
-                          height={24}
-                        />
-                      </Link>
-                    ) : (
-                      <button
-                        className={`flex items-center justify-between px-3 py-3 rounded-lg font-medium transition ${
-                          isActive(item.path)
-                            ? "bg-purple-100 text-purple-600 border-b"
-                            : "hover:bg-gray-100 text-[#1d2e36]"
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Icon icon={item.icon} width={22} height={22} />
-                          {item.label}
-                        </span>
-                        <Icon
-                          icon="material-symbols-light:keyboard-arrow-right"
-                          width={24}
-                          height={24}
-                        />
-                      </button>
-                    )}
-                  </React.Fragment>
-                ))}
-              </nav>
-            </div>
-
-            {/* Bottom Action Buttons */}
-            {/* {isLoggedIn && ( */}
-            <div className="mt-12 space-y-4 pt-4 border-t border-gray-200">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center py-3 bg-red-100 text-red-600 border border-black font-semibold rounded-lg hover:bg-red-200 transition"
-              >
-                Logout
-                <Icon
-                  icon="uiw:poweroff"
-                  className="ml-2"
-                  width={18}
-                  height={18}
-                />
-              </button>
-
-              <button
-                disabled
-                className="w-full flex items-center justify-center py-3 bg-red-600 text-white font-semibold rounded-lg 
-                        transition opacity-50 cursor-not-allowed"
-              >
-                Delete Account
-                <Icon
-                  icon="material-symbols:delete-outline"
-                  width={24}
-                  height={24}
-                  className="ml-2"
-                />
-              </button>
-            </div>
-            {/* )} */}
-          </aside>
-
-          {/* Main Content */}
-          <main className="flex-1 bg-white rounded-2xl p-4 lg:p-6 border border-[#CAD5E2]">
-            {children}
-          </main>
-        </div>
+      <div className="mt-14 flex flex-col space-y-4 px-4">
+        <button
+          onClick={handleLogout}
+          disabled={loading}
+          className="rounded-lg py-2 hover:bg-gray-100 transition border border-black flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Logging out..." : "Logout"}
+          <Power className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="bg-red-500 text-white rounded-lg py-2 hover:bg-red-600 transition"
+        >
+          Delete Account 🗑
+        </button>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <DeleteModal
+        open={showDeleteModal}
+        toggleModalBtn={() => setShowDeleteModal(false)}
+        deleteBtn={handleDeleteAccount}
+        title="Delete Account"
+        description="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed."
+      />
     </div>
   );
 };
