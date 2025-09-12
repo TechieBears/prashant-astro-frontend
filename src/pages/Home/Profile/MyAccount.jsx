@@ -29,7 +29,7 @@ const MyAccount = () => {
     return (
         <div className="flex px-40 py-12">
             <ProfileSidebar />
-            <div className="flex-1 ml-6 bg-white p-6">
+            <div className="flex-1 ml-6 rounded-lg bg-white p-6">
                 <h2 className="font-semibold text-lg mb-6">My Account</h2>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
