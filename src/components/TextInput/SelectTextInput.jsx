@@ -18,6 +18,7 @@ const SelectTextInput = ({ label, options, props, errors, registerName, style, d
                     onChange={handleChange}
                     {...props}
                 >
+                    <option value="" disabled>{placeholder}</option>
                     {options?.map((option) => (
                         <option key={option?.value} value={option?.value}>
                             {option?.label}

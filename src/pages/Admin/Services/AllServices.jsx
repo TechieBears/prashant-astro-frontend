@@ -12,6 +12,7 @@ import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
 import { formatRole, imageComponet } from '../../../helper/Helper'
 import TableHeader from '../../../components/Table/TableHeader'
+import CreateServiceModal from '../../../components/Modals/AdminModals/CreateServiceModal';
 
 const initialFilterState = {
     name: '',
@@ -73,11 +74,11 @@ const AllServices = () => {
         }
     };
 
-    // const ActionBody = (row) => (
-    //     <NavLink to={`/dashboard/${row?._id}`}>
-    //         <Eye size={20} className="text-gray-500 cursor-pointer" />
-    //     </NavLink>
-    // )
+    const ActionBody = (row) => (
+        <NavLink to={`/dashboard/${row?._id}`}>
+            <Eye size={20} className="text-gray-500 cursor-pointer" />
+        </NavLink>
+    )
 
 
     const varificationBody = (row) => (
@@ -199,7 +200,7 @@ const AllServices = () => {
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
 
-                <TableHeader title={"All Services"} subtitle={"Recently added services will appear here"} />
+                <TableHeader title={"All Services"} subtitle={"Recently added services will appear here"} component={<CreateServiceModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
 
                 <Table data={filterData} columns={columns} paginator={false} />
 

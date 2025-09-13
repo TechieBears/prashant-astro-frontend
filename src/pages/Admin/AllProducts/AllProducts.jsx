@@ -1,11 +1,11 @@
-import { ArrowLeft2, ArrowRight2, Eye, Trash } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Edit, Eye, Trash } from 'iconsax-reactjs';
 import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Switch from "react-js-switch";
 import { NavLink } from 'react-router-dom';
-import { adminGetFilteredActors, blacklistUser, blockUser, deleteUser, premiumUser, verifyUser } from '../../../api';
+import { adminGetFilteredActors, verifyUser } from '../../../api';
 import Table from '../../../components/Table/Table';
 import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import TextInput from '../../../components/TextInput/TextInput';
@@ -14,7 +14,6 @@ import { formBtn1 } from '../../../utils/CustomClass';
 import usePagination from '../../../utils/customHooks/usePagination';
 import CreateProductModal from '../../../components/Modals/AdminModals/CreateProductModal';
 import TableHeader from '../../../components/Table/TableHeader';
-// import AdminPrimaryActorModal from '../../../components/Modals/PrimaryActorModal/AdminPrimaryActorModal';
 
 const initialFilterState = {
     email: '',
@@ -63,47 +62,6 @@ function AllUserProfiles() {
         setFilterCriteria(initialFilterState);
         toast.success('Filters cleared');
     };
-    const handleBlockChange = async (id, isBlocked) => {
-        try {
-            const updatedData = {
-                isBlocked: !isBlocked
-            }
-            await blockUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    };
-
-    const handleBlackListChange = async (id, isBlacklisted) => {
-        try {
-            const updatedData = {
-                isBlacklisted: !isBlacklisted
-            }
-            await blacklistUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
-
-    const handlePremiumChange = async (id, isPremium) => {
-        try {
-            const updatedData = {
-                isPremium: !isPremium
-            }
-            await premiumUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
 
     const handleVarificationChange = async (id, isVerified) => {
         try {
@@ -124,18 +82,6 @@ function AllUserProfiles() {
         }
     }
 
-    const deletableStatuses = ['pending', 'failed', 'unpaid', 'user_dropped'];
-
-    const deleteBtn = () => {
-        deleteUser(selectedUser?._id).then(res => {
-            if (res?.status === 200) {
-                toast.success('User Deleted Successfully')
-                setRefreshTrigger(prev => prev + 1)
-                toggleModal()
-            }
-        })
-    }
-
     const toggleModal = () => {
         setOpen(!open);
     };
@@ -150,15 +96,14 @@ function AllUserProfiles() {
             <NavLink to={`/admin-actors-profile/${row?._id}`} state={{ row }}>
                 <Eye size={20} className="text-gray-500 cursor-pointer" />
             </NavLink>
-            {deletableStatuses.includes(row?.paymentStatus) ? <button onClick={() => handleTrashClick(row)}><Trash className='text-red-500' size={20} /></button> : null}
-            {/* <button onClick={() => {
+            <button onClick={() => handleTrashClick(row)}><Trash className='text-red-500' size={20} /></button>
+            <button onClick={() => {
                 setEdit(true)
                 toggleModal()
                 setData(row)
             }} >
                 <Edit className='text-yellow-500' size={20} />
-            </button> */}
-            {/* {row?.createdBy == 'admin' && <AdminPrimaryActorModal edit={true} userData={row} setRefreshTrigger={setRefreshTrigger} />} */}
+            </button>
         </div>
     )
 
@@ -173,27 +118,6 @@ function AllUserProfiles() {
         />
     }
 
-    const blackListBody = (row) => (
-        <Switch
-            value={row?.isBlacklisted}
-            disabled={row?.is_registered || row?.isVerified || !row?.isRejected == false ? true : false}
-            onChange={() => handleBlackListChange(row?._id, row?.isBlacklisted)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
-
-    const premiumBody = (row) => (
-        <Switch
-            value={row?.isPremium}
-            disabled={row?.is_registered || !row?.isVerified || !row?.isRejected == false ? true : false}
-            onChange={() => handlePremiumChange(row?._id, row?.isPremium)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
 
     const columns = [
         { field: "image", header: "Image", body: imageComponet, style: true },
@@ -211,19 +135,7 @@ function AllUserProfiles() {
         {
             field: 'isApproved',
             header: 'Approved',
-            // body: approvalBody,
-            style: true
-        },
-        {
-            field: 'isVisible',
-            header: 'Visible',
-            // body: visibilityBody,
-            style: true
-        },
-        {
-            field: 'isFeatured',
-            header: 'Featured',
-            // body: featuredBody,
+            body: varificationBody,
             style: true
         },
         {
@@ -294,7 +206,7 @@ function AllUserProfiles() {
 
             {/* Product Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title='All Products' subtitle='List of all Products' component={<CreateProductModal />} />
+                <TableHeader title='All Products' subtitle='List of all Products' component={<CreateProductModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
                 <Table data={filterData} columns={columns} paginator={false} />
 
                 {/* Pagination Controls */}

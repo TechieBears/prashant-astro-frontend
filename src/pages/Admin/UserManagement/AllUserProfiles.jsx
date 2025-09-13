@@ -5,18 +5,18 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Switch from "react-js-switch";
 import { NavLink } from 'react-router-dom';
-import { adminGetFilteredActors, blacklistUser, blockUser, deleteUser, premiumUser, verifyUser } from '../../../api';
+import { adminGetFilteredActors, blacklistUser, blockUser, deleteUser, getAllCustomers, premiumUser, verifyUser } from '../../../api';
 import Table from '../../../components/Table/Table';
 import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import TextInput from '../../../components/TextInput/TextInput';
 import { imageComponet, paymentBody, statusBody } from '../../../helper/Helper';
-import { formBtn1 } from '../../../utils/CustomClass';
+import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import usePagination from '../../../utils/customHooks/usePagination';
 import DeleteModal from '../../../components/Modals/DeleteModal/DeleteModal';
+import { validateAlphabets } from '../../../utils/validateFunction';
 
 const initialFilterState = {
-    email: '',
-    role: '',
+    name: ''
 };
 
 function AllUserProfiles() {
@@ -24,8 +24,6 @@ function AllUserProfiles() {
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const [open, setOpen] = useState(false)
-    const [data, setData] = useState(false)
-    const [edit, setEdit] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null)
 
     const combinedFilters = useMemo(() => ({
@@ -43,7 +41,7 @@ function AllUserProfiles() {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, adminGetFilteredActors, combinedFilters);
+    } = usePagination(1, 10, getAllCustomers, combinedFilters);
     // Handle API errors
     useEffect(() => {
         if (error) toast.error('Failed to fetch users');
@@ -61,20 +59,6 @@ function AllUserProfiles() {
         setFilterCriteria(initialFilterState);
         toast.success('Filters cleared');
     };
-    const handleBlockChange = async (id, isBlocked) => {
-        try {
-            const updatedData = {
-                isBlocked: !isBlocked
-            }
-            await blockUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    };
-
     const handleBlackListChange = async (id, isBlacklisted) => {
         try {
             const updatedData = {
@@ -89,40 +73,6 @@ function AllUserProfiles() {
         }
     }
 
-    const handlePremiumChange = async (id, isPremium) => {
-        try {
-            const updatedData = {
-                isPremium: !isPremium
-            }
-            await premiumUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
-
-    const handleVarificationChange = async (id, isVerified) => {
-        try {
-            const updatedData = {
-                isVerified: !isVerified
-            }
-            await verifyUser(id, updatedData).then(res => {
-                if (res?.message == "User verified successfully") {
-                    toast.success('Status updated');
-                } else {
-                    toast.error(res?.message);
-                }
-            }); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refreshz
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
-
-    const deletableStatuses = ['pending', 'failed', 'unpaid', 'user_dropped'];
 
     const deleteBtn = () => {
         deleteUser(selectedUser?._id).then(res => {
@@ -138,38 +88,6 @@ function AllUserProfiles() {
         setOpen(!open);
     };
 
-    const handleTrashClick = (row) => {
-        setSelectedUser(row); // set the user from current row
-        toggleModal();
-    };
-
-    const ActionBody = (row) => (
-        <div className='flex items-center gap-x-1'>
-            <NavLink to={`/admin-actors-profile/${row?._id}`} state={{ row }}>
-                <Eye size={20} className="text-gray-500 cursor-pointer" />
-            </NavLink>
-            {deletableStatuses.includes(row?.paymentStatus) ? <button onClick={() => handleTrashClick(row)}><Trash className='text-red-500' size={20} /></button> : null}
-            {/* <button onClick={() => {
-                setEdit(true)
-                toggleModal()
-                setData(row)
-            }} >
-                <Edit className='text-yellow-500' size={20} />
-            </button> */}
-            {/* {row?.createdBy == 'admin' && <AdminPrimaryActorModal edit={true} userData={row} setRefreshTrigger={setRefreshTrigger} />} */}
-        </div>
-    )
-
-    const varificationBody = (row) => {
-        return <Switch
-            value={row?.isVerified}
-            disabled={row?.is_registered || row?.paymentStatus !== "success" || !row?.isRejected == false ? true : false}
-            onChange={() => handleVarificationChange(row?._id, row?.isVerified)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    }
 
     const blackListBody = (row) => (
         <Switch
@@ -182,54 +100,24 @@ function AllUserProfiles() {
         />
     )
 
-    const premiumBody = (row) => (
-        <Switch
-            value={row?.isPremium}
-            disabled={row?.is_registered || !row?.isVerified || !row?.isRejected == false ? true : false}
-            onChange={() => handlePremiumChange(row?._id, row?.isPremium)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
-
     const columns = [
         { field: "profile", header: "Profile", body: imageComponet, style: true },
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
+        { field: 'firstName', header: 'First Name', body: (row) => <span className='capitalize'>{row?.profile?.firstName || "---- -----"}</span>, style: true },
+        { field: 'lastName', header: 'Last Name', body: (row) => <span className='capitalize'>{row?.profile?.lastName || "---- -----"}</span>, style: true },
+        { field: 'address', header: 'Address', body: (row) => <span className='capitalize'>{row?.profile?.addresses || "---- -----"}</span>, style: true },
         { field: 'role', header: 'Role', body: (row) => <span className='capitalize'>{row?.role || "---- -----"}</span>, style: true },
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
+        { field: 'mobileNo', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.mobileNo || "---- -----"}</span>, style: true },
         {
             field: 'createdAt',
             header: 'Registration date',
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}</>,
             style: true
         },
-        { field: 'rejectionCount', header: 'Rejection Count', style: true },
-        { field: 'status', header: 'Status', body: statusBody, style: true },
-        { field: 'paymentStatus', header: 'Payment Status', body: paymentBody, style: true },
-        {
-            field: 'isVerified',
-            header: 'Verification',
-            body: varificationBody,
-            style: true
-        },
         {
             field: 'isBlacklisted',
             header: 'Blacklisted',
             body: blackListBody,
-            style: true
-        },
-        {
-            field: 'premium',
-            header: 'Premium',
-            body: premiumBody,
-            style: true
-        },
-        {
-            field: 'action',
-            header: 'Action',
-            body: ActionBody,
             style: true
         }
     ];
@@ -239,33 +127,17 @@ function AllUserProfiles() {
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
                         <TextInput
-                            label="Enter Email*"
-                            placeholder="Enter Email"
-                            type="email"
-                            registerName="email"
-                            props={{ ...register('email') }}
+                            label="Enter Full Name*"
+                            placeholder="Enter Full Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name', { validate: validateAlphabets }) }}
                         />
-                        <div className="">
-                            <SelectTextInput
-                                label="Select Role*"
-                                registerName="role"
-                                options={[
-                                    { value: '', label: 'Select Role' },
-                                    { value: 'primary', label: 'Primary' },
-                                    { value: 'secondary', label: 'Secondary' },
-                                ]}
-                                props={{
-                                    ...register('role', { required: true }),
-                                    value: watch('role') || ''
-                                }}
-                            />
-                        </div>
-
                     </div>
                     <div className="flex space-x-2">
-                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="submit" className={`${tableBtn} w-full`}>Search</button>
                         <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
                     </div>
                 </form>

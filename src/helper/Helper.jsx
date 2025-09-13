@@ -5,9 +5,9 @@ import { Dialog } from '@headlessui/react';
 
 export const imageComponet = (row) => (<div className="w-16 h-16">
     <img
-        src={row?.profilePicture || ""}
+        src={row?.profileImage || "https://avatar.iran.liara.run/public"}
         className="object-cover w-full h-full rounded-full bg-slate1"
-        alt={row?.fullName}
+        alt={row?.profile?.fullName}
     />
 </div>)
 

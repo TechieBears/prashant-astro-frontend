@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProductSubCategory, editProductSubCategory } from '../../../api';
+import { addProductSubCategory, editProductSubCategory, getProductCategoriesDropdown } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 
 function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
@@ -16,6 +16,8 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+
+    const [categoryOptions, setCategoryOptions] = useState([]);
 
     const formSubmit = async (data) => {
         try {
@@ -28,25 +30,25 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
 
             if (edit) {
                 await editProductSubCategory(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
                 await addProductSubCategory(updatedData).then(res => {
-                    if (res?.status === 200) {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
-                        toast.success("Product Sub Category Added Successfully");
+                        toast.success("Product Category Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
@@ -60,11 +62,18 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
         }
     }
 
+    useEffect(() => {
+        getProductCategoriesDropdown().then(res => {
+            console.log("⚡️🤯 ~ ProductSubCategoriesModal.jsx:65 ~ ProductSubCategoriesModal ~ res:", res)
+            setCategoryOptions(res?.data?.map(item => ({ value: item?._id, label: item?.name })));
+        })
+    }, []);
 
+    console.log("⚡️🤯 ~ ProductSubCategoriesModal.jsx:72 ~ ProductSubCategoriesModal ~ userData:", userData)
     useEffect(() => {
         if (edit && userData) {
             setValue('name', userData?.name);
-            setValue('categoryId', userData?.categoryId);
+            setValue('categoryId', userData?.categoryId?._id);
             setValue('image', userData?.image);
         }
     }, [edit, userData, reset, setValue]);
@@ -117,20 +126,13 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category
+                                                            Category Name
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
-                                                                label="Select Sub Category"
+                                                                label="Select Category Name"
                                                                 registerName="categoryId"
-                                                                options={[
-                                                                    { value: '', label: 'Select Category' },
-                                                                    { value: 'category1', label: 'Category 1' },
-                                                                    { value: 'category2', label: 'Category 2' },
-                                                                    { value: 'category3', label: 'Category 3' },
-                                                                    { value: 'category4', label: 'Category 4' },
-                                                                    { value: 'category5', label: 'Category 5' },
-                                                                ]}
+                                                                options={categoryOptions}
                                                                 placeholder="Select Category"
                                                                 props={{
                                                                     ...register('categoryId', { required: true }),
@@ -145,14 +147,14 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category Name
+                                                            Sub Category Name*
                                                         </h4>
                                                         <TextInput
-                                                            label="Enter Sub Category Name"
+                                                            label="Enter Sub Category Name*"
                                                             placeholder="Enter Sub Category Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name', { required: "Sub Category is required" }) }}
+                                                            props={{ ...register('name', { required: "Sub Category Name is required" }) }}
                                                             errors={errors.name}
                                                             defaultValue={userData?.name}
                                                         />
@@ -161,14 +163,14 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Sub Category Image
+                                                            Sub Category Image*
                                                         </h4>
                                                         <ImageUploadInput
-                                                            label="Upload Category Image"
+                                                            label="Upload Sub Category Image*"
                                                             multiple={false}
                                                             registerName="image"
                                                             errors={errors.image}
-                                                            {...register("image", { required: "Sub Category Image is required" })}
+                                                            {...register("image", { required: "Sub Category Image* is required" })}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}

@@ -1,9 +1,9 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Copy } from 'iconsax-reactjs';
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { getAllEqnuires } from '../../../api';
+import { getAllEmployees, getAllEqnuires } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
@@ -13,17 +13,12 @@ import { useSelector } from 'react-redux';
 import { validateAlphabets } from '../../../utils/validateFunction';
 import CreateEmployeeModal from '../../../components/Modals/AdminModals/CreateEmployeeModal';
 import TableHeader from '../../../components/Table/TableHeader';
-
+import { Trash } from 'iconsax-reactjs';
 
 
 const Employees = () => {
-
-    const user = useSelector((state) => state.user.userDetails);
-
     const initialFilterState = {
-        name: '',
-        role: 'employee',
-        id: user?._id,
+        name: ''
     };
 
     const { register, handleSubmit, reset } = useForm({ defaultValues: initialFilterState });
@@ -45,7 +40,7 @@ const Employees = () => {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, getAllEqnuires, combinedFilters);
+    } = usePagination(1, 10, getAllEmployees, combinedFilters);
 
     // Handle API errors
     useEffect(() => {
@@ -66,23 +61,30 @@ const Employees = () => {
     };
 
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        {/* <EmployeeFormModal button='edit' title='Edit Employee Details' edit={true} data={row} setRefreshTrigger={setRefreshTrigger} /> */}
-        {/* <button onClick={() => toggleModalBtn(row?.id)} id={row?.id} className="bg-red-100  px-1.5 py-2 rounded-sm"><Trash size="20" className='text-red-500' /></button> */}
+        <CreateEmployeeModal edit={true} title='Edit Employee Details' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
 
     const columns = [
-        { field: 'code', header: 'Employee Id', body: (row) => <span className='capitalize'>{row?.code || "---- -----"}</span>, style: true },
-        { field: 'name', header: 'Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true },
+        {
+            field: 'code', header: 'Employee Id', body: (row) => <div className="flex items-center gap-2"><span className='capitalize'>{row?._id?.slice(-10) || "---- -----"}</span> <span><Copy className="cursor-pointer text-primary hover:text-primary" size={18}
+                onClick={() => {
+                    navigator.clipboard.writeText(row?._id);
+                    toast.success('ID Copied!');
+                }} /></span>
+            </div>, style: true
+        },
+        { field: 'firstName', header: 'First Name', body: (row) => <span className='capitalize'>{row?.profile?.firstName || "---- -----"}</span>, style: true },
+        { field: 'lastName', header: 'Last Name', body: (row) => <span className='capitalize'>{row?.profile?.lastName || "---- -----"}</span>, style: true },
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span> },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
+        { field: 'mobileNo', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.mobileNo || "---- -----"}</span>, style: true },
         {
             field: 'createdAt',
             header: 'Registration date',
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY (hh:mm)') || "---- -----"}</>,
             style: true
         },
-        { field: 'id', header: 'Action', body: actionBodyTemplate, sortable: true },
+        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true },
     ];
 
 
@@ -118,7 +120,7 @@ const Employees = () => {
                 {/* User Table Section */}
                 <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
 
-                    <TableHeader title={"All Employees"} subtitle={"Recently added employees will appear here"} component={<CreateEmployeeModal title={"Create Employee"} edit={false} data={null} setRefreshTrigger={setRefreshTrigger} />} />
+                    <TableHeader title={"All Employees"} subtitle={"Recently added employees will appear here"} component={<CreateEmployeeModal title={"Create Employee"} edit={false} setRefreshTrigger={setRefreshTrigger} />} />
 
                     <Table data={filterData} columns={columns} paginator={false} />
 

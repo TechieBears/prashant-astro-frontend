@@ -23,26 +23,25 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
                 name: data?.name,
                 image: data?.image
             }
-
             if (edit) {
                 await editProductCategory(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
                 await addProductCategory(updatedData).then(res => {
-                    if (res?.status === 200) {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                         toast.success("Product Category Added Successfully");
                     } else {
@@ -147,7 +146,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
+                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>
                                     </div>

@@ -216,12 +216,6 @@ const ProfilePage = ({ logOut }) => {
         return () => document.removeEventListener("keydown", keyHandler);
     });
 
-    const logOut = () => {
-        setDropdownOpen(!dropdownOpen)
-        localStorage.removeItem("persist:root");
-        window.location.href = "/";
-    }
-
     return (
         <section className=" ">
             <div className="container">

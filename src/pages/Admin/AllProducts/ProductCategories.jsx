@@ -45,7 +45,9 @@ const ProductCategories = () => {
 const ProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-    const emptyFilters = useMemo(() => ({}), []);
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
         pageNo,
@@ -64,10 +66,11 @@ const ProductCategoriesPanel = () => {
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <ProductCategoriesModal button='edit' title='Edit Product Category' data={row} setRefreshTrigger={setRefreshTrigger} />
+        <ProductCategoriesModal edit={true} title='Edit Product Category' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
+        {console.log(row)}
         <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
     </div>
 
@@ -117,7 +120,9 @@ const ProductCategoriesPanel = () => {
 const SubProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-    const emptyFilters = useMemo(() => ({}), []);
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
         filterData,
@@ -138,7 +143,7 @@ const SubProductCategoriesPanel = () => {
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <ProductSubCategoriesModal button='edit' title='Edit Product Sub Category' data={row} setRefreshTrigger={setRefreshTrigger} />
+        <ProductSubCategoriesModal edit={true} title='Edit Product Sub Category' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>

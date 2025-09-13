@@ -10,8 +10,9 @@ import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import { addProduct, editProduct } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
+import CustomTextArea from '../../TextInput/CustomTextArea';
 
-function CreateProductModal({ edit, userData, setRefreshTrigger }) {
+function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
@@ -122,7 +123,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <div className="">
                                                             <SelectTextInput
                                                                 label="Select Product Category"
-                                                                registerName="productCategoryId"
+                                                                registerName="category"
                                                                 options={[
                                                                     { value: '', label: 'Select Product Category' },
                                                                     { value: 'productCategory1', label: 'Product Category 1' },
@@ -133,10 +134,37 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 ]}
                                                                 placeholder="Select Product Category"
                                                                 props={{
-                                                                    ...register('productCategoryId', { required: true }),
-                                                                    value: watch('productCategoryId') || ''
+                                                                    ...register('category', { required: true }),
+                                                                    value: watch('category') || ''
                                                                 }}
-                                                                errors={errors.productCategoryId}
+                                                                errors={errors.category}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Product Sub Category
+                                                        </h4>
+                                                        <div className="">
+                                                            <SelectTextInput
+                                                                label="Select Product Sub Category"
+                                                                registerName="subcategory"
+                                                                options={[
+                                                                    { value: '', label: 'Select Product Sub Category' },
+                                                                    { value: 'productsubcategory1', label: 'Product Sub Category 1' },
+                                                                    { value: 'productsubcategory2', label: 'Product Sub Category 2' },
+                                                                    { value: 'productsubcategory3', label: 'Product Sub Category 3' },
+                                                                    { value: 'productsubcategory4', label: 'Product Sub Category 4' },
+                                                                    { value: 'subcategory5', label: 'Sub Category 5' },
+                                                                ]}
+                                                                placeholder="Select Product Sub Category "
+                                                                props={{
+                                                                    ...register('subcategory', { required: true }),
+                                                                    value: watch('subcategory') || ''
+                                                                }}
+                                                                errors={errors.subcategory}
                                                             />
                                                         </div>
                                                     </div>
@@ -173,6 +201,43 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         // defaultValue={user?.user?.profilePicture}
                                                         />
 
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Description
+                                                        </h4>
+                                                        <CustomTextArea
+                                                            label="Enter Description"
+                                                            placeholder="Enter Description"
+                                                            registerName="description"
+                                                            props={{
+                                                                ...register('description', {
+                                                                    required: "Description is required",
+                                                                    minLength: {
+                                                                        value: 10,
+                                                                        message: "Description must be at least 10 characters"
+                                                                    }
+                                                                })
+                                                            }}
+                                                            errors={errors.description}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Product Additional Information
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Product Additional Information"
+                                                            placeholder="Enter Product Additional Information"
+                                                            type="text"
+                                                            registerName="additionalInfo"
+                                                            props={{ ...register('additionalInfo') }}
+                                                            errors={errors.additionalInfo}
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>

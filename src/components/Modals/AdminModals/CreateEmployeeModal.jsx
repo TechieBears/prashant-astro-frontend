@@ -25,26 +25,25 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                 email: data?.email,
                 mobileNo: data?.mobileNo,
             }
-
             if (edit) {
                 await editEmployee(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
                 await addEmployee(updatedData).then(res => {
-                    if (res?.status === 200) {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                         toast.success("Employee Added Successfully");
                     } else {
@@ -63,8 +62,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('firstName', userData?.firstName);
-            setValue('lastName', userData?.lastName);
+            setValue('firstName', userData?.profile?.firstName);
+            setValue('lastName', userData?.profile?.lastName);
             setValue('email', userData?.email);
             setValue('mobileNo', userData?.mobileNo);
         }

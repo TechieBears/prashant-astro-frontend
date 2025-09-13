@@ -2,10 +2,12 @@ import { DocumentUpload, TickCircle, Eye } from "iconsax-reactjs";
 import Error from "../Errors/Error";
 import { useState, useEffect } from "react";
 import ImageView from "../Modals/ImageView/ImageView";
+import { uploadToCloudinary } from "../../api";
 
 const ImageUploadInput = ({
     label,
     errors,
+    register,
     registerName,
     multiple,
     setValue,
@@ -16,6 +18,7 @@ const ImageUploadInput = ({
     const [showModal, setShowModal] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
+    // Load existing image on edit
     useEffect(() => {
         if (defaultValue) {
             const urls = multiple ? defaultValue : [defaultValue];
@@ -35,35 +38,29 @@ const ImageUploadInput = ({
             const newFiles = Array.from(e.target.files);
 
             try {
-                // Create local URLs for preview if needed
-                const previewFiles = newFiles.map((file) => ({
-                    file,
-                    name: file.name,
-                    url: URL.createObjectURL(file) // Create local blob URL for preview
-                }));
+                const uploadPromises = newFiles.map(file => uploadToCloudinary(file));
+                const urls = await Promise.all(uploadPromises);
 
-                // Set the file objects directly instead of Cloudinary URLs
                 if (multiple) {
-                    setValue(registerName, newFiles); // Array of File objects
+                    setValue(registerName, urls);
                 } else {
-                    setValue(registerName, newFiles[0]); // Single File object
+                    setValue(registerName, urls[0]);
                 }
 
+                const previewFiles = newFiles.map((file, idx) => ({
+                    file,
+                    name: file.name,
+                    url: urls[idx]
+                }));
+
                 setFiles(previewFiles);
-                setFileName(previewFiles.length === 1
-                    ? previewFiles[0].name
-                    : `${previewFiles.length} files selected`);
+                setFileName(previewFiles.length === 1 ? previewFiles[0].name : `${previewFiles.length} files selected`);
             } catch (error) {
-                console.error("Error handling files:", error);
+                console.error("Upload failed:", error);
             } finally {
                 setIsUploading(false);
             }
         } else {
-            // Clean up any existing object URLs to prevent memory leaks
-            files.forEach(file => {
-                if (file.url) URL.revokeObjectURL(file.url);
-            });
-
             setFiles([]);
             setFileName("");
             setValue(registerName, multiple ? [] : null);
@@ -78,63 +75,65 @@ const ImageUploadInput = ({
         setShowModal(false);
     };
 
-    return <>
-        <div className="h-[53px] relative flex rounded-md w-full cursor-pointer bg-slate1">
-            <input
-                type="file"
-                id={registerName}
-                accept="image/*"
-                multiple={multiple}
-                className={`peer w-full bg-transparent outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1
+    return (
+        <>
+            <div className="h-[53px] relative flex rounded-lg w-full cursor-pointer bg-slate1">
+                <input
+                    type="file"
+                    id={registerName}
+                    accept="image/*"
+                    multiple={multiple}
+                    className={`peer w-full bg-transparent outline-none px-4 text-base font-tbLex text-black rounded-lg bg-slate1
+                        ${!errors?.ref?.value && errors?.type === "required"
+                            ? 'border-red-500'
+                            : 'border-slate-300 focus:border-primary'}
+                        opacity-0 absolute z-10 cursor-pointer`}
+                    onChange={handleFileChange}
+                    disabled={isUploading}
+                />
+                <div className={`w-full h-full flex items-center px-4 rounded-lg  cursor-pointer
                     ${!errors?.ref?.value && errors?.type === "required"
                         ? 'border-red-500'
-                        : 'border-slate-300 focus:border-primary'}
-                    opacity-0 absolute z-10 cursor-pointer`}
-                onChange={handleFileChange}
-                disabled={isUploading}
-            />
-            <div className={`w-full h-full flex items-center px-4 rounded-md bg-slate1  cursor-pointer
-                ${!errors?.ref?.value && errors?.type === "required"
-                    ? 'border-red-500'
-                    : 'border-slate-300 peer-focus:border-primary'}`}>
-                <label
-                    htmlFor={registerName}
-                    className={`px-2 bg-slate1 text-base font-tbLex
-                        ${!errors?.ref?.value && errors?.type === "required"
-                            ? 'text-red-500'
-                            : fileName
-                                ? 'text-primary'
-                                : 'text-slate-400'}
-                        ${fileName ? 'top-0 left-3 text-sm' : ''} transition-all duration-150 flex items-center gap-2 cursor-pointer overflow-hidden`}
-                >
-                    {!fileName && <span><DocumentUpload size="22" /></span>}
-                    <span className="truncate w-full overflow-hidden">{isUploading ? "Uploading..." : fileName || label}</span>
-                </label>
-                <div className="ml-auto flex items-center gap-2 z-50 absolute right-2 bg-slate1 pl-3 cursor-pointer">
-                    {fileName && !isUploading && (
-                        <span className="text-sm text-green-500 text-nowrap flex items-center">
-                            <TickCircle size="22" variant="Bold" />
-                        </span>
-                    )}
-                    {files.length > 0 && !isUploading && (
-                        <button
-                            type="button"
-                            onClick={openModal}
-                            className="text-slate-500 cursor-pointer hover:text-primary transition-colors"
-                        >
-                            <Eye size="22" />
-                        </button>
-                    )}
+                        : 'border-slate-300 peer-focus:border-primary'}`}>
+                    <label
+                        htmlFor={registerName}
+                        className={`px-2 bg-slate1 text-base font-tbLex
+                            ${!errors?.ref?.value && errors?.type === "required"
+                                ? 'text-red-500'
+                                : fileName
+                                    ? 'text-primary'
+                                    : 'text-slate-400'}
+                            ${fileName ? 'top-0 left-3 text-sm' : ''} transition-all duration-150 flex items-center gap-2 cursor-pointer overflow-hidden`}
+                    >
+                        {!fileName && <span><DocumentUpload size="22" /></span>}
+                        <span className="truncate w-full overflow-hidden">{isUploading ? "Uploading..." : fileName || label}</span>
+                    </label>
+                    <div className="ml-auto flex items-center gap-2 z-50 absolute right-2 bg-slate1 pl-3 cursor-pointer">
+                        {fileName && !isUploading && (
+                            <span className="text-sm text-green-500 text-nowrap flex items-center">
+                                <TickCircle size="22" variant="Bold" />
+                            </span>
+                        )}
+                        {files.length > 0 && !isUploading && (
+                            <button
+                                type="button"
+                                onClick={openModal}
+                                className="text-slate-500 cursor-pointer hover:text-primary transition-colors"
+                            >
+                                <Eye size="22" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {!errors?.ref?.value && errors?.type === "required" && (
-            <Error message={`${label.replace(/\b(enter|your)\b/gi, '').trim()} is required`} />
-        )}
+            {!errors?.ref?.value && errors?.type === "required" && (
+                <Error message={`${label.replace(/\b(enter|your)\b/gi, '').trim()} is required`} />
+            )}
 
-        <ImageView isOpen={showModal} toggle={closeModal} files={files} />
-    </>;
+            <ImageView isOpen={showModal} toggle={closeModal} files={files} />
+        </>
+    );
 };
 
 export default ImageUploadInput;
