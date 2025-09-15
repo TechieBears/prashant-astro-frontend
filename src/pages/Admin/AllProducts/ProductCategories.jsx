@@ -4,11 +4,11 @@ import Table from '../../../components/Table/Table';
 import TableHeader from '../../../components/Table/TableHeader';
 import ProductCategoriesModal from '../../../components/Modals/AdminModals/ProductCategoriesModal';
 import ProductSubCategoriesModal from '../../../components/Modals/AdminModals/ProductSubCategoriesModal';
-import { getProductCategories, getProductSubCategories } from '../../../api';
+import { getProductCategories, getProductCategoriesDropdown, getProductSubCategories } from '../../../api';
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
 import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
-import { setProductCategories, setProductSubCategories } from '../../../redux/Slices/rootSlice';
+import { setProductCategories } from '../../../redux/Slices/rootSlice';
 import { useDispatch } from 'react-redux';
 
 const ProductCategories = () => {
@@ -166,7 +166,11 @@ const SubProductCategoriesPanel = () => {
     ];
 
     useEffect(() => {
-        dispatch(setProductSubCategories(filterData?.map(item => ({ value: item?._id, label: item?.name }))));
+        const apiCall = async () => {
+            const response = await getProductCategoriesDropdown();
+            dispatch(setProductCategories(response?.map(item => ({ value: item?._id, label: item?.name }))));
+        }
+        apiCall();
     }, [refreshTrigger, filterData]);
 
     return (

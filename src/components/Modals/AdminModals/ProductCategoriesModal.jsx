@@ -10,10 +10,10 @@ import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import { addProductCategory, editProductCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
-    const [open, setOpen] = useState(false);
-    const toggle = () => setOpen(!open);
-    const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+    const [open, setOpen] = useState(false);
+    const toggle = () => { setOpen(!open), reset() };
+    const [loader, setLoader] = useState(false);
     const formSubmit = async (data) => {
         try {
             setLoader(true);

@@ -14,12 +14,13 @@ import CustomTextArea from '../../TextInput/CustomTextArea';
 import { useSelector } from 'react-redux';
 
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
+    const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
     const productCategories = useSelector(state => state.appRoot?.productCategories || []);
     const productSubCategories = useSelector(state => state.appRoot?.productSubCategories || []);
     const [open, setOpen] = useState(false);
-    const toggle = () => setOpen(!open);
+    const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
-    const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+
 
     const formSubmit = async (data) => {
         try {

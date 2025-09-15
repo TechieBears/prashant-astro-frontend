@@ -327,6 +327,14 @@ body::-webkit-scrollbar-thumb {
     background-size: cover;
 } */
 
+.jodit_theme_summer {
+    --jd-color-background-default: #eff2fa;
+    /* --jd-color-border: #eff2fa; */
+    --jd-color-panel: #fff;
+    --jd-color-icon: #000;
+}
+
+
 .glass {
     background: rgba(255, 255, 255, 0.55);
     border-radius: 16px;

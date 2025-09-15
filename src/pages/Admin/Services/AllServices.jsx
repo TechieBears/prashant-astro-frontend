@@ -9,7 +9,7 @@ import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
-import { imageComponet } from '../../../helper/Helper';
+import { imageComponet1 } from '../../../helper/Helper';
 import TableHeader from '../../../components/Table/TableHeader'
 import CreateServiceModal from '../../../components/Modals/AdminModals/CreateServiceModal';
 import { useSelector } from 'react-redux';
@@ -82,12 +82,16 @@ const AllServices = () => {
         />
     )
 
+    const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
+        <CreateServiceModal edit={true} title='Edit Service' userData={row} setRefreshTrigger={setRefreshTrigger} />
+    </div>
+
     const columns = [
-        { field: "image", header: "Image", body: imageComponet, style: true, sortable: true },
+        { field: "image", header: "Image", body: imageComponet1, style: true, sortable: true },
         { field: 'name', header: 'Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'serviceType', header: 'Service Type', body: (row) => <span className='capitalize'>{row?.serviceType || "---- -----"}</span>, style: true, sortable: true },
         { field: 'title', header: 'Title', body: (row) => <span className='capitalize'>{row?.title || "---- -----"}</span>, style: true, sortable: true },
         { field: 'subTitle', header: 'Sub Title', body: (row) => <span className='capitalize'>{row?.subTitle || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'description', header: 'Description', body: (row) => <span className='capitalize'>{row?.description || "---- -----"}</span>, style: true, sortable: true },
         { field: 'categoryName', header: 'Category', body: (row) => <span className='capitalize'>{row?.category?.name || "---- -----"}</span>, style: true, sortable: true },
         { field: 'price', header: 'Price', body: (row) => <span className='capitalize'>{row?.price || "---- -----"}</span>, style: true, sortable: true },
         { field: 'durationInMinutes', header: 'Duration', body: (row) => <span className='capitalize'>{row?.durationInMinutes || "---- -----"}</span>, style: true, sortable: true },
@@ -98,6 +102,7 @@ const AllServices = () => {
             style: true,
             sortable: true
         },
+        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true }
     ];
     return (
         <div className="space-y-5">

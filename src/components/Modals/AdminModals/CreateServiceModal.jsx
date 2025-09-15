@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { formBtn1, formBtn3, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
@@ -9,16 +9,23 @@ import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import { addService, editService } from '../../../api';
-import { TableTitle } from '../../../helper/Helper';
+import { configTextEditor, TableTitle } from '../../../helper/Helper';
 import { useSelector } from 'react-redux';
+import JoditEditor from 'jodit-react';
+import { validateYoutubeUrl } from '../../../utils/validateFunction';
+import Error from '../../Errors/Error';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
-    const [open, setOpen] = useState(false);
-    const toggle = () => setOpen(!open);
-    const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
-
+    const [open, setOpen] = useState(false);
+    const toggle = () => { setOpen(!open), reset() };
+    const [loader, setLoader] = useState(false);
+    const editorRef = useRef(null);
     const serviceCategories = useSelector(state => state.appRoot?.serviceCategories || []);
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "videoUrl"
+    });
 
     const formSubmit = async (data) => {
         try {
@@ -60,16 +67,20 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('name', userData?.name);
-            setValue('category', userData?.category?.name);
-            setValue('image', userData?.image);
-            setValue('title', userData?.title);
-            setValue('subTitle', userData?.subTitle);
-            setValue('description', userData?.description);
-            setValue('price', userData?.price);
-            setValue('durationInMinutes', userData?.durationInMinutes);
+            reset({
+                name: userData?.name,
+                image: userData?.image,
+                serviceType: userData?.serviceType,
+                title: userData?.title,
+                subTitle: userData?.subTitle,
+                price: userData?.price,
+                durationInMinutes: userData?.durationInMinutes,
+                htmlContent: userData?.htmlContent,
+                ...userData
+            });
+            setValue('category', userData?.category?._id);
         }
-    }, [edit, userData, reset, setValue]);
+    }, [edit, userData, reset, setValue, open]);
 
     return (
         <>
@@ -105,7 +116,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
                                         title={edit ? "Edit Service" : "Create New Service"}
                                         toggle={toggle}
@@ -114,7 +125,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
-                                                <div className='grid grid-cols-2 gap-x-3 gap-y-5' >
+                                                <div className='grid grid-cols-3 gap-x-3 gap-y-5' >
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -128,10 +139,33 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                                 options={serviceCategories}
                                                                 placeholder="Select Service Category"
                                                                 props={{
-                                                                    ...register('category', { required: true }),
-                                                                    value: watch('category') || ''
+                                                                    ...register('category', { required: true })
                                                                 }}
                                                                 errors={errors.category}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Mode
+                                                        </h4>
+                                                        <div className="">
+                                                            <SelectTextInput
+                                                                label="Select Service Mode"
+                                                                registerName="serviceType"
+                                                                options={[
+                                                                    { value: 'online', label: 'Online' },
+                                                                    { value: 'pandit_center', label: `Pandit's Center` },
+                                                                    { value: 'pooja_at_home', label: 'Pooja at Home' },
+                                                                ]}
+                                                                placeholder="Select Service Mode"
+                                                                props={{
+                                                                    ...register('serviceType', { required: true }),
+                                                                    value: watch('serviceType') || ''
+                                                                }}
+                                                                errors={errors.serviceType}
                                                             />
                                                         </div>
                                                     </div>
@@ -181,21 +215,6 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             errors={errors.subTitle}
                                                         />
                                                     </div>
-                                                    <div className="">
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Service Description
-                                                        </h4>
-                                                        <TextInput
-                                                            label="Enter Service Description"
-                                                            placeholder="Enter Service Description"
-                                                            type="text"
-                                                            registerName="description"
-                                                            props={{ ...register('description', { required: "Service is required", minLength: { value: 10, message: "Description must be at least 10 characters" } }) }}
-                                                            errors={errors.description}
-                                                        />
-                                                    </div>
                                                     <div className=''>
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -241,10 +260,87 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
-                                                        // defaultValue={user?.user?.profilePicture}
+                                                            defaultValue={userData?.image}
                                                         />
 
                                                     </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Video
+                                                        </h4>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => append({ videoUrl: '' })}
+                                                            className={`${formBtn1} text-nowrap !h-[52px] w-full`}
+                                                        >
+                                                            Add Service Video
+                                                        </button>
+                                                    </div>
+                                                    {fields.map((field, index) => (
+                                                        <div className="" key={field.id}>
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Service Video ({index + 1})
+                                                            </h4>
+                                                            <div className="flex items-center space-x-2">
+                                                                <TextInput
+                                                                    label={`Enter youtube service video (${index + 1})`}
+                                                                    placeholder={`Enter youtube service video (${index + 1})`}
+                                                                    type="url"
+                                                                    registerName={`videoUrl.${index}.videoUrl`}
+                                                                    props={{
+                                                                        ...register(`videoUrl.${index}.videoUrl`, {
+                                                                            validate: validateYoutubeUrl
+                                                                        })
+                                                                    }}
+                                                                />
+                                                                <div className='' >
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => remove(index)}
+                                                                        className={`${formBtn1} text-nowrap !h-[52px] bg-red-500 !px-4`}
+                                                                    >
+                                                                        Remove
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            {errors.videoUrl?.[index]?.videoUrl && (
+                                                                <Error message={errors.videoUrl[index].videoUrl.message} />
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="pt-4">
+                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
+                                                        Service Description
+                                                    </h4>
+                                                    <Controller
+                                                        name="htmlContent"
+                                                        control={control}
+                                                        rules={{
+                                                            required: "Description is required",
+                                                            validate: (value) =>
+                                                                value.replace(/<[^>]*>/g, '').length >= 10 ||
+                                                                "Description must be at least 10 characters (excluding HTML)"
+                                                        }}
+                                                        render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                            <>
+                                                                <JoditEditor
+                                                                    ref={editorRef}
+                                                                    value={value || ''}
+                                                                    config={configTextEditor}
+                                                                    tabIndex={1}
+                                                                    onBlur={(newContent) => onChange(newContent)}
+                                                                />
+                                                                {error && (
+                                                                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    />
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">

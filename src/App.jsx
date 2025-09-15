@@ -12,9 +12,29 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-cards';
 import gsap from 'gsap';
 import { SplitText, ScrollTrigger } from 'gsap/all';
+import {
+    checkNotificationSupport,
+    initializePushNotifications,
+    requestNotificationPermission,
+} from './utils/pushNotifications';
+import { useEffect } from "react";
+
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
 
+    useEffect(async () => {
+        const support = checkNotificationSupport();
+        if (support.isSupported && support.hasServiceWorker && support.hasMessaging && support.permission === 'granted') {
+            initializePushNotifications();
+        }
+
+        const fcmToken = await requestNotificationPermission();
+        if (fcmToken) {
+            console.log("⚡️🤯 ~ App.jsx ~ useEffect ~ fcmToken:", fcmToken)
+        } else {
+            console.log('Failed to enable push notifications');
+        }
+    }, []);
     return (
         <>
             <Provider store={store}>

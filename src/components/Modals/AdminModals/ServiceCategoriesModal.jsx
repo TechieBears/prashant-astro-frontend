@@ -11,10 +11,10 @@ import { addServiceCategory, editServiceCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 
 function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
-    const [open, setOpen] = useState(false);
-    const toggle = () => setOpen(!open);
-    const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+    const [open, setOpen] = useState(false);
+    const toggle = () => { setOpen(!open), reset() };
+    const [loader, setLoader] = useState(false);
 
     const formSubmit = async (data) => {
         try {

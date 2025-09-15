@@ -38,6 +38,8 @@ import AllProducts from '../pages/Admin/AllProducts/AllProducts';
 import ProductDetail from '../pages/Home/ProductDetail';
 import CartPage from '../pages/Home/CartPage';
 import PaymentSuccess from '../pages/Home/PaymentSuccess';
+import ProductBookings from '../pages/Admin/Bookings/ProductBookings';
+import ServiceBookings from '../pages/Admin/Bookings/ServiceBookings';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -108,7 +110,8 @@ const ProjectRoutes = () => {
                 <Sidebar>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
-                        <Route path="/bookings" element={<Bookings />} />
+                        <Route path="/product-bookings" element={<ProductBookings />} />
+                        <Route path="/service-bookings" element={<ServiceBookings />} />
                         <Route path="/calender" element={<BookingCalender />} />
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/product-categories" element={<ProductCategories />} />
