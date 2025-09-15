@@ -25,6 +25,7 @@ import { Medal06Icon, FavouriteIcon } from 'hugeicons-react';
 
 const HomePage = () => {
     const [slidesData, setSlidesData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchSlides = async () => {
@@ -32,11 +33,11 @@ const HomePage = () => {
 
             const formattedSlides = await Promise.all(banners.map(async (item) => {
                 let imageUrl;
-                if (item.image.imageUrl.startsWith('http')) {
-                    imageUrl = item.image.imageUrl;
+                if (item.image && item.image.startsWith('http')) {
+                    imageUrl = item.image;
                 } else {
                     const baseUrl = environment.baseUrl.replace('/api/', '');
-                    imageUrl = `${baseUrl}${item.image.imageUrl}`;
+                    imageUrl = item.image ? `${baseUrl}${item.image}` : '';
                 }
                 let finalImageUrl = imageUrl;
 
@@ -76,6 +77,7 @@ const HomePage = () => {
                 };
             }));
             setSlidesData(formattedSlides);
+            setIsLoading(false);
         };
 
         fetchSlides();
@@ -202,7 +204,7 @@ const HomePage = () => {
 
     return (
         <div>
-            <HomeBanner slidesData={slidesData} />
+            <HomeBanner slidesData={slidesData} isLoading={isLoading} />
             {/* <HomeAboutUs /> */}
             <div className="bg-slate1 px-4 sm:px-6 lg:px-16 py-10  w-full max-w-[1280px] mx-auto ">
                 {/* Header */}
