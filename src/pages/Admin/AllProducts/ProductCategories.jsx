@@ -8,6 +8,8 @@ import { getProductCategories, getProductSubCategories } from '../../../api';
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
 import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { setProductCategories, setProductSubCategories } from '../../../redux/Slices/rootSlice';
+import { useDispatch } from 'react-redux';
 
 const ProductCategories = () => {
     const [selectedTab, setSelectedTab] = useState(0);
@@ -44,8 +46,10 @@ const ProductCategories = () => {
 
 const ProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-    const emptyFilters = useMemo(() => ({}), []);
+    const dispatch = useDispatch();
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
         pageNo,
@@ -64,10 +68,11 @@ const ProductCategoriesPanel = () => {
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <ProductCategoriesModal button='edit' title='Edit Product Category' data={row} setRefreshTrigger={setRefreshTrigger} />
+        <ProductCategoriesModal edit={true} title='Edit Product Category' userData={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
+        {console.log(row)}
         <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
     </div>
 
@@ -77,6 +82,10 @@ const ProductCategoriesPanel = () => {
         { field: "name", header: "Name", body: (row) => (<h6 className="">{row?.name}</h6>), style: false, sortable: true },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
+
+    useEffect(() => {
+        dispatch(setProductCategories(filterData?.map(item => ({ value: item?._id, label: item?.name }))));
+    }, [refreshTrigger, filterData]);
 
     return (
         <>
@@ -116,8 +125,10 @@ const ProductCategoriesPanel = () => {
 }
 const SubProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-    const emptyFilters = useMemo(() => ({}), []);
+    const dispatch = useDispatch();
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
         filterData,
@@ -135,10 +146,9 @@ const SubProductCategoriesPanel = () => {
     }, [error]);
 
 
-
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <ProductSubCategoriesModal button='edit' title='Edit Product Sub Category' data={row} setRefreshTrigger={setRefreshTrigger} />
+        <ProductSubCategoriesModal edit={true} title='Edit Product Sub Category' userData={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
@@ -154,6 +164,10 @@ const SubProductCategoriesPanel = () => {
         },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
+
+    useEffect(() => {
+        dispatch(setProductSubCategories(filterData?.map(item => ({ value: item?._id, label: item?.name }))));
+    }, [refreshTrigger, filterData]);
 
     return (
         <>

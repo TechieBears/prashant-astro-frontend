@@ -181,6 +181,7 @@ const Bookings = () => {
                                     { value: 'castingDirector', label: 'Casting Director' },
                                     { value: 'productionTeam', label: 'Production Team' }
                                 ]}
+                                placeholder="Select Role"
                                 props={{
                                     ...register('role', { required: true }),
                                     value: watch('role') || ''

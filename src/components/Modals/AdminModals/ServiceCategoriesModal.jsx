@@ -7,13 +7,15 @@ import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
-import { addProductCategory, editProductCategory } from '../../../api';
+import { addServiceCategory, editServiceCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
-function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
+
+function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+
     const formSubmit = async (data) => {
         try {
             setLoader(true);
@@ -22,7 +24,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                 image: data?.image
             }
             if (edit) {
-                await editProductCategory(userData?._id, updatedData).then(res => {
+                await editServiceCategory(userData?._id, updatedData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -35,13 +37,13 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                     }
                 })
             } else {
-                await addProductCategory(updatedData).then(res => {
+                await addServiceCategory(updatedData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
                         setRefreshTrigger(prev => prev + 1);
                         toggle();
-                        toast.success("Product Category Added Successfully");
+                        toast.success("Service Category Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
@@ -51,7 +53,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
         } catch (error) {
             console.log('Error submitting form:', error);
             setLoader(false);
-            toast.error("Failed to add Product Category");
+            toast.error("Failed to add Service Category");
         }
     }
 
@@ -69,7 +71,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                 edit ? <button onClick={toggle}>
                     <Edit className='text-yellow-500' size={20} />
                 </button> : <button onClick={toggle} className={tableBtn}>
-                    Create New Category
+                    Create Service Category
                 </button>
             }
 
@@ -99,11 +101,10 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
-                                        title={edit ? "Edit Category" : "Create New Category"}
+                                        title={edit ? "Edit Service Category" : "Create Service Category"}
                                         toggle={toggle}
                                     />
                                     <div className=" bg-slate1">
-                                        {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
                                                 <div className='grid grid-cols-1 gap-x-3 gap-y-5' >
@@ -111,14 +112,14 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Category Name
+                                                            Service Category Name
                                                         </h4>
                                                         <TextInput
-                                                            label="Enter Category Name"
-                                                            placeholder="Enter Category Name"
+                                                            label="Enter Service Category Name"
+                                                            placeholder="Enter Service Category Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name', { required: "Category is required" }) }}
+                                                            props={{ ...register('name', { required: "Service Category is required" }) }}
                                                             errors={errors.name}
                                                         />
                                                     </div>
@@ -126,14 +127,14 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Category Image
+                                                            Service Category Image
                                                         </h4>
                                                         <ImageUploadInput
-                                                            label="Upload Category Image"
+                                                            label="Upload Service Category Image"
                                                             multiple={false}
                                                             registerName="image"
                                                             errors={errors.image}
-                                                            {...register("image", { required: "Category Image is required" })}
+                                                            {...register("image", { required: "Service Category Image is required" })}
                                                             defaultValue={userData?.image}
                                                             register={register}
                                                             setValue={setValue}
@@ -158,4 +159,4 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
     )
 }
 
-export default ProductCategoriesModal
+export default ServiceCategoriesModal

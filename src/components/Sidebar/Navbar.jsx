@@ -1,13 +1,5 @@
 import "../../css/Navbar.css"
-import {
-    ArrowDown2,
-    LoginCurve,
-    NotificationBing,
-    Profile,
-    Setting2,
-    SmsNotification,
-    User,
-} from 'iconsax-reactjs';
+import { ArrowDown2, LoginCurve, NotificationBing, Setting2, SmsNotification, User } from 'iconsax-reactjs';
 import { useSelector } from 'react-redux';
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from 'react';
@@ -82,13 +74,6 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
                     </div>
                 </div>
             </div>
-
-            {/* ============= profile seacation ========= */}
-            {/* <ProfileSection card={card} setCard={setCard} logOut={logOut} /> */}
-
-
-            {/* ============= notification seacation ========= */}
-            {/* <NotificationSection notification={Notification} setNotification={setNotification} /> */}
             {/* ============= profile seacation ========= */}
             <LogoutModal setOpen={setOpen} open={open} />
         </>
@@ -201,7 +186,7 @@ const ProfileSection = ({ card, setCard, logOut }) => {
 
 const ProfilePage = ({ logOut }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
+    const user = useSelector((state) => state.user.userDetails)
     const trigger = useRef(null);
     const dropdown = useRef(null);
 
@@ -240,7 +225,7 @@ const ProfilePage = ({ logOut }) => {
                             onClick={() => setDropdownOpen(!dropdownOpen)}>
                             <div className="bg-white shadow-md rounded-3xl px-1.5 pr-2 py-1 w-full flex items-center space-x-2 cursor-pointer">
                                 <img loading="lazy" className="h-10 w-10 rounded-full object-cover bg-slate1 border-2 border-primary " src={'https://bootstrapdemos.wrappixel.com/materialM/dist/assets/images/profile/user-1.jpg'} alt="user" />
-                                <h5 className="text-sm font-tbPop font-medium text-black">{"Guest User"}</h5>
+                                <h5 className="text-sm font-tbPop font-medium text-black capitalize">{user?.firstName || "Guest User"}</h5>
                                 <span className={dropdownOpen ? "-rotate-180 duration-300 transition-all" : "rotate-0 duration-300 transition-all"}>
                                     <ArrowDown2 size="20" className='text-slate-500' variant='TwoTone' />
                                 </span>
@@ -250,7 +235,7 @@ const ProfilePage = ({ logOut }) => {
                             ref={dropdown}
                             onFocus={() => setDropdownOpen(true)}
                             onBlur={() => setDropdownOpen(false)}
-                            className={`absolute right-0 top-14 w-[240px] overflow-hidden rounded-lg z-50 bg-white shadow-lg border border-slate-100 transition-all ease-in-out duration-500 ${dropdownOpen ? "block opacity-100 transition-all ease-in-out duration-500" : "hidden opacity-0 transition-all ease-in-out duration-500"}`}
+                            className={`absolute right-0 top-14 w-[240px] pb-3 overflow-hidden rounded-xl z-50 bg-white shadow-lg border border-slate-100 transition-all ease-in-out duration-500 ${dropdownOpen ? "block opacity-100 transition-all ease-in-out duration-500" : "hidden opacity-0 transition-all ease-in-out duration-500"}`}
                         >
                             <div className="flex items-center gap-3 px-4 py-3">
                                 <div className="relative aspect-square w-16 rounded-full">
@@ -262,33 +247,33 @@ const ProfilePage = ({ logOut }) => {
                                     <span className="absolute right-0 top-1 block h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500 "></span>
                                 </div>
                                 <div>
-                                    <p className="text-base font-tbLex font-semibold text-dark ">
-                                        Andrio Miller
+                                    <p className="text-base font-tbLex font-semibold text-black capitalize">
+                                        {user?.firstName || "Guest"} {user?.lastName || "User"}
                                     </p>
                                     <p className="text-xs font-tbPop text-slate-500 ">
-                                        miller@company.com
+                                        {user?.email || "Guest Email"}
                                     </p>
                                 </div>
                             </div>
                             <div>
-                                <a
-                                    href="#0"
-                                    className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-black hover:bg-gray-50 "
+                                <NavLink
+                                    to="/admin-profile"
+                                    className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-black hover:bg-gray-50 " onClick={() => setDropdownOpen(!dropdownOpen)}
                                 >
                                     <span className="flex items-center gap-2">
                                         <User size={22} variant="TwoTone" />
                                         View profile
                                     </span>
-                                </a>
-                                <a
-                                    href="#0"
-                                    className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-black hover:bg-gray-50 "
+                                </NavLink>
+                                <NavLink
+                                    to="/admin-profile"
+                                    className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium font-tbLex text-black hover:bg-gray-50 " onClick={() => setDropdownOpen(!dropdownOpen)}
                                 >
                                     <span className="flex items-center gap-2">
                                         <Setting2 size={22} variant="TwoTone" />
                                         Settings
                                     </span>
-                                </a>
+                                </NavLink>
                             </div>
                             <div>
                                 <button

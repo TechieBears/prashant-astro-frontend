@@ -7,3 +7,5 @@ export const formBtn1 = `relative block w-auto px-8 lg:px-6 xl:px-8 transition-c
 export const formBtn2 = `relative block w-auto px-8 transition-colors font-tbLex tracking-wide duration-300 py-2.5 text-base font-semibold text-center text-slate-800 rounded-lg bg-slate-200 hover:text-black hover:bg-slate-300 capitalize`;
 
 export const fileinput = `flex py-1.5 font-tbLex w-full rounded-lg border border-input bg-white px-2 text-base text-slate-400 file: border-0 file: bg-slate-400 / 70 file: py-1.5 file: text-white  cursor-pointer file: text-base file: font-medium file: rounded-md file: active: bg-blue-500 file: hover: bg-primary duration-700 transition-all`
+
+export const formBtn3 = `${formBtn1} w-full h-[51px] py-3 rounded-md text-white font-semibold !text-base bg-primary-gradient hover:opacity-90 transition disabled:opacity-50`
