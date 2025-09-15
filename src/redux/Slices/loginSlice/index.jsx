@@ -16,9 +16,14 @@ export const loginUser = createAsyncThunk(
     async ({ email, password }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/auth/login`,
+                `https://soulplan-astro-backend.vercel.app/api/auth/login`,
                 { email, password },
-                { headers: { "Content-Type": "application/json" } }
+                { 
+                    headers: { 
+                        "Content-Type": "application/json" 
+                    },
+                    withCredentials: true
+                }
             );
 
             return response.data;
