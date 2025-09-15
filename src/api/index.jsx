@@ -353,8 +353,8 @@ export const userContactUs = async (data) => {
 
 
 export const uploadToCloudinary = async (file) => {
-    const cloudName = 'hamax';
-    const apiKey = '567326273964993';
+    const cloudName = 'astroguid';
+    const apiKey = import.meta.env.VITE_CLOUDINARY_KEY;
     const uploadPreset = 'ml_default';
 
     const formData = new FormData();
@@ -951,6 +951,31 @@ export const editEmployee = async (id, data) => {
 }
 
 // ==================== Customer Api ====================
+export const updateCustomerProfile = async (data) => {
+    const token = localStorage.getItem("token");
+    const url = `${environment.baseUrl}customer-users/update`;
+
+    // Determine content type based on whether data is FormData
+    const isFormData = data instanceof FormData;
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    };
+
+    // Only set Content-Type if not FormData (browser will set it automatically for FormData with boundary)
+    if (!isFormData) {
+        config.headers["Content-Type"] = "application/json";
+    }
+
+    try {
+        const response = await axios.put(url, data, config);
+        return response.data;
+    } catch (err) {
+        console.error("Error in updateCustomerProfile API call:", err);
+        throw err; // Re-throw to be caught by the component
+    }
+};
 
 export const getAllCustomers = async (data) => {
     try {
