@@ -44,6 +44,7 @@ export default {
                 "text-gradient-orange": "linear-gradient(to bottom, #EB5E3A, #FA944D, #FF3F3F, #EB5E3A)",
                 "button-gradient-orange": "linear-gradient(to right, #FBBF24, #FB923C, #F43F5E)",
                 "button-vertical-gradient-orange": "linear-gradient(to bottom, #FBBF24, #FB923C, #F43F5E)",
+                "button-diagonal-gradient-orange": "linear-gradient(135deg, #FB923C 0%, #F43F5E 100%)",
                 "light-orange": "#F7E8D4",
                 "custom-linear": "linear-gradient(270deg, rgba(243, 51, 51, 0.15) 0%, rgba(250, 148, 77, 0.15) 50.61%, rgba(255, 186, 0, 0.15) 100%)",
             },
