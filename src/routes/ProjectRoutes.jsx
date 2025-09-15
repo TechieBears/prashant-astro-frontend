@@ -34,6 +34,8 @@ import ReferEarn from '../pages/Admin/Master/ReferEarn';
 import Testimonials from '../pages/Admin/Master/Testimonials';
 import AllUserProfiles from '../pages/Admin/UserManagement/AllUserProfiles';
 import AllProducts from '../pages/Admin/AllProducts/AllProducts';
+import ProductDetail from '../pages/Home/ProductDetail';
+import CartPage from '../pages/Home/CartPage';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -63,9 +65,42 @@ const ProjectRoutes = () => {
         };
     }, []);
 
+    // ====== Derived booleans & shared UI blocks ======
+    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "employee"));
+
+    const PublicSite = () => (
+        <main className="flex flex-col min-h-screen">
+            <HomeNavbar />
+            <div className="flex-1 pt-28">
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/forget-password" element={<ForgetPassword />} />
+                    <Route path="/password/reset/:token" element={<ResetPassword />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/my-account" element={<MyAccount />} />
+                    <Route path="/customer-support" element={<CustomerSupport />} />
+                    {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
+                    <Route path="/terms-conditions" element={<TermsConditions />} />
+                    <Route path="/address" element={<Address />} />
+                    <Route path='*' element={<ErrorPage />} />
+                </Routes>
+            </div>
+            <HomeFooter />
+        </main>
+    );
+
     return (
         <div className='min-h-screen transition-all duration-300'>
-            {loading ? <Preloaders /> : login && role ? ((role === "admin" || role === "employee") ? (
+            {loading ? (
+                <Preloaders />
+            ) : isAdminOrEmployee ? (
                 <Sidebar>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
@@ -86,53 +121,7 @@ const ProjectRoutes = () => {
                     </Routes>
                 </Sidebar>
             ) : (
-                // customer sees public website
-                <main className="flex flex-col min-h-screen">
-                    <HomeNavbar />
-                    <div className="flex-1 pt-28">
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/about" element={<AboutPage />} />
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/forget-password" element={<ForgetPassword />} />
-                            <Route path="/password/reset/:token" element={<ResetPassword />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/my-account" element={<MyAccount />} />
-                            <Route path="/customer-support" element={<CustomerSupport />} />
-                            {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
-                            <Route path="/terms-conditions" element={<TermsConditions />} />
-                            <Route path="/address" element={<Address />} />
-                            <Route path='*' element={<ErrorPage />} />
-                        </Routes>
-                    </div>
-                    <HomeFooter />
-                </main>
-            )
-            ) : (
-                // not logged in
-                <main className="flex flex-col min-h-screen">
-                    <HomeNavbar />
-                    <div className="flex-1 pt-28">
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/about" element={<AboutPage />} />
-                            <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/products" element={<ProductsPage />} />
-                            <Route path="/services" element={<ServicesPage />} />
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/forget-password" element={<ForgetPassword />} />
-                            <Route path="/password/reset/:token" element={<ResetPassword />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/my-account" element={<MyAccount />} />
-                            <Route path="/customer-support" element={<CustomerSupport />} />
-                            <Route path="/terms-conditions" element={<TermsConditions />} />
-                            <Route path="/address" element={<Address />} />
-                            <Route path='*' element={<ErrorPage />} />
-                        </Routes>
-                    </div>
-                    <HomeFooter />
-                </main>
+                <PublicSite />
             )}
 
 

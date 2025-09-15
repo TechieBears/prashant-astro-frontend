@@ -8,15 +8,21 @@ const BackgroundTitle = ({
     { label: "About Me", href: "/about" }
   ],
   backgroundImage = "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-  height = "h-64",
+  height = "h-72",
   textColor = "text-white",
-  overlayColor = "bg-black bg-opacity-60"
+  overlayColor = "bg-black bg-opacity-60",
+  backgroundPosition = "",
+  breadcrumbsClassName = "text-base md:text-lg lg:text-xl",
+  breadcrumbItemTextClassName = "text-white text-base md:text-lg lg:text-xl font-medium",
+  backgroundSize = "cover"
 }) => {
   return (
     <div
       className={`relative ${height} flex items-center justify-center bg-cover bg-center bg-no-repeat`}
       style={{
-        backgroundImage: `url(${backgroundImage})`
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundPosition: backgroundPosition,
+        backgroundSize: backgroundSize
       }}
     >
       {/* Dark overlay */}
@@ -39,19 +45,19 @@ const BackgroundTitle = ({
       </div>
 
       {/* Breadcrumbs (Positioned at the bottom-left corner) */}
-      <nav className="absolute bottom-4 left-4 text-sm md:text-base opacity-90">
+      <nav className={`absolute bottom-4 left-20 opacity-90 ${breadcrumbsClassName}`}>
         <ol className="flex items-center space-x-2">
           {breadcrumbs.map((crumb, index) => (
             <li key={index} className="flex items-center text-white">
               {crumb.href ? (
                 <a
                   href={crumb.href}
-                  className="hover:text-opacity-80 text-white text-xs transition-colors duration-200 decoration-1 underline-offset-2"
+                  className={`hover:text-opacity-80 transition-colors duration-200 decoration-1 underline-offset-2 ${breadcrumbItemTextClassName}`}
                 >
                   {crumb.label}
                 </a>
               ) : (
-                <span className="text-white text-xs">{crumb.label}</span>
+                <span className={`${breadcrumbItemTextClassName}`}>{crumb.label}</span>
               )}
               {index < breadcrumbs.length - 1 && (
                 <span className="ml-3  text-current text-white opacity-60">/</span>
