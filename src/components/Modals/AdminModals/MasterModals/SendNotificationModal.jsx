@@ -87,7 +87,7 @@ function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
                 edit ? <button onClick={toggle}>
                     <Edit className='text-yellow-500' size={20} />
                 </button> : <button onClick={toggle} className={tableBtn}>
-                    Create New Banner
+                    Create Notification
                 </button>
             }
 

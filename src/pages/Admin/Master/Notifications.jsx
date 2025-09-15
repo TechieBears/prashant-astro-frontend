@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
 import { getProductSubCategories } from '../../../api';
+import moment from 'moment';
 
 
 export default function Notifications() {
@@ -32,36 +33,28 @@ export default function Notifications() {
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <SendNotificationModal button='edit' title='Edit Product Sub Category' data={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
+        <SendNotificationModal edit={true} title='Edit Product Sub Category' data={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
     </div>
 
 
-    const imageBodyTemp = (row) => {
-        return (
-            <>
-                {
-                    row?.image_url !== null ?
-                        <div className="h-20 rounded bg-slate-100">
-                            <img
-                                loading="lazy"
-                                src={row?.image_url}
-                                alt="image"
-                                className="object-cover w-full h-full rounded bg-slate-100"
-                            />
-                        </div> : "----"
-                }
+    const imageBodyTemp = (row) => (
+        <div className="h-24 rounded bg-slate-100">
+            <img
+                loading="lazy"
+                src={row?.image}
+                alt="image"
+                className="object-cover w-full h-full rounded bg-slate-100"
+            />
+        </div>
+    );
 
-            </>
-        )
-    }
-
+    // ================= columns of the table ===============
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true },
-        { field: 'title', header: 'Title', sortable: true, style: true },
-        { field: 'sub_title', header: 'Message', sortable: true, style: true },
-        { field: 'notification_for', header: 'Notification For', body: (row) => <h5>User</h5>, sortable: true, style: true },
-        { field: 'pincode', header: 'Pincode', body: (row) => <h5>{row?.pincode == 'All' ? row?.pincode : row?.pincode?.join()}</h5>, sortable: true, style: true },
-        { field: 'action', header: 'Action', body: actionBodyTemplate, style: true, sortable: true },
+        { field: 'title', header: 'Notification title', sortable: true, style: true },
+        { field: 'description', header: 'Notification description', sortable: true, style: true },
+        { field: 'type', header: 'Notification For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
+        { field: "action", header: "Action", body: actionBodyTemplate, sortable: true, style: true },
     ];
 
     return (
@@ -69,7 +62,7 @@ export default function Notifications() {
 
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title="All Notifications" subtitle={'Recently users notifications will appear here'} action={<SendNotificationModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
+                <TableHeader title="All Notifications" subtitle={'Recently users notifications will appear here'} component={<SendNotificationModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
                 <Table data={filterData} columns={columns} paginator={false} />
 
                 {/* Pagination Controls */}

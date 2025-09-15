@@ -11,8 +11,11 @@ import SelectTextInput from '../../TextInput/SelectTextInput';
 import { addProduct, editProduct } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import CustomTextArea from '../../TextInput/CustomTextArea';
+import { useSelector } from 'react-redux';
 
-function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
+function CreateProductModal({ edit, userData, setRefreshTrigger }) {
+    const productCategories = useSelector(state => state.appRoot?.productCategories || []);
+    const productSubCategories = useSelector(state => state.appRoot?.productSubCategories || []);
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
@@ -21,31 +24,25 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                name: data?.name,
-                productCategoryId: data?.productCategoryId,
-                image: data?.image
-            }
-
             if (edit) {
-                await editProduct(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                await editProduct(userData?._id, data).then(res => {
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
-                await addProduct(updatedData).then(res => {
-                    if (res?.status === 200) {
+                await addProduct(data).then(res => {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                         toast.success("Product Added Successfully");
                     } else {
@@ -61,14 +58,20 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
         }
     }
 
-
     useEffect(() => {
         if (edit && userData) {
             setValue('name', userData?.name);
-            setValue('productCategoryId', userData?.productCategoryId);
+            setValue('category', userData?.category?.name);
+            setValue('subcategory', userData?.subcategory?.name);
+            setValue('description', userData?.description);
+            setValue('additionalInfo', userData?.additionalInfo);
+            setValue('stock', userData?.stock);
+            setValue('sellingPrice', userData?.sellingPrice);
+            setValue('stock', userData?.stock);
             setValue('image', userData?.image);
+            setValue('mrpPrice', userData?.mrpPrice);
         }
-    }, [edit, userData, reset, setValue]);
+    }, [edit, userData, reset, setValue, productCategories, productSubCategories]);
 
     return (
         <>
@@ -104,7 +107,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
                                         title={edit ? "Edit Product" : "Create New Product"}
                                         toggle={toggle}
@@ -113,7 +116,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
-                                                <div className='grid grid-cols-1 gap-x-3 gap-y-5' >
+                                                <div className='grid grid-cols-2 gap-x-3 gap-y-5' >
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -124,14 +127,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                                             <SelectTextInput
                                                                 label="Select Product Category"
                                                                 registerName="category"
-                                                                options={[
-                                                                    { value: '', label: 'Select Product Category' },
-                                                                    { value: 'productCategory1', label: 'Product Category 1' },
-                                                                    { value: 'productCategory2', label: 'Product Category 2' },
-                                                                    { value: 'productCategory3', label: 'Product Category 3' },
-                                                                    { value: 'productCategory4', label: 'Product Category 4' },
-                                                                    { value: 'category5', label: 'Category 5' },
-                                                                ]}
+                                                                options={productCategories}
                                                                 placeholder="Select Product Category"
                                                                 props={{
                                                                     ...register('category', { required: true }),
@@ -151,14 +147,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                                             <SelectTextInput
                                                                 label="Select Product Sub Category"
                                                                 registerName="subcategory"
-                                                                options={[
-                                                                    { value: '', label: 'Select Product Sub Category' },
-                                                                    { value: 'productsubcategory1', label: 'Product Sub Category 1' },
-                                                                    { value: 'productsubcategory2', label: 'Product Sub Category 2' },
-                                                                    { value: 'productsubcategory3', label: 'Product Sub Category 3' },
-                                                                    { value: 'productsubcategory4', label: 'Product Sub Category 4' },
-                                                                    { value: 'subcategory5', label: 'Sub Category 5' },
-                                                                ]}
+                                                                options={productSubCategories}
                                                                 placeholder="Select Product Sub Category "
                                                                 props={{
                                                                     ...register('subcategory', { required: true }),
@@ -202,6 +191,61 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                                         />
 
                                                     </div>
+
+                                                    <div className="">
+
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Product MRP Price
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Product MRP Price"
+                                                            placeholder="Enter Product MRP Price"
+                                                            type="number"
+                                                            registerName="mrpPrice"
+                                                            props={{
+                                                                ...register('mrpPrice', {
+                                                                    required: "MRP Price is required",
+                                                                    min: {
+                                                                        value: 1,
+                                                                        message: "MRP Price must be at least 1"
+                                                                    }
+                                                                })
+                                                            }}
+                                                            errors={errors.mrpPrice}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Product Selling Price
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Product Selling Price"
+                                                            placeholder="Enter Product Selling Price"
+                                                            type="number"
+                                                            registerName="sellingPrice"
+                                                            props={{ ...register('sellingPrice', { required: "Selling Price is required", min: { value: 1, message: "Selling Price must be at least 1" } }) }}
+                                                            errors={errors.sellingPrice}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Product Quantity (Stock)
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Product Quantity"
+                                                            placeholder="Enter Product Quantity"
+                                                            type="number"
+                                                            registerName="stock"
+                                                            props={{ ...register('stock', { required: "Quantity is required", min: { value: 1, message: "Quantity must be at least 1" } }) }}
+                                                            errors={errors.stock}
+                                                        />
+                                                    </div>
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -225,24 +269,32 @@ function CreateProductModal({ edit, userData, setRefreshTrigger, refreshTrigger 
                                                         />
                                                     </div>
                                                     <div className="">
+
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
                                                             Product Additional Information
                                                         </h4>
-                                                        <TextInput
+                                                        <CustomTextArea
                                                             label="Enter Product Additional Information"
-                                                            placeholder="Enter Product Additional Information"
-                                                            type="text"
+                                                            placeholder="Enter Description"
                                                             registerName="additionalInfo"
-                                                            props={{ ...register('additionalInfo') }}
+                                                            props={{
+                                                                ...register('additionalInfo', {
+                                                                    minLength: {
+                                                                        value: 10,
+                                                                        message: "Description must be at least 10 characters"
+                                                                    }
+                                                                })
+                                                            }}
                                                             errors={errors.additionalInfo}
                                                         />
                                                     </div>
+
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
+                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>
                                     </div>

@@ -23,34 +23,25 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                title: data?.title,
-                description: data?.description,
-                redirection_type: data?.redirection_type,
-                featured_time: data?.featured_time,
-                start_time: data?.startDate,
-                end_time: data?.endDate,
-            }
-
             if (edit) {
-                await editBanner(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                await editBanner(userData?._id, data).then(res => {
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
-                await addBanner(updatedData).then(res => {
-                    if (res?.status === 200) {
+                await addBanner(data).then(res => {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                         toast.success("Banner Added Successfully");
                     } else {
@@ -68,18 +59,17 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
 
 
     useEffect(() => {
-        if (edit && userData) {
+        if (edit && userData && open) {
             setValue('title', userData?.title);
             setValue('description', userData?.description);
-            setValue('redirection_type', userData?.redirection_type);
-            setValue('featured_time', userData?.featured_time);
-            setValue('start_time', userData?.start_time);
-            setValue('end_time', userData?.end_time);
-            setValue('image', userData?.image);
             setValue('type', userData?.type);
             setValue('position', userData?.position);
+            setValue('startDate', userData?.startDate);
+            setValue('endDate', userData?.endDate);
+            setValue('isActive', userData?.isActive);
+            setValue('image', userData?.image);
         }
-    }, [edit, userData, reset, setValue]);
+    }, [edit, userData, reset, setValue, open]);
 
     return (
         <>
@@ -137,10 +127,10 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             registerName="image"
                                                             errors={errors.image}
                                                             {...register("image", { required: "Banner Image is required" })}
-                                                            defaultValue={userData?.image}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
+                                                            defaultValue={userData?.image}
                                                         />
 
                                                     </div>
@@ -155,7 +145,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             placeholder="Enter Title"
                                                             type="text"
                                                             registerName="title"
-                                                            props={{ ...register('title', { required: "Title is required", validate: validateAlphabets }), minLength: 3 }}
+                                                            props={{ ...register('title', { required: "Title is required" }) }}
                                                             errors={errors.title}
                                                         />
                                                     </div>
@@ -192,7 +182,6 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                                 label="Select Banner Type"
                                                                 registerName="type"
                                                                 options={[
-                                                                    { value: '', label: 'Select Banner Type' },
                                                                     { value: 'website', label: 'Website Banner' },
                                                                     { value: 'app', label: 'App Banner' },
                                                                 ]}

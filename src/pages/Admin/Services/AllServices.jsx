@@ -1,26 +1,26 @@
 import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
-import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Switch from "react-js-switch";
-import { blacklistUser, blockUser, getAllBlockedUser } from '../../../api'
+import { editService, getServices } from '../../../api';
 import Table from '../../../components/Table/Table'
 import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
-import { formatRole, imageComponet } from '../../../helper/Helper'
+import { imageComponet } from '../../../helper/Helper';
 import TableHeader from '../../../components/Table/TableHeader'
 import CreateServiceModal from '../../../components/Modals/AdminModals/CreateServiceModal';
+import { useSelector } from 'react-redux';
 
 const initialFilterState = {
     name: '',
-    email: '',
-    role: '',
+    categoryId: '',
 };
 
 const AllServices = () => {
+    const serviceCategories = useSelector(state => state.appRoot?.serviceCategories || []);
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -30,7 +30,6 @@ const AllServices = () => {
         refresh: refreshTrigger
     }), [filterCriteria, refreshTrigger]);
 
-    // Pagination hook
     const {
         filterData,
         pageNo,
@@ -40,114 +39,64 @@ const AllServices = () => {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, getAllBlockedUser, combinedFilters);
-    // Handle API errors
+    } = usePagination(1, 10, getServices, combinedFilters);
+
+
     useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
+        if (error) toast.error('Failed to fetch services');
     }, [error]);
 
-    // Form submit handler
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
-        pageChangeHandler(1); // Reset to first page when filters change
+        pageChangeHandler(1);
     };
 
-    // Clear filters
     const handleClearFilters = () => {
         reset(initialFilterState);
         setFilterCriteria(initialFilterState);
         toast.success('Filters cleared');
     };
 
-
-    const handleBlockChange = async (id, isBlocked) => {
+    const handleActiveChange = async (id, isActive) => {
         try {
             const updatedData = {
-                isBlocked: !isBlocked
+                isActive: !isActive
             }
-            await blockUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
+            await editService(id, updatedData);
+            setRefreshTrigger(prev => prev + 1);
             toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
         }
-    };
-
-    const ActionBody = (row) => (
-        <NavLink to={`/dashboard/${row?._id}`}>
-            <Eye size={20} className="text-gray-500 cursor-pointer" />
-        </NavLink>
-    )
-
-
-    const varificationBody = (row) => (
-        <Switch
-            value={row?.isVerified}
-            disabled
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
-
-    const handleBlackListChange = async (id, isBlacklisted) => {
-        try {
-            const updatedData = {
-                isBlacklisted: !isBlacklisted
-            }
-            await blacklistUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
+        catch (error) {
             console.log('error', error)
             toast.error('Update failed');
         }
     }
 
-    const blackListBody = (row) => (
+    const activeBody = (row) => (
         <Switch
-            value={row?.isBlacklisted}
-            disabled={row?.is_registered == false ? true : false}
-            onChange={() => handleBlackListChange(row?._id, row?.isBlacklisted)}
+            value={row?.isActive}
+            onChange={() => handleActiveChange(row?._id, row?.isActive)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
             borderColor={{ on: "#86d993", off: "#c6c6c6" }}
         />
     )
 
-    const blockBody = (row) => (
-        <Switch
-            value={row?.isBlocked} onChange={() => handleBlockChange(row?._id, row?.isBlocked)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
     const columns = [
-        { field: "profile", header: "Profile", body: imageComponet, style: true },
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
-        { field: 'role', header: 'Role', body: (row) => row?.role == "primary" ? "Primary" : row?.role == "secondary" ? "Secondary" : row?.subRole == "castingAgency" ? "Casting Agency" : formatRole(row?.subRole) || "---- -----", style: true },
-        { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
+        { field: "image", header: "Image", body: imageComponet, style: true, sortable: true },
+        { field: 'name', header: 'Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'title', header: 'Title', body: (row) => <span className='capitalize'>{row?.title || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'subTitle', header: 'Sub Title', body: (row) => <span className='capitalize'>{row?.subTitle || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'description', header: 'Description', body: (row) => <span className='capitalize'>{row?.description || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'categoryName', header: 'Category', body: (row) => <span className='capitalize'>{row?.category?.name || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'price', header: 'Price', body: (row) => <span className='capitalize'>{row?.price || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'durationInMinutes', header: 'Duration', body: (row) => <span className='capitalize'>{row?.durationInMinutes || "---- -----"}</span>, style: true, sortable: true },
         {
-            field: 'createdAt',
-            header: 'Registration date',
-            body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}</>,
-            style: true
-        },
-        { field: 'rejectionCount', header: 'Rejection Count', style: true },
-        {
-            field: 'isVerified',
-            header: 'Verification',
-            body: varificationBody,
-            style: true
-        },
-        {
-            field: 'isBlacklisted',
-            header: 'Blacklisted',
-            body: blackListBody,
-            style: true
+            field: 'isActive',
+            header: 'Active',
+            body: activeBody,
+            style: true,
+            sortable: true
         },
     ];
     return (
@@ -155,36 +104,25 @@ const AllServices = () => {
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-2">
                         <TextInput
-                            label="Enter Full Name*"
-                            placeholder="Enter Full Name"
+                            label="Enter Service Name*"
+                            placeholder="Enter Service Name"
                             type="text"
                             registerName="name"
                             props={{ ...register('name') }}
                         />
-                        <TextInput
-                            label="Enter Email*"
-                            placeholder="Enter Email"
-                            type="email"
-                            registerName="email"
-                            props={{ ...register('email') }}
-                        />
                         <div className="">
                             <SelectTextInput
-                                label="Select Role*"
-                                registerName="role"
+                                label="Select Service Category*"
+                                registerName="categoryId"
                                 options={[
-                                    { value: '', label: 'Select Role' },
-                                    { value: 'primary', label: 'Primary Actor' },
-                                    { value: 'secondary', label: 'Secondary Actor' },
-                                    { value: 'castingAgency', label: 'Casting Agency' },
-                                    { value: 'castingDirector', label: 'Casting Director' },
-                                    { value: 'productionTeam', label: 'Production Team' }
+                                    ...serviceCategories
                                 ]}
+                                placeholder="Select Service Category"
                                 props={{
-                                    ...register('role', { required: true }),
-                                    value: watch('role') || ''
+                                    ...register('categoryId'),
+                                    value: watch('categoryId') || ''
                                 }}
                             />
                         </div>

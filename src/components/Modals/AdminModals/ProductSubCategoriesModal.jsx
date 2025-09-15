@@ -10,8 +10,11 @@ import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import { addProductSubCategory, editProductSubCategory, getProductCategoriesDropdown } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
+import { useSelector } from 'react-redux';
 
 function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
+
+    const productCategories = useSelector(state => state.appRoot?.productCategories || []);
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
     const [loader, setLoader] = useState(false);
@@ -62,14 +65,6 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
         }
     }
 
-    useEffect(() => {
-        getProductCategoriesDropdown().then(res => {
-            console.log("⚡️🤯 ~ ProductSubCategoriesModal.jsx:65 ~ ProductSubCategoriesModal ~ res:", res)
-            setCategoryOptions(res?.data?.map(item => ({ value: item?._id, label: item?.name })));
-        })
-    }, []);
-
-    console.log("⚡️🤯 ~ ProductSubCategoriesModal.jsx:72 ~ ProductSubCategoriesModal ~ userData:", userData)
     useEffect(() => {
         if (edit && userData) {
             setValue('name', userData?.name);
@@ -132,7 +127,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                             <SelectTextInput
                                                                 label="Select Category Name"
                                                                 registerName="categoryId"
-                                                                options={categoryOptions}
+                                                                options={productCategories}
                                                                 placeholder="Select Category"
                                                                 props={{
                                                                     ...register('categoryId', { required: true }),
@@ -181,7 +176,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
+                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>
                                     </div>

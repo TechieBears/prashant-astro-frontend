@@ -776,10 +776,97 @@ export const deleteProductSubCategory = async (id) => {
     }
 }
 
+// ====================== Service Categories Api ======================
+export const getServiceCategories = async (data) => {
+    try {
+        const url = `${environment.baseUrl}service-categories/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+export const getServiceCategoriesDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}service-categories/dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+
+export const addServiceCategory = async (data) => {
+    const url = `${environment.baseUrl}service-categories/create`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addServiceCategory api file", err);
+        return err?.response?.data
+    }
+};
+
+export const editServiceCategory = async (id, data) => {
+    const url = `${environment.baseUrl}service-categories/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editServiceCategory api file", err);
+        return err?.response?.data
+    }
+};
+
+// ======================= Service Api ======================
+export const getServices = async (data) => {
+    try {
+        const url = `${environment.baseUrl}service/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getServices api file", err);
+        return err?.response?.data
+    }
+}
+
+export const addService = async (data) => {
+    const url = `${environment.baseUrl}service/create`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addService api file", err);
+        return err?.response?.data
+    }
+}
+
+export const editService = async (id, data) => {
+    const url = `${environment.baseUrl}service/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editService api file", err);
+        return err?.response?.data
+    }
+}
+
+
 // ======================= Products Api ======================
 export const getProducts = async (data) => {
+    console.log('data', data)
     try {
-        const url = `${environment.baseUrl}product/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}product/get-all?name=${data?.name}&categoryName=${data?.categoryName}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -876,6 +963,18 @@ export const getAllCustomers = async (data) => {
         return err?.response?.data
     }
 }
+export const editCustomer = async (id, data) => {
+    const url = `${environment.baseUrl}customer-users/admin-update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in edit Customer api file", err);
+        return err?.response?.data
+    }
+}
+
 
 // ================== Banner Api ==================
 

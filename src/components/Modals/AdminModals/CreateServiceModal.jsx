@@ -1,15 +1,16 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formBtn1, tableBtn } from '../../../utils/CustomClass';
+import { formBtn1, formBtn3, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProduct, editProduct } from '../../../api';
+import { addService, editService } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
+import { useSelector } from 'react-redux';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
@@ -17,36 +18,32 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
 
+    const serviceCategories = useSelector(state => state.appRoot?.serviceCategories || []);
+
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                name: data?.name,
-                productCategoryId: data?.productCategoryId,
-                image: data?.image
-            }
-
             if (edit) {
-                await editProduct(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
+                await editService(userData?._id, data).then(res => {
+                    if (res?.success) {
+                        toast.success(res?.message)
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.data?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong")
                         setLoader(false);
                     }
                 })
             } else {
-                await addProduct(updatedData).then(res => {
-                    if (res?.status === 200) {
+                await addService(data).then(res => {
+                    if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
+                        setRefreshTrigger(prev => prev + 1);
                         toggle();
-                        toast.success("Product Added Successfully");
+                        toast.success("Service Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
@@ -56,7 +53,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
         } catch (error) {
             console.log('Error submitting form:', error);
             setLoader(false);
-            toast.error("Failed to add Product");
+            toast.error("Failed to add Service");
         }
     }
 
@@ -64,8 +61,13 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     useEffect(() => {
         if (edit && userData) {
             setValue('name', userData?.name);
-            setValue('productCategoryId', userData?.productCategoryId);
+            setValue('category', userData?.category?.name);
             setValue('image', userData?.image);
+            setValue('title', userData?.title);
+            setValue('subTitle', userData?.subTitle);
+            setValue('description', userData?.description);
+            setValue('price', userData?.price);
+            setValue('durationInMinutes', userData?.durationInMinutes);
         }
     }, [edit, userData, reset, setValue]);
 
@@ -75,7 +77,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                 edit ? <button onClick={toggle}>
                     <Edit className='text-yellow-500' size={20} />
                 </button> : <button onClick={toggle} className={tableBtn}>
-                    Create New Product
+                    Create New Service
                 </button>
             }
 
@@ -103,40 +105,33 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
-                                        title={edit ? "Edit Product" : "Create New Product"}
+                                        title={edit ? "Edit Service" : "Create New Service"}
                                         toggle={toggle}
                                     />
                                     <div className=" bg-slate1">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
-                                                <div className='grid grid-cols-1 gap-x-3 gap-y-5' >
+                                                <div className='grid grid-cols-2 gap-x-3 gap-y-5' >
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Category
+                                                            Service Category
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
-                                                                label="Select Product Category"
-                                                                registerName="productCategoryId"
-                                                                options={[
-                                                                    { value: '', label: 'Select Product Category' },
-                                                                    { value: 'productCategory1', label: 'Product Category 1' },
-                                                                    { value: 'productCategory2', label: 'Product Category 2' },
-                                                                    { value: 'productCategory3', label: 'Product Category 3' },
-                                                                    { value: 'productCategory4', label: 'Product Category 4' },
-                                                                    { value: 'category5', label: 'Category 5' },
-                                                                ]}
-                                                                placeholder="Select Product Category"
+                                                                label="Select Service Category"
+                                                                registerName="category"
+                                                                options={serviceCategories}
+                                                                placeholder="Select Service Category"
                                                                 props={{
-                                                                    ...register('productCategoryId', { required: true }),
-                                                                    value: watch('productCategoryId') || ''
+                                                                    ...register('category', { required: true }),
+                                                                    value: watch('category') || ''
                                                                 }}
-                                                                errors={errors.productCategoryId}
+                                                                errors={errors.category}
                                                             />
                                                         </div>
                                                     </div>
@@ -144,29 +139,105 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Name
+                                                            Service Name
                                                         </h4>
                                                         <TextInput
-                                                            label="Enter Product Name"
-                                                            placeholder="Enter Product Name"
+                                                            label="Enter Service Name"
+                                                            placeholder="Enter Service Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name', { required: "Product is required" }) }}
+                                                            props={{ ...register('name', { required: "Service is required", minLength: { value: 3, message: "Name must be at least 3 characters" } }) }}
                                                             errors={errors.name}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Title
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Service Title"
+                                                            placeholder="Enter Service Title"
+                                                            type="text"
+                                                            registerName="title"
+                                                            props={{ ...register('title', { required: "Service is required", minLength: { value: 3, message: "Title must be at least 3 characters" } }) }}
+                                                            errors={errors.title}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Sub Title
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Service Sub Title"
+                                                            placeholder="Enter Service Sub Title"
+                                                            type="text"
+                                                            registerName="subTitle"
+                                                            props={{ ...register('subTitle', { required: "Service is required", minLength: { value: 3, message: "Sub Title must be at least 3 characters" } }) }}
+                                                            minLength={3}
+                                                            errors={errors.subTitle}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Description
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Service Description"
+                                                            placeholder="Enter Service Description"
+                                                            type="text"
+                                                            registerName="description"
+                                                            props={{ ...register('description', { required: "Service is required", minLength: { value: 10, message: "Description must be at least 10 characters" } }) }}
+                                                            errors={errors.description}
                                                         />
                                                     </div>
                                                     <div className=''>
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Image
+                                                            Service Price
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Service Price"
+                                                            placeholder="Enter Service Price"
+                                                            type="number"
+                                                            registerName="price"
+                                                            props={{ ...register('price', { required: "Service is required", min: 0 }) }}
+                                                            errors={errors.price}
+                                                        />
+                                                    </div>
+                                                    <div className=''>
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Duration (30/60 Minutes)
+                                                        </h4>
+                                                        <TextInput
+                                                            label="Enter Service Duration"
+                                                            placeholder="Enter Service Duration"
+                                                            type="number"
+                                                            registerName="durationInMinutes"
+                                                            props={{ ...register('durationInMinutes', { required: "Service is required", min: 0 }) }}
+                                                            errors={errors.durationInMinutes}
+                                                        />
+                                                    </div>
+                                                    <div className=''>
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Image
                                                         </h4>
                                                         <ImageUploadInput
-                                                            label="Upload Product Image"
+                                                            label="Upload Service Image"
                                                             multiple={false}
                                                             registerName="image"
                                                             errors={errors.image}
-                                                            {...register("image", { required: "Product Image is required" })}
+                                                            {...register("image", { required: "Service Image is required", minLength: { value: 10, message: "Image must be at least 10 characters" } })}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
@@ -177,7 +248,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-sky-400 hover:bg-sky-400 capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
+                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>
                                     </div>

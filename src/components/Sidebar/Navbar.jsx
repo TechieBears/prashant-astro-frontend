@@ -186,7 +186,7 @@ const ProfileSection = ({ card, setCard, logOut }) => {
 
 const ProfilePage = ({ logOut }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-
+    const user = useSelector((state) => state.user.userDetails)
     const trigger = useRef(null);
     const dropdown = useRef(null);
 

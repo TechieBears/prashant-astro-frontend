@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useMemo } from 'react';
 import { useState } from 'react';
-import { getAllBanners } from '../../../api';
+import { editBanner, getAllBanners } from '../../../api';
 
 function Banner() {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -33,14 +33,28 @@ function Banner() {
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <CreateBannersModal button='edit' title='Edit Banner' data={row} setRefreshTrigger={setRefreshTrigger} />
+        <CreateBannersModal edit={true} title='Edit Banner' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
-    const premiumBody = (row) => (
+    const handleActiveChange = async (id, isActive) => {
+        try {
+            const updatedData = {
+                isActive: !isActive
+            }
+            await editBanner(id, updatedData);
+            setRefreshTrigger(prev => prev + 1);
+            toast.success('Status updated');
+        }
+        catch (error) {
+            console.log('error', error)
+            toast.error('Update failed');
+        }
+    }
+
+    const activeBody = (row) => (
         <Switch
-            value={row?.isPremium}
-            disabled={row?.is_registered || !row?.isVerified || !row?.isRejected == false ? true : false}
-            onChange={() => handlePremiumChange(row?._id, row?.isPremium)}
+            value={row?.isActive}
+            onChange={() => handleActiveChange(row?._id, row?.isActive)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
             borderColor={{ on: "#86d993", off: "#c6c6c6" }}
@@ -64,10 +78,11 @@ function Banner() {
 
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true },
-        { field: 'vendor_type', header: 'Banner For', sortable: true, style: true },
-        { field: 'redirection_type', header: 'Redirection Type', body: (row) => <h5>{row?.redirection_type ? row?.redirection_type : row?.redirect_link}</h5>, sortable: true, style: true },
-        { field: 'featured_time', header: 'Featured Time', body: (row) => <h6>{row?.start_time != null ? (moment(row?.start_time).format('YYYY-MM-DD ,HH:mm') + " to " + moment(row?.end_time).format('YYYY-MM-DD ,HH:mm')) : '-----'}</h6>, sortable: true, style: true },
-        { field: "isactive", header: "Active", body: premiumBody, sortable: true, style: true },
+        { field: 'title', header: 'Banner title', sortable: true, style: true },
+        { field: 'description', header: 'Banner description', sortable: true, style: true },
+        { field: 'type', header: 'Banner For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
+        { field: 'Featured Time', header: 'Featured Time (Start -> End)', body: (row) => <h6>{(moment(row?.startDate).format('YYYY-MM-DD ,HH:mm') + " -> " + moment(row?.endDate).format('YYYY-MM-DD ,HH:mm')) || '-----'}</h6>, sortable: true, style: true },
+        { field: "isactive", header: "Active", body: activeBody, sortable: true, style: true },
         { field: "action", header: "Action", body: actionBodyTemplate, sortable: true, style: true },
     ];
 
@@ -75,7 +90,7 @@ function Banner() {
         <div className="space-y-5">
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title="All Banners" subtitle="Recently added banners will appear here" component={<CreateBannersModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
+                <TableHeader title="All Banners" subtitle="Recently added banners will appear here" component={<CreateBannersModal edit={false} userData={null} setRefreshTrigger={setRefreshTrigger} />} />
                 <Table data={filterData} columns={columns} paginator={false} />
                 {/* Pagination Controls */}
                 <div className="flex justify-end items-center gap-4 mt-4">
