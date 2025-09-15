@@ -5,7 +5,7 @@ import { formBtn1 } from '../../utils/CustomClass'
 // import { gsap } from 'gsap';
 // import { SplitText } from 'gsap/all';
 
-const HomeBanner = ({ slidesData }) => {
+const HomeBanner = ({ slidesData, isLoading }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlay, setIsAutoPlay] = useState(true);
 
@@ -68,8 +68,16 @@ const HomeBanner = ({ slidesData }) => {
         setIsAutoPlay(!isAutoPlay);
     };
 
+    if (isLoading) {
+        return (
+            <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
     if (!slidesData || slidesData.length === 0) {
-        return <div>No slides available</div>;
+        return <div className="h-64 flex items-center justify-center">No slides available</div>;
     }
 
     const currentSlideData = slidesData[currentSlide];
@@ -88,7 +96,6 @@ const HomeBanner = ({ slidesData }) => {
                     {slidesData.map((slide) => (
                         <div key={slide.id} className="w-full flex-shrink-0">
                             <section className='relative flex h-screen items-center justify-center overflow-hidden'>
-                                {slide.background && <div className='absolute inset-0 z-10 h-full w-full overflow-hidden bg-gradient-to-t from-transparent from-30% to-black' />}
 
                                 <img
                                     src={slide.image}
