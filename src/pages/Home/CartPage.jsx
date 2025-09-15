@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaRegTrashAlt, FaMinus, FaPlus } from 'react-icons/fa';
 import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
@@ -81,32 +81,38 @@ const CartPage = () => {
 
             {/* Main Content */}
             <div className="container mx-auto px-8 max-w-7xl py-8">
-                {/* Navigation Bar */}
-                <div className="flex justify-between items-center mb-8">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                        <BsArrowLeft className="mr-2" />
-                        Go Back
-                    </button>
-
-                    <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                        <button className="px-6 py-2 text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
-                            Services
+                {/* Navigation Bar with Centered Title */}
+                <div className="relative flex items-center justify-center mb-8">
+                    <div className="absolute left-0">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                        >
+                            <BsArrowLeft className="mr-2" />
+                            Go Back
                         </button>
-                        <button className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full hover:opacity-90 transition-opacity">
-                            Products
-                        </button>
+                    </div>
+                    
+                    <h1 className="text-2xl font-normal text-gray-900">Cart</h1>
+                    
+                    <div className="absolute right-0">
+                        <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+                            <button className="px-6 py-2 text-gray-600 rounded-full hover:bg-gray-50 transition-colors">
+                                Services
+                            </button>
+                            <button className="px-6 py-2 bg-button-gradient-orange text-white rounded-full hover:opacity-90 transition-opacity">
+                                Products
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 {/* Cart Content */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-6 rounded-lg">
                     {/* Cart Items Section */}
-                    <div className="lg:col-span-2 space-y-4">
+                    <div className="lg:col-span-7 space-y-4">
                         {cartItems.map((item) => (
-                            <div key={item.id} className="bg-gray-50 rounded-lg p-6 flex items-center space-x-4">
+                            <div key={item.id} className="bg-light-pg rounded-lg p-4 flex items-start space-x-4 relative">
                                 {/* Product Image */}
                                 <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
                                     <img
@@ -118,63 +124,59 @@ const CartPage = () => {
 
                                 {/* Product Details */}
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-gray-900 text-lg mb-1">
+                                    <h3 className="font-bold text-gray-900 text-lg mb-1 pr-6">
                                         {item.name}
                                     </h3>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <span className="text-orange-500 font-bold text-lg">
+                                    <div className="space-y-1">
+                                        <div className="font-bold text-lg bg-gradient-orange bg-clip-text text-transparent">
                                             ₹{item.price.toLocaleString()}
-                                        </span>
-                                        <span className="text-gray-500 text-sm line-through">
-                                            MRP ₹{item.mrp.toLocaleString()} (incl. of all taxes)
-                                        </span>
+                                        </div>
+                                        <div className="text-black text-sm">
+                                            <span>MRP <span className="line-through">₹{item.mrp.toLocaleString()}</span></span>
+                                            <span className="ml-1">(incl. of all taxes)</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Quantity Controls */}
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-sm text-gray-600 font-medium">QTY</span>
-                                    <div className="flex items-center border border-gray-200 rounded-md">
-                                        <button
-                                            onClick={() => updateQuantity(item.id, false)}
-                                            className="p-2 hover:bg-gray-100 transition-colors"
-                                        >
-                                            <FaMinus className="w-3 h-3 text-gray-600" />
-                                        </button>
+                                {/* Right Side Controls */}
+                                <div className="flex flex-col items-end space-y-2">
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={() => removeItem(item.id)}
+                                        className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-colors self-end"
+                                    >
+                                        <FaRegTrashAlt className="w-4 h-4" />
+                                    </button>
+
+                                    {/* Quantity Controls */}
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-sm text-gray-600 font-medium">QTY:</span>
+
                                         <input
                                             type="number"
                                             value={item.quantity}
-                                            readOnly
-                                            className="w-12 text-center border-0 focus:ring-0 bg-transparent"
+                                            min={1}
+                                            onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                                            className="w-16 border border-gray-300 rounded-md px-2 py-1 text-center text-gray-800 focus:outline-none focus:ring-1 focus:ring-orange-500 
+                                            [appearance:textfield] 
+                                            [&::-webkit-outer-spin-button]:appearance-auto 
+                                            [&::-webkit-inner-spin-button]:appearance-auto"
                                         />
-                                        <button
-                                            onClick={() => updateQuantity(item.id, true)}
-                                            className="p-2 hover:bg-gray-100 transition-colors"
-                                        >
-                                            <FaPlus className="w-3 h-3 text-gray-600" />
-                                        </button>
                                     </div>
-                                </div>
 
-                                {/* Delete Button */}
-                                <button
-                                    onClick={() => removeItem(item.id)}
-                                    className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                                >
-                                    <FaTrash className="w-4 h-4" />
-                                </button>
+                                </div>
                             </div>
                         ))}
                     </div>
 
                     {/* Amount Payable Section */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-gray-50 rounded-lg p-6 sticky top-8">
-                            <h3 className="font-bold text-gray-900 text-lg mb-4">
+                    <div className="lg:col-span-5">
+                        <div className="rounded-lg sticky top-8">
+                            <h3 className="font-bold text-gray-900 text-lg mb-2">
                                 Amount Payable
                             </h3>
 
-                            <div className="space-y-3 mb-6">
+                            <div className="space-y-3 mb-6 bg-light-pg p-4 rounded-lg">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-600">
                                         Product {cartItems.reduce((total, item) => total + item.quantity, 0)}x (inclu. GST)
@@ -193,7 +195,7 @@ const CartPage = () => {
                                     </span>
                                 </div>
 
-                                <hr className="border-gray-200" />
+                                <div className="border-t border-separator my-2"></div>
 
                                 <div className="flex justify-between items-center">
                                     <span className="font-bold text-gray-900">
@@ -206,7 +208,7 @@ const CartPage = () => {
                             </div>
 
                             {/* Continue to Pay Button */}
-                            <button className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-md font-medium hover:opacity-90 transition-opacity shadow-md">
+                            <button className="w-full bg-button-diagonal-gradient-orange text-white py-3 px-6 rounded-sm font-medium hover:opacity-90 transition-opacity shadow-md">
                                 Continue to pay
                             </button>
                         </div>

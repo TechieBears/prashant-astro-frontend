@@ -4,6 +4,7 @@ import SidebarLink from './SidebarLink';
 import Navbar from './Navbar';
 import { SidebarAdminApi } from './SidebarApi';
 import logo from '../../assets/logo.png';
+import { Trade } from 'iconsax-reactjs';
 
 const Sidebar = ({ children }) => {
     const [isActiveLink, setIsActiveLink] = useState(false);
@@ -17,9 +18,9 @@ const Sidebar = ({ children }) => {
                     <div className={`${isActiveLink ? "w-[5rem]" : "w-[15rem]"}  bg-white h-full  duration-700 xl:block  transition-all ease-in-out top-0 left-0 fixed shadow-sm ${mobileSidebar ? "block z-[90]" : "hidden"}`}>
                         <div className="flex  py-5 px-5">
                             <NavLink className="flex space-x-2 items-center" to="/">
-                                {/* <Trade size={isActiveLink ? "36" : "30"} className="text-primary " variant='Bulk' /> */}
-                                <img loading="lazy" src={logo} className='w-11 h-11 object-contain' />
-                                <h2 className={isActiveLink ? 'hidden ' : 'font-tbLex font-bold  text-2xl text-black transition-all duration-700 delay-200 capitalize'}>Soul Plan<span className="text-primary">.</span></h2>
+                                <Trade size={isActiveLink ? "36" : "30"} className="text-primary " variant='Bulk' />
+                                {/* <img loading="lazy" src={logo} className='w-11 h-11 object-contain' /> */}
+                                <h2 className={isActiveLink ? 'hidden ' : 'font-tbLex font-bold  text-2xl text-black transition-all duration-700 delay-200 capitalize'}>Astroguid</h2>
                             </NavLink>
                         </div>
                         <ul className='flex  items-center flex-col overflow-y-scroll h-full  mt-2 mb-20 space-y-1.5 scroll-hide'>

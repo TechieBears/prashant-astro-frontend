@@ -4,6 +4,55 @@ import { Saturn01Icon } from 'hugeicons-react';
 import aboutImg from '../../assets/user/aboutus.png'
 import SectionHeader from '../../components/Titles/SectionHeader';
 import { FavouriteIcon, StarIcon, Calendar03Icon } from 'hugeicons-react';
+import Testimonials from '../../components/Testimonials/Testimonials';
+
+const astrologers = [
+    { id: 1, name: 'Suvigya Indusoot' },
+    { id: 2, name: 'Ravi Kumar' },
+    { id: 3, name: 'Suvigya Indusoot' },
+    { id: 4, name: 'Suvigya Indusoot' },
+    { id: 5, name: 'Priya Sharma' },
+    { id: 6, name: 'Ravi Kumar' }
+];
+
+const services = [
+    {
+        id: 1,
+        title: 'DOB Analysis',
+        description: 'Detailed life guidance based on your birth date covering personality traits, career paths, love compatibility, and health patterns.',
+        icon: '/src/assets/user/about/core (1).svg'
+    },
+    {
+        id: 2,
+        title: 'Personal Kundali Reading',
+        description: 'Complete birth chart analysis revealing your personality, career potential, relationships, and life cycles with precise cosmic insights.',
+        icon: '/src/assets/user/about/core (2).svg'
+    },
+    {
+        id: 3,
+        title: 'Kundli Matching',
+        description: 'Traditional compatibility analysis for marriages and partnerships ensuring harmonious relationships and shared prosperity.',
+        icon: '/src/assets/user/about/core (3).svg'
+    },
+    {
+        id: 4,
+        title: 'Numerology & Correction',
+        description: 'Align your name vibrations with cosmic energies for enhanced success, prosperity, and life harmony.',
+        icon: '/src/assets/user/about/core (4).svg'
+    },
+    {
+        id: 5,
+        title: 'Palmistry',
+        description: 'Ancient hand reading techniques revealing your destiny, success patterns, and hidden life potentials.',
+        icon: '/src/assets/user/about/core (5).svg'
+    },
+    {
+        id: 6,
+        title: 'Vastu Consultation',
+        description: 'Balance your home and office spaces with cosmic energies for enhanced positivity, prosperity, and peace.',
+        icon: '/src/assets/user/about/core (6).svg'
+    }
+];
 
 const AboutPage = () => {
 
@@ -73,7 +122,7 @@ const AboutPage = () => {
                     </div>
                 </div>
 
-                <div className=" px-4 sm:px-6 lg:px-16 py-16 w-full max-w-[1280px] mx-auto ">
+                <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto">
                     <div className='flex items-center flex-col gap-5'>
                         <SectionHeader
                             prefix="Our"
@@ -110,30 +159,70 @@ const AboutPage = () => {
 
                 </div>
 
-                <div className="px-4 sm:px-6 lg:px-16 py-16">
-                    <div className='flex items-center flex-col gap-5'>
+                <div className="px-4 sm:px-6 lg:px-16 py-16 w-full max-w-[1280px] mx-auto">
+                    <div className='flex items-center flex-col gap-5 mb-12'>
                         <SectionHeader
                             prefix="Our"
                             highlight="Astrologer"
                         />
                     </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {astrologers.map((astrologer) => (
+                            <div key={astrologer.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                                <div className="relative group">
+                                    <div className="w-full overflow-hidden relative" style={{ aspectRatio: '3/4' }}>
+                                        <img
+                                            src={`/src/assets/user/about/pandit (${astrologer.id}).png`}
+                                            alt={astrologer.name}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                        />
+                                        <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-sm py-2 px-4 rounded border border-white/20 group cursor-pointer hover:bg-black/50 transition-colors">
+                                            <div className="flex items-center justify-between w-full">
+                                                <h3 className="text-base font-medium text-white truncate pr-2">
+                                                    {astrologer.name}
+                                                </h3>
+                                                <span className="text-white flex-shrink-0">→</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                
-                <div className=" p-6 md:p-12">
+
+                <div className="px-6 md:px-12">
                     <div className='flex items-center flex-col gap-5'>
                         <SectionHeader
                             prefix="Our"
                             highlight="Core Services"
                         />
                         <p className='w-11/12 md:w-4/12 text-center text-sm text-slate-600 mb-10'>
-                           Comprehensive spiritual guidance tailored to illuminate your unique cosmic path
+                            Comprehensive spiritual guidance tailored to illuminate your unique cosmic path
                         </p>
                     </div>
-                   
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        {services.map((service) => (
+                            <div key={service.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow flex flex-col">
+                                <div className="w-20 h-20 flex items-center justify-start mb-4">
+                                    <img src={service.icon} alt={service.title} className="w-16 h-16" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-left mb-2">{service.title}</h3>
+                                <p className="text-sm text-gray-600 text-left mb-4 flex-grow">{service.description}</p>
+                                <a href="#" className="text-[#0088FF] hover:text-blue-700 text-sm font-medium text-left mt-auto">
+                                    Read More →
+                                </a>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
+                {/* Testimonials Section */}
+                <Testimonials />
 
             </div>
         </div>

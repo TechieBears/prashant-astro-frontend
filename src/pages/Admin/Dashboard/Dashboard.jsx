@@ -1,20 +1,10 @@
 import { Send2 } from 'iconsax-reactjs';
 import BasicBars from '../../../components/Charts/BasicBars';
 import PiaCharts from '../../../components/Charts/PiaCharts';
-import { auth } from '../../../utils/firebase/firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 
 const Dashboard = () => {
 
-    // const handerGoogleSignIn = () => {
-    //     const provider = new GoogleAuthProvider();
-    //     signInWithPopup(auth, provider).then((result) => {
-    //         console.log(result);
-    //     }).catch((error) => {
-    //         console.log(error);
-    //     });
-    // }
     return (
         <>
             <div className="px-1 mx-4 m-2 rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-4">

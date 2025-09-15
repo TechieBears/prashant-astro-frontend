@@ -3,7 +3,7 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
-import '../../css/Products.css';
+// import '../../css/Products.css';
 
 // Import product images
 import img1 from '../../assets/user/products/productImages (1).png';
@@ -160,10 +160,10 @@ const ProductsPage = () => {
         })
     }, [products, selected, search, price])
 
-    
+
     return (
         <div className='bg-slate1'>
-            <BackgroundTitle 
+            <BackgroundTitle
                 title="Products"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
@@ -189,7 +189,7 @@ const ProductsPage = () => {
                         {filtered.length === 0 && (
                             <div className="text-center py-10">
                                 <p className="text-gray-500 text-lg">No products found matching your filters.</p>
-                                <button 
+                                <button
                                     onClick={resetFilters}
                                     className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
                                 >

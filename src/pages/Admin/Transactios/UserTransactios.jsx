@@ -132,6 +132,7 @@ const UserTransactios = () => {
                                     { value: 'failed', label: 'Failed' },
                                     { value: 'success', label: 'Success' },
                                 ]}
+                                placeholder="Select Status"
                                 props={{
                                     ...register('status'),
                                     value: watch('status') || ''

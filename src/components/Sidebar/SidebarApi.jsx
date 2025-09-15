@@ -68,6 +68,11 @@ export const SidebarAdminApi = [
                 icon: <Clipboard size="21" variant="TwoTone" />,
                 link: '/all-services',
             },
+            {
+                title: 'Service Categories',
+                icon: <Trade size="21" variant="TwoTone" />,
+                link: '/service-categories',
+            },
         ],
     },
     {

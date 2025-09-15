@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import toast, { Toaster } from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
 import ServicesPage from '../pages/Home/ServicesPage';
+import ServiceDetail from '../pages/Home/ServiceDetail';
 import ProductsPage from '../pages/Home/ProductsPage';
 import HomeNavbar from '../components/HomeComponents/HomeNavbar';
 import ErrorPage from './ErrorPage';
@@ -36,6 +37,7 @@ import AllUserProfiles from '../pages/Admin/UserManagement/AllUserProfiles';
 import AllProducts from '../pages/Admin/AllProducts/AllProducts';
 import ProductDetail from '../pages/Home/ProductDetail';
 import CartPage from '../pages/Home/CartPage';
+import PaymentSuccess from '../pages/Home/PaymentSuccess';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -80,6 +82,7 @@ const ProjectRoutes = () => {
                     <Route path="/products/:id" element={<ProductDetail />} />
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/services/:id" element={<ServiceDetail />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
@@ -89,6 +92,7 @@ const ProjectRoutes = () => {
                     {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
                     <Route path="/terms-conditions" element={<TermsConditions />} />
                     <Route path="/address" element={<Address />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path='*' element={<ErrorPage />} />
                 </Routes>
             </div>

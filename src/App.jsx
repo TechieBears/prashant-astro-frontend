@@ -14,6 +14,7 @@ import gsap from 'gsap';
 import { SplitText, ScrollTrigger } from 'gsap/all';
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
+
     return (
         <>
             <Provider store={store}>
