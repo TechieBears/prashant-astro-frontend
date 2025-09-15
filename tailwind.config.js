@@ -25,6 +25,7 @@ export default {
                 "light-pg": "#F1F5F9",
                 slate1: "#FEF8EF",
                 "custom-bg": "#FFF5EE",
+                "separator": "#CAD5E2",
             },
             colors: {
                 primary: "#f97316",
