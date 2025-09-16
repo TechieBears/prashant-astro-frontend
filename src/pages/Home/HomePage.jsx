@@ -456,22 +456,62 @@ const HomePage = () => {
                         </p>
                     </div>
 
-                    <div className='flex flex-row'>
-                        <div className='bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
+                    <div className='flex flex-col md:flex-row gap-4'>
+                        {/* Left Side - Video Section */}
+                        <div className='w-full md:w-1/2 bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
                             <h2 className='text-lg text-slate-800'>Watch Our Introduction Video</h2>
                             <p className='text-sm text-slate-600 my-4'>
                                 Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
                             </p>
-                            <div>
-                                <iframe width="560" height="315" src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <div className='aspect-video'>
+                                <iframe
+                                    className='w-full h-full'
+                                    src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6"
+                                    title="YouTube video player"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    allowFullScreen
+                                ></iframe>
                             </div>
-                            <div>
+                            <div className='mt-4'>
                                 <button className='bg-gradient-orange text-white px-4 py-2 rounded-md'>
                                     Watch Now
                                 </button>
                             </div>
                         </div>
+
+                        {/* Right Side - Instagram Section */}
+                        <div className='w-full md:w-1/2 flex flex-col gap-4'>
+                            {/* Instagram Block */}
+                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
+                                <div className='mr-4'>
+                                    {/* Add icon or image if needed */}
+                                </div>
+                                <div>
+                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+                                </div>
+                            </div>
+
+                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
+                                <div className='mr-4'></div>
+                                <div>
+                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+                                </div>
+                            </div>
+
+                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
+                                <div className='mr-4'></div>
+                                <div>
+                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
                 <img
                     src={Flower}

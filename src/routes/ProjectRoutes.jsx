@@ -22,7 +22,7 @@ import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
 import Address from '../pages/Home/Profile/Address';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
-import Bookings from '../pages/Admin/Bookings/Bookings';
+// import Bookings from '../pages/Admin/Bookings/Bookings';
 import BookingCalender from '../pages/Admin/Bookings/BookingCalender';
 import ProductCategories from '../pages/Admin/AllProducts/ProductCategories';
 import AllServices from '../pages/Admin/Services/AllServices';
@@ -40,6 +40,7 @@ import CartPage from '../pages/Home/CartPage';
 import PaymentSuccess from '../pages/Home/PaymentSuccess';
 import ProductBookings from '../pages/Admin/Bookings/ProductBookings';
 import ServiceBookings from '../pages/Admin/Bookings/ServiceBookings';
+import ServicesCategories from '../pages/Admin/Services/ServicesCategories';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -75,7 +76,7 @@ const ProjectRoutes = () => {
     const PublicSite = () => (
         <main className="flex flex-col min-h-screen">
             <HomeNavbar />
-            <div className="flex-1 pt-28">
+            <div className="flex-1 pt-0 lg:pt-28">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/about" element={<AboutPage />} />
@@ -116,6 +117,7 @@ const ProjectRoutes = () => {
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/product-categories" element={<ProductCategories />} />
                         <Route path="/all-services" element={<AllServices />} />
+                        <Route path="/service-categories" element={<ServicesCategories />} />
                         <Route path="/all-employees" element={<Employees />} />
                         <Route path="/all-users" element={<AllUserProfiles />} />
                         <Route path="/user-transaction" element={<UserTransactios />} />

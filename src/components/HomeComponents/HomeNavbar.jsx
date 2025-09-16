@@ -63,12 +63,14 @@ const HomeNavbar = () => {
         });
     }, []);
 
+    console.log('isMenuOpen', isMenuOpen)
+
     return (
         <>
-            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500">
+            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500 ">
                 {/* Top Row - Hidden on Scroll */}
                 <div
-                    className={`flex items-center justify-between px-10 md:px-40 gap-4 transition-all duration-500 ease-in-out
+                    className={`flex items-center justify-between w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16  gap-4 transition-all duration-500 ease-in-out
                     ${isScrolled
                             ? "opacity-0 -translate-y-5 pointer-events-none h-0 overflow-hidden"
                             : "opacity-100 translate-y-0 py-3"
@@ -115,13 +117,20 @@ const HomeNavbar = () => {
 
                     {/* Phone + CTA */}
                     <div className="flex items-center gap-10">
-                        <div className="hidden md:flex items-center gap-2 text-base-font">
-                            <Phone size={18} />
-                            <span className="text-base-font font-medium">+91 95682 45762</span>
-                        </div>
-                        <button className="bg-gradient-orange text-white font-medium px-6 py-2 rounded shadow hover:opacity-90 transition">
-                            Book Consultation
-                        </button>
+                        {
+                            !isMenuOpen && (
+                                <>
+                                    <div className="hidden md:flex items-center gap-2 text-base-font">
+                                        <Phone size={18} />
+                                        <span className="text-base-font font-medium">+91 95682 45762</span>
+                                    </div>
+                                    <button className="bg-gradient-orange text-white font-medium px-6 py-2 rounded shadow hover:opacity-90 transition">
+                                        Book Consultation
+                                    </button>
+
+                                </>
+                            )
+                        }
 
                         {/* Mobile Menu Toggle */}
                         <div className="lg:hidden">
@@ -135,56 +144,59 @@ const HomeNavbar = () => {
                 </div>
 
                 {/* Bottom Row */}
-                <div className="bg-light-gradient-orange flex items-center justify-between px-6 md:px-40">
-                    {/* Nav Links */}
-                    <div className="hidden lg:flex gap-6 text-white font-medium">
-                        {navLinks.map((link, i) => (
-                            <NavLink
-                                key={i}
-                                to={link.path}
-                                onClick={() => {
-                                    window.scrollTo({ top: 0, behavior: "smooth" });
-                                    setIsMenuOpen(false);
-                                }}
-                                className={({ isActive }) =>
-                                    `inline-block border-b-2 transition ${isActive
-                                        ? "border-white"
-                                        : "border-transparent hover:border-white"
-                                    }`
-                                }
-                            >
-                                {link.name}
-                            </NavLink>
-                        ))}
+                <div className="bg-light-gradient-orange">
+                    <div className=" flex items-center justify-between w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16">
+                        {/* Nav Links */}
+                        <div className="hidden lg:flex gap-6 text-white font-medium  ">
+                            {navLinks.map((link, i) => (
+                                <NavLink
+                                    key={i}
+                                    to={link.path}
+                                    onClick={() => {
+                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className={({ isActive }) =>
+                                        `inline-block border-b-2 transition ${isActive
+                                            ? "border-white"
+                                            : "border-transparent hover:border-white"
+                                        }`
+                                    }
+                                >
+                                    {link.name}
+                                </NavLink>
+                            ))}
+                        </div>
+
+                        {/* Cart & Profile */}
+                        <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
+                            <ShoppingCart size={20} className="cursor-pointer" />
+                            {login ? (
+                                <img
+                                    alt="profile"
+                                    src={
+                                        user?.user?.profilePicture ||
+                                        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                                    }
+                                    onClick={() => setCard(!card)}
+                                    className="size-10 rounded-full border-2 border-white cursor-pointer"
+                                />
+                            ) : (
+                                <button
+                                    className={`bg-transparent text-white`}
+                                    onClick={() => navigate("/login")}
+                                >
+                                    Login
+                                </button>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Cart & Profile */}
-                    <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
-                        <ShoppingCart size={20} className="cursor-pointer" />
-                        {login ? (
-                            <img
-                                alt="profile"
-                                src={
-                                    user?.user?.profilePicture ||
-                                    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
-                                }
-                                onClick={() => setCard(!card)}
-                                className="size-10 rounded-full border-2 border-white cursor-pointer"
-                            />
-                        ) : (
-                            <button
-                                className={`bg-transparent text-white`}
-                                onClick={() => navigate("/login")}
-                            >
-                                Login
-                            </button>
-                        )}
-                    </div>
                 </div>
 
                 {/* Mobile Menu */}
                 <div
-                    className={`fixed top-0 left-0 w-full h-screen bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+                    className={`fixed top-0 left-0 w-[100%] lg:hidden  bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
                         }`}
                 >
                     <button

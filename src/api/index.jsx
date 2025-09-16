@@ -1192,3 +1192,42 @@ export const getActiveBanners = async (type = "website") => {
         return [];
     }
 };
+
+
+// ====================CUstomer(User) Services  Api===================
+export const getServicesList = async (data) => {
+    try {
+        const url = `${environment.baseUrl}service/public/get-all`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+
+export const getSelectedService = async (id) => {
+    try {
+        const url = `${environment.baseUrl}service/public/get-single?id=${id}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}
+
+
+export const getCategoriesList  = async (data) => {
+    try {
+        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log(err);
+        return err?.response?.data
+    }
+}

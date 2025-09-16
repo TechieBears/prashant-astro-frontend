@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
+import { getSelectedService } from '../../api';
+import { Clock05Icon, ShareKnowledgeIcon } from 'hugeicons-react';
 
 // Import service images
 import service1 from '../../assets/user/services/service (1).png';
@@ -22,6 +24,7 @@ const ServiceDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
+    const [selectedService, setSelectedService] = useState({});
     // Mock service data - replace with actual data from API
     const service = {
         id: id || 'S1001',
@@ -48,6 +51,19 @@ const ServiceDetail = () => {
         { name: 'Kundali Dosh', href: '/services?category=Kundali Dosh' }
     ];
 
+    useEffect(() => {
+        const fetchService = async () => {
+            const response = await getSelectedService(id);
+            console.log('selected services', response?.data)
+            if(response?.success){
+                setSelectedService(response?.data);
+            }
+            // setIsLoading(false);
+        };
+        
+         fetchService();
+    }, [id]);
+
     const handleCheckAvailability = () => {
         console.log('Check availability clicked');
         // Navigate to booking page or open booking modal
@@ -60,11 +76,11 @@ const ServiceDetail = () => {
     return (
         <div className="min-h-screen bg-slate1">
             <BackgroundTitle
-                title={service.title}
+                title={selectedService.name}
                 breadcrumbs={[
                     { label: "Home", href: "/" },
                     { label: "Services", href: "/services" },
-                    { label: service.title, href: null }
+                    { label: selectedService.name, href: null }
                 ]}
                 backgroundImage={bannerImage}
                 backgroundPosition="center 73%"
@@ -78,8 +94,8 @@ const ServiceDetail = () => {
                         {/* Main Service Image */}
                         <div className="mb-6">
                             <img
-                                src={service.image}
-                                alt={service.title}
+                                src={selectedService.image}
+                                alt={selectedService.name}
                                 className="w-full object-cover rounded-lg shadow-lg"
                                 style={{ height: '564px' }}
                             />
@@ -92,20 +108,20 @@ const ServiceDetail = () => {
                             </h2>
 
                             <p className="text-gray-700 mb-6">
-                                {service.description}
+                                {selectedService.subTitle}
                             </p>
 
                             {/* Session Details */}
                             <div className="space-y-4 mb-2">
-                                <div className="flex items-center text-gray-700">
-                                    <FaClock className="w-5 h-5 mr-3 text-orange-500" />
-                                    <span className="font-medium">Session Duration: {service.duration}</span>
+                                <div className="flex items-center text-gray-700 gap-4">
+                                    <Clock05Icon size={20} color='#000' />
+                                    <span className="font-medium">Session Duration: {selectedService.durationInMinutes}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between text-gray-700">
-                                    <div className="flex items-center">
-                                        <FaMapMarkerAlt className="w-5 h-5 mr-3 text-orange-500" />
-                                        <span className="font-medium">Mode: {service.mode}</span>
+                                    <div className="flex items-center gap-4">
+                                        <ShareKnowledgeIcon size={20} color='#000' />
+                                        <span className="font-medium">Mode: {selectedService.serviceType}</span>
                                     </div>
 
                                     {/* Check Availability Button */}
@@ -118,6 +134,7 @@ const ServiceDetail = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className='mt-6 prose max-w-none' dangerouslySetInnerHTML={{ __html: selectedService.htmlContent }} />
                     </div>
 
                     {/* Right Column - Related Services */}
