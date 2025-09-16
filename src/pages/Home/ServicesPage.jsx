@@ -308,16 +308,16 @@ const ServicesPage = () => {
                 backgroundSize="100%"
             />
 
-            <div className="container mx-auto px-8 max-w-7xl pb-8">
+            <div className="container mx-auto px-4 md:px-8 max-w-7xl pb-8">
                 {/* Category Filter Card */}
-                <div className="mb-8 flex justify-center">
-                    <div className="bg-white rounded-b-2xl shadow-lg px-6 py-4 inline-block">
-                        <div className="flex flex-wrap gap-4">
+                <div className="mb-6 md:mb-8 flex justify-center">
+                    <div className="bg-white rounded-b-2xl shadow-lg px-4 md:px-6 py-3 md:py-4 inline-block w-full max-w-4xl">
+                        <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
                             {categories.map(category => (
                                 <button
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${selectedCategory === category
+                                    className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-medium transition-all duration-200 text-sm md:text-base ${selectedCategory === category
                                         ? 'bg-button-vertical-gradient-orange text-white shadow-md'
                                         : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-400 hover:text-orange-600'
                                         }`}
@@ -330,14 +330,14 @@ const ServicesPage = () => {
                 </div>
 
                 {/* Category Heading */}
-                <div className="mb-6">
-                    <h2 className="text-2xl font-bold bg-gradient-orange bg-clip-text text-transparent">
+                <div className="mb-4 md:mb-6">
+                    <h2 className="text-xl md:text-2xl font-bold bg-gradient-orange bg-clip-text text-transparent text-center md:text-left">
                         {selectedCategory}
                     </h2>
                 </div>
 
                 {/* Services Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                     {filteredServices.map((service) => (
                         <div
                             key={service.id}
@@ -349,19 +349,19 @@ const ServicesPage = () => {
                                 <img
                                     src={service.image}
                                     alt={service.title}
-                                    className="w-full h-64 md:h-72 lg:h-80 object-cover"
+                                    className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80 object-cover"
                                 />
 
                                 {/* Gradient Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
 
                                 {/* Service Info - Positioned at bottom */}
-                                <div className="absolute bottom-0 left-0 right-0 p-6 text-center">
-                                    <h3 className="font-bold text-white mb-2 text-lg">
+                                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-center">
+                                    <h3 className="font-bold text-white mb-1 md:mb-2 text-base md:text-lg">
                                         {service.title}
                                     </h3>
 
-                                    <p className="text-gray-300 text-sm">
+                                    <p className="text-gray-300 text-xs md:text-sm">
                                         {service.description}
                                     </p>
                                 </div>
@@ -372,10 +372,10 @@ const ServicesPage = () => {
 
                 {/* No Results */}
                 {filteredServices.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 text-6xl mb-4">🔍</div>
-                        <h3 className="text-xl font-semibold text-gray-600 mb-2">No services found</h3>
-                        <p className="text-gray-500">Try selecting a different category</p>
+                    <div className="text-center py-8 md:py-12">
+                        <div className="text-gray-400 text-4xl md:text-6xl mb-3 md:mb-4">🔍</div>
+                        <h3 className="text-lg md:text-xl font-semibold text-gray-600 mb-2">No services found</h3>
+                        <p className="text-gray-500 text-sm md:text-base">Try selecting a different category</p>
                     </div>
                 )}
             </div>
