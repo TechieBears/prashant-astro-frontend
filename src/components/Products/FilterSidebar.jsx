@@ -2,18 +2,23 @@ import React from 'react';
 import SearchBar from './SearchBar';
 import PriceRangeSlider from './PriceRangeSlider';
 import CategoryFilter from './CategoryFilter';
+import SubcategoryFilter from './SubcategoryFilter';
 
 const FilterSidebar = ({
   search,
-  onSearchChange,
-  priceRange,
-  onPriceChange,
-  categories,
-  selectedCategories,
-  onToggleCategory,
-  onResetFilters,
+  setSearch,
+  categories = [],
+  subcategories = [],
+  selectedCategories = [],
+  selectedSubcategories = [],
+  toggleCategory,
+  toggleSubcategory,
+  price,
+  setPrice,
   minPrice = 0,
   maxPrice = 10000,
+  resetFilters,
+  isLoading = false,
 }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
   return (
@@ -37,48 +42,95 @@ const FilterSidebar = ({
       </button>
 
       <div className={`${isMobileFiltersOpen ? 'block' : 'hidden'} lg:block p-4`}>
+        {/* Search */}
         <div className="mb-6">
           <h4 className="text-slate-800 font-semibold mb-2">Search</h4>
-          <SearchBar value={search} onChange={onSearchChange} />
-        </div>
-
-      <div className="mb-6">
-        <h4 className="text-slate-800 font-semibold mb-2">
-          Price <span className="font-bold text-slate-900 ml-2">
-            {priceRange[0].toLocaleString()}₹ - {priceRange[1].toLocaleString()}₹
-          </span>
-        </h4>
-        <div className="mt-3">
-          <PriceRangeSlider
-            min={minPrice}
-            max={maxPrice}
-            value={priceRange}
-            onChange={onPriceChange}
+          <SearchBar 
+            value={search} 
+            onChange={(e) => setSearch(e.target.value)} 
+            placeholder="Search products..."
           />
         </div>
-      </div>
 
-      <div className="mb-6">
-        <h4 className="text-slate-800 font-semibold mb-2">Categories</h4>
-        <div className="mt-3">
-          <CategoryFilter
-            categories={categories}
-            selected={selectedCategories}
-            onToggle={onToggleCategory}
-          />
+        {/* Price Range */}
+        <div className="mb-6">
+          <h4 className="text-slate-800 font-semibold mb-2">
+            Price <span className="font-bold text-slate-900 ml-2">
+              {price[0].toLocaleString()}₹ - {price[1].toLocaleString()}₹
+            </span>
+          </h4>
+          <div className="mt-3">
+            <PriceRangeSlider
+              min={minPrice}
+              max={maxPrice}
+              value={price}
+              onChange={(newPrice) => setPrice(newPrice)}
+              disabled={isLoading}
+            />
+          </div>
         </div>
-      </div>
 
+        {/* Categories */}
+        <div className="mb-6">
+          <h4 className="text-slate-800 font-semibold mb-2">Categories</h4>
+          <div className="mt-3">
+            {isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-6 bg-gray-200 animate-pulse rounded"></div>
+                ))}
+              </div>
+            ) : categories.length > 0 ? (
+              <CategoryFilter
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onToggleCategory={toggleCategory}
+              />
+            ) : (
+              <p className="text-sm text-gray-500">No categories available</p>
+            )}
+          </div>
+        </div>
+
+        {/* Subcategories */}
+        {selectedCategories.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-slate-800 font-semibold mb-2">Subcategories</h4>
+            <div className="mt-3">
+              {isLoading ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-6 bg-gray-200 animate-pulse rounded"></div>
+                  ))}
+                </div>
+              ) : subcategories.length > 0 ? (
+                <SubcategoryFilter
+                  subcategories={subcategories.filter(sub => 
+                    selectedCategories.includes(sub.categoryId)
+                  )}
+                  selectedSubcategories={selectedSubcategories}
+                  onToggleSubcategory={toggleSubcategory}
+                />
+              ) : (
+                <p className="text-sm text-gray-500">No subcategories available</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
         <div className="flex gap-3 mt-6">
           <button
-            onClick={onResetFilters}
-            className="flex-1 rounded-lg border border-slate-300 text-slate-600 py-2 px-4 text-sm sm:text-base font-medium bg-white hover:bg-slate-50 transition-colors"
+            onClick={resetFilters}
+            disabled={isLoading}
+            className="flex-1 rounded-lg border border-slate-300 text-slate-600 py-2 px-4 text-sm sm:text-base font-medium bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Reset
+            Reset Filters
           </button>
           <button
             onClick={() => setIsMobileFiltersOpen(false)}
-            className="lg:hidden flex-1 rounded-lg bg-orange-500 text-white py-2 px-4 text-sm sm:text-base font-medium hover:bg-orange-600 transition-colors"
+            className="lg:hidden flex-1 rounded-lg bg-orange-500 text-white py-2 px-4 text-sm sm:text-base font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading}
           >
             Apply Filters
           </button>
