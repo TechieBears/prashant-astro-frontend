@@ -22,7 +22,7 @@ import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
 import Address from '../pages/Home/Profile/Address';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
-import Bookings from '../pages/Admin/Bookings/Bookings';
+// import Bookings from '../pages/Admin/Bookings/Bookings';
 import BookingCalender from '../pages/Admin/Bookings/BookingCalender';
 import ProductCategories from '../pages/Admin/AllProducts/ProductCategories';
 import AllServices from '../pages/Admin/Services/AllServices';
@@ -105,7 +105,10 @@ const ProjectRoutes = () => {
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
-                <Preloaders />
+                <div className="relative">
+                    <HomeNavbar />
+                    <Preloaders />
+                </div>
             ) : isAdminOrEmployee ? (
                 <Sidebar>
                     <Routes>

@@ -18,6 +18,14 @@
     font-family: var(--font-name-pop);
 }
 
+/* ======================= navbar fallback styles ======================= */
+.navbar {
+    opacity: 1 !important;
+    transform: translateY(0px) !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
 body {
     background-color: var(--baseBg);
 }
@@ -688,4 +696,44 @@ video {
         height: 40px;
         transform: translate(48px, 0);
     }
+}
+
+/* ============== Range Slider Styles =============== */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #f97316;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #f97316;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: -6px;
+}
+
+input[type="range"]::-webkit-slider-track {
+    background: transparent;
+}
+
+input[type="range"]::-moz-range-track {
+    background: transparent;
 }

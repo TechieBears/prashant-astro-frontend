@@ -24,10 +24,19 @@ const HomeNavbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [card, setCard] = useState(true);
+    const [isNavbarVisible, setIsNavbarVisible] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
+
     const login = useSelector((state) => state.user.isLogged);
     const user = useSelector((state) => state.user.userDetails);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    // Ensure component is mounted
+    useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -36,6 +45,11 @@ const HomeNavbar = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    // Ensure navbar visibility is maintained
+    useEffect(() => {
+        setIsNavbarVisible(true);
+    }, [login, user]);
 
     const handleLogout = async () => {
         try {
@@ -55,17 +69,60 @@ const HomeNavbar = () => {
     };
 
     useGSAP(() => {
-        gsap.from(".navbar", {
-            y: -80,
-            opacity: 0,
-            ease: "power1.inOut",
-            duration: 1.2,
+        if (!isMounted) return;
+
+        // Set initial state to visible to prevent disappearing
+        gsap.set(".navbar", {
+            y: 0,
+            opacity: 1,
+            immediateRender: true
         });
-    }, []);
+
+        // Then animate from hidden state with error handling
+        try {
+            gsap.from(".navbar", {
+                y: -80,
+                opacity: 0,
+                ease: "power1.inOut",
+                duration: 1.2,
+                delay: 0.1, // Small delay to ensure DOM is ready
+                onComplete: () => {
+                    // Ensure navbar is visible after animation
+                    gsap.set(".navbar", { opacity: 1, y: 0 });
+                }
+            });
+        } catch (error) {
+            console.warn("GSAP animation failed, ensuring navbar visibility:", error);
+            gsap.set(".navbar", { opacity: 1, y: 0 });
+        }
+    }, [isMounted]);
+
+    // Fallback render to ensure navbar is always visible
+    if (!isMounted) {
+        return (
+            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow">
+                <div className="flex items-center justify-between px-10 md:px-40 gap-4 py-3">
+                    <div className="flex items-center gap-2">
+                        <img src={logo} alt="logo" className="h-10 md:h-12" />
+                        <span className="hidden sm:block text-lg md:text-xl font-semibold text-gray-800">
+                            Pandit Prashant
+                        </span>
+                    </div>
+                </div>
+            </nav>
+        );
+    }
 
     return (
         <>
-            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500">
+            <nav
+                className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500"
+                style={{
+                    opacity: isNavbarVisible ? 1 : 1,
+                    transform: 'translateY(0px)',
+                    visibility: isNavbarVisible ? 'visible' : 'visible'
+                }}
+            >
                 {/* Top Row - Hidden on Scroll */}
                 <div
                     className={`flex items-center justify-between px-10 md:px-40 gap-4 transition-all duration-500 ease-in-out
