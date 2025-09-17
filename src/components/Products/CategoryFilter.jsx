@@ -1,24 +1,28 @@
 import React from 'react';
 
-const CategoryFilter = ({ categories, selected, onToggle }) => {
+const CategoryFilter = ({ categories = [], selectedCategories = [], onToggleCategory }) => {
   return (
     <ul className="space-y-3">
       {categories.map((category) => {
-        const isChecked = selected.includes(category.key);
+        const isChecked = selectedCategories.includes(category._id);
         return (
           <li key={category.key} className="flex items-center justify-between">
             <button 
               type="button" 
-              onClick={() => onToggle(category.key)}
-              className="flex items-center gap-3 w-full"
-              aria-label={`Filter by ${category.label}`}
+              onClick={() => onToggleCategory(category._id)}
+              className="flex items-center gap-3 w-full group"
+              aria-label={`Filter by ${category.name}`}
             >
-              <span className={`chk-box ${isChecked ? 'checked' : ''}`}>
+              <span className={`flex-shrink-0 w-5 h-5 border-2 rounded ${
+                isChecked 
+                  ? 'bg-orange-500 border-orange-500 flex items-center justify-center' 
+                  : 'border-gray-300 group-hover:border-orange-300'
+              } transition-colors`}>
                 {isChecked && (
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
                     viewBox="0 0 20 20" 
-                    className="w-3 h-3" 
+                    className="w-3 h-3 text-white" 
                     fill="currentColor"
                     aria-hidden="true"
                   >
@@ -30,9 +34,11 @@ const CategoryFilter = ({ categories, selected, onToggle }) => {
                   </svg>
                 )}
               </span>
-              <span className="text-slate-700 text-base flex items-center gap-2">
-                {category.label}
-                <span className="text-slate-500">({category.count})</span>
+              <span className="text-slate-700 text-base flex items-center gap-2 group-hover:text-orange-600 transition-colors">
+                {category.name}
+                {category.count !== undefined && (
+                  <span className="text-slate-500 text-sm">({category.count})</span>
+                )}
               </span>
             </button>
           </li>

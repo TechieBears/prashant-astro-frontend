@@ -48,39 +48,38 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-white rounded-xl py-4 border border-[#CAD5E2]">
+    <div className="w-full sm:w-64 bg-white rounded-xl py-4 border border-[#CAD5E2] h-full">
       <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
-      <ul>
+      <ul className="space-y-1">
         {menuItems.map((item) => (
           <li key={item.path}>
             <NavLink
               to={item.path}
               end
               className={({ isActive }) =>
-                `block px-4 py-4 border border-[#E2E8F0] cursor-pointer ${isActive
+                `block px-4 py-3 sm:py-4 border-b border-[#E2E8F0] cursor-pointer ${isActive
                   ? "bg-button-vertical-gradient-orange text-white"
-                  : "hover:bg-gray-100"
+                  : "hover:bg-gray-50"
                 }`
-              }
-            >
-              {item.name}
-            </NavLink>
-          </li>
-        ))}
+              }>
+                {item.name}
+              </NavLink>
+            </li>
+          ))}
       </ul>
 
-      <div className="mt-14 flex flex-col space-y-4 px-4">
+      <div className="mt-8 sm:mt-14 flex flex-col space-y-3 sm:space-y-4 px-4">
         <button
           onClick={handleLogout}
           disabled={loading}
-          className="rounded-lg py-2 hover:bg-gray-100 transition border border-black flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-lg py-2 hover:bg-gray-100 transition border border-black flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
         >
           {loading ? "Logging out..." : "Logout"}
           <Power className="w-4 h-4" />
         </button>
         <button
           onClick={() => setShowDeleteModal(true)}
-          className="bg-red-500 text-white rounded-lg py-2 hover:bg-red-600 transition"
+          className="bg-red-500 text-white rounded-lg py-2 hover:bg-red-600 transition text-sm sm:text-base"
         >
           Delete Account 🗑
         </button>

@@ -26,17 +26,22 @@ export const SidebarAdminApi = [
     {
         title: 'Bookings',
         icon: <Bookmark size="24" variant="TwoTone" />,
-        link: '/bookings',
+        link: '/calender',
         subMenu: [
-            {
-                title: 'Bookings',
-                icon: <Bookmark size="21" variant="TwoTone" />,
-                link: '/bookings',
-            },
             {
                 title: 'Calender',
                 icon: <Calendar1 size="21" variant="TwoTone" />,
                 link: '/calender',
+            },
+            {
+                title: 'Product Booking',
+                icon: <Box size="21" variant="TwoTone" />,
+                link: '/product-bookings',
+            },
+            {
+                title: 'Service Booking',
+                icon: <Clipboard size="21" variant="TwoTone" />,
+                link: '/service-bookings',
             },
         ],
     },

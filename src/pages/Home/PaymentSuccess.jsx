@@ -29,7 +29,7 @@ const PaymentSuccess = () => {
   const total = subtotal;
 
   return (
-    <div className="min-h-[80vh] bg-[#FFF7F0] flex items-start py-10 justify-center px-4">
+    <div className="min-h-[80vh] bg-[#FFF7F0] flex items-start pt-4 md:pt-6 lg:pt-10 pb-10 justify-center px-4">
       <div className="bg-white rounded-2xl shadow-md p-6 w-full max-w-xl">
         {/* Header */}
         <div className="flex items-center justify-center space-x-2 mb-6">

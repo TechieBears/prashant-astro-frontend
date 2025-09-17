@@ -19,7 +19,7 @@ const initialFilterState = {
     role: '',
 };
 
-const Bookings = () => {
+const ProductBookings = () => {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -200,7 +200,7 @@ const Bookings = () => {
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
 
-                <TableHeader title={"All Bookings"} subtitle={"Recently added bookings will appear here"} />
+                <TableHeader title={"Product Booking"} subtitle={"Recently added product bookings will appear here"} />
 
                 <Table data={filterData} columns={columns} paginator={false} />
 
@@ -235,4 +235,4 @@ const Bookings = () => {
     );
 }
 
-export default Bookings;
+export default ProductBookings;

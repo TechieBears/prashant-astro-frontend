@@ -8,19 +8,16 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProductSubCategory, editProductSubCategory, getProductCategoriesDropdown } from '../../../api';
+import { addProductSubCategory, editProductSubCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import { useSelector } from 'react-redux';
 
 function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
-
+    const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
     const productCategories = useSelector(state => state.appRoot?.productCategories || []);
     const [open, setOpen] = useState(false);
-    const toggle = () => setOpen(!open);
+    const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
-    const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
-
-    const [categoryOptions, setCategoryOptions] = useState([]);
 
     const formSubmit = async (data) => {
         try {

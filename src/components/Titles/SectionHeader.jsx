@@ -17,7 +17,7 @@ const SectionHeader = ({
   showImage = true,
 }) => {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-2 px-4 sm:px-6 lg:px-8">
       {/* Title */}
       <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-center">
         <h2

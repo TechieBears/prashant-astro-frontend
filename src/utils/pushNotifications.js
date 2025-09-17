@@ -1,5 +1,4 @@
 import { messaging, getToken, onMessage } from './firebase/firebase.js';
-import toast from 'react-hot-toast';
 
 const VAPID_KEY = import.meta.env.VITE_VAPID_KEY_API_KEY;
 
@@ -12,21 +11,18 @@ export const requestNotificationPermission = async () => {
         // Check if the browser supports notifications
         if (!('Notification' in window)) {
             console.log('This browser does not support notifications');
-            toast.error('This browser does not support notifications');
             return null;
         }
 
         // Check if service worker is supported
         if (!('serviceWorker' in navigator)) {
             console.log('This browser does not support service workers');
-            toast.error('This browser does not support service workers');
             return null;
         }
 
         // Check if messaging is available
         if (!messaging) {
             console.log('Firebase messaging is not available');
-            toast.error('Firebase messaging is not available');
             return null;
         }
 
@@ -35,23 +31,19 @@ export const requestNotificationPermission = async () => {
 
         if (permission === 'granted') {
             console.log('Notification permission granted');
-            toast.success('Notification permission granted');
 
             // Get FCM token
             const token = await getFCMToken();
             return token;
         } else if (permission === 'denied') {
             console.log('Notification permission denied');
-            toast.error('Notification permission denied');
             return null;
         } else {
             console.log('Notification permission dismissed');
-            toast.error('Notification permission dismissed');
             return null;
         }
     } catch (error) {
         console.error('Error requesting notification permission:', error);
-        toast.error('Error requesting notification permission');
         return null;
     }
 };

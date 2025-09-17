@@ -8,7 +8,7 @@ const BackgroundTitle = ({
     { label: "About Me", href: "/about" }
   ],
   backgroundImage = "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-  height = "h-72",
+  height = "h-48 md:h-64 lg:h-72",
   textColor = "text-white",
   overlayColor = "bg-black bg-opacity-60",
   backgroundPosition = "",
@@ -26,7 +26,7 @@ const BackgroundTitle = ({
       }}
     >
       {/* Dark overlay */}
-      <div className={`absolute inset-0 ${overlayColor}`}></div>
+      <div className={`absolute top-0 left-0 right-0 bottom-0 ${overlayColor}`}></div>
 
       {/* Content */}
       <div className={`relative z-10 text-center ${textColor}`}>
@@ -45,7 +45,7 @@ const BackgroundTitle = ({
       </div>
 
       {/* Breadcrumbs (Positioned at the bottom-left corner) */}
-      <nav className={`absolute bottom-4 left-20 opacity-90 ${breadcrumbsClassName}`}>
+      <nav className={`absolute bottom-4 left-4 md:left-20 opacity-90 ${breadcrumbsClassName}`}>
         <ol className="flex items-center space-x-2">
           {breadcrumbs.map((crumb, index) => (
             <li key={index} className="flex items-center text-white">

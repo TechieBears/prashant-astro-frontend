@@ -22,7 +22,7 @@ import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
 import Address from '../pages/Home/Profile/Address';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
-import Bookings from '../pages/Admin/Bookings/Bookings';
+// import Bookings from '../pages/Admin/Bookings/Bookings';
 import BookingCalender from '../pages/Admin/Bookings/BookingCalender';
 import ProductCategories from '../pages/Admin/AllProducts/ProductCategories';
 import AllServices from '../pages/Admin/Services/AllServices';
@@ -38,6 +38,8 @@ import AllProducts from '../pages/Admin/AllProducts/AllProducts';
 import ProductDetail from '../pages/Home/ProductDetail';
 import CartPage from '../pages/Home/CartPage';
 import PaymentSuccess from '../pages/Home/PaymentSuccess';
+import ProductBookings from '../pages/Admin/Bookings/ProductBookings';
+import ServiceBookings from '../pages/Admin/Bookings/ServiceBookings';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -103,12 +105,16 @@ const ProjectRoutes = () => {
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
-                <Preloaders />
+                <div className="relative">
+                    <HomeNavbar />
+                    <Preloaders />
+                </div>
             ) : isAdminOrEmployee ? (
                 <Sidebar>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
-                        <Route path="/bookings" element={<Bookings />} />
+                        <Route path="/product-bookings" element={<ProductBookings />} />
+                        <Route path="/service-bookings" element={<ServiceBookings />} />
                         <Route path="/calender" element={<BookingCalender />} />
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/product-categories" element={<ProductCategories />} />

@@ -1,165 +1,196 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
-// import '../../css/Products.css';
-
-// Import product images
-import img1 from '../../assets/user/products/productImages (1).png';
-import img2 from '../../assets/user/products/productImages (2).png';
-import img3 from '../../assets/user/products/productImages (3).png';
-import img4 from '../../assets/user/products/productImages (4).png';
-import img5 from '../../assets/user/products/productImages (5).png';
-import img6 from '../../assets/user/products/productImages (6).png';
-import img7 from '../../assets/user/products/productImages (7).png';
-import img8 from '../../assets/user/products/productImages (8).png';
-import img9 from '../../assets/user/products/productImages (9).png';
-import img10 from '../../assets/user/products/productImages (10).png';
-import img11 from '../../assets/user/products/productImages (11).png';
+import { PulseLoader } from 'react-spinners';
+import { getActiveProducts, getProductFilters } from '../../api';
 
 const ProductsPage = () => {
-    // Hardcoded filter categories (label with optional count)
-    const categories = [
-        { key: 'amulets', label: 'Amulets', count: 3, color: 'bg-orange-500' },
-        { key: 'candles', label: 'Candles', count: 3, color: 'bg-teal-500' },
-        { key: 'divination', label: 'Divination', count: 2, color: 'bg-blue-500' },
-        { key: 'gemstone', label: 'Gemstone', count: 6, color: 'bg-amber-500' },
-        { key: 'uncategorized', label: 'Uncategorized', count: 0, color: 'bg-gray-300' },
-    ]
-
-    // Hardcoded products array
-    const products = [
-        {
-            id: 'P4000',
-            title: 'Rudraksha',
-            category: 'amulets',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img1,
-        },
-        {
-            id: 'P4001',
-            title: 'James stone',
-            category: 'gemstone',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img2,
-        },
-        {
-            id: 'P4002',
-            title: 'Exclusive James Stone',
-            category: 'gemstone',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 5,
-            image: img3,
-        },
-        {
-            id: 'P4003',
-            title: 'Bracelets',
-            category: 'amulets',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 3,
-            image: img4,
-        },
-        {
-            id: 'P4004',
-            title: 'Pendants',
-            category: 'amulets',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img5,
-        },
-        {
-            id: 'P4005',
-            title: 'Yantras',
-            category: 'divination',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img6,
-        },
-        {
-            id: 'P4006',
-            title: 'Murti',
-            category: 'divination',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img7,
-        },
-        {
-            id: 'P4007',
-            title: 'Siddha Product',
-            category: 'candles',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img8,
-        },
-        {
-            id: 'P4008',
-            title: 'Frames',
-            category: 'uncategorized',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img9,
-        },
-        {
-            id: 'P4009',
-            title: 'Crystal Trees',
-            category: 'gemstone',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 4,
-            image: img10,
-        },
-        {
-            id: 'P4010',
-            title: 'Kawach',
-            category: 'amulets',
-            price: 3520,
-            oldPrice: 4090,
-            rating: 3,
-            image: img11,
-        },
-    ]
-
+    const navigate = useNavigate();
+    const [products, setProducts] = React.useState([])
+    const [filterData, setFilterData] = React.useState({
+        categories: [],
+        subcategories: []
+    })
+    const [loading, setLoading] = React.useState(true)
+    const [filtersLoading, setFiltersLoading] = React.useState(true)
+    const [error, setError] = React.useState(null)
     const [search, setSearch] = React.useState('')
-    const [selected, setSelected] = React.useState([])
+    const [selectedCategories, setSelectedCategories] = React.useState([])
+    const [selectedSubcategories, setSelectedSubcategories] = React.useState([])
     const [price, setPrice] = React.useState([200, 6800])
     const PRICE_MIN = 0
     const PRICE_MAX = 10000
 
-    const toggleCategory = (key) => {
-        setSelected((prev) =>
-            prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    // Fetch filter data
+    React.useEffect(() => {
+        const fetchFilters = async () => {
+            try {
+                setFiltersLoading(true)
+                const response = await getProductFilters()
+                
+                if (response.success) {
+                    // Process categories and subcategories from the API response
+                    const categories = response.data?.category || []
+                    const subcategories = []
+                    
+                    // Flatten subcategories from all categories
+                    categories.forEach(category => {
+                        if (category.subcategories && category.subcategories.length > 0) {
+                            subcategories.push(...category.subcategories.map(sub => ({
+                                ...sub,
+                                categoryId: category._id,
+                                categoryName: category.name
+                            })))
+                        }
+                    })
+                    
+                    setFilterData({
+                        categories: categories.map(cat => ({
+                            _id: cat._id,
+                            name: cat.name,
+                            image: cat.image,
+                            count: subcategories.filter(sub => sub.categoryId === cat._id).length
+                        })),
+                        subcategories: subcategories.map(sub => ({
+                            ...sub,
+                            color: getCategoryColor(sub._id)
+                        }))
+                    })
+                }
+            } catch (err) {
+                console.error('Error fetching filters:', err)
+                setError('Failed to load filters. Please try again.')
+            } finally {
+                setFiltersLoading(false)
+            }
+        }
+        
+        fetchFilters()
+    }, [])
+    
+    // Fetch products
+    React.useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                const response = await getActiveProducts()
+
+                if (response.success) {
+                    setProducts(response.data || [])
+                    
+                    // Update price range based on actual product prices
+                    if (response.data.length > 0) {
+                        const prices = response.data.map(p => p.sellingPrice).filter(Boolean)
+                        if (prices.length > 0) {
+                            const minPrice = Math.min(...prices)
+                            const maxPrice = Math.max(...prices)
+                            setPrice([minPrice, maxPrice])
+                        }
+                    }
+                } else {
+                    setError(response.message || 'Failed to fetch products')
+                }
+            } catch (err) {
+                console.error('Error fetching products:', err)
+                setError('Failed to fetch products. Please try again.')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProducts()
+    }, [])
+
+    // Helper function to assign colors to categories
+    const getCategoryColor = (categoryKey) => {
+        const colors = [
+            'bg-orange-500', 'bg-teal-500', 'bg-blue-500', 'bg-amber-500',
+            'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-red-500',
+            'bg-indigo-500', 'bg-yellow-500'
+        ]
+        return colors[categoryKey.length % colors.length] || 'bg-gray-500'
+    }
+
+    const toggleCategory = (categoryId) => {
+        setSelectedCategories(prev => 
+            prev.includes(categoryId) 
+                ? prev.filter(id => id !== categoryId)
+                : [...prev, categoryId]
+        )
+        
+        // If deselecting a category, also deselect its subcategories
+        if (selectedCategories.includes(categoryId)) {
+            const category = filterData.categories.find(cat => cat._id === categoryId)
+            if (category) {
+                const subIds = filterData.subcategories
+                    .filter(sub => sub.categoryId === categoryId)
+                    .map(sub => sub._id)
+                
+                setSelectedSubcategories(prev => 
+                    prev.filter(id => !subIds.includes(id))
+                )
+            }
+        }
+    }
+    
+    const toggleSubcategory = (subcategoryId) => {
+        setSelectedSubcategories(prev => 
+            prev.includes(subcategoryId)
+                ? prev.filter(id => id !== subcategoryId)
+                : [...prev, subcategoryId]
         )
     }
 
     const resetFilters = () => {
         setSearch('')
-        setSelected([])
-        setPrice([200, 6800])
+        setSelectedCategories([])
+        setSelectedSubcategories([])
+        
+        // Reset to dynamic price range if available, otherwise use default
+        if (products.length > 0) {
+            const prices = products.map(p => p.sellingPrice).filter(Boolean)
+            if (prices.length > 0) {
+                const minPrice = Math.min(...prices)
+                const maxPrice = Math.max(...prices)
+                setPrice([minPrice, maxPrice])
+                return
+            }
+        }
+        setPrice([PRICE_MIN, PRICE_MAX])
     }
 
-    const filtered = React.useMemo(() => {
-        return products.filter((p) => {
-            const inCat = selected.length ? selected.includes(p.category) : true
-            const inSearch = search
-                ? p.title.toLowerCase().includes(search.toLowerCase())
-                : true
-            const inPrice = p.price >= price[0] && p.price <= price[1]
-            return inCat && inSearch && inPrice
-        })
-    }, [products, selected, search, price])
+    // Filter products based on search, selected categories, subcategories, and price range
+    const filteredProducts = React.useMemo(() => {
+        if (!Array.isArray(products)) return [];
+        
+        return products.filter((product) => {
+            // Filter by search term
+            const matchesSearch = 
+                !search || 
+                (product.name && product.name.toLowerCase().includes(search.toLowerCase())) ||
+                (product.description && product.description.toLowerCase().includes(search.toLowerCase()));
 
+            // Filter by selected categories
+            const matchesCategory = 
+                selectedCategories.length === 0 || 
+                (product.category && selectedCategories.includes(product.category._id));
+                
+            // Filter by selected subcategories
+            const matchesSubcategory = 
+                selectedSubcategories.length === 0 ||
+                (product.subcategory && selectedSubcategories.includes(product.subcategory._id));
+
+            // Filter by price range
+            const productPrice = product.sellingPrice || 0;
+            const matchesPrice = productPrice >= price[0] && productPrice <= price[1];
+
+            return matchesSearch && matchesCategory && matchesSubcategory && matchesPrice;
+        });
+    }, [products, search, selectedCategories, selectedSubcategories, price])
 
     return (
         <div className='bg-slate1'>
@@ -176,45 +207,93 @@ const ProductsPage = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-                    {/* Products Grid */}
-                    <div className="lg:col-span-9 order-2 lg:order-1">
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-                            {filtered.map((product) => (
-                                <div key={product.id} className="h-full">
-                                    <ProductCard product={product} />
-                                </div>
-                            ))}
-                        </div>
-                        {filtered.length === 0 && (
-                            <div className="text-center py-10">
-                                <p className="text-gray-500 text-lg">No products found matching your filters.</p>
-                                <button
-                                    onClick={resetFilters}
-                                    className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                                >
-                                    Reset Filters
-                                </button>
-                            </div>
-                        )}
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <PulseLoader color="#F97316" size={15} />
                     </div>
+                ) : error ? (
+                    <div className="text-center py-20">
+                        <div className="text-red-500 text-lg mb-4">{error}</div>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                        >
+                            Try Again
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                        {/* Products Grid */}
+                        <div className="lg:col-span-9 order-2 lg:order-1">
+                            {loading ? (
+                                <div className="flex justify-center items-center py-20">
+                                    <PulseLoader color="#F97316" size={15} />
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-10">
+                                    <p className="text-red-500 text-lg mb-4">{error}</p>
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                                    >
+                                        Try Again
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+                                        {filteredProducts.map((product) => (
+                                            <div 
+                                                key={product._id || product.id} 
+                                                className="h-full cursor-pointer"
+                                                onClick={(e) => {
+                                                    // Stop event propagation to prevent interference with add to cart button
+                                                    if (e.target.closest('button') || e.target.tagName === 'BUTTON') {
+                                                        return;
+                                                    }
+                                                    navigate(`/products/${product._id}`);
+                                                }}
+                                            >
+                                                <ProductCard product={product} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {filteredProducts.length === 0 && !loading && (
+                                        <div className="text-center py-10">
+                                            <p className="text-gray-500 text-lg">No products found matching your filters.</p>
+                                            <button
+                                                onClick={resetFilters}
+                                                className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                                            >
+                                                Reset Filters
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
 
-                    {/* Filter Sidebar */}
-                    <aside className="lg:col-span-3 order-1 lg:order-2">
-                        <FilterSidebar
-                            search={search}
-                            onSearchChange={setSearch}
-                            priceRange={price}
-                            onPriceChange={setPrice}
-                            categories={categories}
-                            selectedCategories={selected}
-                            onToggleCategory={toggleCategory}
-                            onResetFilters={resetFilters}
-                            minPrice={PRICE_MIN}
-                            maxPrice={PRICE_MAX}
-                        />
-                    </aside>
-                </div>
+                        {/* Filter Sidebar */}
+                        <aside className="lg:col-span-3 order-1 lg:order-2">
+                            <FilterSidebar
+                                search={search}
+                                setSearch={setSearch}
+                                categories={filterData.categories}
+                                subcategories={filterData.subcategories}
+                                selectedCategories={selectedCategories}
+                                selectedSubcategories={selectedSubcategories}
+                                toggleCategory={toggleCategory}
+                                toggleSubcategory={toggleSubcategory}
+                                price={price}
+                                setPrice={setPrice}
+                                minPrice={PRICE_MIN}
+                                maxPrice={PRICE_MAX}
+                                resetFilters={resetFilters}
+                                isLoading={filtersLoading}
+                            />
+                        </aside>
+                    </div>
+                )}
             </div>
         </div>
     )

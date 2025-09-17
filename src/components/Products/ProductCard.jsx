@@ -12,15 +12,27 @@ const Star = ({ filled }) => (
 );
 
 const ProductCard = ({ product }) => {
-  const { id, title, price, oldPrice, rating, image } = product;
+  const {
+    id,
+    name: title,
+    sellingPrice: price,
+    mrpPrice: oldPrice,
+    rating = 4,
+    images = [],
+    category,
+    subcategory
+  } = product;
+
+  // Use first image if available, otherwise use a placeholder
+  const image = images && images.length > 0 ? images[0] : '/placeholder-product.png';
 
   return (
     <div className="h-full flex flex-col bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100">
       <div className="relative pt-[100%] bg-gray-50">
-        <img 
-          src={image} 
-          alt={title} 
-          className="absolute top-0 left-0 w-full h-full object-cover p-2" 
+        <img
+          src={image}
+          alt={title}
+          className="absolute top-0 left-0 w-full h-full object-cover p-2"
           loading="lazy"
         />
       </div>
@@ -28,13 +40,13 @@ const ProductCard = ({ product }) => {
         <h3 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 mb-1 sm:mb-2">
           {title}
         </h3>
-        
+
         <div className="flex items-center gap-1 mb-2 sm:mb-3">
           {[1, 2, 3, 4, 5].map((i) => (
             <Star key={i} filled={i <= rating} />
           ))}
         </div>
-        
+
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="text-sm sm:text-base font-semibold text-gray-900">
@@ -46,10 +58,10 @@ const ProductCard = ({ product }) => {
               </div>
             )}
           </div>
-          
-          <button 
+
+          <button
             className="w-full py-2 px-2 sm:px-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm sm:text-base font-medium rounded-md hover:opacity-90 transition-opacity"
-            onClick={() => {}}
+            onClick={() => { }}
           >
             Add to Cart
           </button>
