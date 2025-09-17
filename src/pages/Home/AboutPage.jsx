@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import BackgroundTitle from '../../components/Titles/BackgroundTitle'
 import { Saturn01Icon } from 'hugeicons-react';
 import aboutImg from '../../assets/user/aboutus.png'
@@ -55,6 +55,7 @@ const services = [
 ];
 
 const AboutPage = () => {
+    const [hoveredCard, setHoveredCard] = useState(null);
 
     const aboutData = [
         {
@@ -169,7 +170,12 @@ const AboutPage = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {astrologers.map((astrologer) => (
-                            <div key={astrologer.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
+                            <div
+                                key={astrologer.id}
+                                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl"
+                                onMouseEnter={() => setHoveredCard(astrologer.id)}
+                                onMouseLeave={() => setHoveredCard(null)}
+                            >
                                 <div className="relative group">
                                     <div className="w-full overflow-hidden relative" style={{ aspectRatio: '3/4' }}>
                                         <img
@@ -178,12 +184,34 @@ const AboutPage = () => {
                                             className="w-full h-full object-cover"
                                             loading="lazy"
                                         />
-                                        <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-sm py-2 px-4 rounded border border-white/20 group cursor-pointer hover:bg-black/50 transition-colors">
+                                        <div className={`absolute left-4 right-4 bg-black/40 backdrop-blur-sm rounded border border-white/20 cursor-pointer transition-all duration-500 ease-in-out ${hoveredCard === astrologer.id
+                                            ? 'bottom-4 p-2'
+                                            : 'bottom-4 p-2'
+                                            }`}>
                                             <div className="flex items-center justify-between w-full">
                                                 <h3 className="text-base font-medium text-white truncate pr-2">
                                                     {astrologer.name}
                                                 </h3>
                                                 <span className="text-white flex-shrink-0">→</span>
+                                            </div>
+
+                                            {/* Expandable content that appears on hover */}
+                                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${hoveredCard === astrologer.id ? 'max-h-32 opacity-100 mt-3' : 'max-h-0 opacity-0'
+                                                }`}>
+                                                <div className="space-y-2 text-white">
+                                                    <div className="flex items-center gap-2">
+                                                        <StarIcon size={14} className="text-amber-400" />
+                                                        <span className="text-sm">Rating: 4.8/5</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar03Icon size={14} className="text-blue-300" />
+                                                        <span className="text-sm">Experience: 15+ years</span>
+                                                    </div>
+                                                    <div className="text-sm">
+                                                        <p className="font-medium mb-1">Specializations:</p>
+                                                        <p className="text-xs opacity-90">Vedic Astrology, Palmistry, Numerology</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
