@@ -662,19 +662,26 @@ const HomePage = () => {
                 />
                 {/* Download app */}
                 <div className="bg-custom-linear py-8 md:py-12 lg:py-20">
-                    <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-6 md:gap-8 lg:gap-10">
-                        <div className="flex-1 flex flex-col items-center md:items-start justify-start text-center md:text-left">
-                            <SectionHeader
-                                prefix={`Download Our\nCustomer App\nToday`}
-                                prefixClass="text-center md:text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl whitespace-pre-line -mx-4 sm:-mx-6 lg:-mx-8"
-                                showImage={false}
-                            />
-                            <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center md:text-left text-xs sm:text-sm md:text-base text-slate-600">
-                                For seamless experience, download our apps on your phone
-                            </p>
-                            <div className="mt-3 md:mt-4 lg:mt-6">
-                                <img src={GooglePlay} className="w-32 sm:w-36 md:w-40 lg:w-44" />
+                    <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-10 h-full">
+                        <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
+                            <div className="flex flex-col items-center justify-center">
+                                <SectionHeader
+                                    prefix="Our app will be available shortly"
+                                    prefixClass="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl whitespace-normal -mx-4 sm:-mx-6 lg:-mx-8"
+                                    showImage={false}
+                                />
+                                <SectionHeader
+                                    prefix="stay tuned."
+                                    prefixClass="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl whitespace-normal -mx-4 sm:-mx-6 lg:-mx-8 mt-2"
+                                    showImage={false}
+                                />
                             </div>
+                            {/* <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
+                                For seamless experience, download our apps on your phone
+                            </p> */}
+                            {/* <div className="mt-3 md:mt-4 lg:mt-6">
+                                <img src={GooglePlay} className="w-32 sm:w-36 md:w-40 lg:w-44" />
+                            </div> */}
                         </div>
                         <div className="flex-1 flex justify-center md:justify-end relative mt-4 md:mt-6 lg:mt-0">
                             <div className="relative flex items-end">
