@@ -116,14 +116,16 @@ export default function Address() {
 
     return (
         <>
-            <div className="flex px-40 py-12">
-                <ProfileSidebar />
-                <div className="flex-1 ml-6 rounded-lg bg-white p-4">
-                    <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col lg:flex-row px-4 sm:px-6 lg:px-40 py-6 sm:py-12 gap-4 lg:gap-6">
+                <div className="lg:w-1/4">
+                    <ProfileSidebar />
+                </div>
+                <div className="flex-1 rounded-lg bg-white p-4 lg:ml-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                         <h2 className="font-semibold text-lg">My Address</h2>
                         <button
                             onClick={handleAddAddress}
-                            className="bg-button-vertical-gradient-orange text-white px-4 py-2 font-medium hover:opacity-90 transition-all duration-200"
+                            className="w-full sm:w-auto bg-button-vertical-gradient-orange text-white px-4 py-2 font-medium hover:opacity-90 transition-all duration-200 text-sm sm:text-base"
                         >
                             Add New Address
                         </button>
@@ -171,7 +173,7 @@ export default function Address() {
                             <p className="text-gray-500 text-sm">Add your first address to get started</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {addressData.map((address) => (
                                 <div key={address.id} className="bg-gray-100 p-4 rounded-lg">
                                     <div className="flex justify-between items-start">
@@ -180,10 +182,10 @@ export default function Address() {
                                             <p className="text-gray-700 mb-1">{address.phone}</p>
                                             <p className="text-gray-700">{address.address}</p>
                                         </div>
-                                        <div className="flex gap-2 ml-4">
+                                        <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0 sm:ml-4">
                                             <button
                                                 onClick={() => handleEditAddress(address)}
-                                                className="flex items-center gap-1 px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+                                                className="flex items-center justify-center gap-1 px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors text-sm sm:text-base"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -192,7 +194,7 @@ export default function Address() {
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteAddress(address)}
-                                                className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                                                className="flex items-center justify-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm sm:text-base"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -201,7 +203,7 @@ export default function Address() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-4 mt-3">
+                                    <div className="flex flex-wrap gap-2 sm:gap-4 mt-3">
                                         {address.isDefault && (
                                             <div className="flex items-center gap-1">
                                                 <div className="w-2 h-2 bg-black rounded-full"></div>
@@ -222,8 +224,8 @@ export default function Address() {
 
             {/* Delete Confirmation Modal */}
             {showDeleteModal && deletingAddress && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-4 sm:p-6 rounded-lg max-w-md w-full">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                                 <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
