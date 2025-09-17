@@ -1,67 +1,39 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaClock, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
+import { FaClock, FaMapMarkerAlt, FaArrowRight, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getSelectedService } from '../../api';
 import { Clock05Icon, ShareKnowledgeIcon } from 'hugeicons-react';
-
-// Import service images
-import service1 from '../../assets/user/services/service (1).png';
-import service2 from '../../assets/user/services/service (2).png';
-import service3 from '../../assets/user/services/service (3).png';
-import service4 from '../../assets/user/services/service (4).png';
-import service5 from '../../assets/user/services/service (5).png';
-import service6 from '../../assets/user/services/service (6).png';
-import service7 from '../../assets/user/services/service (7).png';
-import service8 from '../../assets/user/services/service (8).png';
-import service9 from '../../assets/user/services/service (9).png';
-import service10 from '../../assets/user/services/service (10).png';
-import service11 from '../../assets/user/services/service (11).png';
-import service12 from '../../assets/user/services/service (12).png';
+import { useSelector } from 'react-redux';
 
 const ServiceDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { servicesDropdown } = useSelector(state => state.nav);
 
     const [selectedService, setSelectedService] = useState({});
-    // Mock service data - replace with actual data from API
-    const service = {
-        id: id || 'S1001',
-        title: 'Daily Horoscope',
-        description: 'Book your Daily Horoscope today and take a step closer to clarity.',
-        duration: '30-60 minutes',
-        mode: 'In-person / Online',
-        image: service1,
-        category: 'Astrology',
-        features: [
-            'Personalized horoscope reading',
-            'Detailed planetary analysis',
-            'Daily guidance and predictions',
-            'Remedy suggestions',
-            'Follow-up consultation'
-        ]
-    };
 
-    // Related service categories
-    const relatedCategories = [
-        { name: 'Astrology', href: '/services?category=Astrology' },
-        { name: 'Vastu remedy', href: '/services?category=Vastu remedy' },
-        { name: 'Pooja Vidhi', href: '/services?category=Pooja Vidhi' },
-        { name: 'Kundali Dosh', href: '/services?category=Kundali Dosh' }
-    ];
+     const transformedServices = servicesDropdown.map(category => ({
+       category: category.name,
+       services: category.services.map(service => ({
+         name: service.name,
+         path: `/services/${service._id}`,
+       })),
+     }));
+
 
     useEffect(() => {
         const fetchService = async () => {
             const response = await getSelectedService(id);
             console.log('selected services', response?.data)
-            if(response?.success){
+            if (response?.success) {
                 setSelectedService(response?.data);
             }
             // setIsLoading(false);
         };
-        
-         fetchService();
+
+        fetchService();
     }, [id]);
 
     const handleCheckAvailability = () => {
@@ -71,6 +43,16 @@ const ServiceDetail = () => {
 
     const handleCategoryClick = (href) => {
         navigate(href);
+    };
+
+    const [expandedCategory, setExpandedCategory] = useState(null);
+
+    const handleCategoryToggle = (categoryName) => {
+        setExpandedCategory(prev => prev === categoryName ? null : categoryName);
+    };
+
+    const handleServiceClick = (path) => {
+        navigate(path);
     };
 
     return (
@@ -88,7 +70,7 @@ const ServiceDetail = () => {
             />
 
             <div className="container mx-auto px-8 max-w-7xl py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
                     {/* Left Column - Service Details */}
                     <div className="lg:col-span-2">
                         {/* Main Service Image */}
@@ -118,7 +100,7 @@ const ServiceDetail = () => {
                                     <span className="font-medium">Session Duration: {selectedService.durationInMinutes}</span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-gray-700">
+                                <div className="flex items-center justify-between flex-wrap gap-6 text-gray-700">
                                     <div className="flex items-center gap-4">
                                         <ShareKnowledgeIcon size={20} color='#000' />
                                         <span className="font-medium">Mode: {selectedService.serviceType}</span>
@@ -139,23 +121,52 @@ const ServiceDetail = () => {
 
                     {/* Right Column - Related Services */}
                     <div className="lg:col-span-1">
-                        <div className="bg-primary-orange rounded-2xl shadow-lg p-6">
-                            <div className="space-y-4">
-                                {relatedCategories.map((category, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleCategoryClick(category.href)}
-                                        className="w-full flex items-center justify-between text-white hover:text-orange-100 transition-colors duration-200 group"
-                                    >
-                                        <span className="font-medium text-lg">
-                                            {category.name}
-                                        </span>
-                                        <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-all duration-200" />
-                                    </button>
-                                ))}
+                        <div className="sticky top-24">
+                            <div className="bg-primary-orange rounded-2xl shadow-lg p-6">
+                                <div className="space-y-4">
+                                    {transformedServices.map((category, index) => (
+                                        <div key={index}>
+                                            {/* Category Button */}
+                                            <button
+                                                onClick={() => handleCategoryToggle(category.category)}
+                                                className="w-full flex items-center justify-between text-white hover:text-orange-100 transition-colors duration-200 group"
+                                            >
+                                                <span className="font-medium text-lg">{category.category}</span>
+                                                {expandedCategory === category.name ? (
+                                                    <FaChevronUp className="w-4 h-4 transition-transform duration-300" />
+                                                ) : (
+                                                    <FaChevronDown className="w-4 h-4 transition-transform duration-300" />
+                                                )}
+                                            </button>
+
+                                            {/* Animated Services List */}
+                                            <div
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === category.category ? 'max-h-96 mt-2' : 'max-h-0'
+                                                    }`}
+                                            >
+                                                <ul className="pl-4 space-y-2">
+                                                    {category.services.map((service, i) => (
+                                                        <li key={i}>
+                                                            <button
+                                                                onClick={() => handleServiceClick(service.path)}
+                                                                className="text-sm text-white hover:bg-[#FFFFFF26] p-2 pr-6 rounded-md transition-colors duration-200"
+                                                            >
+                                                                 <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                                        {service.name}
+                                                                                    </span>
+                                                              
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formBtn1 } from '../../utils/CustomClass';
@@ -15,17 +16,17 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { DRAFT_KEY_C, DRAFT_KEY_L, DRAFT_KEY_P } from '../../env';
 
-const RegisterPage = () => {
+const registerNamePage = () => {
     const [loader, setLoader] = useState(false)
     const {
-        register,
+        registerName,
         handleSubmit,
         watch,
         formState: { errors },
     } = useForm();
-    const [registerss, setRegisters] = React.useState(true);
+    const [registerNamess, setregisterNames] = React.useState(true);
     const loginDetails = useSelector((state) => state.user.loggedUserDetails)
-    const formFillCheck = useSelector((state) => state.user.registerFormDetails)
+    const formFillCheck = useSelector((state) => state.user.registerNameFormDetails)
     const dispatch = useDispatch();
 
     // ================ Data submit form ==================
@@ -33,7 +34,7 @@ const RegisterPage = () => {
         try {
             setLoader(true)
             await registerUser(data).then((res) => {
-                console.log("⚡️🤯 ~ RegisterPage.jsx:40 ~ awaitregisterUser ~ res:", res)
+                console.log("⚡️🤯 ~ registerNamePage.jsx:40 ~ awaitregisterUser ~ res:", res)
                 if (res?.message == "User created successfully") {
                     document.title = `Hamax : Talent Dashbaord | ${res?.user?.baseRole || ""}`
                     localStorage.removeItem('persist:root');
@@ -94,7 +95,7 @@ const RegisterPage = () => {
                                     placeholder="Enter Full Name"
                                     type="text"
                                     registerName="fullName"
-                                    props={{ ...register('fullName', { required: "Full name is required", minLength: { value: 3, message: "Full name must be at least 3 characters" }, maxLength: { value: 50, message: "Full name cannot exceed 50 characters" } }), minLength: 3 }}
+                                    props={{ ...registerName('fullName', { required: "Full name is required", minLength: { value: 3, message: "Full name must be at least 3 characters" }, maxLength: { value: 50, message: "Full name cannot exceed 50 characters" } }), minLength: 3 }}
                                     errors={errors.fullName}
                                 />
                             </div>
@@ -104,7 +105,7 @@ const RegisterPage = () => {
                                     placeholder="Enter Your Email"
                                     type="text"
                                     registerName="email"
-                                    props={{ ...register('email'), valdate: validateEmail, required: "Email is required" }}
+                                    props={{ ...registerName('email'), valdate: validateEmail, required: "Email is required" }}
                                     errors={errors.email}
                                 />
                             </div>
@@ -114,7 +115,7 @@ const RegisterPage = () => {
                                     placeholder="Enter Your Password"
                                     type="password"
                                     registerName="password"
-                                    props={{ ...register('password', { validate: validatePassword, required: "Password is required" }), minLength: 6, }}
+                                    props={{ ...registerName('password', { validate: validatePassword, required: "Password is required" }), minLength: 6, }}
                                     errors={errors.password}
                                 />
                             </div>
@@ -124,7 +125,7 @@ const RegisterPage = () => {
                                     placeholder="Enter Your Phone Number"
                                     type="tel"
                                     registerName="phoneNumber"
-                                    props={{ ...register('phoneNumber', { validate: validatePhoneNumber, required: true }), maxLength: 10, minLength: 10 }}
+                                    props={{ ...registerName('phoneNumber', { validate: validatePhoneNumber, required: true }), maxLength: 10, minLength: 10 }}
                                     errors={errors.phoneNumber}
                                 />
                             </div>
@@ -139,7 +140,7 @@ const RegisterPage = () => {
                                         { value: 'productionTeam', label: 'Production Team' },
                                     ]}
                                     props={{
-                                        ...register('role', { required: true }),
+                                        ...registerName('role', { required: true }),
                                         value: watch('role') || ''
                                     }}
                                     errors={errors.role}
@@ -151,7 +152,7 @@ const RegisterPage = () => {
                                 type="submit"
                                 className={`${formBtn1} w-full h-[51px] !text-base bg-gradient-to-tl to-transparent from-transparent !bg-primary border border-transparent `}
                             >
-                                Register
+                                registerName
                             </button>}
                             <p className="text-slate-500 text-sm text-center font-tbPop tracking-tight font-normal">Already have an account? <NavLink className="text-primary hover:underline" to={"/login"}>Login</NavLink></p>
                         </div>
@@ -164,4 +165,4 @@ const RegisterPage = () => {
     </>
 }
 
-export default RegisterPage
+export default registerNamePage

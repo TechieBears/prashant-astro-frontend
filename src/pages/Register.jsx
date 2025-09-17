@@ -1,31 +1,29 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { registerUser, loginUser } from "../redux/Slices/loginSlice";
+import { Link, useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import google from "../assets/google-icon.png";
 import facebook from "../assets/facebook-icon.png";
 import apple from "../assets/apple-icon.png";
-import { useDispatch } from "react-redux";
-import { registerUser, loginUser } from "../redux/Slices/loginSlice";
-import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import TextInput from "../components/TextInput/TextInput";
 
 const Register = () => {
-    const [title, setTitle] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [mobileNo, setMobileNo] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const navigate = useNavigate();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const handleRegister = (e) => {
-        e.preventDefault();
-        if (password !== confirmPassword) {
-            setMessage("Passwords do not match");
-            return;
-        }
-        setMessage("");
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm();
+
+    const password = watch("password");
+
+    const onSubmit = (data) => {
+        const { title, firstName, lastName, email, password, mobileNo } = data;
+
         dispatch(registerUser({ title, firstName, lastName, email, password, mobileNo }))
             .unwrap()
             .then(() => {
@@ -39,122 +37,105 @@ const Register = () => {
                             toast.error(res.message || "Something went wrong");
                         }
                     })
-                    .catch(err => toast.error(err || "Login after Registration failed"));
+                    .catch((err) => toast.error(err || "Login after Registration failed"));
             })
-            .catch(err => alert(err || "Registration failed"));
-    }
+            .catch((err) => toast.error(err || "Registration failed"));
+    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-yellow-50">
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl m-6">
-                <h2 className="text-2xl font-bold text-center mb-2 text-primary">
-                    Register
-                </h2>
-                <p className="text-center text-gray-500 mb-6 text-sm">
-                    Create a new account
-                </p>
+                <h2 className="text-2xl font-bold text-center mb-2 text-primary">registerName</h2>
+                <p className="text-center text-gray-500 mb-6 text-sm">Create a new account</p>
 
-                <form onSubmit={handleRegister} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
-                        {/* Title */}
-                        <div className="flex flex-col gap-1">
-                            <label>Title <span className="text-red-500">*</span></label>
-                            <div className="flex gap-2">
-                                {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt, idx) => (
-                                    <label
-                                        key={idx}
-                                        className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${title === opt
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {/* Title */}
+                    <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium mb-1">Title <span className="text-red-500">*</span></label>
+                        <div className="flex gap-2 flex-wrap">
+                            {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt) => (
+                                <label
+                                    key={opt}
+                                    className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${
+                                        watch("title") === opt
                                             ? "border-primary text-primary font-medium"
                                             : "bg-white text-black"
-                                            }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            value={opt}
-                                            checked={title === opt}
-                                            onChange={() => setTitle(opt)}
-                                            className="hidden"
-                                            required
-                                        />
-                                        {opt}
-                                    </label>
-                                ))}
-                            </div>
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        value={opt}
+                                        {...register("title", { required: "Title is required" })}
+                                        className="hidden"
+                                    />
+                                    {opt}
+                                </label>
+                            ))}
                         </div>
+                        {errors.title && (
+                            <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+                        )}
                     </div>
+
+                    {/* Name, Email, Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">First Name *</label>
-                            <input
-                                type="text"
-                                placeholder="Enter first name"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Last Name *</label>
-                            <input
-                                type="text"
-                                placeholder="Enter last name"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Email *</label>
-                            <input
-                                type="email"
-                                placeholder="Enter email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Phone Number *</label>
-                            <input
-                                type="tel"
-                                placeholder="Enter phone number"
-                                value={mobileNo}
-                                onChange={(e) => setMobileNo(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Create Password *</label>
-                            <input
-                                type="password"
-                                placeholder="Enter password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Confirm Password *</label>
-                            <input
-                                type="password"
-                                placeholder="Confirm password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                                className="w-full p-3 rounded-lg border border-gray-200 bg-[#F1F5F9] focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                            />
-                        </div>
+                        <TextInput
+                            label="First Name"
+                            type="text"
+                            placeholder="Enter first name"
+                            name="firstName"
+                            errors={errors.firstName}
+                            registerName="firstName"
+                            props={{ ...register('firstName', { required: "First name is required" }) }}
+                        />
+                        <TextInput
+                            label="Last Name"
+                            type="text"
+                            placeholder="Enter last name"
+                            name="lastName"
+                            registerName="lastName"
+                            errors={errors.lastName}
+                            props={{ ...register('lastName', { required: "Last name is required" }) }}
+                        />
+                        <TextInput
+                            label="Email"
+                            type="email"
+                            placeholder="Enter email"
+                            name="email"
+                            errors={errors.email}
+                            registerName="email"
+                            props={{ ...register('email', { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" } }) }}
+                        />
+                        <TextInput
+                            label="Phone Number"
+                            type="tel"
+                            placeholder="Enter phone number"
+                            name="mobileNo"
+                            errors={errors.mobileNo}
+                            registerName="mobileNo"
+                            props={{ ...register('mobileNo', { required: "Phone number is required", pattern: { value: /^[0-9]{10}$/, message: "Enter a valid 10-digit number" } }) }}
+                        />
+                        <TextInput
+                            label="Create Password"
+                            type="password"
+                            placeholder="Enter password"
+                            name="password"
+                            errors={errors.password}
+                            registerName="password"
+                            props={{ ...register('password', { required: "Password is required", minLength: { value: 6, message: "Password must be at least 6 characters" } }) }}
+                        />
+                        <TextInput
+                            label="Confirm Password"
+                            type="password"
+                            placeholder="Confirm password"
+                            name="confirmPassword"
+                            errors={errors.confirmPassword}
+                            registerName="confirmPassword"
+                            props={{ ...register('confirmPassword', { required: "Please confirm your password", validate: (value) => value === password || "Passwords do not match" }) }}
+                        />
                     </div>
-                    {message && (
-                        <p className={`text-center mt-3 text-sm ${message === "Passwords do not match" ? "text-red-500" : "text-green-500"}`}>
-                            {message}
-                        </p>
-                    )}
+
+                    {/* Submit */}
                     <button
                         type="submit"
                         className="bg-gradient-orange px-10 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition mx-auto block"
@@ -162,10 +143,13 @@ const Register = () => {
                         Register
                     </button>
                 </form>
+
                 <p className="text-center text-sm text-gray-500 mt-4">
                     Already have an account?{" "}
-                    <a href="/login" className="text-primary hover:underline">Login</a>
+                    <Link to="/login" className="text-primary hover:underline">Login</Link>
                 </p>
+
+                {/* Social Logins */}
                 <div className="border-t my-4" style={{ borderColor: "rgba(39, 43, 53, 0.1)" }}></div>
                 <div className="mt-6">
                     <p className="text-center text-gray-400 text-sm mb-3">Or Continue With</p>
@@ -182,9 +166,11 @@ const Register = () => {
                     </div>
                 </div>
             </div>
+
             <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };
 
 export default Register;
+

@@ -25,13 +25,14 @@ export const registerUser = async (data) => {
         return response.data
     }
     catch (err) {
-        console.log("==========error in Register User api file", err);
+        console.log("==========error in register User api file", err);
         return err?.response?.data
     }
 };
 
 export const loginUser = async (data) => {
     const url = `${environment.baseUrl}user/login`;
+    console.log('urlurlurl', url)
     try {
         const response = await axios.post(url, data)
         return response.data
@@ -1060,13 +1061,13 @@ export const deleteBanner = async (id) => {
 // export const registerUser = async (data) => {
 //     const url = `${environment.baseUrl}customer-users/register`;
 //     try {
-//         console.log('Register Data:', data);
+//         console.log('register Data:', data);
 //         const response = await axios.post(url, data)
 //         return response.data
 
 //     }
 //     catch (err) {
-//         console.log("==========error in Register User api file", err);
+//         console.log("==========error in register User api file", err);
 //         return err?.response?.data
 //     }
 // };
@@ -1119,13 +1120,13 @@ export const deleteBanner = async (id) => {
 // export const registerUser = async (data) => {
 //     const url = `${environment.baseUrl}/api/customer-users/register`;
 //     try {
-//         console.log('Register Data:', data);
+//         console.log('register Data:', data);
 //         const response = await axios.post(url, data)
 //         return response.data
 
 //     }
 //     catch (err) {
-//         console.log("==========error in Register User api file", err);
+//         console.log("==========error in register User api file", err);
 //         return err?.response?.data
 //     }
 // };
@@ -1197,7 +1198,7 @@ export const getActiveBanners = async (type = "website") => {
 // ====================CUstomer(User) Services  Api===================
 export const getServicesList = async (data) => {
     try {
-        const url = `${environment.baseUrl}service/public/get-all`;
+        const url = `${environment.baseUrl}service/astroguid/public/get-all`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1222,7 +1223,7 @@ export const getSelectedService = async (id) => {
 
 export const getCategoriesList  = async (data) => {
     try {
-        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const url = `${environment.baseUrl}service-categories/public/our-service-categories`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1246,7 +1247,7 @@ export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") =>
 // ==================== Our Service Categories Api ====================
 export const getOurServiceCategories = async () => {
     try {
-        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const url = `${environment.baseUrl}service-categories/public/our-service-categories`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {

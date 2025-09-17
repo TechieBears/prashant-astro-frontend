@@ -8,7 +8,8 @@ export const environment = {
     // production: false
 
     // -------------------- Devlopment Server Api URL --------------------
-    baseUrl: 'https://soulplan-astro-backend.vercel.app/api/',
+    // baseUrl: 'https://soulplan-astro-backend.vercel.app/api/',
+    baseUrl: 'http://192.168.0.134:6020/api/',
     production: false,
 
 

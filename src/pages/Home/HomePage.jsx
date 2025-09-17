@@ -23,17 +23,28 @@ import Service3 from '../../assets/user/home/services/service-homepage (3).png';
 import Service4 from '../../assets/user/home/services/service-homepage (4).png';
 import { getActiveBanners, getOurProducts, getOurServiceCategories } from "../../api";
 import { environment } from "../../env";
-
 import { Medal06Icon, FavouriteIcon } from 'hugeicons-react';
-
+import { fetchNavDropdowns } from '../../redux/Slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const HomePage = () => {
+    const dispatch = useDispatch();
+    const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
     const [slidesData, setSlidesData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [productsData, setProductsData] = useState([]);
     const [productsLoading, setProductsLoading] = useState(true);
     const [servicesData, setServicesData] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
+
+    useEffect(() => {
+        console.log('servicesDropdown', servicesDropdown);
+        // console.log('productsDropdown', productsDropdown);
+        // if (servicesDropdown?.length === 0 || productsDropdown?.length === 0) {
+        if (servicesDropdown?.length === 0) {
+        dispatch(fetchNavDropdowns());
+        }
+    }, [dispatch]);
 
     useEffect(() => {
         const fetchSlides = async () => {

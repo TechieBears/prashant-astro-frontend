@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { formBtn1 } from "../../utils/CustomClass";
@@ -13,13 +13,57 @@ import { logoutUser } from "../../redux/Slices/loginSlice";
 import toast, { Toaster } from "react-hot-toast";
 
 const HomeNavbar = () => {
-    const navLinks = [
-        { name: "Home", path: "/" },
-        { name: "About", path: "/about" },
-        { name: "Services", path: "/services" },
-        { name: "Products", path: "/products" },
-        { name: "Contact", path: "/contact" },
-    ];
+    const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
+
+    // const transformedServicess = servicesDropdown.map(category => ({
+    //    category: category.name,
+    //    services: category.services 
+    //  }));
+
+    //  console.log('servicesDropdown', servicesDropdown)
+
+   const navLinks = useMemo(() => {
+     const transformedServices = servicesDropdown.map(category => ({
+       category: category.name,
+       services: category.services.map(service => ({
+         name: service.name,
+         path: `/services/${service._id}`,
+         
+       })),
+     }));
+ 
+     // You can similarly map productsDropdown if needed
+     return [
+       { name: 'Home', path: '/' },
+       { name: 'About', path: '/about' },
+       {
+         name: 'Services',
+         path: '/services',
+         dropdown: transformedServices,
+       },
+       {
+         name: 'Products',
+         path: '/products',
+         dropdown: [
+           {
+             category: 'Spiritual Products',
+             services: [
+               { name: 'Rudraksha Beads', path: '/products/spiritual/rudraksha' },
+               { name: 'Vastu Shastra Books', path: '/products/spiritual/vastu-books' },
+             ],
+           },
+           {
+             category: 'Accessories',
+             services: [
+               { name: 'Puja Thali', path: '/products/accessories/puja-thali' },
+               { name: 'Incense Sticks', path: '/products/accessories/incense' },
+             ],
+           },
+         ],
+       },
+       { name: 'Contact', path: '/contact' },
+     ];
+   }, [servicesDropdown]);
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,6 +75,26 @@ const HomeNavbar = () => {
     const user = useSelector((state) => state.user.userDetails);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [activeCategory, setActiveCategory] = useState(null);
+
+    const handleMouseEnter = (dropdown) => {
+        setActiveDropdown(dropdown);
+    };
+
+    const handleMouseLeave = () => {
+        setActiveDropdown(null);
+        setActiveCategory(null);
+    };
+
+    const handleCategoryMouseEnter = (categoryName) => {
+        setActiveCategory(categoryName);
+    };
+
+    const handleCategoryMouseLeave = () => {
+        setActiveCategory(null);
+    };
 
     // Ensure component is mounted
     useEffect(() => {
@@ -113,7 +177,6 @@ const HomeNavbar = () => {
         );
     }
 
-    console.log('isMenuOpen', isMenuOpen)
 
     return (
         <>
@@ -169,16 +232,15 @@ const HomeNavbar = () => {
                     <div className="flex items-center gap-10">
                         {
                             !isMenuOpen && (
-                                <>
-                                    <div className="hidden md:flex items-center gap-2 text-base-font">
+                                <div className="hidden lg:flex items-center gap-4">
+                                    <div className="flex items-center gap-2 text-base-font">
                                         <Phone size={18} />
                                         <span className="text-base-font font-medium">+91 95682 45762</span>
                                     </div>
                                     <button className="bg-gradient-orange text-white font-medium px-6 py-2 rounded shadow hover:opacity-90 transition">
                                         Book Consultation
                                     </button>
-
-                                </>
+                                </div>
                             )
                         }
 
@@ -195,27 +257,83 @@ const HomeNavbar = () => {
 
                 {/* Bottom Row */}
                 <div className="bg-light-gradient-orange">
-                    <div className=" flex items-center justify-between w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16">
+                    <div className=" flex  justify-between w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16">
                         {/* Nav Links */}
-                        <div className="hidden lg:flex gap-6 text-white font-medium  ">
-                            {navLinks.map((link, i) => (
-                                <NavLink
-                                    key={i}
-                                    to={link.path}
-                                    onClick={() => {
-                                        window.scrollTo({ top: 0, behavior: "smooth" });
-                                        setIsMenuOpen(false);
-                                    }}
-                                    className={({ isActive }) =>
-                                        `inline-block border-b-2 transition ${isActive
-                                            ? "border-white"
-                                            : "border-transparent hover:border-white"
-                                        }`
-                                    }
-                                >
-                                    {link.name}
-                                </NavLink>
-                            ))}
+                        <div className="hidden lg:flex">
+                            <div className="flex  gap-6 text-white font-medium">
+                                {navLinks.map((link, i) => (
+                                    link.dropdown ? (
+                                        <div
+                                            key={i}
+                                            className="relative group py-3"
+                                            onMouseEnter={() => handleMouseEnter(link.name)}
+                                            onMouseLeave={handleMouseLeave}
+                                        >
+                                            <NavLink
+                                                to={link.path}
+                                                className={({ isActive }) =>
+                                                    `inline-block border-b-2 transition ${isActive ? "border-white" : "border-transparent hover:border-white"}`
+                                                }
+                                            >
+                                                {link.name}
+                                            </NavLink>
+
+                                            {activeDropdown === link.name && (
+                                                <div className="absolute left-0 mt-3 bg-primary shadow-lg rounded-b-md w-max z-50 py-3">
+                                                    {link.dropdown.map((category, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="relative px-2"
+                                                            onMouseEnter={() => handleCategoryMouseEnter(category.category)}
+                                                            onMouseLeave={handleCategoryMouseLeave}
+                                                        >
+                                                            <p className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 rounded-md cursor-pointer">
+                                                                <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                    {category.category}
+                                                                </span>
+                                                            </p>
+
+                                                            {/* Sub-dropdown (appears on hover of specific category) */}
+                                                            {activeCategory === category.category && (
+                                                                <div className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-3">
+                                                                    <ul className="space-y-2">
+                                                                        {category.services.map((service, j) => (
+                                                                            <li key={j}>
+                                                                                <NavLink
+                                                                                    to={service.path}
+                                                                                    className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 mx-2 rounded-md block"
+                                                                                >
+                                                                                    <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                                        {service.name}
+                                                                                    </span>
+                                                                                </NavLink>
+
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    ) : (
+                                        <div className="py-3" key={i}>
+                                            <NavLink
+                                                key={i}
+                                                to={link.path}
+                                                className={({ isActive }) =>
+                                                    `inline-block border-b-2 transition ${isActive ? "border-white" : "border-transparent hover:border-white"}`
+                                                }
+                                            >
+                                                {link.name}
+                                            </NavLink>
+                                        </div>
+                                    )
+                                ))}
+                            </div>
                         </div>
 
                         {/* Cart & Profile */}
@@ -275,9 +393,9 @@ const HomeNavbar = () => {
                             </button>
                             <button
                                 className={`${formBtn1}`}
-                                onClick={() => navigate("/register")}
+                                onClick={() => navigate("/registerName")}
                             >
-                                Register
+                                registerName
                             </button>
                         </div>
                     ) : (
