@@ -30,12 +30,12 @@ const ProductsPage = () => {
             try {
                 setFiltersLoading(true)
                 const response = await getProductFilters()
-                
+
                 if (response.success) {
                     // Process categories and subcategories from the API response
                     const categories = response.data?.category || []
                     const subcategories = []
-                    
+
                     // Flatten subcategories from all categories
                     categories.forEach(category => {
                         if (category.subcategories && category.subcategories.length > 0) {
@@ -46,7 +46,7 @@ const ProductsPage = () => {
                             })))
                         }
                     })
-                    
+
                     setFilterData({
                         categories: categories.map(cat => ({
                             _id: cat._id,
@@ -67,10 +67,10 @@ const ProductsPage = () => {
                 setFiltersLoading(false)
             }
         }
-        
+
         fetchFilters()
     }, [])
-    
+
     // Fetch products
     React.useEffect(() => {
         const fetchProducts = async () => {
@@ -81,7 +81,7 @@ const ProductsPage = () => {
 
                 if (response.success) {
                     setProducts(response.data || [])
-                    
+
                     // Update price range based on actual product prices
                     if (response.data.length > 0) {
                         const prices = response.data.map(p => p.sellingPrice).filter(Boolean)
@@ -116,12 +116,12 @@ const ProductsPage = () => {
     }
 
     const toggleCategory = (categoryId) => {
-        setSelectedCategories(prev => 
-            prev.includes(categoryId) 
+        setSelectedCategories(prev =>
+            prev.includes(categoryId)
                 ? prev.filter(id => id !== categoryId)
                 : [...prev, categoryId]
         )
-        
+
         // If deselecting a category, also deselect its subcategories
         if (selectedCategories.includes(categoryId)) {
             const category = filterData.categories.find(cat => cat._id === categoryId)
@@ -129,16 +129,16 @@ const ProductsPage = () => {
                 const subIds = filterData.subcategories
                     .filter(sub => sub.categoryId === categoryId)
                     .map(sub => sub._id)
-                
-                setSelectedSubcategories(prev => 
+
+                setSelectedSubcategories(prev =>
                     prev.filter(id => !subIds.includes(id))
                 )
             }
         }
     }
-    
+
     const toggleSubcategory = (subcategoryId) => {
-        setSelectedSubcategories(prev => 
+        setSelectedSubcategories(prev =>
             prev.includes(subcategoryId)
                 ? prev.filter(id => id !== subcategoryId)
                 : [...prev, subcategoryId]
@@ -149,7 +149,7 @@ const ProductsPage = () => {
         setSearch('')
         setSelectedCategories([])
         setSelectedSubcategories([])
-        
+
         // Reset to dynamic price range if available, otherwise use default
         if (products.length > 0) {
             const prices = products.map(p => p.sellingPrice).filter(Boolean)
@@ -166,21 +166,21 @@ const ProductsPage = () => {
     // Filter products based on search, selected categories, subcategories, and price range
     const filteredProducts = React.useMemo(() => {
         if (!Array.isArray(products)) return [];
-        
+
         return products.filter((product) => {
             // Filter by search term
-            const matchesSearch = 
-                !search || 
+            const matchesSearch =
+                !search ||
                 (product.name && product.name.toLowerCase().includes(search.toLowerCase())) ||
                 (product.description && product.description.toLowerCase().includes(search.toLowerCase()));
 
             // Filter by selected categories
-            const matchesCategory = 
-                selectedCategories.length === 0 || 
+            const matchesCategory =
+                selectedCategories.length === 0 ||
                 (product.category && selectedCategories.includes(product.category._id));
-                
+
             // Filter by selected subcategories
-            const matchesSubcategory = 
+            const matchesSubcategory =
                 selectedSubcategories.length === 0 ||
                 (product.subcategory && selectedSubcategories.includes(product.subcategory._id));
 
@@ -207,74 +207,60 @@ const ProductsPage = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
-                {loading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <PulseLoader color="#F97316" size={15} />
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-20">
-                        <div className="text-red-500 text-lg mb-4">{error}</div>
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-                        {/* Products Grid */}
-                        <div className="lg:col-span-9 order-2 lg:order-1">
-                            {loading ? (
-                                <div className="flex justify-center items-center py-20">
-                                    <PulseLoader color="#F97316" size={15} />
-                                </div>
-                            ) : error ? (
-                                <div className="text-center py-10">
-                                    <p className="text-red-500 text-lg mb-4">{error}</p>
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                                    >
-                                        Try Again
-                                    </button>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-                                        {filteredProducts.map((product) => (
-                                            <div 
-                                                key={product._id || product.id} 
-                                                className="h-full cursor-pointer"
-                                                onClick={(e) => {
-                                                    // Stop event propagation to prevent interference with add to cart button
-                                                    if (e.target.closest('button') || e.target.tagName === 'BUTTON') {
-                                                        return;
-                                                    }
-                                                    navigate(`/products/${product._id}`);
-                                                }}
-                                            >
-                                                <ProductCard product={product} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    {filteredProducts.length === 0 && !loading && (
-                                        <div className="text-center py-10">
-                                            <p className="text-gray-500 text-lg">No products found matching your filters.</p>
-                                            <button
-                                                onClick={resetFilters}
-                                                className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                                            >
-                                                Reset Filters
-                                            </button>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                    {/* Products Grid */}
+                    <div className="lg:col-span-9 order-2 lg:order-1">
+                        {loading ? (
+                            <div className="flex justify-center items-center py-20">
+                                <PulseLoader color="#F97316" size={15} />
+                            </div>
+                        ) : error ? (
+                            <div className="text-center py-10">
+                                <p className="text-red-500 text-lg mb-4">{error}</p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+                                    {filteredProducts.map((product) => (
+                                        <div
+                                            key={product._id || product.id}
+                                            className="h-full cursor-pointer"
+                                            onClick={(e) => {
+                                                // Stop event propagation to prevent interference with add to cart button
+                                                if (e.target.closest('button') || e.target.tagName === 'BUTTON') {
+                                                    return;
+                                                }
+                                                navigate(`/products/${product._id}`);
+                                            }}
+                                        >
+                                            <ProductCard product={product} />
                                         </div>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                                    ))}
+                                </div>
+                                {filteredProducts.length === 0 && !loading && (
+                                    <div className="text-center py-10">
+                                        <p className="text-gray-500 text-lg">No products found matching your filters.</p>
+                                        <button
+                                            onClick={resetFilters}
+                                            className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                                        >
+                                            Reset Filters
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
 
-                        {/* Filter Sidebar */}
-                        <aside className="lg:col-span-3 order-1 lg:order-2">
+                    {/* Filter Sidebar */}
+                    <aside className="lg:col-span-3 order-1 lg:order-2">
+                        <div className="sticky top-14">
                             <FilterSidebar
                                 search={search}
                                 setSearch={setSearch}
@@ -291,9 +277,9 @@ const ProductsPage = () => {
                                 resetFilters={resetFilters}
                                 isLoading={filtersLoading}
                             />
-                        </aside>
-                    </div>
-                )}
+                        </div>
+                    </aside>
+                </div>
             </div>
         </div>
     )

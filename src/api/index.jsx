@@ -3,6 +3,58 @@ import { environment } from "../env";
 
 axios.defaults.withCredentials = environment?.production;
 
+// Cart APIs
+export const removeCartItem = async (itemId) => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}product-cart/remove-item`;
+    try {
+        const response = await axios.put(url, { itemId }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error removing cart item:', err);
+        return err?.response?.data || { success: false, message: 'Failed to remove cart item' };
+    }
+};
+
+export const updateCartItem = async (itemId, quantity) => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}product-cart/update`;
+    try {
+        const response = await axios.put(url, { itemId, quantity }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error updating cart item:', err);
+        return err?.response?.data || { success: false, message: 'Failed to update cart item' };
+    }
+};
+
+export const getCartItems = async () => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}product-cart/get`;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching cart items:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch cart items' };
+    }
+};
+
 
 axios.interceptors.request.use(
     (config) => {
@@ -1220,9 +1272,9 @@ export const getSelectedService = async (id) => {
 }
 
 
-export const getCategoriesList  = async (data) => {
+export const getCategoriesList = async (data) => {
     try {
-        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const url = `${environment.baseUrl}service-categories/public/our-service-categories`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1234,7 +1286,7 @@ export const getCategoriesList  = async (data) => {
 // ==================== Our Products Api ====================
 export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") => {
     try {
-        const url = `${environment.baseUrl}product/our-products?categoryId=${categoryId}`;
+        const url = `${environment.baseUrl}product/public/our-products?categoryId=${categoryId}`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
@@ -1246,7 +1298,7 @@ export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") =>
 // ==================== Our Service Categories Api ====================
 export const getOurServiceCategories = async () => {
     try {
-        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const url = `${environment.baseUrl}service-categories/public/our-service-categories`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
@@ -1257,7 +1309,7 @@ export const getOurServiceCategories = async () => {
 
 // ==================== Active Products Api ====================
 export const getActiveProducts = async () => {
-    const url = `${environment.baseUrl}product/active`;
+    const url = `${environment.baseUrl}product/public/active`;
     try {
         const response = await axios.get(url);
         return response.data;
@@ -1267,16 +1319,65 @@ export const getActiveProducts = async () => {
     }
 };
 
+// ==================== Add to Cart Api ====================
+export const addToCart = async (productId, quantity = 1) => {
+    const url = `${environment.baseUrl}product-cart/add`;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        return Promise.reject({
+            success: false,
+            message: 'Please login to add items to cart',
+            status: 401
+        });
+    }
+
+    try {
+        const response = await axios.post(
+            url,
+            { productId, quantity },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        return {
+            success: response.data?.success || false,
+            message: response.data?.message || 'Product added to cart',
+            data: response.data?.data,
+            status: response.status
+        };
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data?.message || 'Failed to add to cart',
+                status: error.response.status,
+                data: error.response.data
+            };
+        }
+
+        return {
+            success: false,
+            message: error.message || 'Failed to add to cart',
+            status: 0
+        };
+    }
+};
+
 // ==================== Single Active Product Api ====================
 export const getActiveProduct = async (id) => {
     if (!id) {
         console.error('No product ID provided to getActiveProduct');
         return { success: false, message: 'No product ID provided' };
     }
-    
-    const url = `${environment.baseUrl}product/active-single?id=${id}`;
+
+    const url = `${environment.baseUrl}product/public/active-single?id=${id}`;
     console.log('Making API request to:', url);
-    
+
     try {
         const response = await axios.get(url);
         console.log('API Response for product', id, ':', response);
@@ -1292,7 +1393,7 @@ export const getActiveProduct = async (id) => {
                 params: error.config?.params
             }
         });
-        
+
         // Return a consistent error response structure
         return {
             success: false,
@@ -1304,7 +1405,7 @@ export const getActiveProduct = async (id) => {
 
 // ==================== Product Filters Api ====================
 export const getProductFilters = async () => {
-    const url = `${environment.baseUrl}product/filter`;
+    const url = `${environment.baseUrl}product/public/filter`;
     try {
         const response = await axios.get(url);
         return response.data;

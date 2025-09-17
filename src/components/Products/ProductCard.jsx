@@ -1,4 +1,5 @@
 import React from 'react';
+import AddToCartButton from './AddToCartButton';
 
 const Star = ({ filled }) => (
   <svg
@@ -13,6 +14,7 @@ const Star = ({ filled }) => (
 
 const ProductCard = ({ product }) => {
   const {
+    _id,
     id,
     name: title,
     sellingPrice: price,
@@ -20,7 +22,8 @@ const ProductCard = ({ product }) => {
     rating = 4,
     images = [],
     category,
-    subcategory
+    subcategory,
+    stock = true
   } = product;
 
   // Use first image if available, otherwise use a placeholder
@@ -32,39 +35,42 @@ const ProductCard = ({ product }) => {
         <img
           src={image}
           alt={title}
-          className="absolute top-0 left-0 w-full h-full object-cover p-2"
+          className="absolute top-0 left-0 w-full h-full object-cover p-1 sm:p-2"
           loading="lazy"
         />
       </div>
-      <div className="p-3 sm:p-4 flex flex-col flex-grow">
-        <h3 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 mb-1 sm:mb-2">
-          {title}
-        </h3>
-
-        <div className="flex items-center gap-1 mb-2 sm:mb-3">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Star key={i} filled={i <= rating} />
-          ))}
-        </div>
-
-        <div className="mt-auto">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="text-sm sm:text-base font-semibold text-gray-900">
-              ₹{price.toLocaleString()}
+      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 sm:mb-3 gap-2 sm:gap-0">
+          <div className="flex-1">
+            <h3 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 mb-1 sm:mb-2">
+              {title}
+            </h3>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} filled={i <= rating} />
+              ))}
             </div>
+          </div>
+          <div className="flex items-center justify-end gap-2 sm:flex-col sm:items-end sm:gap-0 ml-2">
             {oldPrice > price && (
               <div className="text-xs text-gray-500 line-through">
                 ₹{oldPrice.toLocaleString()}
               </div>
             )}
+            <div className="text-sm sm:text-base font-semibold text-gray-900">
+              ₹{price.toLocaleString()}
+            </div>
           </div>
+        </div>
 
-          <button
-            className="w-full py-2 px-2 sm:px-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm sm:text-base font-medium rounded-md hover:opacity-90 transition-opacity"
-            onClick={() => { }}
-          >
-            Add to Cart
-          </button>
+        <div className="mt-auto">
+          <AddToCartButton
+            productId={_id || id}
+            stock={stock}
+            className="w-full mt-3"
+            size="small"
+            variant="gradient"
+          />
         </div>
       </div>
     </div>
