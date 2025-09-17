@@ -1231,3 +1231,85 @@ export const getCategoriesList  = async (data) => {
         return err?.response?.data
     }
 }
+// ==================== Our Products Api ====================
+export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") => {
+    try {
+        const url = `${environment.baseUrl}product/our-products?categoryId=${categoryId}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error("Error fetching our products:", err);
+        return err?.response?.data || { success: false, data: [] };
+    }
+};
+
+// ==================== Our Service Categories Api ====================
+export const getOurServiceCategories = async () => {
+    try {
+        const url = `${environment.baseUrl}service-categories/our-service-categories`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error("Error fetching our service categories:", err);
+        return err?.response?.data || { success: false, data: [] };
+    }
+};
+
+// ==================== Active Products Api ====================
+export const getActiveProducts = async () => {
+    const url = `${environment.baseUrl}product/active`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching active products:', error);
+        throw error;
+    }
+};
+
+// ==================== Single Active Product Api ====================
+export const getActiveProduct = async (id) => {
+    if (!id) {
+        console.error('No product ID provided to getActiveProduct');
+        return { success: false, message: 'No product ID provided' };
+    }
+    
+    const url = `${environment.baseUrl}product/active-single?id=${id}`;
+    console.log('Making API request to:', url);
+    
+    try {
+        const response = await axios.get(url);
+        console.log('API Response for product', id, ':', response);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching product:', {
+            id,
+            error: error.response?.data || error.message,
+            status: error.response?.status,
+            config: {
+                url: error.config?.url,
+                method: error.config?.method,
+                params: error.config?.params
+            }
+        });
+        
+        // Return a consistent error response structure
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Failed to fetch product',
+            status: error.response?.status
+        };
+    }
+};
+
+// ==================== Product Filters Api ====================
+export const getProductFilters = async () => {
+    const url = `${environment.baseUrl}product/filter`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching product filters:', error);
+        throw error;
+    }
+};

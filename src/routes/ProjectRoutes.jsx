@@ -106,7 +106,10 @@ const ProjectRoutes = () => {
     return (
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
-                <Preloaders />
+                <div className="relative">
+                    <HomeNavbar />
+                    <Preloaders />
+                </div>
             ) : isAdminOrEmployee ? (
                 <Sidebar>
                     <Routes>

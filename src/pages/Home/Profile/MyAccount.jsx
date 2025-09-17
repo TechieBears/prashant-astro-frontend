@@ -69,18 +69,20 @@ const MyAccount = () => {
     };
 
     return (
-        <div className="flex px-40 py-12">
-            <ProfileSidebar />
-            <div className="flex-1 ml-6 rounded-lg bg-white p-6">
+        <div className="flex flex-col sm:flex-row px-4 sm:px-6 lg:px-40 py-6 sm:py-12 gap-4 lg:gap-6">
+            <div className="w-full sm:w-64">
+                <ProfileSidebar />
+            </div>
+            <div className="flex-1 rounded-lg bg-white p-4 sm:p-6">
                 <h2 className="font-semibold text-lg mb-6">My Account</h2>
-                <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1">
+                <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1 md:col-span-2">
                         <label>Title <span className="text-red-500">*</span></label>
                         <div className="flex gap-2">
                             {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt) => (
                                 <label
                                     key={opt}
-                                    className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${title === opt
+                                    className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all duration-150 whitespace-nowrap ${title === opt
                                             ? "border-primary text-primary font-medium"
                                             : "bg-white text-black"
                                         }`}
@@ -107,7 +109,7 @@ const MyAccount = () => {
                         <input
                             type="text"
                             placeholder="Enter first name"
-                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 ${errors.firstName ? "border border-red-500" : ""
+                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 text-base ${errors.firstName ? "border border-red-500" : ""
                                 }`}
                             {...register("firstName", {
                                 required: "First name is required",
@@ -127,7 +129,7 @@ const MyAccount = () => {
                         <input
                             type="text"
                             placeholder="Enter last name"
-                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 ${errors.lastName ? "border border-red-500" : ""
+                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 text-base ${errors.lastName ? "border border-red-500" : ""
                                 }`}
                             {...register("lastName", {
                                 required: "Last name is required",
@@ -147,7 +149,7 @@ const MyAccount = () => {
                         <input
                             type="email"
                             placeholder="Enter email address"
-                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 ${errors.email ? "border border-red-500" : ""
+                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 text-base ${errors.email ? "border border-red-500" : ""
                                 }`}
                             {...register("email", {
                                 required: "Email is required",
@@ -167,7 +169,7 @@ const MyAccount = () => {
                         <input
                             type="text"
                             placeholder="Enter phone number"
-                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 ${errors.phone ? "border border-red-500" : ""
+                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 text-base ${errors.phone ? "border border-red-500" : ""
                                 }`}
                             {...register("phone", {
                                 required: "Phone number is required",
@@ -196,18 +198,18 @@ const MyAccount = () => {
                         />
                     </div>
 
-                    <div className="col-span-2 flex justify-end mt-12 space-x-4">
+                    <div className="flex flex-col sm:flex-row justify-end mt-8 space-y-3 sm:space-y-0 sm:space-x-4 md:col-span-2">
                         <button
                             type="button"
                             onClick={() => reset()}
-                            className="px-6 py-2 border border-black hover:bg-gray-100 transition"
+                            className="px-4 sm:px-6 py-2 border border-black hover:bg-gray-100 transition text-sm sm:text-base"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`mt-4 bg-primary text-white rounded-lg py-2 px-6 hover:bg-primary-dark transition-colors ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                            className={`bg-primary text-white rounded-lg py-2 px-6 hover:bg-primary-dark transition-colors text-base ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                                 }`}
                         >
                             {isSubmitting ? "Saving..." : "Save Changes"}

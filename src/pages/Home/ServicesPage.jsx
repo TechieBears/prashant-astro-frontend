@@ -335,7 +335,7 @@ const ServicesPage = () => {
                 backgroundSize="100%"
             />
 
-            <div className="container mx-auto px-8 max-w-7xl pb-8">
+            <div className="container mx-auto px-4 md:px-8 max-w-7xl pb-8">
                 {/* Category Filter Card */}
                 <div className="sticky top-0 md:top-[44px] z-30 mb-8 flex justify-center">
                     <div className="bg-white rounded-b-2xl shadow-lg px-6 py-4 inline-block">
