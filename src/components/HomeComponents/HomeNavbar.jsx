@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/astroguid logo.png";
+import logoText from "../../assets/astroguid logo text.png";
 import { formBtn1 } from "../../utils/CustomClass";
 import { List, X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,48 +23,48 @@ const HomeNavbar = () => {
 
     //  console.log('servicesDropdown', servicesDropdown)
 
-   const navLinks = useMemo(() => {
-     const transformedServices = servicesDropdown.map(category => ({
-       category: category.name,
-       services: category.services.map(service => ({
-         name: service.name,
-         path: `/services/${service._id}`,
-         
-       })),
-     }));
- 
-     // You can similarly map productsDropdown if needed
-     return [
-       { name: 'Home', path: '/' },
-       { name: 'About', path: '/about' },
-       {
-         name: 'Services',
-         path: '/services',
-         dropdown: transformedServices,
-       },
-       {
-         name: 'Products',
-         path: '/products',
-         dropdown: [
-           {
-             category: 'Spiritual Products',
-             services: [
-               { name: 'Rudraksha Beads', path: '/products/spiritual/rudraksha' },
-               { name: 'Vastu Shastra Books', path: '/products/spiritual/vastu-books' },
-             ],
-           },
-           {
-             category: 'Accessories',
-             services: [
-               { name: 'Puja Thali', path: '/products/accessories/puja-thali' },
-               { name: 'Incense Sticks', path: '/products/accessories/incense' },
-             ],
-           },
-         ],
-       },
-       { name: 'Contact', path: '/contact' },
-     ];
-   }, [servicesDropdown]);
+    const navLinks = useMemo(() => {
+        const transformedServices = servicesDropdown.map(category => ({
+            category: category.name,
+            services: category.services.map(service => ({
+                name: service.name,
+                path: `/services/${service._id}`,
+
+            })),
+        }));
+
+        // You can similarly map productsDropdown if needed
+        return [
+            { name: 'Home', path: '/' },
+            { name: 'About', path: '/about' },
+            {
+                name: 'Services',
+                path: '/services',
+                dropdown: transformedServices,
+            },
+            {
+                name: 'Products',
+                path: '/products',
+                dropdown: [
+                    {
+                        category: 'Spiritual Products',
+                        services: [
+                            { name: 'Rudraksha Beads', path: '/products/spiritual/rudraksha' },
+                            { name: 'Vastu Shastra Books', path: '/products/spiritual/vastu-books' },
+                        ],
+                    },
+                    {
+                        category: 'Accessories',
+                        services: [
+                            { name: 'Puja Thali', path: '/products/accessories/puja-thali' },
+                            { name: 'Incense Sticks', path: '/products/accessories/incense' },
+                        ],
+                    },
+                ],
+            },
+            { name: 'Contact', path: '/contact' },
+        ];
+    }, [servicesDropdown]);
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -166,11 +167,13 @@ const HomeNavbar = () => {
         return (
             <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow">
                 <div className="flex items-center justify-between px-10 md:px-40 gap-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center">
                         <img src={logo} alt="logo" className="h-10 md:h-12" />
-                        <span className="hidden sm:block text-lg md:text-xl font-semibold text-gray-800">
-                            Pandit Prashant
-                        </span>
+                        <img
+                            src={logoText}
+                            alt="Pandit Prashant"
+                            className="hidden sm:block h-6 md:h-7 mt-1"
+                        />
                     </div>
                 </div>
             </nav>
@@ -198,9 +201,11 @@ const HomeNavbar = () => {
                         className="flex items-center gap-2"
                     >
                         <img src={logo} alt="logo" className="h-10 md:h-12" />
-                        <span className="hidden sm:block text-lg md:text-xl font-semibold text-gray-800">
-                            Pandit Prashant
-                        </span>
+                        <img
+                            src={logoText}
+                            alt="Pandit Prashant"
+                            className="hidden sm:block h-6 md:h-7 mt-1"
+                        />
                     </button>
 
                     {/* Search */}
