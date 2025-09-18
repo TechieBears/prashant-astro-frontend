@@ -1,41 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaRegTrashAlt, FaMinus, FaPlus } from 'react-icons/fa';
 import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
-import { getCartItems, updateCartItem, removeCartItem } from '../../api';
+import { getCartItems, updateCartItem, removeCartItem, getServiceCartItems, removeServiceCartItem } from '../../api';
+import ServicesSection from '../../components/Cart/ServicesSection';
+import ProductsSection from '../../components/Cart/ProductsSection';
 
 const CartPage = () => {
     const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
+    const [serviceCartItems, setServiceCartItems] = useState([]);
+    const [activeTab, setActiveTab] = useState('services'); // 'services' or 'products'
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isRemoving, setIsRemoving] = useState(null);
 
-    useEffect(() => {
-        const fetchCartItems = async () => {
-            try {
-                setLoading(true);
-                const response = await getCartItems();
-                if (response.success) {
-                    setCartItems(response.data.items || []);
-                } else {
-                    setError(response.message || 'Failed to load cart items');
-                }
-            } catch (err) {
-                console.error('Error fetching cart items:', err);
-                setError('An error occurred while fetching your cart');
-            } finally {
-                setLoading(false);
+    // Memoized data transformation for services
+    const transformedServices = useMemo(() => {
+        return serviceCartItems.map(service => ({
+            id: service._id,
+            type: service.name,
+            duration: 'To be scheduled',
+            date: 'Date and time will be confirmed',
+            mode: 'Online',
+            price: service.originalPrice,
+            quantity: service.quantity,
+            totalPrice: service.totalPrice
+        }));
+    }, [serviceCartItems]);
+
+    // Memoized fetch cart data function
+    const fetchCartData = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Fetch product cart items
+            const [productsResponse, servicesResponse] = await Promise.all([
+                getCartItems(),
+                getServiceCartItems()
+            ]);
+
+            if (productsResponse.success) {
+                setCartItems(productsResponse.data.items || []);
+            } else {
+                console.error('Failed to load product cart items:', productsResponse.message);
             }
-        };
 
-        fetchCartItems();
+            if (servicesResponse.success) {
+                setServiceCartItems(servicesResponse.data.items || []);
+            } else {
+                console.error('Failed to load service cart items:', servicesResponse.message);
+            }
+        } catch (err) {
+            console.error('Error fetching cart data:', err);
+            setError('An error occurred while fetching your cart');
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    const updateQuantity = async (id, newQuantity) => {
-        const quantity = Math.max(1, newQuantity);
+    useEffect(() => {
+        fetchCartData();
+    }, [fetchCartData]);
 
+    // Optimized update quantity with loading state
+    const updateQuantity = useCallback(async (id, newQuantity) => {
+        const quantity = Math.max(1, newQuantity);
+        setIsUpdating(true);
+
+        // Store previous state for rollback
+        const previousItems = [...cartItems];
+
+        // Optimistic update
         setCartItems(prevItems =>
             prevItems.map(item =>
                 item._id === id
@@ -49,17 +88,27 @@ const CartPage = () => {
             if (!response.success) {
                 throw new Error(response.message);
             }
-            setCartItems(response.data.items);
+            // Only update if the response has different data
+            if (JSON.stringify(response.data.items) !== JSON.stringify(cartItems)) {
+                setCartItems(response.data.items);
+            }
         } catch (err) {
             console.error('Error updating quantity:', err);
+            // Revert optimistic update
+            setCartItems(previousItems);
+            // Refetch to ensure sync
             const response = await getCartItems();
             if (response.success) {
                 setCartItems(response.data.items || []);
             }
+        } finally {
+            setIsUpdating(false);
         }
-    };
+    }, [cartItems]);
 
-    const removeItem = async (id) => {
+    // Optimized remove item with loading state
+    const removeItem = useCallback(async (id) => {
+        setIsRemoving(id);
         const previousItems = [...cartItems];
 
         // Optimistic update
@@ -70,32 +119,111 @@ const CartPage = () => {
             if (!response.success) {
                 throw new Error(response.message);
             }
-            // Update with server response to ensure sync
             setCartItems(response.data.items);
         } catch (err) {
             console.error('Error removing item:', err);
-            // Revert on error
+            // Revert optimistic update
             setCartItems(previousItems);
-            // TODO: Show error toast to user
+        } finally {
+            setIsRemoving(null);
         }
-    };
+    }, [cartItems]);
 
-    const calculateSubtotal = () => {
+    // Optimized remove service item with loading state
+    const removeServiceItem = useCallback(async (id) => {
+        setIsRemoving(id);
+        const previousServices = [...serviceCartItems];
+
+        // Optimistic update
+        setServiceCartItems(prevItems => prevItems.filter(item => item._id !== id));
+
+        try {
+            const response = await removeServiceCartItem(id);
+            if (!response.success) {
+                throw new Error(response.message);
+            }
+            // Update with server response to ensure sync
+            const servicesResponse = await getServiceCartItems();
+            if (servicesResponse.success) {
+                setServiceCartItems(servicesResponse.data.items || []);
+            }
+        } catch (err) {
+            console.error('Error removing service item:', err);
+            // Revert on error
+            setServiceCartItems(previousServices);
+        } finally {
+            setIsRemoving(null);
+        }
+    }, [serviceCartItems]);
+
+    // Memoized calculations for products
+    const subtotal = useMemo(() => {
         return cartItems.reduce((total, item) => total + item.totalPrice, 0);
-    };
+    }, [cartItems]);
 
-    const calculateGST = () => {
-        // Assuming 18% GST for all items
-        return calculateSubtotal() * 0.18;
-    };
+    const gstAmount = useMemo(() => {
+        return subtotal * 0.18;
+    }, [subtotal]);
 
-    const calculateTotal = () => {
-        return calculateSubtotal() + calculateGST();
-    };
+    const total = useMemo(() => {
+        return subtotal + gstAmount;
+    }, [subtotal, gstAmount]);
 
-    const subtotal = calculateSubtotal();
-    const gstAmount = calculateGST();
-    const total = calculateTotal();
+    // Memoized calculations for services
+    const serviceCalculations = useMemo(() => {
+        const serviceSubtotal = serviceCartItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+        const serviceGST = serviceSubtotal * 0.18;
+        const serviceTotal = serviceSubtotal + serviceGST;
+
+        return {
+            subtotal: serviceSubtotal,
+            gstAmount: serviceGST,
+            total: serviceTotal
+        };
+    }, [serviceCartItems]);
+
+    // Memoized tab handler
+    const handleTabChange = useCallback((tab) => {
+        setActiveTab(tab);
+    }, []);
+
+    // Memoized checkout handlers
+    const handleServicesCheckout = useCallback(() => {
+        console.log('Proceeding to checkout from services section');
+        // TODO: Implement payment gateway integration
+        // After successful payment, navigate to success page
+        navigate('/payment-success', {
+            state: {
+                orderType: 'services', // This will be used by API response logic
+                serviceData: {
+                    serviceType: transformedServices[0]?.type || "Service",
+                    sessionDuration: "30-60 minutes",
+                    date: "15th Sep, 2025",
+                    time: "12:00PM - 01:00PM",
+                    mode: "In-person / Online",
+                    zoomLink: "zoommtg://zoom.us/join?confno=8529015944&pwd=123456&uname=John%20Doe",
+                    orderId: `SRV-${Date.now()}`
+                }
+            }
+        });
+    }, [navigate, transformedServices]);
+
+    const handleProductsCheckout = useCallback(() => {
+        console.log('Proceeding to checkout');
+        // TODO: Implement payment gateway integration
+        // After successful payment, navigate to success page
+        navigate('/payment-success', {
+            state: {
+                orderType: 'products', // This will be used by API response logic
+                productData: {
+                    items: cartItems,
+                    total: total,
+                    orderId: `PRD-${Date.now()}`
+                }
+            }
+        });
+    }, [navigate, cartItems, total]);
+
 
     if (loading) {
         return (
@@ -165,10 +293,22 @@ const CartPage = () => {
                     {/* Desktop Tabs */}
                     <div className="absolute right-0 hidden lg:block">
                         <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button className="px-6 py-2 text-gray-600 rounded-full hover:bg-gray-50 transition-colors text-sm">
+                            <button
+                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
+                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => handleTabChange('services')}
+                            >
                                 Services
                             </button>
-                            <button className="px-6 py-2 bg-button-gradient-orange text-white rounded-full hover:opacity-90 transition-opacity text-sm">
+                            <button
+                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
+                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => handleTabChange('products')}
+                            >
                                 Products
                             </button>
                         </div>
@@ -176,143 +316,63 @@ const CartPage = () => {
                 </div>
 
                 {/* Mobile Tabs - Above Cart Summary */}
-                <div className="lg:hidden mb-4">
+                <div className="lg:hidden mb-6">
                     <div className="flex justify-center">
                         <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button className="px-6 py-2 text-gray-600 rounded-full hover:bg-gray-50 transition-colors text-sm">
+                            <button
+                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'services'
+                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => handleTabChange('services')}
+                            >
                                 Services
                             </button>
-                            <button className="px-6 py-2 bg-button-gradient-orange text-white rounded-full hover:opacity-90 transition-opacity text-sm">
+                            <button
+                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'products'
+                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                onClick={() => handleTabChange('products')}
+                            >
                                 Products
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Cart Content */}
-                <div className="bg-white p-4 md:p-6 rounded-lg">
-                    {cartItems.length === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="mx-auto w-24 h-24 text-gray-300 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
-                            <button
-                                onClick={() => navigate('/products')}
-                                className="px-6 py-2 bg-button-gradient-orange text-white rounded-md hover:opacity-90 transition-opacity"
-                            >
-                                Continue Shopping
-                            </button>
-                        </div>
+                {activeTab === 'services' ? (
+                    /* Services Section with Payment Summary */
+                    serviceCartItems.length > 0 ? (
+                        <ServicesSection
+                            services={transformedServices}
+                            onRemoveService={removeServiceItem}
+                            onCheckout={handleServicesCheckout}
+                            subtotal={serviceCalculations.subtotal}
+                            gstAmount={serviceCalculations.gstAmount}
+                            total={serviceCalculations.total}
+                            isRemoving={isRemoving}
+                        />
                     ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
-                            {/* Cart Items Section */}
-                            <div className="lg:col-span-7 space-y-3 md:space-y-4">
-                                {cartItems.map((item) => (
-                                    <div key={item._id} className="bg-light-pg rounded-lg p-3 md:p-4 flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 relative">
-                                        {/* Product Image */}
-                                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
-                                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                                <span className="text-gray-400">No Image</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Product Details */}
-                                        <div className="flex-1 text-center sm:text-left">
-                                            <h3 className="font-bold text-gray-900 text-base md:text-lg mb-1 sm:pr-6">
-                                                {item.name}
-                                            </h3>
-                                            <div className="space-y-1">
-                                                <div className="font-bold text-base md:text-lg bg-gradient-orange bg-clip-text text-transparent">
-                                                    ₹{item.totalPrice.toLocaleString()}
-                                                </div>
-                                                <div className="text-black text-xs md:text-sm">
-                                                    <span>Qty: {item.quantity}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Right Side Controls */}
-                                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start space-x-4 sm:space-x-0 sm:space-y-2">
-                                            {/* Quantity Controls */}
-                                            <div className="flex items-center space-x-2">
-                                                <span className="text-xs md:text-sm text-gray-600 font-medium">QTY:</span>
-                                                <input
-                                                    type="number"
-                                                    value={item.quantity}
-                                                    min={1}
-                                                    onChange={(e) => updateQuantity(item._id, Number(e.target.value))}
-                                                    onBlur={(e) => {
-                                                        const value = Number(e.target.value);
-                                                        if (!value || value < 1) {
-                                                            updateQuantity(item._id, 1);
-                                                        }
-                                                    }}
-                                                    className="w-12 md:w-16 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-center text-gray-800 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm md:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto"
-                                                />
-                                            </div>
-
-                                            {/* Delete Button */}
-                                            <button
-                                                onClick={() => removeItem(item._id)}
-                                                className="p-1 text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                                            >
-                                                <FaRegTrashAlt className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Amount Payable Section */}
-                            <div className="lg:col-span-5">
-                                <div className="rounded-lg lg:sticky lg:top-8">
-                                    <h3 className="font-bold text-gray-900 text-base md:text-lg mb-2">
-                                        Amount Payable
-                                    </h3>
-
-                                    <div className="space-y-3 mb-4 md:mb-6 bg-light-pg p-3 md:p-4 rounded-lg">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600 text-sm md:text-base">
-                                                Product {cartItems.reduce((total, item) => total + item.quantity, 0)}x (inclu. GST)
-                                            </span>
-                                            <span className="font-medium text-sm md:text-base">
-                                                ₹ {subtotal.toLocaleString()}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600 text-sm md:text-base">
-                                                GST (18%)
-                                            </span>
-                                            <span className="font-medium text-sm md:text-base">
-                                                ₹ {gstAmount.toFixed(2)}
-                                            </span>
-                                        </div>
-
-                                        <div className="border-t border-separator my-2"></div>
-
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-bold text-gray-900 text-base md:text-lg">
-                                                Total
-                                            </span>
-                                            <span className="font-bold text-gray-900 text-base md:text-lg">
-                                                ₹ {total.toFixed(2)}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Continue to Pay Button */}
-                                    <button className="w-full bg-button-diagonal-gradient-orange text-white py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium hover:opacity-90 transition-opacity shadow-md text-sm md:text-base">
-                                        Continue to pay
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="bg-white rounded-lg p-8 text-center">
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No Services in Cart</h3>
+                            <p className="text-gray-500">Add services to see them here</p>
                         </div>
-                    )}
-                </div>
+                    )
+                ) : (
+                    /* Products Section with Payment Summary */
+                    <ProductsSection
+                        cartItems={cartItems}
+                        onUpdateQuantity={updateQuantity}
+                        onRemoveItem={removeItem}
+                        onCheckout={handleProductsCheckout}
+                        subtotal={subtotal}
+                        gstAmount={gstAmount}
+                        total={total}
+                        isUpdating={isUpdating}
+                        isRemoving={isRemoving}
+                    />
+                )}
             </div>
         </div>
     );

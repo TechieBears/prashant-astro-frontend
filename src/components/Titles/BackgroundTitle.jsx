@@ -1,5 +1,6 @@
 import React from 'react';
 import titleImage from "../../assets/titleImage.png";
+import pagesBanner from "../../assets/user/home/pages_banner.jpg";
 
 const BackgroundTitle = ({
   title = "About Us",
@@ -7,7 +8,7 @@ const BackgroundTitle = ({
     { label: "Home", href: "/" },
     { label: "About Me", href: "/about" }
   ],
-  backgroundImage = "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+  backgroundImage = pagesBanner,
   height = "h-48 md:h-64 lg:h-72",
   textColor = "text-white",
   overlayColor = "bg-black bg-opacity-60",
@@ -29,19 +30,23 @@ const BackgroundTitle = ({
       <div className={`absolute top-0 left-0 right-0 bottom-0 ${overlayColor}`}></div>
 
       {/* Content */}
-      <div className={`relative z-10 text-center ${textColor}`}>
-        {/* Title */}
-        <h1 className="text-2xl md:text-3xl lg:text-3xl font-procSans mb-4 tracking-wide">
-          {title}
-        </h1>
+      <div className={`relative z-10 w-full text-center ${textColor}`}>
+        <div className="flex flex-col items-center justify-center h-full">
+          {/* Title */}
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-procSans mb-4 tracking-wide">
+            {title}
+          </h1>
 
-        <img
-          loading="lazy"
-          src={titleImage}
-          alt={title}
-          width={180}
-          className={`object-contain transition-all duration-300 filter brightness-0 invert`}
-        />
+          <div className="flex justify-center w-full">
+            <img
+              loading="lazy"
+              src={titleImage}
+              alt={title}
+              width={180}
+              className="object-contain transition-all duration-300 filter brightness-0 invert"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Breadcrumbs (Positioned at the bottom-left corner) */}
