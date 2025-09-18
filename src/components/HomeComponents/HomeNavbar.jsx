@@ -8,9 +8,10 @@ import { LoginCurve, Profile } from "iconsax-reactjs";
 import { formatRole } from "../../helper/Helper";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ShoppingCart, Phone } from "lucide-react";
+import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
 import { logoutUser } from "../../redux/Slices/loginSlice";
 import toast, { Toaster } from "react-hot-toast";
+import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
 
 const HomeNavbar = () => {
     const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
@@ -78,6 +79,18 @@ const HomeNavbar = () => {
 
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [activeCategory, setActiveCategory] = useState(null);
+
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMenuOpen]);
 
     const handleMouseEnter = (dropdown) => {
         setActiveDropdown(dropdown);
@@ -260,7 +273,7 @@ const HomeNavbar = () => {
                     <div className=" flex  justify-between w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16">
                         {/* Nav Links */}
                         <div className="hidden lg:flex">
-                            <div className="flex  gap-6 text-white font-medium">
+                            <div className="flex  gap-10 text-white font-medium">
                                 {navLinks.map((link, i) => (
                                     link.dropdown ? (
                                         <div
@@ -272,10 +285,16 @@ const HomeNavbar = () => {
                                             <NavLink
                                                 to={link.path}
                                                 className={({ isActive }) =>
-                                                    `inline-block border-b-2 transition ${isActive ? "border-white" : "border-transparent hover:border-white"}`
+                                                    ` border-b-2 flex gap-1 transition ${isActive ? "border-white" : "border-transparent hover:border-white"}`
                                                 }
                                             >
+                                                <span>
                                                 {link.name}
+                                                </span>
+                                                <span>
+                                                      <ArrowLeft01Icon   size={25} className="text-white -rotate-90" />
+                                                </span>
+                                                
                                             </NavLink>
 
                                             {activeDropdown === link.name && (
@@ -291,6 +310,7 @@ const HomeNavbar = () => {
                                                                 <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
                                                                     {category.category}
                                                                 </span>
+                                                              
                                                             </p>
 
                                                             {/* Sub-dropdown (appears on hover of specific category) */}
@@ -364,8 +384,9 @@ const HomeNavbar = () => {
 
                 {/* Mobile Menu */}
                 <div
-                    className={`fixed top-0 left-0 w-[100%] lg:hidden  bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
-                        }`}
+                   className={`fixed top-0 left-0 w-screen h-screen lg:hidden bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+    }`}
+
                 >
                     <button
                         className="absolute top-4 right-4"

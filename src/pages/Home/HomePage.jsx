@@ -6,7 +6,7 @@ import certifiedExpert from '../../assets/user/home/certifiedExpert.png';
 import clients from '../../assets/user/home/clients.png';
 import multipleLanguage from '../../assets/user/home/multipleLanguage.png';
 import Flowers from '../../assets/user/home/flowers.png';
-import Flower from '../../assets/user/home/flower2.png';
+import Flower from '../../assets/elements/flower.svg';
 import Testimonial1 from '../../assets/user/home/t1.png';
 import Testimonial2 from '../../assets/user/home/t2.png';
 import Testimonial3 from '../../assets/user/home/t3.jpg';
@@ -23,9 +23,17 @@ import Service3 from '../../assets/user/home/services/service-homepage (3).png';
 import Service4 from '../../assets/user/home/services/service-homepage (4).png';
 import { getActiveBanners, getOurProducts, getOurServiceCategories } from "../../api";
 import { environment } from "../../env";
-import { Medal06Icon, FavouriteIcon } from 'hugeicons-react';
+import { Medal06Icon, FavouriteIcon, FaceIdIcon } from 'hugeicons-react';
 import { fetchNavDropdowns } from '../../redux/Slices/navSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import InstagramImg from '../../assets/instagram.png'
+import FacebookImg from '../../assets/facebook.png'
+import YoutubeImg from '../../assets/youtube.png'
+import YoutubeThumbnail from '../../assets/IntroductionVideo.png'
+import aboutusElement from '../../assets/elements/aboutusEl.svg'
+import omElement from '../../assets/elements/om.svg'
+import whyChooseElement from '../../assets/elements/whychooseEl.svg'
+import servicesElement from '../../assets/elements/servicesEl.svg'
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -42,7 +50,7 @@ const HomePage = () => {
         // console.log('productsDropdown', productsDropdown);
         // if (servicesDropdown?.length === 0 || productsDropdown?.length === 0) {
         if (servicesDropdown?.length === 0) {
-        dispatch(fetchNavDropdowns());
+            dispatch(fetchNavDropdowns());
         }
     }, [dispatch]);
 
@@ -225,17 +233,39 @@ const HomePage = () => {
         const image = product.images?.[0] || '';
 
         return (
-            <div className={`relative rounded-xl overflow-hidden shadow-sm w-full ${heightClass} ${className}`}>
+            <div className={`relative rounded-xl overflow-hidden shadow-sm w-full ${heightClass} ${className} group`}>
+                {/* Image */}
                 <img
                     src={image}
                     alt={title}
                     className="w-full h-full object-cover"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent"></div>
-                <h3 className="absolute top-3 left-3 right-3 text-white font-semibold drop-shadow text-sm">
+
+                {/* Lightbox Overlay (applies to full card on hover) */}
+                <div className="pointer-events-none absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-500 z-10" />
+
+                {/* Title (moves up on hover) */}
+                <h3
+                    className="absolute top-3 left-3 right-3 text-white font-semibold drop-shadow text-sm z-20
+             transition-all duration-500 group-hover:translate-x-2 group-hover:translate-y-2"
+                >
                     {title}
                 </h3>
-                <div className="absolute bottom-0 left-0 right-0 bg-button-gradient-orange px-3 py-1 flex items-center justify-between">
+
+
+                {/* Highlights text - bottom right and moves in on hover */}
+                {product?.additionalInfo && (
+                    <p className="absolute bottom-10 left-3 max-w-[80%] text-white text-sm p-2 rounded-md z-20
+      opacity-0 translate-y-4 -translate-x-4 group-hover:opacity-100 
+      group-hover:translate-y-0 group-hover:translate-x-0 
+      transition-all duration-500 ease-out   text-left">
+                        {product.additionalInfo}
+                    </p>
+                )}
+
+
+                {/* Price and Button */}
+                <div className="absolute bottom-0 left-0 right-0 bg-button-gradient-orange px-3 py-1 flex items-center justify-between z-20">
                     <span className="px-2 py-1 text-white text-sm rounded-md">{price}</span>
                     <button className="px-3 py-1 text-sm font-semibold text-white rounded-md">
                         Book Now
@@ -244,6 +274,7 @@ const HomePage = () => {
             </div>
         );
     }
+
 
     const testimonialsData = [
         {
@@ -279,84 +310,120 @@ const HomePage = () => {
     ];
 
     return (
-        <div>
+        <div className='overflow-hidden'>
             <HomeBanner slidesData={slidesData} isLoading={isLoading} />
             {/* <HomeAboutUs /> */}
-            <div className="bg-slate1 px-4 sm:px-6 lg:px-16 py-10  w-full max-w-[1280px] mx-auto ">
-                {/* Header */}
-                <SectionHeader
-                    prefix="About"
-                    highlight="Pandit Prashant Shastri"
-                />
 
-                {/* Content */}
-                <div className="flex flex-col lg:flex-row items-center gap-8">
-                    {/* Left: Image */}
-                    <div className="w-full lg:w-1/2">
+            <div className="bg-slate1  relative overflow-hidden">
+                <div className="absolute top-[-20px] right-[-20px] z-0">
+                    {/* Container for the rotating element */}
+                    <div className="relative">
+                        {/* Rotating aboutusElement */}
                         <img
-                            src={aboutImg}
-                            alt="Home Banner"
-                            className="w-full h-auto object-cover"
+                            src={aboutusElement}
+                            alt="About Us"
+                            className="w-24 sm:w-32 md:w-40 lg:w-52 xl:w-64 h-auto max-w-full animate-spin"
+                            style={{
+                                animation: 'spin 10s linear infinite'
+                            }}
+                        />
+
+                        {/* Stationary omElement positioned at center */}
+                        <img
+                            src={omElement}
+                            alt="OM"
+                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 sm:w-12 md:w-16 lg:w-20 xl:w-26 h-auto max-w-full z-10"
                         />
                     </div>
+                </div>
+                <div className='w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-20  '>
+                    {/* Header */}
 
-                    {/* Right: Text & Cards */}
-                    <div className="w-full lg:w-1/2 space-y-4 text-center lg:text-left">
-                        <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
-                            16 Years of Spiritual Guidance
-                        </h2>
-                        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                            With over 16 years of dedicated practice in Vedic Astrology, I have guided thousands of souls
-                            towards clarity, peace, and prosperity. My expertise spans across traditional Vedic sciences
-                            including Kundli analysis, Vastu Shastra, and spiritual counseling.
-                        </p>
-                        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                            I believe in combining ancient wisdom with practical solutions, helping individuals navigate
-                            life's challenges with confidence and spiritual awareness.
-                        </p>
+                    <SectionHeader
+                        prefix="About"
+                        highlight="Pandit Prashant Shastri"
+                    />
 
-                        {/* Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                            {aboutData.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="bg-white rounded-md border border-[#00000026] p-4 flex flex-col h-full shadow-sm"
-                                >
-                                    {/* Image */}
-                                    <div className="flex justify-center mb-2">
-                                        <img
-                                            src={item.image}
-                                            alt={item.title}
-                                            className="w-16 h-16 object-contain"
-                                            loading="lazy"
-                                        />
+                    {/* Content */}
+                    <div className="flex flex-col lg:flex-row items-center gap-8 z-10 relative">
+                        {/* Left: Image */}
+                        <div className="w-full lg:w-1/2">
+                            <img
+                                src={aboutImg}
+                                alt="Home Banner"
+                                className="w-full h-auto object-cover"
+                            />
+                        </div>
+
+                        {/* Right: Text & Cards */}
+                        <div className="w-full lg:w-1/2 space-y-4 text-center lg:text-left">
+                            <h2 className="text-lg sm:text-xl font-semibold text-slate-800">
+                                16 Years of Spiritual Guidance
+                            </h2>
+                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                                With over 16 years of dedicated practice in Vedic Astrology, I have guided thousands of souls
+                                towards clarity, peace, and prosperity. My expertise spans across traditional Vedic sciences
+                                including Kundli analysis, Vastu Shastra, and spiritual counseling.
+                            </p>
+                            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                                I believe in combining ancient wisdom with practical solutions, helping individuals navigate
+                                life's challenges with confidence and spiritual awareness.
+                            </p>
+
+                            {/* Cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                                {aboutData.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="bg-white rounded-md border border-[#00000026] p-4 flex flex-col h-full shadow-sm"
+                                    >
+                                        {/* Image */}
+                                        <div className="flex justify-center mb-2">
+                                            <img
+                                                src={item.image}
+                                                alt={item.title}
+                                                className="w-16 h-16 object-contain"
+                                                loading="lazy"
+                                            />
+                                        </div>
+
+                                        {/* Text */}
+                                        <div className="text-center">
+                                            <h3 className="text-sm font-semibold text-slate-800 mb-1">
+                                                {item.title}
+                                            </h3>
+                                            <p className="text-slate-500 text-xs leading-relaxed">
+                                                {item.content}
+                                            </p>
+                                        </div>
                                     </div>
-
-                                    {/* Text */}
-                                    <div className="text-center">
-                                        <h3 className="text-sm font-semibold text-slate-800 mb-1">
-                                            {item.title}
-                                        </h3>
-                                        <p className="text-slate-500 text-xs leading-relaxed">
-                                            {item.content}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
 
-            <div className="bg-gradient-orange py-8 md:py-12 lg:py-16 w-full">
+            <div className="bg-gradient-to-r from-[#FFBF12] via-[#FF8835] to-[#FF5858] py-8 md:py-12 lg:py-16 w-full relative z-10">
+
+                <div className="absolute top-[-3px] sm:top-[-10px] md:top-[-10px] lg:top-[-10px] xl:top-[-10px] z-0">
+                    <img
+                        src={whyChooseElement}
+                        alt="OM"
+                        className="w-full h-auto max-w-full"
+                    />
+                </div>
+
                 {/* Header */}
-                <SectionHeader
-                    prefix="Why Choose"
-                    highlight="Pandit Prashant Shastri"
-                    white={true}
-                    highlightColor="text-white"
-                />
+                <div className='mt-3'>
+                    <SectionHeader
+                        prefix="Why Choose"
+                        highlight="Pandit Prashant Shastri"
+                        white={true}
+                        highlightColor="text-white"
+                    />
+                </div>
 
                 {/* Features Grid */}
                 <div className='w-full max-w-[1280px] mx-auto  px-4 sm:px-6 lg:px-16'>
@@ -365,10 +432,12 @@ const HomePage = () => {
                         {whyData.map((item, index) => (
                             <div
                                 key={index}
-                                className="bg-[#0000000D] border-[1px] border-[#FFFFFF66] rounded-lg p-6 shadow flex flex-col items-center text-center hover:shadow-lg transition"
+                                className="bg-[#0000000D]   border-[#FFFFFF66] border-[1px] rounded-lg p-6   flex flex-col transition-all duration-300 hover:-translate-y-3   hover:bg-white/10 hover:backdrop-blur-sm hover:border-white/30 cursor-pointer"
                             >
                                 {/* Icon */}
-                                <div className="mb-4 bg-gradient-orange rounded-sm p-2">{item.icon}</div>
+                                <div className="mb-4 bg-gradient-to-r from-[#FF8835] to-[#FF5858] rounded-md w-14 p-2">
+                                    {item.icon}
+                                </div>
 
                                 {/* Title */}
                                 <h3 className="text-base font-semibold text-white mb-2">
@@ -376,70 +445,85 @@ const HomePage = () => {
                                 </h3>
 
                                 {/* Description */}
-                                <p className="text-xs text-[#FFFFFF]">{item.description}</p>
+                                <p className="text-xs text-white/90">{item.description}</p>
                             </div>
                         ))}
+
                     </div>
                 </div>
+
             </div>
 
-            <div className="px-4 sm:px-6 lg:px-16 py-8 md:py-12 lg:py-16 w-full max-w-[1280px] mx-auto">
+
+
+            <div className=" relative">
                 {/* Header */}
-                <div className='mb-6'>
-                    <SectionHeader
-                        prefix="Our"
-                        highlight="Services"
+                <div className="absolute top-[-30%] left-0 -z-0 hidden lg:block">
+                    <img
+                        src={servicesElement}
+                        alt="OM"
+                        className="w-[60%] sm:w-[70%] md:w-[60%] lg:w-full h-auto max-w-full mx-auto"
                     />
                 </div>
 
-                {/* Loading State */}
-                {servicesLoading ? (
-                    <div className="flex justify-center items-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                <div className='px-4 sm:px-6 lg:px-16 py-8 md:py-12 lg:py-16 w-full max-w-[1280px] mx-auto'>
+                    <div className='mb-6'>
+                        <SectionHeader
+                            prefix="Our"
+                            highlight="Services"
+                        />
                     </div>
-                ) : servicesData.length > 0 ? (
-                    <>
-                        {/* Services Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            {servicesData.map((service) => (
-                                <div key={service.id} className="relative group">
-                                    <div className="relative overflow-hidden rounded-lg bg-gradient-to-b from-yellow-400 via-orange-500 to-red-500 p-1">
-                                        <div className="bg-white rounded-lg overflow-hidden">
-                                            <div className="relative aspect-square overflow-hidden">
-                                                <img
-                                                    src={service.image}
-                                                    alt={service.alt}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-center">
-                                                    <div className="text-center px-4 pb-4">
-                                                        <h3 className="text-white font-semibold text-lg mb-1">{service.title}</h3>
-                                                        <p className="text-white/90 text-sm">{service.description}</p>
+
+                    {/* Loading State */}
+                    {servicesLoading ? (
+                        <div className="flex justify-center items-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                        </div>
+                    ) : servicesData.length > 0 ? (
+                        <>
+                            {/* Services Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                {servicesData.map((service) => (
+                                    <div key={service.id} className="relative group">
+                                        <div className="relative overflow-hidden rounded-lg bg-gradient-to-b from-yellow-400 via-orange-500 to-red-500 p-1">
+                                            <div className="bg-white rounded-lg overflow-hidden">
+                                                <div className="relative aspect-square overflow-hidden">
+                                                    <img
+                                                        src={service.image}
+                                                        alt={service.alt}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-center">
+                                                        <div className="text-center px-4 pb-4">
+                                                            <h3 className="text-white font-semibold text-lg mb-1">{service.title}</h3>
+                                                            <p className="text-white/90 text-sm">{service.description}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div className="mt-3 flex justify-between items-center">
+                                            <p className="text-gray-700 text-base font-bold">{service.category}</p>
+                                            <p className="text-gray-500 text-sm cursor-pointer hover:text-orange-500 transition-colors">View All</p>
+                                        </div>
                                     </div>
-                                    <div className="mt-3 flex justify-between items-center">
-                                        <p className="text-gray-700 text-base font-bold">{service.category}</p>
-                                        <p className="text-gray-500 text-sm cursor-pointer hover:text-orange-500 transition-colors">View All</p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex justify-center items-center py-12">
+                            <p className="text-gray-500">No services available at the moment.</p>
                         </div>
-                    </>
-                ) : (
-                    <div className="flex justify-center items-center py-12">
-                        <p className="text-gray-500">No services available at the moment.</p>
-                    </div>
-                )}
+                    )}
 
-                {/* View More Button */}
-                <div className="flex justify-center mt-12">
-                    <button className="bg-button-diagonal-gradient-orange text-white px-16 py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        View More
-                    </button>
+                    {/* View More Button */}
+                    <div className="flex justify-center mt-12">
+                        <button className="bg-button-diagonal-gradient-orange text-white px-16 py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            View More
+                        </button>
+                    </div>
                 </div>
+
             </div>
 
             <div className="px-4 sm:px-6 lg:px-16 py-8 w-full max-w-[1280px] mx-auto">
@@ -525,12 +609,12 @@ const HomePage = () => {
                 <img
                     src={Flowers}
                     alt="Flowers left"
-                    className="absolute left-4 sm:left-16 md:left-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80"
+                    className="absolute left-4   top-0 w-16 sm:w-32 md:w-[15%] opacity-80"
                 />
                 <img
                     src={Flowers}
                     alt="Flowers right"
-                    className="absolute right-4 sm:right-16 md:right-28 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]"
+                    className="absolute right-4   top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]"
                 />
 
                 <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
@@ -591,10 +675,10 @@ const HomePage = () => {
                 </div>
             </div>
 
-            <div className="relative">
+            <div className="relative  ">
                 <img
                     src={Flower}
-                    className="absolute right-0 top-1/1 -translate-y-1/2 w-20 sm:w-28 md:w-32 z-0 rotate-270"
+                    className="absolute right-[-20px] top-[-5px] -translate-y-1/2 w-20 sm:w-24 md:w-20  rotate-270  "
                 />
                 {/* Social Media */}
                 <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-16 w-full max-w-[1280px] mx-auto">
@@ -612,55 +696,77 @@ const HomePage = () => {
 
                     <div className='flex flex-col md:flex-row gap-4'>
                         {/* Left Side - Video Section */}
-                        <div className='w-full md:w-1/2 bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
-                            <h2 className='text-lg text-slate-800'>Watch Our Introduction Video</h2>
+                        <div className='w-full md:w-1/2   bg-white p-6 rounded-lg border-[#00000026] border-[1px]'>
+                            <h2 className='text-xl text-slate-800'>Watch Our Introduction Video</h2>
                             <p className='text-sm text-slate-600 my-4'>
                                 Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
                             </p>
-                            <div className='aspect-video'>
-                                <iframe
-                                    className='w-full h-full'
-                                    src="https://www.youtube.com/embed/3ystrJLmjtI?si=lzydue0hRljRmqa6"
-                                    title="YouTube video player"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
+                            <a
+                                href="https://www.youtube.com/watch?v=3ystrJLmjtI"
+                                target="_blank"
+                                rel="noopener noreferrer"
+
+                            >
+                                <img
+                                    src={YoutubeThumbnail}
+                                    alt="Video thumbnail"
+                                    className="w-full   object-cover cursor-pointer rounded-xl"
+                                />
+                            </a>
+
                             <div className='mt-4'>
                                 <button className='bg-gradient-orange text-white px-4 py-2 rounded-md'>
-                                    Watch Now
+                                    Watch Introduction Video
                                 </button>
                             </div>
                         </div>
 
                         {/* Right Side - Instagram Section */}
-                        <div className='w-full md:w-1/2 flex flex-col gap-4'>
+                        <div className='w-full md:w-1/2 flex flex-col justify-between gap-4'>
                             {/* Instagram Block */}
-                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
-                                <div className='mr-4'>
-                                    {/* Add icon or image if needed */}
+                            <div className='flex flex-row bg-white p-4 py-8 items-center rounded-lg border-[#00000026] border-[1px]'>
+                                <div className='mr-4 w-12 h-10 sm:w-14'>
+
+                                    <img
+                                        src={InstagramImg}
+                                        alt="Phone"
+                                        className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+                                    />
                                 </div>
                                 <div>
-                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
-                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+
+                                    <h2 className='text-lg text-orange-500 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-500'>Daily astrology tips and spiritual guidance</p>
                                 </div>
                             </div>
 
-                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
-                                <div className='mr-4'></div>
+                            <div className='flex flex-row bg-white p-4 py-8 items-center rounded-lg border-[#00000026] border-[1px]'>
+                                <div className='mr-4 w-12 h-10 sm:w-14'>
+
+                                    <img
+                                        src={FacebookImg}
+                                        alt="Phone"
+                                        className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+                                    />
+                                </div>
                                 <div>
-                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
-                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+                                    <h2 className='text-lg text-orange-500 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-500'>Daily astrology tips and spiritual guidance</p>
                                 </div>
                             </div>
 
-                            <div className='flex flex-row bg-white p-4 rounded-lg shadow-sm'>
-                                <div className='mr-4'></div>
+                            <div className='flex flex-row bg-white p-4 py-8 items-center rounded-lg border-[#00000026] border-[1px]'>
+                                <div className='mr-4 w-12 h-10 sm:w-14'>
+
+                                    <img
+                                        src={YoutubeImg}
+                                        alt="Phone"
+                                        className="w-12 h-10 sm:w-14 sm:h-9 flex-shrink-0"
+                                    />
+                                </div>
                                 <div>
-                                    <h2 className='text-lg text-slate-800 mb-1'>Instagram</h2>
-                                    <p className='text-sm text-slate-600'>Daily astrology tips and spiritual guidance</p>
+                                    <h2 className='text-lg text-orange-500 mb-1'>Instagram</h2>
+                                    <p className='text-sm text-slate-500'>Daily astrology tips and spiritual guidance</p>
                                 </div>
                             </div>
                         </div>
@@ -669,7 +775,7 @@ const HomePage = () => {
                 </div>
                 <img
                     src={Flower}
-                    className="absolute left-0 top-1/1 -translate-y-1/2 w-20 sm:w-28 md:w-32 z-0 rotate-180"
+                    className="absolute left-[-20px] top-1/1 -translate-y-1/2 w-20 sm:w-24 md:w-20 z-0 rotate-180"
                 />
                 {/* Download app */}
                 <div className="bg-custom-linear py-8 md:py-12 lg:py-20">

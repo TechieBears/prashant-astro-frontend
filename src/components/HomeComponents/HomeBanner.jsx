@@ -93,64 +93,72 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                     className="flex transition-transform duration-1000 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
-                    {slidesData.map((slide) => (
-                        <div key={slide.id} className="w-full flex-shrink-0">
-                            <section className='relative flex h-screen items-center justify-center overflow-hidden'>
+                   {slidesData.map((slide) => (
+  <div key={slide.id} className="w-full flex-shrink-0">
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* Background Image */}
+      <img
+        src={slide.image}
+        alt="Home Banner"
+        className="w-full h-full object-cover absolute inset-0 z-0"
+        onError={(e) => {
+          console.error("Image failed to load:", slide.image);
+          if (slide.onImageError) {
+            slide.onImageError(e);
+          }
+        }}
+        referrerPolicy="no-referrer"
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
 
-                                <img
-                                    src={slide.image}
-                                    alt="Home Banner"
-                                    className='w-full h-full object-cover'
-                                    onError={(e) => {
-                                        console.error("Image failed to load:", slide.image);
-                                        if (slide.onImageError) {
-                                            slide.onImageError(e);
-                                        }
-                                    }}
-                                    referrerPolicy="no-referrer"
-                                    style={{
-                                        display: 'block',
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover'
-                                    }}
-                                />
+      {/* Video overlay - uncomment if needed */}
+      {slide.video && (
+        <video
+          src={slide.video}
+          className="absolute w-full h-full object-cover z-0"
+          loop
+          autoPlay
+          playsInline
+          muted
+        />
+      )}
 
-                                {/* Video overlay - uncomment if needed */}
-                                {slide.video && (
-                                    <video
-                                        src={slide.video}
-                                        className="absolute w-full h-full object-cover"
-                                        loop
-                                        autoPlay
-                                        playsInline
-                                        muted
-                                    />
-                                )}
+      {/* <div className="absolute inset-0 z-0 bg-black/50"></div> */}
 
-                                <div className="absolute inset-0 z-0 bg-black/50"></div>
+      {/* Foreground Content */}
+      <div className="relative z-10 flex flex-col md:flex-row h-full w-full">
+        {/* Left Half - Empty on Desktop */}
+        <div className="hidden md:block md:w-1/2" />
 
-                                <div className='absolute inset-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center flex justify-center items-center flex-col space-y-3 container mx-auto z-40 px-4 md:px-8'>
-                                    <h1 className='split text-2xl md:text-4xl lg:text-6xl pb-2 font-tbLex font-bold text-neutral-50 overflow-hidden'>
-                                        {slide.title}
-                                    </h1>
-                                    <p className='discrption text-xs md:text-base font-tbPop font-normal text-white max-w-4xl !mb-5 overflow-hidden'>
-                                        {slide.description}
-                                    </p>
-                                    {slide.button && (
-                                        <button
-                                            className={`btn ${formBtn1}`}
-                                            onClick={slide.onClick}
-                                        >
-                                            Register to join
-                                        </button>
-                                    )}
-                                </div>
+        {/* Right Half - Content */}
+        <div className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-20">
+          <div className="text-center lg:text-left flex flex-col space-y-3 max-w-2xl">
+            <h1 className="split text-2xl md:text-4xl lg:text-6xl mb-6 font-procSans font-bold bg-text-gradient-orange bg-clip-text text-transparent overflow-hidden">
+              {slide.title}
+            </h1>
+            <p className="discrption text-xs md:text-xl font-tbPop font-normal text-black max-w-4xl !mb-5 overflow-hidden">
+              {slide.description}
+            </p>
+            {slide.button && (
+              <button
+                className={`btn ${formBtn1}`}
+                onClick={slide.onClick}
+              >
+                Register to join
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+))}
 
-
-                            </section>
-                        </div>
-                    ))}
                 </div>
             </div>
 

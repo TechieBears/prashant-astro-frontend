@@ -10,6 +10,9 @@ export default {
                 sidebar: "300px auto",
                 "sidebar-collapsed": "64px auto", //for collapsed sidebar layout
             },
+             animation: {
+        'spin-slow': 'spin 10s linear infinite',
+      },
             fontFamily: {
                 sans: ["Poppins", "sans-serif"],
                 tb: ["Plus Jakarta Sans", "sans-serif"],

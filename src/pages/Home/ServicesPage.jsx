@@ -71,6 +71,12 @@ const ServicesPage = () => {
 
             <div className="container mx-auto px-4 md:px-8 max-w-7xl pb-8">
                 {/* Category Filter Card */}
+              {
+                  loading && (
+                                            <div className="flex justify-center items-center py-20">
+                                                <PulseLoader color="#F97316" size={15} />
+                                            </div> )
+              }
                 <div className="sticky top-0 md:top-[44px] z-30 mb-8 flex justify-center">
                     <div className="bg-white rounded-b-2xl shadow-lg px-6 py-4 inline-block">
                         <div className="flex flex-wrap gap-4">

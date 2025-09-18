@@ -137,7 +137,7 @@ const AboutPage = () => {
                         {aboutData.map((item, index) => (
                             <div
                                 key={index}
-                                className="bg-white rounded-md border border-[#00000026] p-4 flex flex-col h-full shadow-sm items-center justify-center text-center"
+                                className="bg-white rounded-md border hover:shadow-xl border-[#00000026] p-4 flex flex-col h-full shadow-sm items-center justify-center text-center"
                             >
                                 {/* Icon */}
                                 <div
@@ -235,7 +235,7 @@ const AboutPage = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {services.map((service) => (
-                            <div key={service.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow flex flex-col">
+                            <div key={service.id} className="bg-white p-6 rounded-lg shadow-md hover:-translate-y-3  transition-all duration-300 flex flex-col ">
                                 <div className="w-20 h-20 flex items-center justify-start mb-4">
                                     <img src={service.icon} alt={service.title} className="w-16 h-16" />
                                 </div>
