@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaStar, FaRegStar, FaShoppingCart, FaRegHeart, FaHeart, FaMinus, FaPlus } from 'react-icons/fa';
-import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import RelatedProducts from '../../components/Products/RelatedProducts';
 import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
 import { getActiveProduct } from '../../api';
+import AddToCartButton from '../../components/Products/AddToCartButton';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -18,7 +19,7 @@ const ProductDetail = () => {
     const [quantity, setQuantity] = useState(1);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
-    const carouselRef = useRef(null);
+    const [activeTab, setActiveTab] = useState('description');
 
     // Fetch product data
     useEffect(() => {
@@ -113,49 +114,17 @@ const ProductDetail = () => {
         }
     };
 
-    const addToCart = () => {
-        // Add to cart logic here
-        console.log(`Added ${quantity} ${product.title} to cart`);
-    };
-
     const toggleWishlist = () => {
         setIsWishlisted(!isWishlisted);
     };
 
-    const scrollCarousel = (direction) => {
-        if (carouselRef.current) {
-            // Get current screen width to determine scroll amount
-            const screenWidth = window.innerWidth;
-            let scrollAmount;
 
-            if (screenWidth < 640) { // Mobile: 2 cards per view
-                scrollAmount = carouselRef.current.offsetWidth; // Scroll by full container width
-            } else if (screenWidth < 768) { // Small screens
-                scrollAmount = 224 + 12; // Card width + spacing
-            } else if (screenWidth < 1024) { // Medium screens
-                scrollAmount = 256 + 16; // Card width + spacing
-            } else { // Large screens
-                scrollAmount = 288 + 16; // Card width + spacing
-            }
-
-            if (direction === 'left') {
-                carouselRef.current.scrollLeft -= scrollAmount;
-            } else {
-                carouselRef.current.scrollLeft += scrollAmount;
-            }
-        }
-    };
-
-    const handleAddToCart = (productId) => {
-        console.log(`Added product ${productId} to cart`);
-        // Add to cart logic here
-    };
 
     const renderProductInfo = () => {
         if (!product) return null;
 
         return (
-            <div className="lg:w-1/2 mt-6 lg:mt-0 px-0 md:px-4">
+            <div className="w-full">
                 {/* Title & Subtitle */}
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div>
@@ -170,7 +139,7 @@ const ProductDetail = () => {
                         )}
                     </div>
                     <div className="mt-4 flex items-center">
-                        <span className="text-2xl font-bold text-gray-900">
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 via-orange-500 to-pink-500">
                             ₹{product.sellingPrice?.toLocaleString() || '0.00'}
                         </span>
                         {product.mrpPrice > product.sellingPrice && (
@@ -203,41 +172,41 @@ const ProductDetail = () => {
                         {product.description || 'No description available.'}
                     </p>
                 </div>
-                {/* Quantity Selector */}
-                <div className="mt-6">
-                    <div className="flex items-center gap-4">
-                        <label className="text-sm font-medium text-gray-700">Quantity:</label>
-                        <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                            <button
-                                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors"
-                            >
-                                -
-                            </button>
-                            <span className="w-12 text-center">{quantity}</span>
-                            <button
-                                onClick={() => setQuantity(prev => prev + 1)}
-                                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors"
-                                disabled={quantity >= (product.stock || 1)}
-                            >
-                                +
-                            </button>
-                        </div>
+                <div className="mt-6 flex items-center gap-4">
+                    {/* Quantity Selector */}
+                    <div>
+                        <input
+                            type="number"
+                            min="1"
+                            max={product.stock || 1}
+                            value={quantity}
+                            onChange={(e) => setQuantity(Number(e.target.value))}
+                            className="w-16 px-2 py-2 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        />
                     </div>
-                </div>
-                {/* Add to Cart Button */}
-                <div className="mt-6">
+
+                    {/* Buy Now Button */}
                     <button
-                        onClick={() => handleAddToCart(product._id)}
+                        onClick={() => handleBuyNow(product._id)}
                         disabled={!product.stock}
-                        className={`w-full py-3 px-6 rounded-md font-medium text-white transition-colors ${product.stock
-                            ? 'bg-orange-500 hover:bg-orange-600'
+                        className={`px-6 py-2 rounded-[0.2rem] font-medium text-white transition-all ${product.stock
+                            ? 'bg-button-diagonal-gradient-orange hover:opacity-90 hover:shadow-lg'
                             : 'bg-gray-400 cursor-not-allowed'
                             }`}
                     >
-                        {product.stock ? 'Add to Cart' : 'Out of Stock'}
+                        Buy Now
                     </button>
+
+                    {/* Add to Cart Button */}
+                    <AddToCartButton
+                        productId={product._id}
+                        quantity={quantity}
+                        stock={product.stock}
+                        size="default"
+                        variant="default"
+                    />
                 </div>
+
 
                 {/* Additional Information */}
                 {product.additionalInfo && (
@@ -331,7 +300,7 @@ const ProductDetail = () => {
                     </div>
 
                     {/* Right - Product Info and Add to Cart */}
-                    <div className="lg:w-1/2 mt-6 lg:mt-0 px-0 md:px-4">
+                    <div className="flex-1 mt-6 lg:mt-0 px-0 md:px-4">
                         {renderProductInfo()}
                     </div>
                 </div>
@@ -340,142 +309,102 @@ const ProductDetail = () => {
                 <div className="mt-12 w-full">
                     <div className="max-w-3xl border-b border-gray-200">
                         <nav className="flex">
-                            {/* Active Tab */}
-                            <button className="relative py-3 px-1 font-medium text-gray-900 flex-1 text-center text-sm sm:text-base">
+                            {/* Description Tab */}
+                            <button
+                                onClick={() => setActiveTab('description')}
+                                className={`relative py-3 px-1 font-medium flex-1 text-center text-sm sm:text-base transition-colors ${activeTab === 'description'
+                                    ? 'text-gray-900'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
                                 Description
-                                <span className="absolute left-0 bottom-[1px] h-[2px] w-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full"></span>
+                                {activeTab === 'description' && (
+                                    <span className="absolute left-0 bottom-[1px] h-[2px] w-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full"></span>
+                                )}
                             </button>
 
-                            {/* Inactive Tabs */}
-                            <button className="py-3 px-1 font-medium text-gray-500 hover:text-gray-700 flex-1 text-center text-sm sm:text-base">
+                            {/* Additional Information Tab */}
+                            <button
+                                onClick={() => setActiveTab('additional')}
+                                className={`relative py-3 px-1 font-medium flex-1 text-center text-sm sm:text-base transition-colors ${activeTab === 'additional'
+                                    ? 'text-gray-900'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
                                 <span className="hidden sm:inline">Additional Information</span>
                                 <span className="sm:hidden">Info</span>
+                                {activeTab === 'additional' && (
+                                    <span className="absolute left-0 bottom-[1px] h-[2px] w-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full"></span>
+                                )}
                             </button>
-                            <button className="py-3 px-1 font-medium text-gray-500 hover:text-gray-700 flex-1 text-center text-sm sm:text-base">
+
+                            {/* Reviews Tab */}
+                            <button
+                                onClick={() => setActiveTab('reviews')}
+                                className={`relative py-3 px-1 font-medium flex-1 text-center text-sm sm:text-base transition-colors ${activeTab === 'reviews'
+                                    ? 'text-gray-900'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
                                 Reviews (24)
+                                {activeTab === 'reviews' && (
+                                    <span className="absolute left-0 bottom-[1px] h-[2px] w-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full"></span>
+                                )}
                             </button>
                         </nav>
                     </div>
 
                     {/* Tab Content */}
                     <div className="py-6 w-full">
-                        <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                            Rudraksha is a sacred seed revered in Vedic traditions, known for its spiritual and
-                            healing properties. Worn by sages and seekers for centuries, it is believed to bring
-                            peace, clarity, and protection. This authentic Rudraksha bead is carefully sourced,
-                            retaining its natural texture and energy. Perfect for meditation, prayer, or as a
-                            spiritual accessory, it embodies divine vibrations and holistic well-being.
-                        </p>
+                        {activeTab === 'description' && (
+                            <div className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                {product?.description ? (
+                                    <p>{product.description}</p>
+                                ) : (
+                                    <p>No description available for this product.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'additional' && (
+                            <div className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                {product?.additionalInfo ? (
+                                    <div>
+                                        {typeof product.additionalInfo === 'string' ? (
+                                            <p>{product.additionalInfo}</p>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {Object.entries(product.additionalInfo).map(([key, value]) => (
+                                                    <div key={key} className="flex justify-between border-b border-gray-100 pb-2">
+                                                        <span className="font-medium text-gray-700 capitalize">
+                                                            {key.replace(/([A-Z])/g, ' $1').trim()}:
+                                                        </span>
+                                                        <span className="text-gray-600">{value}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p>No additional information available for this product.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'reviews' && (
+                            <div className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                                <p>Reviews will be available soon.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Related Products Section */}
-                <div className="mt-12 md:mt-16">
-                    <h2 className="text-xl sm:text-2xl font-bold text-orange-600 mb-6 md:mb-8">Related Products</h2>
-
-                    <div className="relative">
-                        {/* Navigation Arrows - All Screens */}
-                        <button
-                            onClick={() => scrollCarousel('left')}
-                            className="absolute -left-4 sm:-left-8 md:-left-12 lg:-left-16 top-[40%] sm:top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 sm:p-3 shadow-lg hover:shadow-xl transition-shadow border border-gray-200"
-                        >
-                            <IoIosArrowBack className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                        </button>
-
-                        <button
-                            onClick={() => scrollCarousel('right')}
-                            className="absolute -right-4 sm:-right-8 md:-right-12 lg:-right-16 top-[40%] sm:top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 sm:p-3 shadow-lg hover:shadow-xl transition-shadow border border-gray-200"
-                        >
-                            <IoIosArrowForward className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                        </button>
-
-                        {/* Products Carousel */}
-                        <div
-                            ref={carouselRef}
-                            className="flex space-x-3 md:space-x-4 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory"
-                            style={{
-                                scrollbarWidth: 'none',
-                                msOverflowStyle: 'none',
-                                scrollSnapType: 'x mandatory'
-                            }}
-                        >
-                            {relatedProducts && relatedProducts.length > 0 ? (
-                                relatedProducts.map((relatedProduct) => (
-                                    <div
-                                        key={relatedProduct._id}
-                                        className="flex flex-col flex-shrink-0 w-[calc(50%-6px)] sm:w-56 md:w-64 lg:w-72 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 snap-start"
-                                    >
-                                        {/* Product Image */}
-                                        <div className="relative">
-                                            {relatedProduct.images && relatedProduct.images[0] ? (
-                                                <img
-                                                    src={relatedProduct.images[0]}
-                                                    alt={relatedProduct.name}
-                                                    className="w-full aspect-square object-cover rounded-t-lg"
-                                                    onError={(e) => {
-                                                        e.target.onerror = null;
-                                                        e.target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Available';
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className="w-full aspect-square bg-gray-100 flex items-center justify-center rounded-t-lg">
-                                                    <span className="text-gray-400 text-sm">No Image</span>
-                                                </div>
-                                            )}
-                                            <button
-                                                onClick={() => setIsWishlisted(!isWishlisted)}
-                                                className="absolute top-2 right-2 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
-                                            >
-                                                {isWishlisted ? (
-                                                    <FaHeart className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
-                                                ) : (
-                                                    <FaRegHeart className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
-                                                )}
-                                            </button>
-                                        </div>
-
-                                        {/* Product Info */}
-                                        <div className="flex flex-col flex-1 p-3 sm:p-4">
-                                            <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm md:text-base">
-                                                {relatedProduct.name}
-                                            </h3>
-
-                                            {/* Price */}
-                                            <div className="mt-2">
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    ₹{relatedProduct.sellingPrice?.toLocaleString() || '0.00'}
-                                                </p>
-                                                {relatedProduct.mrpPrice > relatedProduct.sellingPrice && (
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="text-xs text-gray-500 line-through">
-                                                            ₹{relatedProduct.mrpPrice?.toLocaleString()}
-                                                        </p>
-                                                        <span className="text-xs text-green-600">
-                                                            {relatedProduct.discountPercentage}% OFF
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Add to Cart Button */}
-                                            <button
-                                                onClick={() => handleAddToCart(relatedProduct._id)}
-                                                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 rounded-md font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base mt-3"
-                                                disabled={relatedProduct.stock <= 0}
-                                            >
-                                                {relatedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="col-span-full text-center py-8">
-                                    <p className="text-gray-500">No related products found.</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <RelatedProducts
+                    products={relatedProducts}
+                    isWishlisted={isWishlisted}
+                    onToggleWishlist={() => setIsWishlisted(!isWishlisted)}
+                />
             </div>
         </div>
     );

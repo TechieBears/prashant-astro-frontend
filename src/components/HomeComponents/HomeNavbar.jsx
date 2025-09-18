@@ -338,7 +338,7 @@ const HomeNavbar = () => {
 
                         {/* Cart & Profile */}
                         <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
-                            <ShoppingCart size={20} className="cursor-pointer" />
+                            <ShoppingCart size={20} className="cursor-pointer" onClick={() => navigate("/cart")} />
                             {login ? (
                                 <img
                                     alt="profile"
