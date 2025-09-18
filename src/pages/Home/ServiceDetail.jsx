@@ -14,13 +14,13 @@ const ServiceDetail = () => {
 
     const [selectedService, setSelectedService] = useState({});
 
-     const transformedServices = servicesDropdown.map(category => ({
-       category: category.name,
-       services: category.services.map(service => ({
-         name: service.name,
-         path: `/services/${service._id}`,
-       })),
-     }));
+    const transformedServices = servicesDropdown.map(category => ({
+        category: category.name,
+        services: category.services.map(service => ({
+            name: service.name,
+            path: `/services/${service._id}`,
+        })),
+    }));
 
 
     useEffect(() => {
@@ -38,7 +38,12 @@ const ServiceDetail = () => {
 
     const handleCheckAvailability = () => {
         console.log('Check availability clicked');
-        // Navigate to booking page or open booking modal
+        // Navigate to booking calendar page with service ID and data
+        navigate(`/booking-calendar/${id}`, {
+            state: {
+                serviceData: selectedService
+            }
+        });
     };
 
     const handleCategoryClick = (href) => {
@@ -151,10 +156,10 @@ const ServiceDetail = () => {
                                                                 onClick={() => handleServiceClick(service.path)}
                                                                 className="text-sm text-white hover:bg-[#FFFFFF26] p-2 pr-6 rounded-md transition-colors duration-200"
                                                             >
-                                                                 <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
-                                                                                        {service.name}
-                                                                                    </span>
-                                                              
+                                                                <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                    {service.name}
+                                                                </span>
+
                                                             </button>
                                                         </li>
                                                     ))}
