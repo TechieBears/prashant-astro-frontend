@@ -7,6 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
 import ServicesPage from '../pages/Home/ServicesPage';
 import ServiceDetail from '../pages/Home/ServiceDetail';
+import BookingCalendar from '../pages/Home/BookingCalendar';
 import ProductsPage from '../pages/Home/ProductsPage';
 import HomeNavbar from '../components/HomeComponents/HomeNavbar';
 import ErrorPage from './ErrorPage';
@@ -88,6 +89,7 @@ const ProjectRoutes = () => {
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:id" element={<ServiceDetail />} />
+                    <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />

@@ -55,6 +55,44 @@ export const getCartItems = async () => {
     }
 };
 
+export const getServiceCartItems = async () => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}service-cart/get`;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching service cart items:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch service cart items' };
+    }
+};
+
+export const removeServiceCartItem = async (itemId) => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}service-cart/remove-item`;
+    try {
+        const response = await axios.put(
+            url, 
+            { itemId },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error removing service cart item:', err);
+        return err?.response?.data || { success: false, message: 'Failed to remove service cart item' };
+    }
+};
+
 
 axios.interceptors.request.use(
     (config) => {
