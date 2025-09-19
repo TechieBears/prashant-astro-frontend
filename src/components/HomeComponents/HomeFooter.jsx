@@ -64,7 +64,7 @@ const HomeFooter = () => {
                         </li>
                     </ul>
                     <button
-                        onClick={() => navigate("/book")}
+                        onClick={() => navigate("/services")}
                         className="mt-4 w-full bg-white/20 text-white py-2.5 rounded-md font-medium border border-white/30 hover:bg-white/30 transition"
                     >
                         Book Consultation

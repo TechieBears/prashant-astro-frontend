@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getCategoriesList, getServicesList } from '../../api';
+import { PulseLoader } from 'react-spinners';
 
 const ServicesPage = () => {
     const navigate = useNavigate();
@@ -10,7 +11,7 @@ const ServicesPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
     const [categories, setCategories] = useState([]);
-    
+
     // Refs for each category to scroll to
     const categoryRefs = useRef({});
 
@@ -37,7 +38,7 @@ const ServicesPage = () => {
         fetchServices();
     }, []);
 
-     const handleCategoryClick = (category) => {
+    const handleCategoryClick = (category) => {
         setSelectedCategory(category);
         const categorySection = categoryRefs.current[category._id];
         if (categorySection) {
@@ -71,30 +72,35 @@ const ServicesPage = () => {
 
             <div className="container mx-auto px-4 md:px-8 max-w-7xl pb-8">
                 {/* Category Filter Card */}
-              {
-                  loading && (
-                                            <div className="flex justify-center items-center py-20">
-                                                <PulseLoader color="#F97316" size={15} />
-                                            </div> )
-              }
-                <div className="sticky top-0 md:top-[44px] z-30 mb-8 flex justify-center">
-                    <div className="bg-white rounded-b-2xl shadow-lg px-6 py-4 inline-block">
-                        <div className="flex flex-wrap gap-4">
-                            {categories.map(category => (
-                                <button
-                                    key={category?._id}
-                                    onClick={() => handleCategoryClick(category)}
-                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${selectedCategory?._id === category?._id
-                                        ? 'bg-button-vertical-gradient-orange text-white shadow-md'
-                                        : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-400 hover:text-orange-600'
-                                        }`}
-                                >
-                                    {category?.name}
-                                </button>
-                            ))}
+                {
+                    isLoading && (
+                        <div className="flex justify-center items-center py-20">
+                            <PulseLoader color="#F97316" size={15} />
+                        </div>)
+                }
+                {
+                    !isLoading && categories?.length > 0 && (
+                        <div className="sticky top-0 md:top-[44px] z-30 mb-8 flex justify-center">
+                            <div className="bg-white rounded-b-2xl shadow-lg px-6 py-4 inline-block">
+                                <div className="flex flex-wrap gap-4">
+                                    {categories.map(category => (
+                                        <button
+                                            key={category?._id}
+                                            onClick={() => handleCategoryClick(category)}
+                                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${selectedCategory?._id === category?._id
+                                                ? 'bg-button-vertical-gradient-orange text-white shadow-md'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-400 hover:text-orange-600'
+                                                }`}
+                                        >
+                                            {category?.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+
+                    )
+                }
 
                 {
                     services.map(category => (
@@ -137,7 +143,7 @@ const ServicesPage = () => {
                                                     </h3>
 
                                                     <p className="text-gray-300 text-sm">
-                                                       {service.subTitle}
+                                                        {service.subTitle}
                                                     </p>
                                                 </div>
                                             </div>
@@ -152,7 +158,7 @@ const ServicesPage = () => {
                 }
 
                 {/* No Results */}
-                {services.length === 0 && (
+                {services.length === 0 && !isLoading  && (
                     <div className="text-center py-12">
                         <div className="text-gray-400 text-6xl mb-4">🔍</div>
                         <h3 className="text-xl font-semibold text-gray-600 mb-2">No services found</h3>

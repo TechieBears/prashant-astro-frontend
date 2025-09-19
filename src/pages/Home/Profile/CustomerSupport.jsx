@@ -8,10 +8,7 @@ const CustomerSupport = () => {
 
     return (
         <>
-            <div className="flex flex-col sm:flex-row px-4 sm:px-6 lg:px-40 py-6 sm:py-12 gap-4 lg:gap-6">
-                <div className="w-full sm:w-64">
-                    <ProfileSidebar />
-                </div>
+            <div>
 
                 <div className="flex-1 rounded-lg bg-white p-4 sm:p-6">
                     <h2 className="font-semibold text-lg mb-6">Customer Care</h2>

@@ -116,12 +116,10 @@ export default function Address() {
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row px-4 sm:px-6 lg:px-40 py-6 sm:py-12 gap-4 lg:gap-6">
-                <div className="lg:w-1/4">
-                    <ProfileSidebar />
-                </div>
-                <div className="flex-1 rounded-lg bg-white p-4 lg:ml-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+            
+                <div className="flex-1 rounded-lg bg-white p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start   gap-4 mb-6">
                         <h2 className="font-semibold text-lg">My Address</h2>
                         <button
                             onClick={handleAddAddress}

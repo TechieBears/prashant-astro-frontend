@@ -5,6 +5,7 @@ import { logoutUser, deleteUser } from "../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import DeleteModal from "../Modals/DeleteModal/DeleteModal";
+import { ArrowRight01Icon } from "hugeicons-react";
 
 const ProfileSidebar = () => {
   const dispatch = useDispatch();
@@ -13,11 +14,11 @@ const ProfileSidebar = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const menuItems = [
-    { name: "My Account", path: "/my-account" },
-    { name: "My Orders", path: "/orders" },
-    { name: "My Address", path: "/address" },
-    { name: "Customer Support", path: "/customer-support" },
-    { name: "Privacy Policy", path: "/privacy-policy" },
+    { name: "My Account", path: "/profile" },
+    { name: "My Orders", path: "/profile/orders" },
+    { name: "My Address", path: "/profile/address" },
+    { name: "Customer Support", path: "/profile/customer-support" },
+    { name: "Privacy Policy", path: "/profile/privacy-policy" },
   ];
 
   const handleLogout = async () => {
@@ -48,8 +49,9 @@ const ProfileSidebar = () => {
   };
 
   return (
-    <div className="w-full sm:w-64 bg-white rounded-xl py-4 border border-[#CAD5E2] h-full">
-      <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
+    <div className="w-full sm:w-64  bg-white rounded-xl py-4 border border-[#CAD5E2]  hidden lg:flex flex-col justify-between">
+     <div>
+       <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
       <ul className="space-y-1">
         {menuItems.map((item) => (
           <li key={item.path}>
@@ -62,13 +64,17 @@ const ProfileSidebar = () => {
                   : "hover:bg-gray-50"
                 }`
               }>
-                {item.name}
+                <div className="flex flex-row items-center justify-between">
+                  <span>{item.name} </span>
+                <ArrowRight01Icon size={20} />
+                </div>
               </NavLink>
             </li>
           ))}
       </ul>
+     </div>
 
-      <div className="mt-8 sm:mt-14 flex flex-col space-y-3 sm:space-y-4 px-4">
+      <div className=" mt-14  flex flex-col space-y-3 sm:space-y-4 px-4">
         <button
           onClick={handleLogout}
           disabled={loading}

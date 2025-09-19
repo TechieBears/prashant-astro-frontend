@@ -30,7 +30,7 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="m-10 flex items-center justify-center bg-yellow-50 min-h-screen">
+        <div className="m-4 sm:m-8 md:m-12 lg:m-16 flex items-center justify-center bg-yellow-50 min-h-screen">
             <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-center mb-2 text-primary">
                     Forgot Password?
@@ -54,16 +54,15 @@ const ForgotPassword = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-                            isSubmitting
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${isSubmitting
                                 ? "bg-gray-400 cursor-not-allowed"
                                 : "bg-gradient-orange hover:opacity-90"
-                        }`}
+                            }`}
                     >
                         {isSubmitting ? "Please wait..." : "Continue"}
                     </button>
                 </form>
-                
+
 
                 <div className="mt-4 text-center">
                     <Link to="/login" className="text-primary hover:underline text-sm flex items-center justify-center">

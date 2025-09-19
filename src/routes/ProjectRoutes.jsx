@@ -20,6 +20,7 @@ import ResetPassword from '../pages/ResetPassword';
 import Register from '../pages/Register';
 import MyAccount from '../pages/Home/Profile/MyAccount';
 import CustomerSupport from '../pages/Home/Profile/CustomerSupport';
+import Policy from '../pages/Home/Profile/Policy';
 import Address from '../pages/Home/Profile/Address';
 import Preloaders from '../components/Loader/Preloaders';
 import TermsConditions from '../components/HomeComponents/TermsConditions';
@@ -43,6 +44,8 @@ import ProductBookings from '../pages/Admin/Bookings/ProductBookings';
 import ServiceBookings from '../pages/Admin/Bookings/ServiceBookings';
 import ServicesCategories from '../pages/Admin/Services/ServicesCategories';
 import { WhatsappIcon } from 'hugeicons-react';
+import ProfileLayout from '../components/Profile/ProfileLayout';
+import Orders from '../pages/Home/Profile/Orders';
 
 
 const ProjectRoutes = () => {
@@ -94,11 +97,14 @@ const ProjectRoutes = () => {
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/my-account" element={<MyAccount />} />
-                    <Route path="/customer-support" element={<CustomerSupport />} />
-                    {/* <Route path="/privacy-policy" element={<PrivacyPolicy />} /> */}
+                    <Route path="/profile" element={<ProfileLayout />}>
+                        <Route index element={<MyAccount />} />
+                        <Route path="address" element={<Address />} />
+                        <Route path="orders" element={<Orders />} />
+                        <Route path="customer-support" element={<CustomerSupport />} />
+                        <Route path="privacy-policy" element={<Policy />} />
+                    </Route>
                     <Route path="/terms-conditions" element={<TermsConditions />} />
-                    <Route path="/address" element={<Address />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
                     <Route path='*' element={<ErrorPage />} />
                 </Routes>
