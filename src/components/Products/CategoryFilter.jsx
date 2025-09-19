@@ -14,8 +14,8 @@ const CategoryFilter = ({ categories = [], selectedCategories = [], onToggleCate
               aria-label={`Filter by ${category.name}`}
             >
               <span className={`flex-shrink-0 w-5 h-5 border-2 rounded ${isChecked
-                  ? 'bg-orange-500 border-orange-500 flex items-center justify-center'
-                  : 'border-gray-300'
+                ? 'bg-orange-500 border-orange-500 flex items-center justify-center'
+                : 'border-gray-300'
                 } transition-colors`}>
                 {isChecked && (
                   <svg
