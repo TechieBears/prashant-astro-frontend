@@ -1,27 +1,41 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useForm } from "react-hook-form";
 import { createCustomerAddress, updateCustomerAddress } from "../../api";
 
 const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) => {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        phoneNumber: '',
-        address: '',
-        addressType: 'home',
-        country: '',
-        state: '',
-        city: '',
-        postalCode: '',
-        isDefault: false
-    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        watch,
+        formState: { errors, isDirty, isValid }
+    } = useForm({
+        mode: "onChange",
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            phoneNumber: '',
+            address: '',
+            addressType: 'home',
+            country: '',
+            state: '',
+            city: '',
+            postalCode: '',
+            isDefault: false
+        }
+    });
+
+    const watchedAddressType = watch("addressType");
 
     // Populate form with existing address data for edit mode
     useEffect(() => {
         if (mode === "edit" && addressData) {
-            setFormData({
+            reset({
                 firstName: addressData.firstName || '',
                 lastName: addressData.lastName || '',
                 phoneNumber: addressData.phoneNumber || '',
@@ -34,35 +48,25 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                 isDefault: addressData.isDefault || false
             });
         }
-    }, [mode, addressData]);
+    }, [mode, addressData, reset]);
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const onSubmit = useCallback(async (data) => {
         try {
             setLoading(true);
             setError(null);
 
             // Prepare data for API (remove any empty fields and ensure proper format)
             const apiData = {
-                firstName: formData.firstName.trim(),
-                lastName: formData.lastName.trim(),
-                phoneNumber: formData.phoneNumber.trim(),
-                address: formData.address.trim(),
-                addressType: formData.addressType,
-                country: formData.country.trim(),
-                state: formData.state.trim(),
-                city: formData.city.trim(),
-                postalCode: formData.postalCode.trim(),
-                isDefault: formData.isDefault
+                firstName: data.firstName.trim(),
+                lastName: data.lastName.trim(),
+                phoneNumber: data.phoneNumber.trim(),
+                address: data.address.trim(),
+                addressType: data.addressType,
+                country: data.country.trim(),
+                state: data.state.trim(),
+                city: data.city.trim(),
+                postalCode: data.postalCode.trim(),
+                isDefault: data.isDefault
             };
 
             let response;
@@ -80,18 +84,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                 // Reset form and close
                 if (mode === "add") {
-                    setFormData({
-                        firstName: '',
-                        lastName: '',
-                        phoneNumber: '',
-                        address: '',
-                        addressType: 'home',
-                        country: '',
-                        state: '',
-                        city: '',
-                        postalCode: '',
-                        isDefault: false
-                    });
+                    reset();
                 }
                 onClose();
             } else {
@@ -103,26 +96,15 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
         } finally {
             setLoading(false);
         }
-    };
+    }, [mode, addressData, onSuccess, onClose, reset]);
 
-    const handleCancel = () => {
+    const handleCancel = useCallback(() => {
         // Reset form data for add mode
         if (mode === "add") {
-            setFormData({
-                firstName: '',
-                lastName: '',
-                phoneNumber: '',
-                address: '',
-                addressType: 'home',
-                country: '',
-                state: '',
-                city: '',
-                postalCode: '',
-                isDefault: false
-            });
+            reset();
         }
         onClose();
-    };
+    }, [mode, reset, onClose]);
 
     const isEditMode = mode === "edit";
     const submitButtonText = isEditMode ? "Update Changes" : "Save Changes";
@@ -142,7 +124,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Left Column */}
                     <div className="space-y-4">
@@ -153,13 +135,24 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             </label>
                             <input
                                 type="text"
-                                name="firstName"
-                                value={formData.firstName}
-                                onChange={handleInputChange}
+                                {...register("firstName", {
+                                    required: "First name is required",
+                                    minLength: {
+                                        value: 2,
+                                        message: "First name must be at least 2 characters"
+                                    },
+                                    pattern: {
+                                        value: /^[a-zA-Z\s]+$/,
+                                        message: "First name can only contain letters and spaces"
+                                    }
+                                })}
                                 placeholder="Enter first name"
-                                className="w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                required
+                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.firstName ? 'border-red-500' : ''
+                                    }`}
                             />
+                            {errors.firstName && (
+                                <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                            )}
                         </div>
 
                         {/* Phone Number */}
@@ -169,13 +162,24 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             </label>
                             <input
                                 type="tel"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                onChange={handleInputChange}
+                                {...register("phoneNumber", {
+                                    required: "Phone number is required",
+                                    pattern: {
+                                        value: /^[\+]?[1-9][\d]{0,15}$/,
+                                        message: "Please enter a valid phone number"
+                                    },
+                                    minLength: {
+                                        value: 10,
+                                        message: "Phone number must be at least 10 digits"
+                                    }
+                                })}
                                 placeholder="Enter phone number"
-                                className="w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                required
+                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.phoneNumber ? 'border-red-500' : ''
+                                    }`}
                             />
+                            {errors.phoneNumber && (
+                                <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message}</p>
+                            )}
                         </div>
 
                         {/* Address */}
@@ -185,13 +189,20 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             </label>
                             <input
                                 type="text"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleInputChange}
+                                {...register("address", {
+                                    required: "Address is required",
+                                    minLength: {
+                                        value: 10,
+                                        message: "Address must be at least 10 characters"
+                                    }
+                                })}
                                 placeholder="Enter address"
-                                className="w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                required
+                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.address ? 'border-red-500' : ''
+                                    }`}
                             />
+                            {errors.address && (
+                                <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                            )}
                         </div>
 
                         {/* State */}
@@ -200,11 +211,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 State
                             </label>
                             <select
-                                name="state"
-                                value={formData.state}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
-                                required
+                                {...register("state", {
+                                    required: "Please select a state"
+                                })}
+                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.state ? 'border-red-500' : ''
+                                    }`}
                             >
                                 <option value="">Select state</option>
                                 <option value="Maharashtra">Maharashtra</option>
@@ -216,6 +227,9 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 <option value="California">California</option>
                                 <option value="Texas">Texas</option>
                             </select>
+                            {errors.state && (
+                                <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+                            )}
                         </div>
 
                         {/* Zip Code */}
@@ -225,13 +239,20 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             </label>
                             <input
                                 type="text"
-                                name="postalCode"
-                                value={formData.postalCode}
-                                onChange={handleInputChange}
+                                {...register("postalCode", {
+                                    required: "Postal code is required",
+                                    pattern: {
+                                        value: /^[0-9]{4,6}$/,
+                                        message: "Please enter a valid postal code (4-6 digits)"
+                                    }
+                                })}
                                 placeholder="Enter zip code"
-                                className="w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                required
+                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.postalCode ? 'border-red-500' : ''
+                                    }`}
                             />
+                            {errors.postalCode && (
+                                <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
+                            )}
                         </div>
                     </div>
 
@@ -244,13 +265,24 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             </label>
                             <input
                                 type="text"
-                                name="lastName"
-                                value={formData.lastName}
-                                onChange={handleInputChange}
+                                {...register("lastName", {
+                                    required: "Last name is required",
+                                    minLength: {
+                                        value: 2,
+                                        message: "Last name must be at least 2 characters"
+                                    },
+                                    pattern: {
+                                        value: /^[a-zA-Z\s]+$/,
+                                        message: "Last name can only contain letters and spaces"
+                                    }
+                                })}
                                 placeholder="Enter last name"
-                                className="w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                required
+                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.lastName ? 'border-red-500' : ''
+                                    }`}
                             />
+                            {errors.lastName && (
+                                <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                            )}
                         </div>
 
                         {/* Address Type */}
@@ -263,8 +295,8 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     <button
                                         key={type}
                                         type="button"
-                                        onClick={() => setFormData(prev => ({ ...prev, addressType: type }))}
-                                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${formData.addressType === type
+                                        onClick={() => setValue("addressType", type, { shouldValidate: true })}
+                                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${watchedAddressType === type
                                             ? 'bg-button-vertical-gradient-orange text-white'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             }`}
@@ -281,11 +313,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 Country
                             </label>
                             <select
-                                name="country"
-                                value={formData.country}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
-                                required
+                                {...register("country", {
+                                    required: "Please select a country"
+                                })}
+                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.country ? 'border-red-500' : ''
+                                    }`}
                             >
                                 <option value="">Select country</option>
                                 <option value="India">India</option>
@@ -293,6 +325,9 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 <option value="United States">United States</option>
                                 <option value="United Kingdom">United Kingdom</option>
                             </select>
+                            {errors.country && (
+                                <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
+                            )}
                         </div>
 
                         {/* City */}
@@ -301,11 +336,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 City
                             </label>
                             <select
-                                name="city"
-                                value={formData.city}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
-                                required
+                                {...register("city", {
+                                    required: "Please select a city"
+                                })}
+                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.city ? 'border-red-500' : ''
+                                    }`}
                             >
                                 <option value="">Select city</option>
                                 <option value="Mumbai">Mumbai</option>
@@ -317,6 +352,9 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 <option value="Los Angeles">Los Angeles</option>
                                 <option value="New York">New York</option>
                             </select>
+                            {errors.city && (
+                                <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -326,9 +364,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                     <label className="flex items-center gap-3">
                         <input
                             type="checkbox"
-                            name="isDefault"
-                            checked={formData.isDefault}
-                            onChange={handleInputChange}
+                            {...register("isDefault")}
                             className="w-5 h-5 text-orange-500 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
                         />
                         <span className="text-sm font-medium text-gray-700">Set as default address</span>
@@ -347,7 +383,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                     </button>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !isValid}
                         className="px-6 py-2 bg-gradient-to-r from-orange-400 to-yellow-400 text-white rounded-lg hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {loading ? (
