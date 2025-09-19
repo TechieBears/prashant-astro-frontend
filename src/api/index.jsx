@@ -6,7 +6,7 @@ axios.defaults.withCredentials = environment?.production;
 // Cart APIs
 export const removeCartItem = async (itemId) => {
     const token = localStorage.getItem('token');
-    const url = `${environment.baseUrl}product-cart/remove-item`;
+    const url = `${environment.baseUrl}product-cart/public/remove-item`;
     try {
         const response = await axios.put(url, { itemId }, {
             headers: {
@@ -23,7 +23,7 @@ export const removeCartItem = async (itemId) => {
 
 export const updateCartItem = async (itemId, quantity) => {
     const token = localStorage.getItem('token');
-    const url = `${environment.baseUrl}product-cart/update`;
+    const url = `${environment.baseUrl}product-cart/public/update`;
     try {
         const response = await axios.put(url, { itemId, quantity }, {
             headers: {
@@ -40,7 +40,7 @@ export const updateCartItem = async (itemId, quantity) => {
 
 export const getCartItems = async () => {
     const token = localStorage.getItem('token');
-    const url = `${environment.baseUrl}product-cart/get`;
+    const url = `${environment.baseUrl}product-cart/public/get`;
     try {
         const response = await axios.get(url, {
             headers: {
@@ -57,7 +57,7 @@ export const getCartItems = async () => {
 
 export const getServiceCartItems = async () => {
     const token = localStorage.getItem('token');
-    const url = `${environment.baseUrl}service-cart/get`;
+    const url = `${environment.baseUrl}service-cart/public/get`;
     try {
         const response = await axios.get(url, {
             headers: {
@@ -74,10 +74,10 @@ export const getServiceCartItems = async () => {
 
 export const removeServiceCartItem = async (itemId) => {
     const token = localStorage.getItem('token');
-    const url = `${environment.baseUrl}service-cart/remove-item`;
+    const url = `${environment.baseUrl}service-cart/public/remove-item`;
     try {
         const response = await axios.put(
-            url, 
+            url,
             { itemId },
             {
                 headers: {
@@ -1360,7 +1360,7 @@ export const getActiveProducts = async () => {
 
 // ==================== Add to Cart Api ====================
 export const addToCart = async (productId, quantity = 1) => {
-    const url = `${environment.baseUrl}product-cart/add`;
+    const url = `${environment.baseUrl}product-cart/public/add`;
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -1451,5 +1451,19 @@ export const getProductFilters = async () => {
     } catch (error) {
         console.error('Error fetching product filters:', error);
         throw error;
+    }
+};
+
+// ==================== Get Astrologers Api ====================
+export const getAstrologers = async () => {
+    const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
+    try {
+        const response = await axios.post(url, {
+            employeeType: "astrologer"
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching astrologers:', error);
+        return error?.response?.data || { success: false, message: 'Failed to fetch astrologers' };
     }
 };
