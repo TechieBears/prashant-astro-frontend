@@ -25,16 +25,22 @@ const HomeNavbar = () => {
     //  console.log('servicesDropdown', servicesDropdown)
 
     const navLinks = useMemo(() => {
-        const transformedServices = servicesDropdown.map(category => ({
+        const transformedServices = servicesDropdown?.map(category => ({
             category: category.name,
-            services: category.services.map(service => ({
+            services: category.services?.map(service => ({
                 name: service.name,
                 path: `/services/${service._id}`,
+            })) || [],
+        })) || [];
 
-            })),
-        }));
+        const transformedProducts = productsDropdown?.map(category => ({
+            category: category.name,
+            services: category.products?.map(product => ({
+                name: product.name,
+                path: `/products/${product._id}`,
+            })) || [],
+        })) || [];
 
-        // You can similarly map productsDropdown if needed
         return [
             { name: 'Home', path: '/' },
             { name: 'About', path: '/about' },
@@ -46,26 +52,11 @@ const HomeNavbar = () => {
             {
                 name: 'Products',
                 path: '/products',
-                dropdown: [
-                    {
-                        category: 'Spiritual Products',
-                        services: [
-                            { name: 'Rudraksha Beads', path: '/products/spiritual/rudraksha' },
-                            { name: 'Vastu Shastra Books', path: '/products/spiritual/vastu-books' },
-                        ],
-                    },
-                    {
-                        category: 'Accessories',
-                        services: [
-                            { name: 'Puja Thali', path: '/products/accessories/puja-thali' },
-                            { name: 'Incense Sticks', path: '/products/accessories/incense' },
-                        ],
-                    },
-                ],
+                dropdown: transformedProducts,
             },
             { name: 'Contact', path: '/contact' },
         ];
-    }, [servicesDropdown]);
+    }, [servicesDropdown, productsDropdown]);
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -294,12 +285,12 @@ const HomeNavbar = () => {
                                                 }
                                             >
                                                 <span>
-                                                {link.name}
+                                                    {link.name}
                                                 </span>
                                                 <span>
-                                                      <ArrowLeft01Icon   size={25} className="text-white -rotate-90" />
+                                                    <ArrowLeft01Icon size={25} className="text-white -rotate-90" />
                                                 </span>
-                                                
+
                                             </NavLink>
 
                                             {activeDropdown === link.name && (
@@ -315,7 +306,7 @@ const HomeNavbar = () => {
                                                                 <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
                                                                     {category.category}
                                                                 </span>
-                                                              
+
                                                             </p>
 
                                                             {/* Sub-dropdown (appears on hover of specific category) */}
@@ -389,8 +380,8 @@ const HomeNavbar = () => {
 
                 {/* Mobile Menu */}
                 <div
-                   className={`fixed top-0 left-0 w-screen h-screen lg:hidden bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
-    }`}
+                    className={`fixed top-0 left-0 w-screen h-screen lg:hidden bg-white flex flex-col items-center justify-center gap-6 font-medium text-gray-800 transition-transform duration-500 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"
+                        }`}
 
                 >
                     <button

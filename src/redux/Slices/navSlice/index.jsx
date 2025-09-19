@@ -12,20 +12,16 @@ export const fetchNavDropdowns = createAsyncThunk(
   'nav/fetchNavDropdowns',
   async (_, { rejectWithValue }) => {
     try {
-      const [serviceCatRes] = await Promise.all([
+      const [serviceCatRes, productCatRes] = await Promise.all([
         axios.get(`${import.meta.env.VITE_BASE_URL}/api/service-categories/public/dropdown`),
-        // axios.get(`${import.meta.env.VITE_BASE_URL}/api/product-categories/public/dropdown`),
+        axios.get(`${import.meta.env.VITE_BASE_URL}/api/product-categories/astroguid/public/categories-with-products`),
       ]);
-
-      console.log('serviceCatRes', serviceCatRes); // Ensure this logs
-      // console.log('productCatRes', productCatRes);
 
       return {
         servicesDropdown: serviceCatRes.data.data,
-        // productsDropdown: productCatRes.data.data,
+        productsDropdown: productCatRes.data.data,
       };
     } catch (err) {
-      console.log('Error fetching dropdowns:', err); // Add this
       return rejectWithValue(err.response?.data?.message || 'Failed to fetch navigation data');
     }
   }
