@@ -1454,7 +1454,6 @@ export const getProductFilters = async () => {
     }
 };
 
-<<<<<<< HEAD
 export const getAllAstrologer = async (data = {employeeType: "astrologer"}) => {
     const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
     try {
@@ -1466,7 +1465,6 @@ export const getAllAstrologer = async (data = {employeeType: "astrologer"}) => {
         throw error;
     }
 };
-=======
 // ==================== Get Astrologers Api ====================
 export const getAstrologers = async () => {
     const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
@@ -1480,4 +1478,3 @@ export const getAstrologers = async () => {
         return error?.response?.data || { success: false, message: 'Failed to fetch astrologers' };
     }
 };
->>>>>>> 63f68aa2a0e84f7f69497d4fc5441f4f416b9053
