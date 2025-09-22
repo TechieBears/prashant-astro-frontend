@@ -235,9 +235,11 @@ const AboutPage = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         {services.map((service) => (
-                            <div key={service.id} className="bg-white p-6 rounded-lg shadow-md hover:-translate-y-3  transition-all duration-300 flex flex-col ">
+                            <div key={service.id} className="group bg-white p-6 rounded-lg shadow-md hover:-translate-y-3 transition-all duration-300 flex flex-col">
                                 <div className="w-20 h-20 flex items-center justify-start mb-4">
-                                    <img src={service.icon} alt={service.title} className="w-16 h-16" />
+                                    <div className="w-16 h-16 rounded-full transition-all duration-300 group-hover:bg-button-diagonal-gradient-orange flex items-center justify-center">
+                                        <img src={service.icon} alt={service.title} className="w-16 h-16 transition-all duration-300 group-hover:brightness-0 group-hover:invert" />
+                                    </div>
                                 </div>
                                 <h3 className="text-lg font-semibold text-left mb-2">{service.title}</h3>
                                 <p className="text-sm text-gray-600 text-left mb-4 flex-grow">{service.description}</p>

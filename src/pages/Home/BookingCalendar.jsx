@@ -2,10 +2,13 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import Calendar from '../../components/Calendar';
+// import Calendar from '../../components/Calendar'; // Commented out custom calendar
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import '../../css/react-calendar.css';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import { Input, Select } from '../../components/Form';
-import { getServicesList } from '../../api';
+import { getServicesList, getAstrologers } from '../../api';
 
 const BookingCalendar = () => {
     const navigate = useNavigate();
@@ -22,6 +25,8 @@ const BookingCalendar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
     const [isServicesLoading, setIsServicesLoading] = useState(false);
+    const [astrologers, setAstrologers] = useState([]);
+    const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,7 +42,7 @@ const BookingCalendar = () => {
         selectedDate: null
     });
 
-    // Separate effect for user details population
+    // User details population
     useEffect(() => {
         if (loggedUserDetails) {
             setFormData(prev => ({
@@ -50,10 +55,9 @@ const BookingCalendar = () => {
     }, [loggedUserDetails]);
 
     // Calendar state
-    const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Memoized static options to prevent recreation on every render
+    // Static options
     const serviceMoodOptions = useMemo(() => [
         { value: 'consult-online', label: 'Consult Online' },
         { value: 'consult-pandit-location', label: 'Consult at Pandit location' },
@@ -67,14 +71,16 @@ const BookingCalendar = () => {
         '06:00 PM - 09:00 PM'
     ], []);
 
-    const panditOptions = useMemo(() => [
-        'Pandit Rajesh Kumar',
-        'Pandit Suresh Sharma',
-        'Pandit Amit Verma',
-        'Pandit Deepak Singh'
-    ], []);
+    // Astrologer options
+    const panditOptions = useMemo(() => {
+        if (!astrologers.length) return [];
+        return astrologers.map(astrologer => ({
+            value: astrologer._id,
+            label: astrologer.fullName
+        }));
+    }, [astrologers]);
 
-    // Memoized service options to prevent recreation on every render
+    // Service options
     const serviceOptions = useMemo(() => {
         if (!services.length) return [];
         return [
@@ -86,9 +92,9 @@ const BookingCalendar = () => {
         ];
     }, [services, selectedService]);
 
-    // Optimized fetch services with caching
+    // Fetch services
     const fetchServices = useCallback(async () => {
-        if (services.length > 0) return; // Don't refetch if already loaded
+        if (services.length > 0 || isServicesLoading) return; // Don't refetch if already loaded or loading
 
         try {
             setIsServicesLoading(true);
@@ -102,6 +108,8 @@ const BookingCalendar = () => {
                     }))
                 );
                 setServices(allServices);
+            } else {
+                setError('Failed to load services. Please try again.');
             }
         } catch (error) {
             console.error('Error fetching services:', error);
@@ -109,9 +117,30 @@ const BookingCalendar = () => {
         } finally {
             setIsServicesLoading(false);
         }
-    }, [services.length]);
+    }, [services.length, isServicesLoading]);
 
-    // Authentication check effect
+    // Fetch astrologers
+    const fetchAstrologers = useCallback(async () => {
+        if (astrologers.length > 0 || isAstrologersLoading) return; // Don't refetch if already loaded or loading
+
+        try {
+            setIsAstrologersLoading(true);
+            setError(null);
+            const response = await getAstrologers();
+            if (response?.success && response?.data) {
+                setAstrologers(response.data);
+            } else {
+                setError('Failed to load astrologers. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error fetching astrologers:', error);
+            setError('Failed to load astrologers. Please try again.');
+        } finally {
+            setIsAstrologersLoading(false);
+        }
+    }, [astrologers.length, isAstrologersLoading]);
+
+    // Authentication check
     useEffect(() => {
         if (authLoading) return;
 
@@ -122,7 +151,7 @@ const BookingCalendar = () => {
         }
     }, [isLogged, authLoading, navigate]);
 
-    // Service data initialization effect
+    // Service data initialization
     useEffect(() => {
         if (!isLogged || authLoading) return;
 
@@ -145,11 +174,17 @@ const BookingCalendar = () => {
         setIsLoading(false);
     }, [isLogged, authLoading, serviceData, navigate]);
 
-    // Services fetching effect
+    // Services fetching
     useEffect(() => {
         if (!isLogged || authLoading) return;
         fetchServices();
     }, [isLogged, authLoading, fetchServices]);
+
+    // Astrologers fetching
+    useEffect(() => {
+        if (!isLogged || authLoading) return;
+        fetchAstrologers();
+    }, [isLogged, authLoading, fetchAstrologers]);
 
     if (authLoading || !isLogged || !serviceData || Object.keys(serviceData).length === 0) {
         return (
@@ -164,7 +199,7 @@ const BookingCalendar = () => {
         );
     }
 
-    // Memoized form validation
+    // Form validation
     const validateForm = useCallback(() => {
         const errors = {};
         if (!formData.serviceType) errors.serviceType = 'Service type is required';
@@ -174,7 +209,7 @@ const BookingCalendar = () => {
         return errors;
     }, [formData]);
 
-    // Memoized form input handler
+    // Form input handler
     const handleInputChange = useCallback((field, value) => {
         setFormData(prev => ({
             ...prev,
@@ -182,39 +217,23 @@ const BookingCalendar = () => {
         }));
     }, []);
 
-    // Memoized month navigation handler
-    const handleMonthChange = useCallback((direction) => {
-        setCurrentMonth(prev => {
-            const newMonth = new Date(prev);
-            if (direction === 'prev') {
-                newMonth.setMonth(prev.getMonth() - 1);
-            } else if (direction === 'next') {
-                newMonth.setMonth(prev.getMonth() + 1);
-            } else if (direction === 'prev-year') {
-                newMonth.setFullYear(prev.getFullYear() - 1);
-            } else if (direction === 'next-year') {
-                newMonth.setFullYear(prev.getFullYear() + 1);
-            }
-            return newMonth;
-        });
-    }, []);
-
-    // Memoized date selection handler
+    // Date selection handler for react-calendar
     const handleDateSelect = useCallback((date) => {
-        const newSelectedDate = selectedDate && date.toDateString() === selectedDate.toDateString()
-            ? null
-            : date;
+        console.log('Date selected:', date);
+        console.log('Date type:', typeof date);
+        console.log('Date string:', date?.toString());
+        console.log('Date ISO:', date?.toISOString());
 
-        setSelectedDate(newSelectedDate);
+        setSelectedDate(date);
         setFormData(prev => ({
             ...prev,
-            selectedDate: newSelectedDate,
+            selectedDate: date,
             // Clear time slot when changing date
-            timeSlot: newSelectedDate ? prev.timeSlot : ''
+            timeSlot: date ? prev.timeSlot : ''
         }));
-    }, [selectedDate]);
+    }, []);
 
-    // Optimized booking handler with validation
+    // Booking handler with validation
     const handleBookService = useCallback(async () => {
         const errors = validateForm();
         if (Object.keys(errors).length > 0) {
@@ -240,8 +259,6 @@ const BookingCalendar = () => {
             };
 
             console.log('Booking data:', bookingData);
-            // TODO: Replace with actual API call
-            // await bookService(bookingData);
 
             alert(`Service booked for ${bookingData.formattedDate} at ${bookingData.timeSlot}`);
         } catch (error) {
@@ -267,16 +284,6 @@ const BookingCalendar = () => {
 
     return (
         <>
-            <style jsx>{`
-                select {
-                    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-                    background-position: right 0.5rem center;
-                    background-repeat: no-repeat;
-                    background-size: 1.5em 1.5em;
-                    padding-right: 2.5rem;
-                }
-            `}</style>
-
             <BackgroundTitle
                 title="Booking Calender"
                 breadcrumbs={[
@@ -291,25 +298,26 @@ const BookingCalendar = () => {
             <div className="min-h-screen py-8">
                 <div className="container mx-auto px-2 sm:px-3 max-w-7xl">
                     {/* Header with Go Back and Title */}
-                    <div className="flex items-center justify-between my-8">
+                    <div className="flex items-center justify-between my-4 sm:my-6 md:my-8 px-2 sm:px-0">
                         <button
                             onClick={() => navigate(-1)}
-                            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
                         >
-                            <FaArrowLeft className="mr-2" />
-                            Go Back
+                            <FaArrowLeft className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="hidden sm:inline">Go Back</span>
+                            <span className="sm:hidden">Back</span>
                         </button>
 
-                        <h1 className="text-2xl font-md text-center text-gray-800">
+                        <h1 className="text-lg sm:text-xl md:text-2xl font-medium text-center text-gray-800 flex-1 mx-2 sm:mx-4">
                             Booking Calendar
                         </h1>
 
                         {/* Empty div for balance */}
-                        <div className="w-20"></div>
+                        <div className="w-12 sm:w-16 md:w-20"></div>
                     </div>
 
                     {/* Main Booking Card */}
-                    <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+                    <div className="bg-white rounded-2xl shadow-lg px-4 sm:px-6 py-6 sm:py-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                             <div className="space-y-6">
                                 {/* Services Type */}
@@ -329,9 +337,9 @@ const BookingCalendar = () => {
                                     <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
                                         Select Service Mood <span class="text-red-500">*</span>
                                     </label>
-                                    <div className="flex gap-6">
+                                    <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6">
                                         {serviceMoodOptions.map((option) => (
-                                            <label key={option.value} className="flex items-center cursor-pointer whitespace-nowrap">
+                                            <label key={option.value} className="flex items-center cursor-pointer">
                                                 <div className="relative flex items-center">
                                                     <input
                                                         type="radio"
@@ -347,7 +355,7 @@ const BookingCalendar = () => {
                                                         )}
                                                     </span>
                                                 </div>
-                                                <span className="ml-3 text-gray-700 text-sm">{option.label}</span>
+                                                <span className="ml-2 sm:ml-3 text-gray-700 text-xs sm:text-sm">{option.label}</span>
                                             </label>
                                         ))}
                                     </div>
@@ -362,6 +370,8 @@ const BookingCalendar = () => {
                                     options={panditOptions}
                                     required
                                     placeholder="Select a pandit"
+                                    disabled={isAstrologersLoading}
+                                    isLoading={isAstrologersLoading}
                                 />
 
                                 {/* Full Name and Mobile Number in one row */}
@@ -403,12 +413,14 @@ const BookingCalendar = () => {
                             {/* Right Column - Time and Date Selection */}
                             <div className="space-y-6 flex flex-col">
                                 {/* Calendar */}
-                                <Calendar
-                                    currentMonth={currentMonth}
-                                    selectedDate={selectedDate}
-                                    onDateSelect={handleDateSelect}
-                                    onMonthChange={handleMonthChange}
-                                />
+                                <div className="bg-light-pg rounded-2xl shadow-lg p-2 sm:p-4 md:p-6 overflow-hidden">
+                                    <Calendar
+                                        onChange={handleDateSelect}
+                                        value={selectedDate}
+                                        minDate={new Date()}
+                                        className="react-calendar-custom w-full"
+                                    />
+                                </div>
 
                                 {/* Time Slots */}
                                 <Select

@@ -22,18 +22,22 @@ import { useEffect } from "react";
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
 
-    useEffect(async () => {
-        const support = checkNotificationSupport();
-        if (support.isSupported && support.hasServiceWorker && support.hasMessaging && support.permission === 'granted') {
-            initializePushNotifications();
+    useEffect(() => {
+        async function initializeNotifications() {
+            const support = checkNotificationSupport();
+            if (support.isSupported && support.hasServiceWorker && support.hasMessaging && support.permission === 'granted') {
+                initializePushNotifications();
+            }
+
+            const fcmToken = await requestNotificationPermission();
+            if (fcmToken) {
+                console.log("⚡️🤯 ~ App.jsx ~ useEffect ~ fcmToken:", fcmToken)
+            } else {
+                console.log('Failed to enable push notifications');
+            }
         }
 
-        const fcmToken = await requestNotificationPermission();
-        if (fcmToken) {
-            console.log("⚡️🤯 ~ App.jsx ~ useEffect ~ fcmToken:", fcmToken)
-        } else {
-            console.log('Failed to enable push notifications');
-        }
+        initializeNotifications();
     }, []);
     return (
         <>

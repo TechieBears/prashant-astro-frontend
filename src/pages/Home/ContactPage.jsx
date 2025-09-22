@@ -47,9 +47,9 @@ const ContactPage = () => {
                 <div className="flex flex-col items-center md:flex-row justify-center gap-6 md:gap-10 py-8 md:py-12">
                     {/* Image with gradient border */}
                     <div className="relative w-32 h-32 flex-shrink-0">
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 p-[3px]">
+                        <div className="absolute inset-0 rounded-full p-[3px]">
                             <img
-                                src="/src/assets/user/contact/pandit_2.jpg"
+                                src="/src/assets/user/contact/pandit_2.png"
                                 alt="Pandit Prashant Shastri"
                                 className="w-full h-full object-cover rounded-full"
                             />

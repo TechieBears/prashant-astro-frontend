@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
-// import AddressForm from "../../../components/Modals/AddressForm";
+import AddressForm from "../../../components/Modals/AddressForm";
 import { getAllCustomerAddresses, deleteCustomerAddress } from "../../../api";
 
 export default function Address() {
@@ -132,14 +132,14 @@ export default function Address() {
                     </div>
 
                     {/* Address Form (Add/Edit) */}
-                    {/* {showForm && (
+                    {showForm && (
                         <AddressForm
                             mode={formMode}
                             addressData={editingAddress}
                             onClose={handleCloseForm}
                             onSuccess={handleFormSuccess}
                         />
-                    )} */}
+                    )}
 
 
                     {loading ? (
