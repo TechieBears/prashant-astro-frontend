@@ -93,71 +93,72 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                     className="flex transition-transform duration-1000 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                 >
-                   {slidesData.map((slide) => (
-  <div key={slide.id} className="w-full flex-shrink-0">
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image */}
-      <img
-        src={slide.image}
-        alt="Home Banner"
-        className="w-full h-full object-cover absolute inset-0 z-0"
-        onError={(e) => {
-          console.error("Image failed to load:", slide.image);
-          if (slide.onImageError) {
-            slide.onImageError(e);
-          }
-        }}
-        referrerPolicy="no-referrer"
-        style={{
-          display: 'block',
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        }}
-      />
+                    {slidesData.map((slide) => (
+                        <div key={slide.id} className="w-full flex-shrink-0">
+                            <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-screen w-full overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-0">
+                                {/* Background Image */}
+                                <img
+                                    src={slide.image}
+                                    alt="Home Banner"
+                                    className="w-full h-full object-cover absolute inset-0 z-0"
+                                    onError={(e) => {
+                                        console.error("Image failed to load:", slide.image);
+                                        if (slide.onImageError) {
+                                            slide.onImageError(e);
+                                        }
+                                    }}
+                                    referrerPolicy="no-referrer"
+                                    style={{
+                                        display: 'block',
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                    }}
+                                />
 
-      {/* Video overlay - uncomment if needed */}
-      {slide.video && (
-        <video
-          src={slide.video}
-          className="absolute w-full h-full object-cover z-0"
-          loop
-          autoPlay
-          playsInline
-          muted
-        />
-      )}
+                                {/* Video overlay - uncomment if needed */}
+                                {slide.video && (
+                                    <video
+                                        src={slide.video}
+                                        className="absolute w-full h-full object-cover z-0"
+                                        loop
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                    />
+                                )}
 
-      {/* <div className="absolute inset-0 z-0 bg-black/50"></div> */}
+                                {/* Dark overlay for better text readability */}
+                                <div className="absolute inset-0 z-5 bg-black/20 md:bg-transparent"></div>
 
-      {/* Foreground Content */}
-      <div className="relative z-10 flex flex-col md:flex-row h-full w-full">
-        {/* Left Half - Empty on Desktop */}
-        <div className="hidden md:block md:w-1/2" />
+                                {/* Foreground Content */}
+                                <div className="relative z-10 flex flex-col md:flex-row h-full w-full">
+                                    {/* Left Half - Empty on Desktop */}
+                                    <div className="hidden md:block md:w-1/2" />
 
-        {/* Right Half - Content */}
-        <div className="w-full md:w-1/2 flex items-center justify-center px-4 md:px-20">
-          <div className="text-center lg:text-left flex flex-col space-y-3 max-w-2xl">
-            <h1 className="split text-2xl md:text-4xl lg:text-6xl mb-6 font-procSans font-bold bg-text-gradient-orange bg-clip-text text-transparent overflow-hidden">
-              {slide.title}
-            </h1>
-            <p className="discrption text-xs md:text-xl font-tbPop font-normal text-black max-w-4xl !mb-5 overflow-hidden">
-              {slide.description}
-            </p>
-            {slide.button && (
-              <button
-                className={`btn ${formBtn1}`}
-                onClick={slide.onClick}
-              >
-                Register to join
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-))}
+                                    {/* Right Half - Content */}
+                                    <div className="w-full md:w-1/2 flex items-center justify-center px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 md:py-16">
+                                        <div className="text-center md:text-left flex flex-col space-y-4 sm:space-y-6 max-w-2xl">
+                                            <h1 className="split text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl mb-4 sm:mb-6 font-procSans font-bold bg-text-gradient-orange bg-clip-text text-transparent overflow-hidden leading-tight">
+                                                {slide.title}
+                                            </h1>
+                                            <p className="discrption text-sm sm:text-base md:text-lg lg:text-xl font-tbPop font-normal text-white md:text-black max-w-4xl !mb-4 sm:!mb-5 overflow-hidden leading-relaxed">
+                                                {slide.description}
+                                            </p>
+                                            {slide.button && (
+                                                <button
+                                                    className={`btn ${formBtn1} text-sm sm:text-base px-6 sm:px-8 py-2 sm:py-3 mt-2 sm:mt-4`}
+                                                    onClick={slide.onClick}
+                                                >
+                                                    Register to join
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    ))}
 
                 </div>
             </div>
@@ -168,27 +169,27 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                     {/* Navigation Arrows */}
                     <button
                         onClick={prevSlide}
-                        className="absolute left-4 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-3 sm:p-2 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
+                        className="absolute left-2 sm:left-4 md:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 sm:p-3 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
                         aria-label="Previous slide"
                     >
-                        <ChevronLeft className="w-6 h-6 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                        <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
                     </button>
 
                     <button
                         onClick={nextSlide}
-                        className="absolute right-4 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-3 sm:p-2 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
+                        className="absolute right-2 sm:right-4 md:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-orange-500 bg-opacity-80 hover:bg-opacity-100 text-white p-2 sm:p-3 rounded-full transition-all duration-300 backdrop-blur-sm hover:scale-110 group shadow-lg z-50"
                         aria-label="Next slide"
                     >
-                        <ChevronRight className="w-6 h-6 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
                     </button>
 
                     {/* Slide Indicators */}
-                    <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-50">
+                    <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-50">
                         {slidesData.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => goToSlide(index)}
-                                className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${index === currentSlide
+                                className={`w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full transition-all duration-300 ${index === currentSlide
                                     ? 'bg-orange-400 scale-125 shadow-lg'
                                     : 'bg-white bg-opacity-60 hover:bg-orange-300'
                                     }`}

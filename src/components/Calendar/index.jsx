@@ -59,37 +59,37 @@ const Calendar = ({
     const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
     return (
-        <div className={`bg-light-pg rounded-2xl shadow-lg p-4 sm:p-6 ${className}`}>
+        <div className={`bg-light-pg rounded-2xl shadow-lg p-2 sm:p-4 md:p-6 ${className}`}>
             {/* Calendar Header */}
-            <div className="flex justify-center items-center mb-4">
-                <div className="flex items-center space-x-4">
+            <div className="flex justify-center items-center mb-2 sm:mb-3 md:mb-4">
+                <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
                     <button
                         onClick={() => onMonthChange('prev-year')}
-                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
                         aria-label="Previous year"
                     >
                         &laquo;
                     </button>
                     <button
                         onClick={() => onMonthChange('prev')}
-                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
                         aria-label="Previous month"
                     >
                         &lsaquo;
                     </button>
-                    <h3 className="text-lg font-semibold text-gray-800 min-w-[120px] text-center bg-white px-10 py-1 rounded-full">
+                    <h3 className="text-xs sm:text-sm md:text-lg font-semibold text-gray-800 min-w-[80px] sm:min-w-[100px] md:min-w-[120px] text-center bg-white px-2 sm:px-4 md:px-10 py-1 rounded-full">
                         {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                     </h3>
                     <button
                         onClick={() => onMonthChange('next')}
-                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
                         aria-label="Next month"
                     >
                         &rsaquo;
                     </button>
                     <button
                         onClick={() => onMonthChange('next-year')}
-                        className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors text-xs"
                         aria-label="Next year"
                     >
                         &raquo;
@@ -98,16 +98,16 @@ const Calendar = ({
             </div>
 
             {/* Day Names */}
-            <div className="grid grid-cols-7 gap-2 mb-2 text-xs sm:text-sm">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-2">
                 {dayNames.map((day) => (
-                    <div key={day} className="text-center text-sm font-medium text-gray-500">
+                    <div key={day} className="text-center text-xs font-medium text-gray-500">
                         {day}
                     </div>
                 ))}
             </div>
 
             {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1 sm:gap-2 rounded-lg">
+            <div className="grid grid-cols-7 gap-0.5 sm:gap-1 md:gap-2 rounded-lg">
                 {calendarDays.map((date, index) => {
                     const day = date.getDate();
                     const today = isToday(date);
@@ -120,7 +120,7 @@ const Calendar = ({
                             key={index}
                             onClick={() => !isDisabled && onDateSelect(date)}
                             className={`
-                                h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium
+                                h-6 w-6 sm:h-7 sm:w-7 md:h-10 md:w-10 rounded-full flex items-center justify-center text-xs font-medium
                                 transition-colors duration-200
                                 ${selected
                                     ? 'bg-orange-500 text-white'
