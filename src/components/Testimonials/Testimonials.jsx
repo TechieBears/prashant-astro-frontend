@@ -62,7 +62,7 @@ const Testimonials = () => {
     };
 
     return (
-        <div className="relative bg-[#F7E8D4] w-full pb-10 sm:pb-20 mt-20">
+        <div className="relative bg-[#F7E8D4] w-full mt-8 sm:mt-12 md:mt-16 lg:mt-20">
             {/* Flower decorations */}
             <img
                 src={Flowers}
