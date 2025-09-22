@@ -141,7 +141,7 @@ const ServicesPage = () => {
                     <>
                         {/* Category Filter Card */}
                         <div className="sticky top-0 md:top-[44px] z-30 mb-6 md:mb-8">
-                            <div className="bg-white rounded-b-2xl shadow-lg px-3 sm:px-4 md:px-6 py-3 md:py-4 mx-2 sm:mx-4 md:mx-0">
+                            <div className="bg-white rounded-b-2xl shadow-lg px-3 sm:px-4 md:px-6 py-3 md:py-4 mx-2 sm:mx-4 md:mx-0 md:w-fit md:mx-auto">
                                 <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
                                     {categories.map(category => (
                                         <button

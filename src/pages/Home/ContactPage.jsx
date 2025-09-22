@@ -44,7 +44,7 @@ const ContactPage = () => {
                 height="h-72"
             />
             <div className='w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8'>
-                <div className="flex flex-col items-center md:flex-row justify-center gap-6 md:gap-10 py-8 md:py-12">
+                <div className="flex flex-col items-center md:flex-row justify-center py-8 md:py-12 md:gap-10">
                     {/* Image with gradient border */}
                     <div className="relative w-32 h-32 flex-shrink-0">
                         <div className="absolute inset-0 rounded-full p-[3px]">
@@ -76,9 +76,9 @@ const ContactPage = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Left Side - Contact Information */}
                     <div className="flex flex-col w-full lg:w-1/2 rounded-xl bg-white p-6 shadow-sm">
-                        <div className='px-4 md:px-10'>
+                        <div className='md:px-10'>
                             <h2 className="text-lg mb-2 font-semibold text-slate-800 text-center">Get in Touch</h2>
-                            <p className='text-slate-500 text-center text-xs mb-6'>
+                            <p className='text-slate-500 text-center text-base mb-6'>
                                 Connect through the cosmic channels
                             </p>
 
@@ -90,8 +90,8 @@ const ContactPage = () => {
                                             {item.icon}
                                         </div>
                                         <div>
-                                            <p className="text-slate-800 text-sm mb-1">{item.name}</p>
-                                            <p className="text-slate-500 text-xs">{item.value}</p>
+                                            <p className="text-slate-800 text-md mb-1">{item.name}</p>
+                                            <p className="text-slate-500 text-base">{item.value}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -131,7 +131,7 @@ const ContactPage = () => {
                     </div>
 
                     {/* Right Side - Contact Form */}
-                    <div className="w-full lg:w-1/2 bg-white p-6 sm:p-8 rounded-xl shadow-sm mt-8 lg:mt-0">
+                    <div className="w-full lg:w-1/2 bg-white p-6 sm:p-8 rounded-xl shadow-sm lg:mt-0">
                         <h2 className="text-lg mb-2 font-semibold text-slate-800 text-center">Send a Message</h2>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">

@@ -2,19 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionHeader from '../../components/Titles/SectionHeader';
 import HomeBanner from '../../components/HomeComponents/HomeBanner';
+import Testimonials from '../../components/Testimonials/Testimonials';
 import aboutImg from '../../assets/user/home/about.png';
 import certifiedExpert from '../../assets/user/home/certifiedExpert.png';
 import clients from '../../assets/user/home/clients.png';
 import multipleLanguage from '../../assets/user/home/multipleLanguage.png';
 import Flowers from '../../assets/user/home/flowers.png';
 import Flower from '../../assets/elements/flower.svg';
-import Testimonial1 from '../../assets/user/home/t1.png';
-import Testimonial2 from '../../assets/user/home/t2.png';
-import Testimonial3 from '../../assets/user/home/t3.jpg';
-import Profile1 from '../../assets/user/home/profile1.png';
-import Profile2 from '../../assets/user/home/profile2.png';
-import Profile3 from '../../assets/user/home/profile3.png';
-import Comment from '../../assets/user/home/comment.png';
 import GooglePlay from '../../assets/user/home/googleplay.png';
 import Mobile from '../../assets/user/home/mobile.png';
 import Group from '../../assets/user/home/Group.png';
@@ -216,7 +210,7 @@ const HomePage = () => {
             icon: <Medal06Icon size={36} className="text-white" />,
             title: '500+ Happy Clients',
             description:
-                'JTrusted by clients worldwide for life-changing guidance and solutions',
+                'Trusted by clients worldwide for life-changing guidance and solutions',
         },
         {
             icon: <FavouriteIcon size={36} className="text-white" />,
@@ -284,38 +278,6 @@ const HomePage = () => {
     }
 
 
-    const testimonialsData = [
-        {
-            name: "Vikram Singh",
-            location: "Pune, Maharashtra",
-            category: "Business Consultation",
-            description:
-                "I was skeptical about astrology, but Pandit Prashant's predictions about my business were remarkably accurate. His spiritual remedies brought positive changes I never expected.",
-            image: Testimonial1,
-            video: "https://via.placeholder.com/400x250",
-            image2: Profile1,
-        },
-        {
-            name: "Priya Sharma",
-            location: "Mumbai, Maharashtra",
-            category: "Kundli Analysis",
-            description:
-                "Pandit Prashant's guidance brought clarity when nothing else helped. His Kundli analysis was incredibly accurate and the remedies he suggested transformed my career completely.",
-            image: Testimonial2,
-            video: "https://via.placeholder.com/400x250",
-            image2: Profile2,
-        },
-        {
-            name: "Rajesh Kumar",
-            location: "Delhi, NCR",
-            category: "Vastu Consultation",
-            description:
-                "The Vastu consultation for our new home was exceptional. Within months of implementing his suggestions, our family experienced unprecedented peace and prosperity.",
-            image: Testimonial3,
-            video: "https://via.placeholder.com/400x250",
-            image2: Profile3,
-        },
-    ];
 
     return (
         <div className='overflow-hidden'>
@@ -367,12 +329,12 @@ const HomePage = () => {
                             <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800">
                                 16 Years of Spiritual Guidance
                             </h2>
-                            <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed">
+                            <p className="text-slate-600 text-sm sm:text-base md:text-base leading-relaxed">
                                 With over 16 years of dedicated practice in Vedic Astrology, I have guided thousands of souls
                                 towards clarity, peace, and prosperity. My expertise spans across traditional Vedic sciences
                                 including Kundli analysis, Vastu Shastra, and spiritual counseling.
                             </p>
-                            <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed">
+                            <p className="text-slate-600 text-sm sm:text-base md:text-base leading-relaxed">
                                 I believe in combining ancient wisdom with practical solutions, helping individuals navigate
                                 life's challenges with confidence and spiritual awareness.
                             </p>
@@ -382,7 +344,7 @@ const HomePage = () => {
                                 {aboutData.map((item, index) => (
                                     <div
                                         key={index}
-                                        className="bg-white rounded-md border border-[#00000026] p-3 sm:p-4 flex flex-col h-full shadow-sm hover:shadow-md transition-shadow duration-300"
+                                        className="bg-white rounded-md border border-[#00000026] p-2 sm:p-3 md:p-2 flex flex-col h-full shadow-sm hover:shadow-md transition-shadow duration-300"
                                     >
                                         {/* Image */}
                                         <div className="flex justify-center mb-2 sm:mb-3">
@@ -399,7 +361,7 @@ const HomePage = () => {
                                             <h3 className="text-xs sm:text-sm md:text-base font-semibold text-slate-800 mb-1 sm:mb-2">
                                                 {item.title}
                                             </h3>
-                                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                                            <p className="text-slate-500 text-xs sm:text-sm md:text-[11px] leading-none">
                                                 {item.content}
                                             </p>
                                         </div>
@@ -502,7 +464,7 @@ const HomePage = () => {
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end justify-center">
                                                         <div className="text-center px-3 sm:px-4 pb-3 sm:pb-4">
                                                             <h3 className="text-white font-semibold text-sm sm:text-base md:text-lg mb-1">{service.title}</h3>
-                                                            <p className="text-white/90 text-xs sm:text-sm">{service.description}</p>
+                                                            <p className="text-white/90 text-xs sm:text-sm md:text-base">{service.description}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -536,7 +498,7 @@ const HomePage = () => {
                 </div>
             </div>
 
-            <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-12 md:py-16 w-full max-w-[1280px] mx-auto">
+            <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto">
                 {/* Header */}
                 <div className='mb-6 sm:mb-8'>
                     <SectionHeader prefix="Our" highlight="Products" />
@@ -550,12 +512,12 @@ const HomePage = () => {
                 ) : productsData.length > 0 ? (
                     <>
                         {/* Products Grid - Responsive Layout */}
-                        <div className="space-y-4 sm:space-y-6 mb-8 sm:mb-12">
-                            {/* Mobile: Single column, Desktop: Grid layout */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                                {/* First Product - Full width on mobile, spans 2 columns on desktop */}
+                        <div className="mb-8 sm:mb-12">
+                            {/* Mobile: Single column, Desktop: 2-column layout with left vertical and right grid */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                                {/* First Product - Vertical on left (1/3 width on desktop) */}
                                 {productsData[0] && (
-                                    <div className="sm:col-span-2 lg:col-span-1">
+                                    <div className="lg:col-span-1">
                                         <Card
                                             product={productsData[0]}
                                             heightClass="h-64 sm:h-72 md:h-80 lg:h-full"
@@ -563,44 +525,57 @@ const HomePage = () => {
                                     </div>
                                 )}
 
-                                {/* Second Product */}
-                                {productsData[1] && (
-                                    <div className="sm:col-span-1 lg:col-span-1">
-                                        <Card
-                                            product={productsData[1]}
-                                            heightClass="h-64 sm:h-72 md:h-80 lg:h-60"
-                                        />
-                                    </div>
-                                )}
+                                {/* Right Section - 4 products in 2x2 grid (2/3 width on desktop) */}
+                                <div className="lg:col-span-2">
+                                    <div className="space-y-4 sm:space-y-6">
+                                        {/* First Row */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                                            {/* Second Product - Narrow */}
+                                            {productsData[1] && (
+                                                <div className="sm:col-span-1">
+                                                    <Card
+                                                        product={productsData[1]}
+                                                        heightClass="h-64 sm:h-72 md:h-80"
+                                                    />
+                                                </div>
+                                            )}
 
-                                {/* Third Product */}
-                                {productsData[2] && (
-                                    <div className="sm:col-span-1 lg:col-span-1">
-                                        <Card
-                                            product={productsData[2]}
-                                            heightClass="h-64 sm:h-72 md:h-80 lg:h-60"
-                                        />
-                                    </div>
-                                )}
-                            </div>
+                                            {/* Third Product - Wide */}
+                                            {productsData[2] && (
+                                                <div className="sm:col-span-2">
+                                                    <Card
+                                                        product={productsData[2]}
+                                                        heightClass="h-64 sm:h-72 md:h-80"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
 
-                            {/* Additional Products Row - Only show if we have more products */}
-                            {(productsData[3] || productsData[4]) && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                    {productsData[3] && (
-                                        <Card
-                                            product={productsData[3]}
-                                            heightClass="h-64 sm:h-72 md:h-80"
-                                        />
-                                    )}
-                                    {productsData[4] && (
-                                        <Card
-                                            product={productsData[4]}
-                                            heightClass="h-64 sm:h-72 md:h-80"
-                                        />
-                                    )}
+                                        {/* Second Row */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                                            {/* Fourth Product - Wide */}
+                                            {productsData[3] && (
+                                                <div className="sm:col-span-2">
+                                                    <Card
+                                                        product={productsData[3]}
+                                                        heightClass="h-64 sm:h-72 md:h-80"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {/* Fifth Product - Narrow */}
+                                            {productsData[4] && (
+                                                <div className="sm:col-span-1">
+                                                    <Card
+                                                        product={productsData[4]}
+                                                        heightClass="h-64 sm:h-72 md:h-80"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+                            </div>
                         </div>
 
                         {/* View More Button */}
@@ -617,80 +592,12 @@ const HomePage = () => {
                 )}
             </div>
             {/* Testimonials Section */}
-            <div className="relative bg-[#F7E8D4] w-full pb-10 sm:pb-16 md:pb-20">
-                <img
-                    src={Flowers}
-                    alt="Flowers left"
-                    className="absolute left-2 sm:left-4 top-0 w-12 sm:w-16 md:w-20 lg:w-24 xl:w-32 opacity-80"
-                />
-                <img
-                    src={Flowers}
-                    alt="Flowers right"
-                    className="absolute right-2 sm:right-4 top-0 w-12 sm:w-16 md:w-20 lg:w-24 xl:w-32 opacity-80 scale-x-[-1]"
-                />
-
-                <div className="px-4 sm:px-6 lg:px-16 pt-12 sm:pt-16 pb-6 max-w-[1280px] mx-auto space-y-3 sm:space-y-4 relative z-10">
-                    <SectionHeader prefix="Our" highlight="Testimonials" />
-                    <SectionHeader prefix="What" highlight="Our" suffix="Patients Say" showImage={false} />
-                    <p className="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-8 sm:mb-10">
-                        Read the testimonials by our patients find more about our clinic.
-                    </p>
-                </div>
-
-                <div className="hidden sm:block absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 translate-y-2 w-32 sm:w-40 md:w-1/2 lg:w-[50%] h-32 sm:h-48 md:h-64 lg:h-80 bg-orange-light z-0 rounded-lg"></div>
-
-                {/* Testimonial cards */}
-                <div className="mt-2 px-4 sm:px-6 flex flex-wrap justify-center gap-4 sm:gap-6 relative z-10">
-                    {testimonialsData.map((item, index) => (
-                        <div
-                            key={index}
-                            className="relative bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-md w-full sm:w-80 md:w-72 lg:w-80 flex flex-col hover:shadow-lg transition-shadow duration-300"
-                        >
-                            {/* Comment icon */}
-                            <img
-                                src={Comment}
-                                alt="Comment"
-                                className="absolute -top-2 sm:-top-3 -right-2 sm:-right-3 w-8 sm:w-10 h-8 sm:h-10"
-                            />
-
-                            {/* Top: User info */}
-                            <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-10 sm:w-12 h-10 sm:h-12 rounded-full object-cover"
-                                />
-                                <div>
-                                    <h3 className="text-sm sm:text-base font-semibold text-slate-800">{item.name}</h3>
-                                    <p className="text-xs sm:text-sm text-slate-500">{item.location}</p>
-                                </div>
-                            </div>
-
-                            {/* Category Tag */}
-                            <span className="w-fit inline-block mb-3 px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium text-white bg-primary-orange rounded-full">
-                                {item.category}
-                            </span>
-
-                            {/* Description */}
-                            <p className="text-sm sm:text-base text-slate-600 mb-4 flex-1 leading-relaxed">{item.description}</p>
-
-                            {/* Video/Image */}
-                            <div className="rounded-md overflow-hidden mt-auto">
-                                <img
-                                    src={item.image2}
-                                    alt="testimonial"
-                                    className="w-full h-28 sm:h-32 md:h-40 object-cover"
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <Testimonials />
 
             <div className="relative">
                 <img
                     src={Flower}
-                    className="absolute right-[-10px] sm:right-[-15px] md:right-[-20px] top-[-5px] -translate-y-1/2 w-12 sm:w-16 md:w-20 lg:w-32 xl:w-44 rotate-270"
+                    className="absolute right-[-10px] sm:right-[-15px] md:right-[-0px] top-[-5px] -translate-y-1/2 w-12 sm:w-16 md:w-16 lg:w-20 xl:w-24 rotate-270"
                 />
                 {/* Social Media */}
                 <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-12 md:py-16 w-full max-w-[1280px] mx-auto">
@@ -700,16 +607,16 @@ const HomePage = () => {
                             prefix="Our"
                             highlight="Social Media"
                         />
-                        <p className='w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 text-center text-sm sm:text-base text-slate-600 mb-6 sm:mb-8 md:mb-10'>
+                        <p className='w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 text-center text-sm sm:text-base md:text-base text-slate-600 mb-6 sm:mb-8 md:mb-10'>
                             Connect with us on social media and watch our educational content on astrology and spiritual guidance
                         </p>
                     </div>
 
                     <div className='flex flex-col lg:flex-row gap-4 sm:gap-6'>
                         {/* Left Side - Video Section */}
-                        <div className='w-full lg:w-1/2 bg-white p-4 sm:p-5 md:p-6 rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300'>
-                            <h2 className='text-lg sm:text-xl md:text-2xl text-slate-800 mb-2 sm:mb-3'>Watch Our Introduction Video</h2>
-                            <p className='text-sm sm:text-base text-slate-600 my-3 sm:my-4 leading-relaxed'>
+                        <div className='w-full lg:w-1/2 bg-white p-4 sm:p-5 md:p-6 rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 text-center'>
+                            <h2 className='text-md sm:text-xl md:text-2xl text-slate-800 mb-2 sm:mb-3'>Watch Our Introduction Video</h2>
+                            <p className='text-sm sm:text-base md:text-base text-slate-600 my-3 sm:my-4 leading-relaxed'>
                                 Get to know Pandit Prashant and understand how Vedic astrology can guide your life journey.
                             </p>
                             <a
@@ -724,7 +631,7 @@ const HomePage = () => {
                                 />
                             </a>
 
-                            <div className='mt-3 sm:mt-4'>
+                            <div className='mt-3 sm:mt-4 flex justify-center'>
                                 <button className='bg-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base hover:shadow-lg transition-all duration-300'>
                                     Watch Introduction Video
                                 </button>
@@ -732,14 +639,14 @@ const HomePage = () => {
                         </div>
 
                         {/* Right Side - Social Media Links */}
-                        <div className='w-full lg:w-1/2 flex flex-col justify-between gap-3 sm:gap-4'>
+                        <div className='w-full lg:w-1/2 flex flex-col justify-between gap-3 sm:gap-6'>
                             {/* Instagram Block */}
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300'>
-                                <div className='mr-3 sm:mr-4 w-10 sm:w-12 md:w-14'>
+                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                                <div className='w-12 sm:w-12 md:w-14 flex-shrink-0'>
                                     <img
                                         src={InstagramImg}
                                         alt="Instagram"
-                                        className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+                                        className="w-10 h-10 sm:w-12 sm:h-12"
                                     />
                                 </div>
                                 <div>
@@ -748,12 +655,12 @@ const HomePage = () => {
                                 </div>
                             </div>
 
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300'>
-                                <div className='mr-3 sm:mr-4 w-10 sm:w-12 md:w-14'>
+                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                                <div className='w-12 sm:w-12 md:w-14 flex-shrink-0'>
                                     <img
                                         src={FacebookImg}
                                         alt="Facebook"
-                                        className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"
+                                        className="w-10 h-10 sm:w-12 sm:h-12"
                                     />
                                 </div>
                                 <div>
@@ -762,12 +669,12 @@ const HomePage = () => {
                                 </div>
                             </div>
 
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300'>
-                                <div className='mr-3 sm:mr-4 w-10 sm:w-12 md:w-14'>
+                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                                <div className='w-14 sm:w-14 md:w-16 flex-shrink-0'>
                                     <img
                                         src={YoutubeImg}
                                         alt="YouTube"
-                                        className="w-12 h-10 sm:w-14 sm:h-9 flex-shrink-0"
+                                        className="w-12 h-10 sm:w-14 sm:h-9"
                                     />
                                 </div>
                                 <div>
@@ -778,17 +685,27 @@ const HomePage = () => {
                         </div>
                     </div>
                 </div>
-                <img
-                    src={Flower}
-                    className="absolute left-[-10px] sm:left-[-15px] md:left-[-20px] top-1/2 -translate-y-1/2 w-12 sm:w-16 md:w-20 lg:w-32 xl:w-44 z-0 rotate-180"
-                />
+
+                {/* Flower positioned between sections - mobile only */}
+                <div className="relative">
+                    <img
+                        src={Flower}
+                        className="absolute left-[-10px] top-[-20px] sm:hidden w-12 z-0 rotate-180"
+                    />
+                </div>
+
                 {/* Download app */}
-                <div className="bg-custom-linear py-8 sm:py-12 md:py-16 lg:py-20">
+                <div className="bg-custom-linear py-8 sm:py-12 md:py-16 lg:py-20 relative">
+                    {/* Flower for larger screens */}
+                    <img
+                        src={Flower}
+                        className="hidden sm:block absolute left-[-10px] sm:left-[-15px] md:left-[-2px] top-[-30px] sm:top-[-35px] md:top-[-50px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-24 z-0 rotate-180"
+                    />
                     <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-10 h-full">
                         <div className="flex-1 flex flex-col items-center justify-center h-full text-center order-2 lg:order-1">
                             <div className="flex flex-col items-center justify-center">
                                 <SectionHeader
-                                    prefix="Our app will be available shortly"
+                                    prefix="Mobile app coming soon"
                                     prefixClass="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl whitespace-normal -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
                                     showImage={false}
                                 />
