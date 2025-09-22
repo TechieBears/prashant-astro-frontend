@@ -99,7 +99,7 @@ const ServiceDetail = () => {
                             </p>
 
                             {/* Session Details */}
-                            <div className="space-y-3 sm:space-y-4 mb-2">
+                            <div className="mb-2">
                                 <div className="flex items-center text-gray-700 gap-3 sm:gap-4">
                                     <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
                                     <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
