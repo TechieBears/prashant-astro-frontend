@@ -346,8 +346,8 @@ const BookingCalendar = () => {
                 backgroundSize="100%"
             />
 
-            <div className="min-h-screen py-8">
-                <div className="container mx-auto px-2 sm:px-3 max-w-7xl">
+            <div className="min-h-screen">
+                <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 md:py-14">
                     {/* Header with Go Back and Title */}
                     <div className="flex items-center justify-between my-4 sm:my-6 md:my-8 px-2 sm:px-0">
                         <button

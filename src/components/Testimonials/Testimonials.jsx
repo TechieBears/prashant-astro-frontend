@@ -10,10 +10,6 @@ import Profile2 from '../../assets/user/home/profile2.png';
 import Profile3 from '../../assets/user/home/profile3.png';
 import Comment from '../../assets/user/home/comment.png';
 
-// Swiper imports
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-
 const testimonialsData = [
     {
         name: "Vikram Singh",
@@ -46,12 +42,35 @@ const testimonialsData = [
         description: "I was unsure about starting my new business, but the consultation gave me the confidence to go ahead. Everything is now falling into place, just as predicted!",
         image2: Profile1,
         image: Testimonial2
+    },
+    {
+        name: "Suresh Kumar",
+        location: "Chennai, Tamil Nadu",
+        category: "Health Astrology",
+        description: "The health predictions were incredibly accurate. Following the suggested remedies has improved my overall well-being significantly. Grateful for the guidance!",
+        image2: Profile2,
+        image: Testimonial3
+    },
+    {
+        name: "Meera Patel",
+        location: "Ahmedabad, Gujarat",
+        category: "Financial Guidance",
+        description: "The financial advice based on my birth chart helped me make better investment decisions. The return on investments has been exactly as predicted.",
+        image2: Profile3,
+        image: Testimonial1
     }
 ];
 
 const Testimonials = () => {
     const [expandedIndexes, setExpandedIndexes] = useState([]);
+    const [currentGroup, setCurrentGroup] = useState(0);
+    const [isVisible, setIsVisible] = useState(true);
+    const [isAnimating, setIsAnimating] = useState(false);
     const DESCRIPTION_LIMIT = 140;
+    const SLIDES_PER_GROUP = 3;
+    
+    // Calculate total groups
+    const totalGroups = Math.ceil(testimonialsData.length / SLIDES_PER_GROUP);
 
     const toggleReadMore = (index) => {
         setExpandedIndexes((prev) =>
@@ -59,6 +78,50 @@ const Testimonials = () => {
                 ? prev.filter((i) => i !== index)
                 : [...prev, index]
         );
+    };
+
+    const handlePrevClick = () => {
+        if (isAnimating) return;
+        
+        setIsAnimating(true);
+        setIsVisible(false); // Start disappear animation
+        
+        setTimeout(() => {
+            // Change to previous group
+            const prevGroupIndex = currentGroup === 0 ? totalGroups - 1 : currentGroup - 1;
+            setCurrentGroup(prevGroupIndex);
+            
+            // Start appear animation
+            setTimeout(() => {
+                setIsVisible(true);
+                setIsAnimating(false);
+            }, 50);
+        }, 500); // Wait for disappear animation to complete
+    };
+
+    const handleNextClick = () => {
+        if (isAnimating) return;
+        
+        setIsAnimating(true);
+        setIsVisible(false); // Start disappear animation
+        
+        setTimeout(() => {
+            // Change to next group
+            const nextGroupIndex = currentGroup === totalGroups - 1 ? 0 : currentGroup + 1;
+            setCurrentGroup(nextGroupIndex);
+            
+            // Start appear animation
+            setTimeout(() => {
+                setIsVisible(true);
+                setIsAnimating(false);
+            }, 50);
+        }, 500); // Wait for disappear animation to complete
+    };
+
+    // Get current slides to display
+    const getCurrentSlides = () => {
+        const startIndex = currentGroup * SLIDES_PER_GROUP;
+        return testimonialsData.slice(startIndex, startIndex + SLIDES_PER_GROUP);
     };
 
     return (
@@ -89,82 +152,111 @@ const Testimonials = () => {
             {/* Background shape */}
             <div className="hidden sm:block absolute bottom-24 left-1/2 -translate-x-1/2 translate-y-2 w-40 sm:w-1/2 md:w-[50%] h-48 sm:h-64 md:h-80 bg-orange-light z-0 rounded-lg"></div>
 
-            {/* Swiper Carousel */}
+            {/* Testimonial Cards */}
             <div className="mt-2 px-4 sm:px-6 lg:px-16 py-16 relative z-10 max-w-[1280px] mx-auto pt-1">
-                <Swiper
-                    spaceBetween={40}
-                    slidesPerView={1}
-                    autoplay={{ delay: 4000, disableOnInteraction: false }}
-                    breakpoints={{
-                        640: { slidesPerView: 1 },
-                        768: { slidesPerView: 2 },
-                        1024: { slidesPerView: 3 },
-                    }}
-                    loop={true}
-                >
-                    {testimonialsData.map((item, index) => {
-                        const isExpanded = expandedIndexes.includes(index);
+                {/* Cards Container */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-opacity duration-500">
+                    {getCurrentSlides().map((item, index) => {
+                        const globalIndex = currentGroup * SLIDES_PER_GROUP + index;
+                        const isExpanded = expandedIndexes.includes(globalIndex);
                         const shouldTruncate = item.description.length > DESCRIPTION_LIMIT;
                         const displayedText = isExpanded
                             ? item.description
                             : item.description.slice(0, DESCRIPTION_LIMIT) + (shouldTruncate ? '...' : '');
 
                         return (
-                            <SwiperSlide key={index}>
-                                <div className="mx-6">
-                                    {/* Comment icon */}
-                                    <img
-                                        src={Comment}
-                                        alt="Comment"
-                                        className="absolute top-3 right-1 w-10 sm:w-10 h-10 sm:h-10 z-20"
-                                    />
+                            <div key={globalIndex} className="mx-6 relative">
+                                {/* Comment icon */}
+                                <img
+                                    src={Comment}
+                                    alt="Comment"
+                                    className="absolute top-3 right-1 w-10 sm:w-10 h-10 sm:h-10 z-20"
+                                />
 
-                                    <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full flex flex-col overflow-visible">
-                                        {/* Top: User info */}
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <img
-                                                src={item.image}
-                                                alt={item.name}
-                                                className="w-10 sm:w-12 h-10 sm:h-12 rounded-full object-cover"
-                                            />
-                                            <div>
-                                                <h3 className="text-sm font-semibold text-slate-800">{item.name}</h3>
-                                                <p className="text-xs text-slate-500">{item.location}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Category */}
-                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-[#0088FF] rounded-full">
-                                            {item.category}
-                                        </span>
-
-                                        {/* Description */}
-                                        <p className="text-sm text-slate-600 mb-2">
-                                            {displayedText}
-                                            {shouldTruncate && (
-                                                <button
-                                                    onClick={() => toggleReadMore(index)}
-                                                    className="text-blue-600 font-medium ml-1"
-                                                >
-                                                    {isExpanded ? 'Read less' : 'Read more'}
-                                                </button>
-                                            )}
-                                        </p>
-
-                                        {/* Image / Video */}
-                                        <div className="rounded-md overflow-hidden mt-auto">
-                                            <img
-                                                src={item.image2}
-                                                alt="testimonial"
-                                                className="w-full h-32 sm:h-40 object-cover"
-                                            />
+                                <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full flex flex-col overflow-visible">
+                                    {/* Top: User info */}
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-10 sm:w-12 h-10 sm:h-12 rounded-full object-cover"
+                                        />
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-slate-800">{item.name}</h3>
+                                            <p className="text-xs text-slate-500">{item.location}</p>
                                         </div>
                                     </div>
+
+                                    {/* Category */}
+                                    <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-[#0088FF] rounded-full">
+                                        {item.category}
+                                    </span>
+
+                                    {/* Description */}
+                                    <p className="text-sm text-slate-600 mb-2">
+                                        {displayedText}
+                                        {shouldTruncate && (
+                                            <button
+                                                onClick={() => toggleReadMore(globalIndex)}
+                                                className="text-blue-600 font-medium ml-1"
+                                            >
+                                                {isExpanded ? 'Read less' : 'Read more'}
+                                            </button>
+                                        )}
+                                    </p>
+
+                                    {/* Image / Video */}
+                                    <div className="rounded-md overflow-hidden mt-auto">
+                                        <img
+                                            src={item.image2}
+                                            alt="testimonial"
+                                            className="w-full h-32 sm:h-40 object-cover"
+                                        />
+                                    </div>
                                 </div>
-                            </SwiperSlide>
+                            </div>
                         );
                     })}
-                </Swiper>
+                </div>
+
+                {/* Custom Navigation Buttons */}
+                {/* <div className="flex justify-center gap-4 mt-8">
+                    <button
+                        onClick={handlePrevClick}
+                        disabled={isAnimating}
+                        className={`flex items-center justify-center px-6 py-3 bg-white text-slate-700 font-medium text-sm rounded-lg shadow-md hover:shadow-lg hover:bg-slate-50 transition-all duration-300 border border-slate-200 ${
+                            isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                        }`}
+                    >
+                        <svg 
+                            className="w-4 h-4 mr-2" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                    </button>
+                    
+                    <button
+                        onClick={handleNextClick}
+                        disabled={isAnimating}
+                        className={`flex items-center justify-center px-6 py-3 bg-[#0088FF] text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg hover:bg-blue-600 transition-all duration-300 ${
+                            isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                        }`}
+                    >
+                        Next
+                        <svg 
+                            className="w-4 h-4 ml-2" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div> */}
             </div>
         </div>
     );

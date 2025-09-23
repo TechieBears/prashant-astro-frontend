@@ -286,7 +286,7 @@ const HomePage = () => {
                             alt="About Us"
                             className="w-16 sm:w-24 md:w-32 lg:w-40 xl:w-52 2xl:w-64 h-auto max-w-full animate-spin"
                             style={{
-                                animation: 'spin 10s linear infinite'
+                                animation: 'spin 30s linear infinite'
                             }}
                         />
 
@@ -415,11 +415,12 @@ const HomePage = () => {
 
             <div className="relative">
                 {/* Header */}
-                <div className="absolute top-[-20%] sm:top-[-25%] md:top-[-30%] left-0 -z-0 hidden lg:block">
+                <div className="absolute top-[-20%] sm:top-[-25%] left-[-20%] md:top-[-30%] -z-0 hidden lg:block">
                     <img
                         src={servicesElement}
                         alt="OM"
-                        className="w-[60%] sm:w-[70%] md:w-[60%] lg:w-full h-auto max-w-full mx-auto"
+                        className="w-[60%] sm:w-[70%] md:w-[60%] lg:w-full h-auto max-w-full mx-auto animate-spin-slow"
+                    style={{ transformOrigin: 'center center' }}
                     />
                 </div>
 
@@ -586,7 +587,7 @@ const HomePage = () => {
             {/* Testimonials Section */}
             <Testimonials />
 
-            <div className="relative">
+            <section className="relative" id='social-media'>
                 <img
                     src={Flower}
                     className="absolute right-[-10px] sm:right-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-20 md:w-16 lg:w-28 xl:w-32 animate-spin-slow"
@@ -731,7 +732,7 @@ const HomePage = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 };

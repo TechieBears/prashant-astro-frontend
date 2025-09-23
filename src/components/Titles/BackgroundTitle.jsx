@@ -11,7 +11,7 @@ const BackgroundTitle = ({
   backgroundImage = pagesBanner,
   height = "h-48 md:h-64 lg:h-72",
   textColor = "text-white",
-  overlayColor = "bg-black bg-opacity-60",
+  overlayColor = "bg-black bg-opacity-20",
   backgroundPosition = "",
   breadcrumbsClassName = "text-base md:text-lg lg:text-xl",
   breadcrumbItemTextClassName = "text-white text-base md:text-lg lg:text-xl font-medium",
@@ -21,7 +21,7 @@ const BackgroundTitle = ({
     <div
       className={`relative ${height} flex items-center justify-center bg-cover bg-center bg-no-repeat`}
       style={{
-        backgroundImage: `url(${backgroundImage})`,
+        backgroundImage: `url(${pagesBanner})`,
         backgroundPosition: backgroundPosition,
         backgroundSize: backgroundSize
       }}

@@ -11,7 +11,7 @@ export default {
                 "sidebar-collapsed": "64px auto", //for collapsed sidebar layout
             },
             animation: {
-                'spin-slow': 'spin 20s linear infinite',
+                'spin-slow': 'spin 30s linear infinite',
             },
             
             fontSize: {

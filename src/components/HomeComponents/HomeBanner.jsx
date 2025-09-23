@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { formBtn1 } from '../../utils/CustomClass'
+import { Calendar03Icon, PlayListIcon } from 'hugeicons-react';
+import { NavLink } from 'react-router-dom';
 // import { useGSAP } from '@gsap/react';
 // import { gsap } from 'gsap';
 // import { SplitText } from 'gsap/all';
@@ -145,14 +147,38 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                                             <p className="discrption text-sm sm:text-base md:text-lg lg:text-xl font-tbPop font-normal text-white md:text-black max-w-4xl !mb-4 sm:!mb-5 overflow-hidden leading-relaxed">
                                                 {slide.description}
                                             </p>
-                                            {slide.button && (
+                                            {/* {slide.button && (
                                                 <button
                                                     className={`btn ${formBtn1} text-sm sm:text-base px-6 sm:px-8 py-2 sm:py-3 mt-2 sm:mt-4`}
                                                     onClick={slide.onClick}
                                                 >
                                                     Register to join
                                                 </button>
-                                            )}
+                                            )} */}
+
+                                            <div className='flex w-full justify-between gap-6'>
+                                                <NavLink to='/services' className="bg-gradient-orange w-full justify-center items-center gap-2 flex flex-row text-white font-medium px-6 py-2 rounded shadow hover:opacity-90 transition">
+                                                    <Calendar03Icon size={18} color='#fff' />
+                                                    <span>
+                                                    Book Consultation
+                                                    </span>
+                                                </NavLink>
+                                               <button
+  onClick={() => {
+    const element = document.getElementById('social-media');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }}
+  className="bg-white w-full justify-center items-center gap-2 flex flex-row text-black font-medium px-6 py-2 rounded shadow hover:opacity-90 transition"
+>
+  <PlayListIcon size={18} color="orange" />
+  <span className="bg-text-gradient-orange bg-clip-text text-transparent">
+    Watch Introduction
+  </span>
+</button>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

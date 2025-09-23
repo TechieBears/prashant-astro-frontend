@@ -236,7 +236,7 @@ const ProductDetail = () => {
                 backgroundPosition="center 73%"
                 backgroundSize="100%"
             />
-            <div className="container mx-auto px-4 md:px-8 max-w-7xl py-8">
+            <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 md:py-14">
 
                 {/* Product Section */}
                 <div className="lg:flex gap-6">
