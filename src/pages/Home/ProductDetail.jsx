@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaStar, FaRegStar, FaShoppingCart, FaRegHeart, FaHeart, FaMinus, FaPlus } from 'react-icons/fa';
 import RelatedProducts from '../../components/Products/RelatedProducts';
 import { BsArrowLeft } from 'react-icons/bs';
@@ -8,10 +9,16 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
 import { getActiveProduct } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
+import { fetchCartData, updateProductQuantity } from '../../redux/Slices/cartSlice';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    // Redux state
+    const { productItems: cartItems } = useSelector(state => state.cart);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [product, setProduct] = useState(null);
@@ -20,6 +27,47 @@ const ProductDetail = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [activeTab, setActiveTab] = useState('description');
+    const [isProductInCart, setIsProductInCart] = useState(false);
+    const [cartItemId, setCartItemId] = useState(null);
+
+    // Simple quantity update handler
+    const updateQuantity = useCallback((newQuantity) => {
+        setQuantity(newQuantity);
+    }, []);
+
+    // Quantity change handlers
+    const handleQuantityChange = useCallback((increment) => {
+        const newQuantity = increment ? quantity + 1 : Math.max(1, quantity - 1);
+        updateQuantity(newQuantity);
+    }, [quantity, updateQuantity]);
+
+    const handleQuantityInputChange = useCallback((value) => {
+        const newQuantity = Math.max(1, Math.min(product?.stock || 1, Number(value) || 1));
+        updateQuantity(newQuantity);
+    }, [product?.stock, updateQuantity]);
+
+    // Check if product is in cart and set initial quantity
+    const checkProductInCart = useCallback(() => {
+        if (!product || !cartItems.length) return;
+
+        const cartItem = cartItems.find(item =>
+            item.productId === product._id ||
+            item.product?._id === product._id ||
+            item._id === product._id
+        );
+
+        if (cartItem) {
+            console.log('Product found in cart with quantity:', cartItem.quantity);
+            setIsProductInCart(true);
+            setCartItemId(cartItem._id);
+            setQuantity(cartItem.quantity);
+        } else {
+            console.log('Product not in cart, using default quantity');
+            setIsProductInCart(false);
+            setCartItemId(null);
+            setQuantity(1);
+        }
+    }, [product, cartItems]);
 
     // Fetch product data
     useEffect(() => {
@@ -64,6 +112,16 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id]);
 
+    // Fetch cart data on component mount
+    useEffect(() => {
+        dispatch(fetchCartData());
+    }, [dispatch]);
+
+    // Check if product is in cart when product or cart data changes
+    useEffect(() => {
+        checkProductInCart();
+    }, [checkProductInCart]);
+
     // Show loading state
     if (loading) {
         return (
@@ -97,11 +155,6 @@ const ProductDetail = () => {
         );
     }
 
-    const handleQuantityChange = (increment) => {
-        const newQuantity = increment ? quantity + 1 : Math.max(1, quantity - 1);
-        setQuantity(newQuantity);
-    };
-
     const navigateToImage = (direction) => {
         if (direction === 'next') {
             setCurrentImageIndex((prevIndex) =>
@@ -116,6 +169,17 @@ const ProductDetail = () => {
 
     const toggleWishlist = () => {
         setIsWishlisted(!isWishlisted);
+    };
+
+    const handleBuyNow = (productId) => {
+        // Navigate to buy now page with product data
+        console.log('Buy now clicked for product:', productId, 'with quantity:', quantity);
+        navigate('/buy-now', {
+            state: {
+                product: product,
+                quantity: quantity
+            }
+        });
     };
 
 
@@ -180,7 +244,13 @@ const ProductDetail = () => {
                             min="1"
                             max={product.stock || 1}
                             value={quantity}
-                            onChange={(e) => setQuantity(Number(e.target.value))}
+                            onChange={(e) => handleQuantityInputChange(e.target.value)}
+                            onBlur={(e) => {
+                                const value = Number(e.target.value);
+                                if (!value || value < 1) {
+                                    handleQuantityInputChange(1);
+                                }
+                            }}
                             className="w-16 px-2 py-2 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-orange-400"
                         />
                     </div>
@@ -204,6 +274,8 @@ const ProductDetail = () => {
                         stock={product.stock}
                         size="default"
                         variant="default"
+                        isInCart={isProductInCart}
+                        cartItemId={cartItemId}
                     />
                 </div>
 
