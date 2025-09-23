@@ -1499,7 +1499,6 @@ export const createProductOrder = async (orderData) => {
         return err?.response?.data || { success: false, message: 'Failed to create order' };
     }
 };
-
 // ==================== Get All Product Orders Api ====================
 export const getAllProductOrders = async () => {
     const url = `${environment.baseUrl}product-order/public/get-all`;
