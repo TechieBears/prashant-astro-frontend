@@ -303,7 +303,6 @@ const CartPage = () => {
                             <span className="sm:hidden">Back</span>
                         </button>
                     </div>
-
                     <h1 className="text-xl md:text-2xl font-normal text-gray-900">Cart</h1>
 
                     {/* Desktop Tabs */}
