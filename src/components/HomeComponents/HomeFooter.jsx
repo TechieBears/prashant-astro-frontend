@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
 import footerBg from "../../assets/footer-bg.jpg";
-
+import logo from "../../assets/astroguid logo.png";
+import logoText from "../../assets/astroguid logo text.png";
 const HomeFooter = () => {
     const navigate = useNavigate();
 
@@ -17,7 +18,20 @@ const HomeFooter = () => {
             <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                 <div>
                     <div className="flex items-center gap-2 mb-4">
-                        <h2 className="text-lg font-semibold">Pandit Prashant</h2>
+                         <button
+                                               onClick={() => {
+                                                   navigate("/");
+                                                   window.scrollTo(0, 0, { behavior: "smooth" });
+                                               }}
+                                               className="flex items-center gap-2"
+                                           >
+                                               <img src={logo} alt="logo" className="h-10 md:h-12" />
+                                               <img
+                                                   src={logoText}
+                                                   alt="Pandit Prashant"
+                                                   className="hidden sm:block h-6 md:h-7 mt-1"
+                                               />
+                                           </button>
                     </div>
                     <p className="text-sm text-gray-300 leading-relaxed">
                         Guiding lives through ancient Vedic wisdom with 16+ years of

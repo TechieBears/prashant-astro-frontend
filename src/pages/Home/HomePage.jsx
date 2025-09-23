@@ -320,7 +320,7 @@ const HomePage = () => {
                             <img
                                 src={aboutImg}
                                 alt="Home Banner"
-                                className="w-full h-auto object-cover rounded-lg shadow-lg"
+                                className="w-full h-auto object-cover rounded-lg"
                             />
                         </div>
 
@@ -597,8 +597,10 @@ const HomePage = () => {
             <div className="relative">
                 <img
                     src={Flower}
-                    className="absolute right-[-10px] sm:right-[-15px] md:right-[-0px] top-[-5px] -translate-y-1/2 w-12 sm:w-16 md:w-16 lg:w-20 xl:w-24 rotate-270"
+                    className="absolute right-[-10px] sm:right-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-20 md:w-16 lg:w-28 xl:w-32 animate-spin-slow"
+                    style={{ transformOrigin: 'center center' }}
                 />
+
                 {/* Social Media */}
                 <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-12 md:py-16 w-full max-w-[1280px] mx-auto">
                     {/* Header */}
@@ -688,19 +690,20 @@ const HomePage = () => {
 
                 {/* Flower positioned between sections - mobile only */}
                 <div className="relative">
-                    <img
-                        src={Flower}
-                        className="absolute left-[-10px] top-[-20px] sm:hidden w-12 z-0 rotate-180"
-                    />
+                       <img
+                    src={Flower}
+                    className="absolute left-[-10px] sm:left-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-32 animate-spin-slow"
+                    style={{ transformOrigin: 'center center' }}
+                />
                 </div>
 
                 {/* Download app */}
                 <div className="bg-custom-linear py-8 sm:py-12 md:py-16 lg:py-20 relative">
                     {/* Flower for larger screens */}
-                    <img
+                    {/* <img
                         src={Flower}
                         className="hidden sm:block absolute left-[-10px] sm:left-[-15px] md:left-[-2px] top-[-30px] sm:top-[-35px] md:top-[-50px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-24 z-0 rotate-180"
-                    />
+                    /> */}
                     <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-10 h-full">
                         <div className="flex-1 flex flex-col items-center justify-center h-full text-center order-2 lg:order-1">
                             <div className="flex flex-col items-center justify-center">

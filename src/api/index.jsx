@@ -1465,6 +1465,7 @@ export const getAllAstrologer = async (data = {employeeType: "astrologer"}) => {
         throw error;
     }
 };
+
 // ==================== Get Astrologers Api ====================
 export const getAstrologers = async () => {
     const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
@@ -1476,5 +1477,20 @@ export const getAstrologers = async () => {
     } catch (error) {
         console.error('Error fetching astrologers:', error);
         return error?.response?.data || { success: false, message: 'Failed to fetch astrologers' };
+    }
+};
+
+// ==================== Post Contact Us & Feedback Api ====================
+export const postContactUs = async (data) => {
+    const url = `${environment.baseUrl}feedback/create`;
+    try {
+        const response = await axios.post(url, {
+            ...data,
+            source: "website"
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error posting contact us:', error);
+        return error?.response?.data || { success: false, message: 'Failed to post contact us' };
     }
 };

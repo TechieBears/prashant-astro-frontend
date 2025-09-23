@@ -13,7 +13,7 @@ const SelectTextInput = ({ label, options, props, errors, registerName, style, d
                 <select
                     disabled={disabled}
                     id={registerName}
-                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
+                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${style} ${errors ? 'border-red-500' : 'border-transparent '} `}
                     placeholder={placeholder}
                     onChange={handleChange}
                     {...props}

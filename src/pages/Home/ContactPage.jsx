@@ -6,12 +6,31 @@ import CustomTextArea from '../../components/TextInput/CustomTextArea';
 import { Mail01Icon, WhatsappIcon, UserMultiple02Icon } from 'hugeicons-react';
 import { Facebook01Icon, InstagramIcon, TwitterIcon, Linkedin01Icon } from 'hugeicons-react'; // Importing social icons
 import SectionHeader from '../../components/Titles/SectionHeader'; // Importing SectionHeader
+import { postContactUs } from '../../api';
+import toast from 'react-hot-toast';
+
 
 const ContactPage = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data);
+    const onSubmit = async (data) => {
+      
+        try {
+            const response = await postContactUs(data);
+            console.log('response contact us', response)
+            if(response.success) {
+               toast.success(response?.message, {
+                autoClose: 3000,  
+                });
+                reset();
+            }else{
+               toast.error(response?.message, {
+                autoClose: 3000,  
+                });
+            }
+        } catch (error) {
+            console.log('Error posting contact us:', error);
+        }
     };
 
     const contactData = [
@@ -43,7 +62,7 @@ const ContactPage = () => {
                 backgroundImage="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
                 height="h-72"
             />
-            <div className='w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8'>
+            <div className='w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-12 sm:py-16 md:py-20'>
                 <div className="flex flex-col items-center md:flex-row justify-center py-8 md:py-12 md:gap-10">
                     {/* Image with gradient border */}
                     <div className="relative w-32 h-32 flex-shrink-0">
@@ -190,16 +209,20 @@ const ContactPage = () => {
                                     <label className="block text-gray-700 text-sm font-medium mb-1">
                                         Subject <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         {...register("subject", { required: "Subject is required" })}
                                         className={`w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${errors.subject ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'}`}
-                                        placeholder="Enter subject"
-                                    />
+                                    >
+                                        <option value="" disabled>Select a subject</option>
+                                        <option value="Feedback">Feedback</option>
+                                        <option value="Complaint">Complaint</option>
+                                        <option value="Other">Other</option>
+                                    </select>
                                     {errors.subject && (
                                         <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
                                     )}
                                 </div>
+
                             </div>
 
                             <div>

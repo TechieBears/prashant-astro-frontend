@@ -102,7 +102,6 @@ const navLinks = useMemo(() => {
 }, [servicesDropdown, login]);
 
 
-    console.log('navLinks', navLinks)
 
     useEffect(() => {
         if (isMenuOpen) {
