@@ -2,13 +2,14 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-// import Calendar from '../../components/Calendar'; // Commented out custom calendar
+import { useForm, Controller } from 'react-hook-form';
+import toast, { Toaster } from 'react-hot-toast';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../../css/react-calendar.css';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import { Input, Select } from '../../components/Form';
-import { getServicesList, getAstrologers } from '../../api';
+import { getServicesList, getAllAstrologer, checkAvailability } from '../../api';
 
 const BookingCalendar = () => {
     const navigate = useNavigate();
@@ -28,31 +29,35 @@ const BookingCalendar = () => {
     const [astrologers, setAstrologers] = useState([]);
     const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [availability, setAvailability] = useState(null);
+    const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
 
-    // Form state
-    const [formData, setFormData] = useState({
-        serviceType: '',
-        serviceMood: 'consult-online',
-        pandit: '',
-        fullName: '',
-        mobileNumber: '',
-        emailAddress: '',
-        timeSlot: '',
-        selectedDate: null
+    // Form setup with react-hook-form
+    const { control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm({
+        defaultValues: {
+            serviceType: '',
+            serviceMood: 'consult-online',
+            astrologer: '',
+            fullName: '',
+            mobileNumber: '',
+            emailAddress: '',
+            timeSlot: '',
+            selectedDate: null
+        }
     });
+
+    // Watch form values for availability checks
+    const watchedAstrologer = watch('astrologer');
+    const watchedDate = watch('selectedDate');
 
     // User details population
     useEffect(() => {
         if (loggedUserDetails) {
-            setFormData(prev => ({
-                ...prev,
-                fullName: `${loggedUserDetails.firstName || ''} ${loggedUserDetails.lastName || ''}`.trim(),
-                mobileNumber: loggedUserDetails.mobileNo || '',
-                emailAddress: loggedUserDetails.email || ''
-            }));
+            setValue('fullName', `${loggedUserDetails.firstName || ''} ${loggedUserDetails.lastName || ''}`.trim());
+            setValue('mobileNumber', loggedUserDetails.mobileNo || '');
+            setValue('emailAddress', loggedUserDetails.email || '');
         }
-    }, [loggedUserDetails]);
+    }, [loggedUserDetails, setValue]);
 
     // Calendar state
     const [selectedDate, setSelectedDate] = useState(null);
@@ -60,19 +65,24 @@ const BookingCalendar = () => {
     // Static options
     const serviceMoodOptions = useMemo(() => [
         { value: 'consult-online', label: 'Consult Online' },
-        { value: 'consult-pandit-location', label: 'Consult at Pandit location' },
+        { value: 'consult-astrologer-location', label: 'Consult at Astrologer location' },
         { value: 'pooja-at-home', label: 'Pooja at Home' }
     ], []);
 
-    const timeSlots = useMemo(() => [
-        '09:00 AM - 12:00 PM',
-        '12:00 PM - 03:00 PM',
-        '03:00 PM - 06:00 PM',
-        '06:00 PM - 09:00 PM'
-    ], []);
+    // Generate time slots from availability data - only show available slots
+    const timeSlots = useMemo(() => {
+        if (!availability?.data?.timeSlots) return [];
+        const availableSlots = availability.data.timeSlots
+            .filter(slot => slot.status === 'available')
+            .map(slot => ({
+                value: slot.time,
+                label: `${slot.display_time} - ${slot.display_end_time}`
+            }));
+        return availableSlots;
+    }, [availability]);
 
     // Astrologer options
-    const panditOptions = useMemo(() => {
+    const AstrologerOptions = useMemo(() => {
         if (!astrologers.length) return [];
         return astrologers.map(astrologer => ({
             value: astrologer._id,
@@ -94,7 +104,7 @@ const BookingCalendar = () => {
 
     // Fetch services
     const fetchServices = useCallback(async () => {
-        if (services.length > 0 || isServicesLoading) return; // Don't refetch if already loaded or loading
+        if (services.length > 0 || isServicesLoading) return;
 
         try {
             setIsServicesLoading(true);
@@ -117,16 +127,16 @@ const BookingCalendar = () => {
         } finally {
             setIsServicesLoading(false);
         }
-    }, [services.length, isServicesLoading]);
+    }, [services.length, isServicesLoading, setIsServicesLoading, setError, setServices]);
 
     // Fetch astrologers
     const fetchAstrologers = useCallback(async () => {
-        if (astrologers.length > 0 || isAstrologersLoading) return; // Don't refetch if already loaded or loading
+        if (astrologers.length > 0 || isAstrologersLoading) return;
 
         try {
             setIsAstrologersLoading(true);
             setError(null);
-            const response = await getAstrologers();
+            const response = await getAllAstrologer();
             if (response?.success && response?.data) {
                 setAstrologers(response.data);
             } else {
@@ -138,7 +148,7 @@ const BookingCalendar = () => {
         } finally {
             setIsAstrologersLoading(false);
         }
-    }, [astrologers.length, isAstrologersLoading]);
+    }, [astrologers.length, isAstrologersLoading, setIsAstrologersLoading, setError, setAstrologers]);
 
     // Authentication check
     useEffect(() => {
@@ -167,10 +177,7 @@ const BookingCalendar = () => {
         }
 
         setSelectedService(serviceData);
-        setFormData(prev => ({
-            ...prev,
-            serviceType: serviceData?._id || ''
-        }));
+        setValue('serviceType', serviceData?._id || '');
         setIsLoading(false);
     }, [isLogged, authLoading, serviceData, navigate]);
 
@@ -199,58 +206,82 @@ const BookingCalendar = () => {
         );
     }
 
-    // Form validation
-    const validateForm = useCallback(() => {
-        const errors = {};
-        if (!formData.serviceType) errors.serviceType = 'Service type is required';
-        if (!formData.selectedDate) errors.selectedDate = 'Date is required';
-        if (!formData.timeSlot) errors.timeSlot = 'Time slot is required';
-        if (!formData.pandit) errors.pandit = 'Pandit selection is required';
-        return errors;
-    }, [formData]);
+    const checkAstrologerAvailability = useCallback(async (date, astrologerId) => {
+        if (!date || !astrologerId) return;
 
-    // Form input handler
-    const handleInputChange = useCallback((field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    }, []);
+        try {
+            setIsAvailabilityLoading(true);
+            setError(null);
+
+            const formattedDate = date.toLocaleDateString('en-CA');
+            const payload = {
+                date: formattedDate,
+                astrologer_id: astrologerId
+            };
+            const response = await checkAvailability(payload);
+
+            // Check if the response indicates the astrologer is not available
+            if (response && response.success === false) {
+                toast.error(response.message || 'Astrologer is not available on this day');
+                setAvailability(null);
+                return null;
+            }
+            if (response && response.success === true) {
+                setAvailability(response);
+                return response;
+            }
+
+            setAvailability(null);
+            return null;
+        } catch (error) {
+            console.error('Error checking availability:', error);
+
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error.response.data.message);
+            } else {
+                toast.error('Failed to check availability. Please try again.');
+            }
+
+            setAvailability(null);
+            return null;
+        } finally {
+            setIsAvailabilityLoading(false);
+        }
+    }, [setIsAvailabilityLoading, setError, setAvailability]);
 
     // Date selection handler for react-calendar
     const handleDateSelect = useCallback((date) => {
-        console.log('Date selected:', date);
-        console.log('Date type:', typeof date);
-        console.log('Date string:', date?.toString());
-        console.log('Date ISO:', date?.toISOString());
+        // Format date to YYYY-MM-DD
+        const formattedDate = date ?
+            date.toLocaleDateString('en-CA') :
+            null;
+        console.log('Formatted date:', formattedDate);
 
         setSelectedDate(date);
-        setFormData(prev => ({
-            ...prev,
-            selectedDate: date,
-            // Clear time slot when changing date
-            timeSlot: date ? prev.timeSlot : ''
-        }));
-    }, []);
+        setValue('selectedDate', date);
+        setValue('timeSlot', ''); // Clear time slot when date changes
+    }, [setValue]);
 
-    // Booking handler with validation
-    const handleBookService = useCallback(async () => {
-        const errors = validateForm();
-        if (Object.keys(errors).length > 0) {
-            setError('Please fill in all required fields');
-            return;
+    // Watch for astrologer changes and check availability
+    useEffect(() => {
+        if (watchedAstrologer && watchedDate) {
+            const selectedAstrologer = astrologers.find(astrologer => astrologer._id === watchedAstrologer);
+            if (selectedAstrologer) {
+                checkAstrologerAvailability(watchedDate, selectedAstrologer.empId);
+            }
         }
+    }, [watchedAstrologer, watchedDate, astrologers, checkAstrologerAvailability]);
 
-        setIsSubmitting(true);
+    // Form submission handler
+    const onSubmit = useCallback(async (data) => {
         setError(null);
 
         try {
             // Format the date for submission (ISO string)
             const bookingData = {
-                ...formData,
-                selectedDate: formData.selectedDate.toISOString(),
-                // Format the date for display in the confirmation
-                formattedDate: formData.selectedDate.toLocaleDateString('en-US', {
+                ...data,
+                selectedDate: data.selectedDate.toISOString(),
+                formattedDate: data.selectedDate.toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -264,10 +295,8 @@ const BookingCalendar = () => {
         } catch (error) {
             console.error('Booking error:', error);
             setError('Failed to book service. Please try again.');
-        } finally {
-            setIsSubmitting(false);
         }
-    }, [formData, validateForm]);
+    }, [setError]);
 
 
     // Show loading state
@@ -284,6 +313,28 @@ const BookingCalendar = () => {
 
     return (
         <>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#363636',
+                        color: '#fff',
+                    },
+                    success: {
+                        duration: 3000,
+                        style: {
+                            background: '#10B981',
+                        },
+                    },
+                    error: {
+                        duration: 4000,
+                        style: {
+                            background: '#EF4444',
+                        },
+                    },
+                }}
+            />
             <BackgroundTitle
                 title="Booking Calender"
                 breadcrumbs={[
@@ -317,97 +368,143 @@ const BookingCalendar = () => {
                     </div>
 
                     {/* Main Booking Card */}
-                    <div className="bg-white rounded-2xl shadow-lg px-4 sm:px-6 py-6 sm:py-8">
+                    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-lg px-4 sm:px-6 py-6 sm:py-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                             <div className="space-y-6">
                                 {/* Services Type */}
-                                <Select
-                                    id="serviceType"
-                                    label="Services Type"
-                                    value={formData.serviceType}
-                                    onChange={(e) => handleInputChange('serviceType', e.target.value)}
-                                    options={serviceOptions}
-                                    required
-                                    disabled={isServicesLoading}
-                                    isLoading={isServicesLoading}
+                                <Controller
+                                    name="serviceType"
+                                    control={control}
+                                    rules={{ required: 'Service type is required' }}
+                                    render={({ field }) => (
+                                        <Select
+                                            id="serviceType"
+                                            label="Services Type"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            options={serviceOptions}
+                                            required
+                                            disabled={isServicesLoading}
+                                            isLoading={isServicesLoading}
+                                        />
+                                    )}
                                 />
+                                {errors.serviceType && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.serviceType.message}</p>
+                                )}
 
                                 {/* Select Service Mood */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
-                                        Select Service Mood <span class="text-red-500">*</span>
-                                    </label>
-                                    <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6">
-                                        {serviceMoodOptions.map((option) => (
-                                            <label key={option.value} className="flex items-center cursor-pointer">
-                                                <div className="relative flex items-center">
-                                                    <input
-                                                        type="radio"
-                                                        name="serviceMood"
-                                                        value={option.value}
-                                                        checked={formData.serviceMood === option.value}
-                                                        onChange={(e) => handleInputChange('serviceMood', e.target.value)}
-                                                        className="absolute opacity-0 w-0 h-0"
-                                                    />
-                                                    <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${formData.serviceMood === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
-                                                        {formData.serviceMood === option.value && (
-                                                            <span className="w-2 h-2 bg-[#FF8835] rounded-full"></span>
-                                                        )}
-                                                    </span>
-                                                </div>
-                                                <span className="ml-2 sm:ml-3 text-gray-700 text-xs sm:text-sm">{option.label}</span>
+                                <Controller
+                                    name="serviceMood"
+                                    control={control}
+                                    rules={{ required: 'Service mood is required' }}
+                                    render={({ field }) => (
+                                        <div>
+                                            <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
+                                                Select Service Mood <span className="text-red-500">*</span>
                                             </label>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Select Pandit */}
-                                <Select
-                                    id="pandit"
-                                    label="Select Pandit"
-                                    value={formData.pandit}
-                                    onChange={(e) => handleInputChange('pandit', e.target.value)}
-                                    options={panditOptions}
-                                    required
-                                    placeholder="Select a pandit"
-                                    disabled={isAstrologersLoading}
-                                    isLoading={isAstrologersLoading}
+                                            <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6">
+                                                {serviceMoodOptions.map((option) => (
+                                                    <label key={option.value} className="flex items-center cursor-pointer">
+                                                        <div className="relative flex items-center">
+                                                            <input
+                                                                type="radio"
+                                                                name="serviceMood"
+                                                                value={option.value}
+                                                                checked={field.value === option.value}
+                                                                onChange={field.onChange}
+                                                                className="absolute opacity-0 w-0 h-0"
+                                                            />
+                                                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${field.value === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
+                                                                {field.value === option.value && (
+                                                                    <span className="w-2 h-2 bg-[#FF8835] rounded-full"></span>
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <span className="ml-2 sm:ml-3 text-gray-700 text-xs sm:text-sm">{option.label}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 />
+                                {errors.serviceMood && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.serviceMood.message}</p>
+                                )}
+
+                                {/* Select Astrologer */}
+                                <Controller
+                                    name="astrologer"
+                                    control={control}
+                                    rules={{ required: 'Astrologer selection is required' }}
+                                    render={({ field }) => (
+                                        <Select
+                                            id="astrologer"
+                                            label="Select Astrologer"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            options={AstrologerOptions}
+                                            required
+                                            placeholder="Select a astrologer"
+                                            disabled={isAstrologersLoading}
+                                            isLoading={isAstrologersLoading}
+                                        />
+                                    )}
+                                />
+                                {errors.astrologer && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.astrologer.message}</p>
+                                )}
 
                                 {/* Full Name and Mobile Number in one row */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Full Name */}
-                                    <Input
-                                        id="fullName"
-                                        label="Full Name"
-                                        type="text"
-                                        value={formData.fullName}
-                                        readOnly
-                                        className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                    <Controller
+                                        name="fullName"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                id="fullName"
+                                                label="Full Name"
+                                                type="text"
+                                                value={field.value}
+                                                readOnly
+                                                className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                            />
+                                        )}
                                     />
 
                                     {/* Mobile Number */}
-                                    <Input
-                                        id="mobileNumber"
-                                        label="Mobile Number"
-                                        type="tel"
-                                        value={formData.mobileNumber}
-                                        readOnly
-                                        className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                    <Controller
+                                        name="mobileNumber"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                id="mobileNumber"
+                                                label="Mobile Number"
+                                                type="tel"
+                                                value={field.value}
+                                                readOnly
+                                                className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                            />
+                                        )}
                                     />
                                 </div>
 
                                 {/* Email Address */}
-                                <div>
-                                    <Input
-                                        id="emailAddress"
-                                        label="Email Address"
-                                        type="email"
-                                        value={formData.emailAddress}
-                                        readOnly
-                                        className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
-                                    />
-                                </div>
+                                <Controller
+                                    name="emailAddress"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            id="emailAddress"
+                                            label="Email Address"
+                                            type="email"
+                                            value={field.value}
+                                            readOnly
+                                            className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                        />
+                                    )}
+                                />
                             </div>
 
                             {/* Right Column - Time and Date Selection */}
@@ -423,15 +520,31 @@ const BookingCalendar = () => {
                                 </div>
 
                                 {/* Time Slots */}
-                                <Select
-                                    id="timeSlot"
-                                    label="Time Slots"
-                                    value={formData.timeSlot}
-                                    onChange={(e) => handleInputChange('timeSlot', e.target.value)}
-                                    options={timeSlots}
-                                    required
-                                    disabled={!selectedDate}
+                                <Controller
+                                    name="timeSlot"
+                                    control={control}
+                                    rules={{ required: 'Time slot is required' }}
+                                    render={({ field }) => (
+                                        <Select
+                                            id="timeSlot"
+                                            label="Available Time Slots"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            options={[
+                                                { value: '', label: 'Select a time slot', disabled: true },
+                                                ...timeSlots
+                                            ]}
+                                            required
+                                            disabled={!selectedDate || timeSlots.length === 0}
+                                        />
+                                    )}
                                 />
+                                {errors.timeSlot && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.timeSlot.message}</p>
+                                )}
+                                {selectedDate && timeSlots.length === 0 && (
+                                    <p className="text-sm text-gray-500 mt-1">No available time slots for this date</p>
+                                )}
                             </div>
                         </div>
 
@@ -447,7 +560,7 @@ const BookingCalendar = () => {
                         {/* Book Service Button */}
                         <div className="flex justify-center mt-8 w-full px-4">
                             <button
-                                onClick={handleBookService}
+                                type="submit"
                                 disabled={isSubmitting}
                                 className={`bg-button-diagonal-gradient-orange text-white py-3 rounded-[0.2rem] font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 w-full max-w-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
@@ -455,7 +568,7 @@ const BookingCalendar = () => {
                                 {isSubmitting ? 'Booking...' : 'Book Service'}
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </>

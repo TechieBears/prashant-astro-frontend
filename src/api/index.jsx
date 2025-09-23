@@ -1413,10 +1413,7 @@ export const getActiveProduct = async (id) => {
         console.error('No product ID provided to getActiveProduct');
         return { success: false, message: 'No product ID provided' };
     }
-
     const url = `${environment.baseUrl}product/public/active-single?id=${id}`;
-    console.log('Making API request to:', url);
-
     try {
         const response = await axios.get(url);
         console.log('API Response for product', id, ':', response);
@@ -1454,7 +1451,7 @@ export const getProductFilters = async () => {
     }
 };
 
-export const getAllAstrologer = async (data = {employeeType: "astrologer"}) => {
+export const getAllAstrologer = async (data = { employeeType: "astrologer" }) => {
     const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
     try {
         // Send data in the request payload using POST
@@ -1465,16 +1462,14 @@ export const getAllAstrologer = async (data = {employeeType: "astrologer"}) => {
         throw error;
     }
 };
-// ==================== Get Astrologers Api ====================
-export const getAstrologers = async () => {
-    const url = `${environment.baseUrl}employee-users/astroguid/public/get-all`;
+
+export const checkAvailability = async (data = { date: "", astrologer_id: "" }) => {
+    const url = `${environment.baseUrl}calender/check-availability`;
     try {
-        const response = await axios.post(url, {
-            employeeType: "astrologer"
-        });
+        const response = await axios.post(url, data);
         return response.data;
     } catch (error) {
-        console.error('Error fetching astrologers:', error);
-        return error?.response?.data || { success: false, message: 'Failed to fetch astrologers' };
+        console.error('Error checking availability:', error);
+        throw error;
     }
-};
+}
