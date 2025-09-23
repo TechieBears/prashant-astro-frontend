@@ -7,6 +7,7 @@ import { List, X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoginCurve, Profile } from "iconsax-reactjs";
 import { formatRole } from "../../helper/Helper";
+import { fetchNavDropdowns } from "../../redux/Slices/navSlice";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
@@ -31,6 +32,7 @@ const HomeNavbar = () => {
 
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [activeCategory, setActiveCategory] = useState(null);
+    const [hoverTimeout, setHoverTimeout] = useState(null);
 
 
     const toggleExpanded = (index) => {
@@ -49,60 +51,50 @@ const HomeNavbar = () => {
 
     //  console.log('servicesDropdown', servicesDropdown)
 
-const navLinks = useMemo(() => {
-    const transformedServices = servicesDropdown.map(category => ({
-        category: category.name,
-        services: category.services.map(service => ({
-            name: service.name,
-            path: `/services/${service._id}`,
-        })),
-    }));
+    const navLinks = useMemo(() => {
+        const transformedServices = (servicesDropdown || []).map(category => ({
+            category: category.name,
+            services: (category.services || []).map(service => ({
+                name: service.name,
+                path: `/services/${service._id}`,
+            })),
+        }));
 
-    return [
-        login && {
-            name: 'Profile',
-            path: '/',
-            dropdown: [
-                { name: "My Account", path: "/profile" },
-                { name: "My Orders", path: "/profile/orders" },
-                { name: "My Address", path: "/profile/address" },
-                { name: "Customer Support", path: "/profile/customer-support" },
-                { name: "Privacy Policy", path: "/profile/privacy-policy" },
-            ],
-        },
-        { name: 'Home', path: '/' },
-        { name: 'About', path: '/about' },
-        {
-            name: 'Services',
-            path: '/services',
-            dropdown: transformedServices,
-        },
-        {
-            name: 'Products',
-            path: '/products',
-            dropdown: [
-                {
-                    category: 'Spiritual Products',
-                    services: [
-                        { name: 'Rudraksha Beads', path: '/products/spiritual/rudraksha' },
-                        { name: 'Vastu Shastra Books', path: '/products/spiritual/vastu-books' },
-                    ],
-                },
-                {
-                    category: 'Accessories',
-                    services: [
-                        { name: 'Puja Thali', path: '/products/accessories/puja-thali' },
-                        { name: 'Incense Sticks', path: '/products/accessories/incense' },
-                    ],
-                },
-            ],
-        },
-        { name: 'Contact', path: '/contact' },
-    ].filter(Boolean); // <- filters out 'false'
-}, [servicesDropdown, login]);
+        const transformedProducts = (productsDropdown || []).map(product => ({
+            category: product.name,
+            products: (product.products || []).map(product => ({
+                name: product.name,
+                path: `/products/${product._id}`,
+            })),
+        }));
 
-
-    console.log('navLinks', navLinks)
+        return [
+            login && {
+                name: 'Profile',
+                path: '/',
+                dropdown: [
+                    { name: "My Account", path: "/profile" },
+                    { name: "My Orders", path: "/profile/orders" },
+                    { name: "My Address", path: "/profile/address" },
+                    { name: "Customer Support", path: "/profile/customer-support" },
+                    { name: "Privacy Policy", path: "/profile/privacy-policy" },
+                ],
+            },
+            { name: 'Home', path: '/' },
+            { name: 'About', path: '/about' },
+            {
+                name: 'Services',
+                path: '/services',
+                dropdown: transformedServices,
+            },
+            {
+                name: 'Products',
+                path: '/products',
+                dropdown: transformedProducts,
+            },
+            { name: 'Contact', path: '/contact' },
+        ].filter(Boolean); // <- filters out 'false'
+    }, [servicesDropdown, productsDropdown, login]);
 
     useEffect(() => {
         if (isMenuOpen) {
@@ -117,20 +109,34 @@ const navLinks = useMemo(() => {
     }, [isMenuOpen]);
 
     const handleMouseEnter = (dropdown) => {
+        if (hoverTimeout) {
+            clearTimeout(hoverTimeout);
+            setHoverTimeout(null);
+        }
         setActiveDropdown(dropdown);
     };
 
     const handleMouseLeave = () => {
-        setActiveDropdown(null);
-        setActiveCategory(null);
+        const timeout = setTimeout(() => {
+            setActiveDropdown(null);
+            setActiveCategory(null);
+        }, 150); // Small delay to allow moving to submenu
+        setHoverTimeout(timeout);
     };
 
     const handleCategoryMouseEnter = (categoryName) => {
+        if (hoverTimeout) {
+            clearTimeout(hoverTimeout);
+            setHoverTimeout(null);
+        }
         setActiveCategory(categoryName);
     };
 
     const handleCategoryMouseLeave = () => {
-        setActiveCategory(null);
+        const timeout = setTimeout(() => {
+            setActiveCategory(null);
+        }, 150);
+        setHoverTimeout(timeout);
     };
 
     // Ensure component is mounted
@@ -151,6 +157,22 @@ const navLinks = useMemo(() => {
     useEffect(() => {
         setIsNavbarVisible(true);
     }, [login, user]);
+
+    // Fetch navigation data when component mounts
+    useEffect(() => {
+        if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
+            dispatch(fetchNavDropdowns());
+        }
+    }, [dispatch, servicesDropdown, productsDropdown]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+            }
+        };
+    }, [hoverTimeout]);
 
     const handleLogout = async () => {
         try {
@@ -303,7 +325,7 @@ const navLinks = useMemo(() => {
                         <div className="hidden lg:flex">
                             <div className="flex gap-10 text-white font-medium">
                                 {navLinks
-                                    .filter(link => link.name !== "Profile")  
+                                    .filter(link => link.name !== "Profile")
                                     .map((link, i) => (
                                         link.dropdown ? (
                                             <div
@@ -325,13 +347,21 @@ const navLinks = useMemo(() => {
                                                 </NavLink>
 
                                                 {activeDropdown === link.name && (
-                                                    <div className="absolute left-0 mt-3 bg-primary shadow-lg rounded-b-md w-max z-50 py-3">
+                                                    <div
+                                                        className="absolute left-0 mt-3 bg-primary shadow-lg rounded-b-md w-max z-50 py-3"
+                                                        onMouseEnter={() => {
+                                                            if (hoverTimeout) {
+                                                                clearTimeout(hoverTimeout);
+                                                                setHoverTimeout(null);
+                                                            }
+                                                        }}
+                                                        onMouseLeave={handleMouseLeave}
+                                                    >
                                                         {link.dropdown.map((category, idx) => (
                                                             <div
                                                                 key={idx}
                                                                 className="relative px-2"
                                                                 onMouseEnter={() => handleCategoryMouseEnter(category.category)}
-                                                                onMouseLeave={handleCategoryMouseLeave}
                                                             >
                                                                 <p className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 rounded-md cursor-pointer">
                                                                     <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
@@ -339,17 +369,19 @@ const navLinks = useMemo(() => {
                                                                     </span>
                                                                 </p>
 
-                                                                {activeCategory === category.category && (
-                                                                    <div className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-3">
-                                                                        <ul className="space-y-2">
-                                                                            {category.services.map((service, j) => (
+                                                                {activeCategory === category.category && (category.services?.length > 0 || category.products?.length > 0) && (
+                                                                    <div
+                                                                        className="absolute left-full top-0 ml-0 bg-primary shadow-lg rounded-md w-max z-50 py-3 min-w-[200px] border-l-2 border-white/20"
+                                                                    >
+                                                                        <ul className="space-y-1">
+                                                                            {(category.services || category.products || []).map((item, j) => (
                                                                                 <li key={j}>
                                                                                     <NavLink
-                                                                                        to={service.path}
-                                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 mx-2 rounded-md block"
+                                                                                        to={item.path}
+                                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
                                                                                     >
-                                                                                        <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
-                                                                                            {service.name}
+                                                                                        <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
+                                                                                            {item.name}
                                                                                         </span>
                                                                                     </NavLink>
                                                                                 </li>
@@ -461,7 +493,7 @@ const navLinks = useMemo(() => {
                                         )}
                                     </button>
                                 ) : (
-                                   
+
                                     <NavLink
                                         to={link.path}
                                         onClick={() => {
@@ -482,60 +514,63 @@ const navLinks = useMemo(() => {
                                 {/* Dropdown Menu */}
                                 {link.dropdown && expandedItems[i] && (
                                     <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
-                                        {/* Check if it's a grouped dropdown (has category + services) */}
-                                        {Array.isArray(link.dropdown) && link.dropdown[0]?.services ? (
-                                            link.dropdown.map((category, categoryIndex) => (
-                                                <div key={categoryIndex} className="mb-4">
-                                                    {category.services.length > 0 && (
-                                                        <>
-                                                            <h4 className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4">
-                                                                {category.category}
-                                                            </h4>
-                                                            {category.services.map((service, serviceIndex) => (
-                                                                <NavLink
-                                                                    key={serviceIndex}
-                                                                    to={service.path}
-                                                                    onClick={() => {
-                                                                        setIsMenuOpen(false);
-                                                                        window.scrollTo({ top: 0, behavior: "smooth" });
-                                                                    }}
-                                                                    className={({ isActive }) =>
-                                                                        `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
-                                                                            ? "text-blue-600 bg-blue-50 font-medium"
-                                                                            : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
-                                                                        }`
-                                                                    }
-                                                                >
-                                                                    {service.name}
-                                                                </NavLink>
-                                                            ))}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            ))
+                                        {/* Check if it's a grouped dropdown (has category + services/products) */}
+                                        {Array.isArray(link.dropdown) && (link.dropdown[0]?.services || link.dropdown[0]?.products) ? (
+                                            link.dropdown.map((category, categoryIndex) => {
+                                                const items = category.services || category.products || [];
+                                                return (
+                                                    <div key={categoryIndex} className="mb-4">
+                                                        {items.length > 0 && (
+                                                            <>
+                                                                <h4 className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4">
+                                                                    {category.category}
+                                                                </h4>
+                                                                {items.map((item, itemIndex) => (
+                                                                    <NavLink
+                                                                        key={itemIndex}
+                                                                        to={item.path}
+                                                                        onClick={() => {
+                                                                            setIsMenuOpen(false);
+                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                        }}
+                                                                        className={({ isActive }) =>
+                                                                            `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
+                                                                                ? "text-blue-600 bg-blue-50 font-medium"
+                                                                                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                                                                            }`
+                                                                        }
+                                                                    >
+                                                                        {item.name}
+                                                                    </NavLink>
+                                                                ))}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })
                                         ) : (
                                             // Flat dropdown (like Profile)
                                             link.dropdown?.length > 0 ? (
-                                                 link.dropdown.map((item, itemIndex) => (
-                                                <NavLink
-                                                    key={itemIndex}
-                                                    to={item.path}
-                                                    onClick={() => {
-                                                        setIsMenuOpen(false);
-                                                        window.scrollTo({ top: 0, behavior: "smooth" });
-                                                    }}
-                                                    className={({ isActive }) =>
-                                                        `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
-                                                            ? "text-blue-600 bg-blue-50 font-medium"
-                                                            : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
-                                                        }`
-                                                    }
-                                                >
-                                                    {item.name}
-                                                </NavLink>
-                                            ))
+                                                link.dropdown.map((item, itemIndex) => (
+                                                    <NavLink
+                                                        key={itemIndex}
+                                                        to={item.path}
+                                                        onClick={() => {
+                                                            setIsMenuOpen(false);
+                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                        }}
+                                                        className={({ isActive }) =>
+                                                            `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
+                                                                ? "text-blue-600 bg-blue-50 font-medium"
+                                                                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                                                            }`
+                                                        }
+                                                    >
+                                                        {item.name}
+                                                    </NavLink>
+                                                ))
                                             ) : null
-                                           
+
                                         )}
                                     </div>
                                 )}
