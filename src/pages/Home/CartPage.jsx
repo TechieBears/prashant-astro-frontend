@@ -1,23 +1,57 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
-import { getCartItems, updateCartItem, removeCartItem, getServiceCartItems, removeServiceCartItem } from '../../api';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
+import { createOrder, setServiceBooking, clearError as clearOrderError } from '../../redux/Slices/orderSlice';
+import { createOrderData } from '../../utils/orderUtils';
+import {
+    fetchCartData,
+    updateProductQuantity,
+    removeProductItem,
+    removeServiceItem,
+    clearError as clearCartError,
+    selectProductCalculations,
+    selectServiceCalculations,
+    selectCartLoadingStates,
+    selectCartErrors,
+    optimisticUpdateQuantity,
+    optimisticRemoveItem
+} from '../../redux/Slices/cartSlice';
+import { useAddress } from '../../context/AddressContext';
+import { transformServiceData } from '../../utils/orderUtils';
 
 const CartPage = () => {
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([]);
-    const [serviceCartItems, setServiceCartItems] = useState([]);
-    const [activeTab, setActiveTab] = useState('services'); // 'services' or 'products'
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [isRemoving, setIsRemoving] = useState(null);
+    const dispatch = useDispatch();
 
-    // Memoized data transformation for services
+    // Redux state
+    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
+    const {
+        productItems: cartItems,
+        serviceItems: serviceCartItems
+    } = useSelector(state => state.cart);
+
+    // Optimized selectors
+    const productCalculations = useSelector(selectProductCalculations);
+    const serviceCalculations = useSelector(selectServiceCalculations);
+    const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
+    const { error: cartError } = useSelector(selectCartErrors);
+
+    // Local state
+    const [activeTab, setActiveTab] = useState('services'); // 'services' or 'products'
+    const [localQuantities, setLocalQuantities] = useState({});
+
+    // Refs for debouncing
+    const debounceTimeouts = useRef({});
+
+    const { defaultAddress } = useAddress();
+
+    // Use utility function for service transformation
     const transformedServices = useMemo(() => {
         return serviceCartItems.map(service => ({
             id: service._id,
@@ -31,156 +65,93 @@ const CartPage = () => {
         }));
     }, [serviceCartItems]);
 
-    // Memoized fetch cart data function
-    const fetchCartData = useCallback(async () => {
+    // Fetch cart data on component mount
+    useEffect(() => {
+        dispatch(fetchCartData());
+    }, [dispatch]);
+
+    // Debounced API update function
+    const debouncedApiUpdate = useCallback(async (id, quantity) => {
         try {
-            setLoading(true);
-            setError(null);
-
-            // Fetch product cart items
-            const [productsResponse, servicesResponse] = await Promise.all([
-                getCartItems(),
-                getServiceCartItems()
-            ]);
-
-            if (productsResponse.success) {
-                setCartItems(productsResponse.data.items || []);
-            } else {
-                console.error('Failed to load product cart items:', productsResponse.message);
-            }
-
-            if (servicesResponse.success) {
-                setServiceCartItems(servicesResponse.data.items || []);
-            } else {
-                console.error('Failed to load service cart items:', servicesResponse.message);
-            }
+            await dispatch(updateProductQuantity({ id, quantity })).unwrap();
         } catch (err) {
-            console.error('Error fetching cart data:', err);
-            setError('An error occurred while fetching your cart');
-        } finally {
-            setLoading(false);
+            toast.error('Failed to update quantity');
+            // Revert local state on error
+            const originalItem = cartItems.find(item => item._id === id);
+            if (originalItem) {
+                setLocalQuantities(prev => ({
+                    ...prev,
+                    [id]: originalItem.quantity
+                }));
+            }
         }
+    }, [dispatch, cartItems]);
+
+    // Optimized quantity update with debouncing
+    const updateQuantity = useCallback((id, newQuantity) => {
+        const quantity = Math.max(1, newQuantity);
+
+        // Immediate local state update for instant UI feedback
+        setLocalQuantities(prev => ({
+            ...prev,
+            [id]: quantity
+        }));
+
+        // Clear existing timeout for this item
+        if (debounceTimeouts.current[id]) {
+            clearTimeout(debounceTimeouts.current[id]);
+        }
+
+        // Set new timeout for API call (debounced)
+        debounceTimeouts.current[id] = setTimeout(() => {
+            debouncedApiUpdate(id, quantity);
+        }, 500);
+    }, [debouncedApiUpdate]);
+
+    // Sync local quantities with Redux state when cart data changes
+    useEffect(() => {
+        const newLocalQuantities = {};
+        cartItems.forEach(item => {
+            newLocalQuantities[item._id] = item.quantity;
+        });
+        setLocalQuantities(newLocalQuantities);
+    }, [cartItems]);
+
+    // Cleanup debounce timeouts on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(debounceTimeouts.current).forEach(timeout => {
+                if (timeout) clearTimeout(timeout);
+            });
+        };
     }, []);
 
-    useEffect(() => {
-        fetchCartData();
-    }, [fetchCartData]);
-
-    // Optimized update quantity with loading state
-    const updateQuantity = useCallback(async (id, newQuantity) => {
-        const quantity = Math.max(1, newQuantity);
-        setIsUpdating(true);
-
-        // Store previous state for rollback
-        const previousItems = [...cartItems];
-
-        // Optimistic update
-        setCartItems(prevItems =>
-            prevItems.map(item =>
-                item._id === id
-                    ? { ...item, quantity, totalPrice: (item.totalPrice / item.quantity) * quantity }
-                    : item
-            )
-        );
-
-        try {
-            const response = await updateCartItem(id, quantity);
-            if (!response.success) {
-                throw new Error(response.message);
-            }
-            // Only update if the response has different data
-            if (JSON.stringify(response.data.items) !== JSON.stringify(cartItems)) {
-                setCartItems(response.data.items);
-            }
-        } catch (err) {
-            console.error('Error updating quantity:', err);
-            // Revert optimistic update
-            setCartItems(previousItems);
-            // Refetch to ensure sync
-            const response = await getCartItems();
-            if (response.success) {
-                setCartItems(response.data.items || []);
-            }
-        } finally {
-            setIsUpdating(false);
-        }
-    }, [cartItems]);
-
-    // Optimized remove item with loading state
+    // Remove item using Redux with optimistic updates
     const removeItem = useCallback(async (id) => {
-        setIsRemoving(id);
-        const previousItems = [...cartItems];
-
-        // Optimistic update
-        setCartItems(prevItems => prevItems.filter(item => item._id !== id));
+        // Optimistic update for immediate UI feedback
+        dispatch(optimisticRemoveItem(id));
 
         try {
-            const response = await removeCartItem(id);
-            if (!response.success) {
-                throw new Error(response.message);
-            }
-            setCartItems(response.data.items);
+            await dispatch(removeProductItem(id)).unwrap();
+            toast.success('Item removed from cart');
         } catch (err) {
-            console.error('Error removing item:', err);
-            // Revert optimistic update
-            setCartItems(previousItems);
-        } finally {
-            setIsRemoving(null);
+            toast.error('Failed to remove item');
         }
-    }, [cartItems]);
+    }, [dispatch]);
 
-    // Optimized remove service item with loading state
+    // Remove service item using Redux
     const removeServiceItem = useCallback(async (id) => {
-        setIsRemoving(id);
-        const previousServices = [...serviceCartItems];
-
-        // Optimistic update
-        setServiceCartItems(prevItems => prevItems.filter(item => item._id !== id));
-
         try {
-            const response = await removeServiceCartItem(id);
-            if (!response.success) {
-                throw new Error(response.message);
-            }
-            // Update with server response to ensure sync
-            const servicesResponse = await getServiceCartItems();
-            if (servicesResponse.success) {
-                setServiceCartItems(servicesResponse.data.items || []);
-            }
+            await dispatch(removeServiceItem(id)).unwrap();
+            toast.success('Service removed from cart');
         } catch (err) {
-            console.error('Error removing service item:', err);
-            // Revert on error
-            setServiceCartItems(previousServices);
-        } finally {
-            setIsRemoving(null);
+            toast.error('Failed to remove service');
         }
-    }, [serviceCartItems]);
+    }, [dispatch]);
 
-    // Memoized calculations for products
-    const subtotal = useMemo(() => {
-        return cartItems.reduce((total, item) => total + item.totalPrice, 0);
-    }, [cartItems]);
+    // Use Redux selectors for calculations
+    const { subtotal, gstAmount, total } = productCalculations;
 
-    const gstAmount = useMemo(() => {
-        return subtotal * 0.18;
-    }, [subtotal]);
-
-    const total = useMemo(() => {
-        return subtotal + gstAmount;
-    }, [subtotal, gstAmount]);
-
-    // Memoized calculations for services
-    const serviceCalculations = useMemo(() => {
-        const serviceSubtotal = serviceCartItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-        const serviceGST = serviceSubtotal * 0.18;
-        const serviceTotal = serviceSubtotal + serviceGST;
-
-        return {
-            subtotal: serviceSubtotal,
-            gstAmount: serviceGST,
-            total: serviceTotal
-        };
-    }, [serviceCartItems]);
 
     // Memoized tab handler
     const handleTabChange = useCallback((tab) => {
@@ -189,43 +160,67 @@ const CartPage = () => {
 
     // Memoized checkout handlers
     const handleServicesCheckout = useCallback(() => {
-        console.log('Proceeding to checkout from services section');
-        // TODO: Implement payment gateway integration
-        // After successful payment, navigate to success page
-        navigate('/payment-success', {
-            state: {
-                orderType: 'services', // This will be used by API response logic
-                serviceData: {
-                    serviceType: transformedServices[0]?.type || "Service",
-                    sessionDuration: "30-60 minutes",
-                    date: "15th Sep, 2025",
-                    time: "12:00PM - 01:00PM",
-                    mode: "In-person / Online",
-                    zoomLink: "zoommtg://zoom.us/join?confno=8529015944&pwd=123456&uname=John%20Doe",
-                    orderId: `SRV-${Date.now()}`
-                }
+        // Clear any previous errors
+        dispatch(clearOrderError());
+        dispatch(clearCartError());
+
+        if (!serviceCartItems || serviceCartItems.length === 0) {
+            toast.error('No services in cart to checkout');
+            return;
+        }
+
+        // Transform service data and set in Redux
+        const serviceData = transformServiceData(serviceCartItems);
+        if (serviceData) {
+            dispatch(setServiceBooking(serviceData));
+            navigate('/payment-success');
+        } else {
+            toast.error('Failed to process services');
+        }
+    }, [navigate, serviceCartItems, dispatch]);
+
+    const handleProductsCheckout = useCallback(async () => {
+        try {
+            // Validate required data
+            if (!cartItems || cartItems.length === 0) {
+                toast.error('Your cart is empty');
+                return;
             }
-        });
-    }, [navigate, transformedServices]);
 
-    const handleProductsCheckout = useCallback(() => {
-        console.log('Proceeding to checkout');
-        // TODO: Implement payment gateway integration
-        // After successful payment, navigate to success page
-        navigate('/payment-success', {
-            state: {
-                orderType: 'products', // This will be used by API response logic
-                productData: {
-                    items: cartItems,
-                    total: total,
-                    orderId: `PRD-${Date.now()}`
-                }
+            if (!defaultAddress) {
+                toast.error('Please select a delivery address');
+                return;
             }
-        });
-    }, [navigate, cartItems, total]);
+
+            // Clear any previous errors
+            dispatch(clearOrderError());
+            dispatch(clearCartError());
+
+            const orderData = createOrderData({
+                cartItems,
+                addressId: defaultAddress._id,
+                paymentDetails: {
+                    status: 'SUCCESS',
+                    paidAt: new Date().toISOString()
+                }
+            });
+
+            console.log('Creating order with data:', orderData);
+
+            // Dispatch the createOrder action
+            const result = await dispatch(createOrder(orderData)).unwrap();
+
+            console.log('Order created successfully:', result);
+            // Navigate to success page - Redux will handle the data
+            navigate('/payment-success');
+        } catch (err) {
+            console.error('Error during checkout:', err);
+        }
+    }, [dispatch, cartItems, defaultAddress, navigate]);
 
 
-    if (loading) {
+
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-slate1 flex items-center justify-center">
                 <div className="text-center">
@@ -236,7 +231,10 @@ const CartPage = () => {
         );
     }
 
-    if (error) {
+    // Use Redux errors
+    const displayError = orderError || cartError;
+
+    if (displayError) {
         return (
             <div className="min-h-screen bg-slate1 flex items-center justify-center">
                 <div className="text-center p-6 max-w-md mx-4 bg-white rounded-lg shadow">
@@ -246,13 +244,31 @@ const CartPage = () => {
                         </svg>
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading cart</h3>
-                    <p className="text-gray-600 mb-4">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                    >
-                        Try Again
-                    </button>
+                    <p className="text-gray-600 mb-4">{displayError}</p>
+                    <div className="space-x-2">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                        >
+                            Try Again
+                        </button>
+                        {orderError && (
+                            <button
+                                onClick={() => dispatch(clearOrderError())}
+                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                            >
+                                Clear Error
+                            </button>
+                        )}
+                        {cartError && (
+                            <button
+                                onClick={() => dispatch(clearCartError())}
+                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                            >
+                                Clear Cart Error
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -351,7 +367,7 @@ const CartPage = () => {
                             subtotal={serviceCalculations.subtotal}
                             gstAmount={serviceCalculations.gstAmount}
                             total={serviceCalculations.total}
-                            isRemoving={isRemoving}
+                            isRemoving={isRemovingItem}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -363,14 +379,16 @@ const CartPage = () => {
                     /* Products Section with Payment Summary */
                     <ProductsSection
                         cartItems={cartItems}
+                        localQuantities={localQuantities}
                         onUpdateQuantity={updateQuantity}
                         onRemoveItem={removeItem}
                         onCheckout={handleProductsCheckout}
                         subtotal={subtotal}
                         gstAmount={gstAmount}
                         total={total}
-                        isUpdating={isUpdating}
-                        isRemoving={isRemoving}
+                        isUpdating={isUpdatingQuantity}
+                        isRemoving={isRemovingItem}
+                        isCreatingOrder={isCreatingOrder}
                     />
                 )}
             </div>

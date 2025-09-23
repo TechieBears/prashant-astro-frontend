@@ -6,12 +6,16 @@ import loginSlice from "./Slices/loginSlice";
 import actorsSlice from "./Slices/actorsSlice";
 import navSlice from "./Slices/navSlice";
 import rootSlice from "./Slices/rootSlice";
+import orderSlice from "./Slices/orderSlice";
+import cartSlice from "./Slices/cartSlice";
 
 const reducers = combineReducers({
     user: loginSlice,
     appRoot: rootSlice,
     nav: navSlice,
-    actors: actorsSlice
+    actors: actorsSlice,
+    order: orderSlice,
+    cart: cartSlice
 });
 
 const persistConfig = {
