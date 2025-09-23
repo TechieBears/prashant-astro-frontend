@@ -395,5 +395,4 @@ const CartPage = () => {
         </div>
     );
 };
-
 export default CartPage;
