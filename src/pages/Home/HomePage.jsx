@@ -19,8 +19,7 @@ import Service4 from '../../assets/user/home/services/service-homepage (4).png';
 import { getActiveBanners, getOurProducts, getOurServiceCategories } from "../../api";
 import { environment } from "../../env";
 import { Medal06Icon, FavouriteIcon, FaceIdIcon } from 'hugeicons-react';
-import { fetchNavDropdowns } from '../../redux/Slices/navSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import InstagramImg from '../../assets/instagram.png'
 import FacebookImg from '../../assets/facebook.png'
 import YoutubeImg from '../../assets/youtube.png'
@@ -31,7 +30,6 @@ import whyChooseElement from '../../assets/elements/whychooseEl.svg'
 import servicesElement from '../../assets/elements/servicesEl.svg'
 
 const HomePage = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
     const [slidesData, setSlidesData] = useState([]);
@@ -40,12 +38,6 @@ const HomePage = () => {
     const [productsLoading, setProductsLoading] = useState(true);
     const [servicesData, setServicesData] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
-
-    useEffect(() => {
-        if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
-            dispatch(fetchNavDropdowns());
-        }
-    }, [dispatch, servicesDropdown, productsDropdown]);
 
     useEffect(() => {
         const fetchSlides = async () => {
