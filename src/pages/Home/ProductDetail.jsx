@@ -238,7 +238,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="mt-6 flex items-center gap-4">
                     {/* Quantity Selector */}
-                    <div>
+                    {/* <div>
                         <input
                             type="number"
                             min="1"
@@ -253,7 +253,7 @@ const ProductDetail = () => {
                             }}
                             className="w-16 px-2 py-2 border border-gray-300 rounded-md text-center focus:outline-none focus:ring-2 focus:ring-orange-400"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Buy Now Button */}
                     <button
