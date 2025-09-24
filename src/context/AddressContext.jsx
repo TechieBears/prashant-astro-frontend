@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { getAllCustomerAddresses, updateCustomerAddress } from '../api';
+import { getAllCustomerAddresses, updateCustomerAddress, createCustomerAddress, deleteCustomerAddress } from '../api';
 
 const AddressContext = createContext();
 
@@ -71,6 +71,66 @@ export const AddressProvider = ({ children }) => {
         }
     }, []);
 
+    const addAddress = useCallback(async (addressData) => {
+        try {
+            setError(null);
+            const response = await createCustomerAddress(addressData);
+
+            if (response.success) {
+                // Refresh addresses to get the updated list
+                await fetchAddresses();
+                return { success: true, data: response.data };
+            } else {
+                setError(response.message || 'Failed to add address');
+                return { success: false, error: response.message };
+            }
+        } catch (err) {
+            console.error('Error adding address:', err);
+            setError('An error occurred while adding the address');
+            return { success: false, error: 'An error occurred while adding the address' };
+        }
+    }, [fetchAddresses]);
+
+    const updateAddress = useCallback(async (addressId, addressData) => {
+        try {
+            setError(null);
+            const response = await updateCustomerAddress(addressId, addressData);
+
+            if (response.success) {
+                // Refresh addresses to get the updated list
+                await fetchAddresses();
+                return { success: true, data: response.data };
+            } else {
+                setError(response.message || 'Failed to update address');
+                return { success: false, error: response.message };
+            }
+        } catch (err) {
+            console.error('Error updating address:', err);
+            setError('An error occurred while updating the address');
+            return { success: false, error: 'An error occurred while updating the address' };
+        }
+    }, [fetchAddresses]);
+
+    const removeAddress = useCallback(async (addressId) => {
+        try {
+            setError(null);
+            const response = await deleteCustomerAddress(addressId);
+
+            if (response.success) {
+                // Refresh addresses to get the updated list
+                await fetchAddresses();
+                return { success: true };
+            } else {
+                setError(response.message || 'Failed to delete address');
+                return { success: false, error: response.message };
+            }
+        } catch (err) {
+            console.error('Error deleting address:', err);
+            setError('An error occurred while deleting the address');
+            return { success: false, error: 'An error occurred while deleting the address' };
+        }
+    }, [fetchAddresses]);
+
     // Auto-fetch addresses when the provider mounts
     useEffect(() => {
         fetchAddresses();
@@ -83,7 +143,11 @@ export const AddressProvider = ({ children }) => {
         error,
         fetchAddresses,
         changeDefaultAddress,
-        setError
+        addAddress,
+        updateAddress,
+        removeAddress,
+        setError,
+        refreshAddresses: fetchAddresses // Alias for consistency
     };
 
     return (
