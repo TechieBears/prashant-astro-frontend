@@ -83,7 +83,7 @@ const AboutPage = () => {
             icon: <FavouriteIcon size={25} className="text-white" />,
             bg: '#0088FF',
             content:
-                "Every soul deserves profound understanding and divine clarity. I app each consultation with deep empathy, ensuring you feel spiritually supported, and truly heard on your sacred journey.",
+                "Every soul deserves profound understanding and divine clarity. I approach consultation with deep empathy, ensuring you feel spiritually supported, and truly heard on your sacred journey.",
         },
         {
             title: "Compassionate Guidance",

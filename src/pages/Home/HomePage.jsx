@@ -188,9 +188,9 @@ const HomePage = () => {
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: 'Quick Results',
+            title: 'Quick and Reliable Results',
             description:
-                'Detailed reports delivered within 24-48 hours of consultation booking',
+                'Most of the clients got quick results and almost all of them are loyal with us',
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
@@ -202,7 +202,7 @@ const HomePage = () => {
             icon: <Medal06Icon size={36} className="text-white" />,
             title: '500+ Happy Clients',
             description:
-                'Trusted by clients worldwide for life-changing guidance and solutions',
+                'Trusted by clients for life-changing guidance and solutions',
         },
         {
             icon: <FavouriteIcon size={36} className="text-white" />,
@@ -420,7 +420,7 @@ const HomePage = () => {
                         src={servicesElement}
                         alt="OM"
                         className="w-[60%] sm:w-[70%] md:w-[60%] lg:w-full h-auto max-w-full mx-auto animate-spin-slow"
-                    style={{ transformOrigin: 'center center' }}
+                        style={{ transformOrigin: 'center center' }}
                     />
                 </div>
 
@@ -683,11 +683,11 @@ const HomePage = () => {
 
                 {/* Flower positioned between sections - mobile only */}
                 <div className="relative">
-                       <img
-                    src={Flower}
-                    className="absolute left-[-10px] sm:left-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-32 animate-spin-slow"
-                    style={{ transformOrigin: 'center center' }}
-                />
+                    <img
+                        src={Flower}
+                        className="absolute left-[-10px] sm:left-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-32 animate-spin-slow"
+                        style={{ transformOrigin: 'center center' }}
+                    />
                 </div>
 
                 {/* Download app */}
