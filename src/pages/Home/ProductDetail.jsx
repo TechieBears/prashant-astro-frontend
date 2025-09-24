@@ -10,6 +10,7 @@ import LoadBox from '../../components/Loader/LoadBox';
 import { getActiveProduct } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
 import { fetchCartData, updateProductQuantity } from '../../redux/Slices/cartSlice';
+import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -18,6 +19,7 @@ const ProductDetail = () => {
 
     // Redux state
     const { productItems: cartItems } = useSelector(state => state.cart);
+    const { isLogged } = useSelector(state => state.user);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -172,8 +174,10 @@ const ProductDetail = () => {
     };
 
     const handleBuyNow = (productId) => {
-        // Navigate to buy now page with product data
-        console.log('Buy now clicked for product:', productId, 'with quantity:', quantity);
+        if (!isLogged) {
+            toast.error('Please login to continue with your purchase');
+            return;
+        }
         navigate('/buy-now', {
             state: {
                 product: product,
