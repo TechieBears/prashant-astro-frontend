@@ -39,7 +39,7 @@ const AddToCartButton = ({
                 toast.success('Cart updated successfully', { id: toastId });
                 // Navigate to cart page after successful update
                 setTimeout(() => {
-                    navigate('/cart');
+                    navigate('/cart', { state: { activeTab: 'products' } });
                 }, 1000);
             } else {
                 // Product not in cart - add to cart via API
@@ -50,7 +50,7 @@ const AddToCartButton = ({
                     toast.success(message, { id: toastId });
                     // Navigate to cart page after successful add
                     setTimeout(() => {
-                        navigate('/cart');
+                        navigate('/cart', { state: { activeTab: 'products' } });
                     }, 1000);
                 } else {
                     toast.error(message, { id: toastId });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { BsArrowLeft } from 'react-icons/bs';
@@ -24,6 +24,7 @@ import { useAddress } from '../../context/AddressContext';
 
 const CartPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
 
     const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
@@ -33,11 +34,19 @@ const CartPage = () => {
     const productCalculations = useSelector(selectProductCalculations);
     const serviceCalculations = useSelector(selectServiceCalculations);
 
-    const [activeTab, setActiveTab] = useState('services');
+    const [activeTab, setActiveTab] = useState('products');
     const [localQuantities, setLocalQuantities] = useState({});
     const [pendingUpdates, setPendingUpdates] = useState({});
     const debounceTimeouts = useRef({});
     const { defaultAddress } = useAddress();
+
+    // Set active tab based on navigation state
+    useEffect(() => {
+        const navigationTab = location.state?.activeTab;
+        if (navigationTab) {
+            setActiveTab(navigationTab);
+        }
+    }, [location.state]);
 
     const transformedServices = serviceCartItems.map(service => ({
         id: service._id,
