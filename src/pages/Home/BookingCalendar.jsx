@@ -298,6 +298,7 @@ const BookingCalendar = () => {
     const onSubmit = useCallback(async (data) => {
         setError(null);
 
+
         try {
             // Validate required fields
             if (!data.selectedDate) {
@@ -324,6 +325,7 @@ const BookingCalendar = () => {
                 'consult_at_pandit_location': 'consult_at_pandit_location',
                 'pooja_at_home': 'pooja_at_home'
             };
+            console.log('formData', data);
 
             // Prepare payload for addServiceToCart API
             const servicePayload = {
