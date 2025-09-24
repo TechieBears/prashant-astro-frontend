@@ -34,21 +34,6 @@ const ProductSuccessSection = ({ orderItems, subtotal, totalDiscount, total, onV
                     </div>
                 ))}
 
-                {/* Order Summary */}
-                {/* <div className="border-t border-gray-200 pt-4 mt-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">Subtotal:</span>
-            <span className="font-medium">₹{subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between mb-2 text-green-600">
-            <span>Discount:</span>
-            <span>-₹{totalDiscount.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200 mt-2">
-            <span>Total:</span>
-            <span>₹{total.toLocaleString()}</span>
-          </div>
-        </div> */}
             </div>
 
             {/* Button */}

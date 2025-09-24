@@ -1,13 +1,18 @@
 import React from 'react';
+import AddressSelector from '../Address/AddressSelector';
+import { useAddress } from '../../context/AddressContext';
 
-const PaymentSummary = ({ 
-    itemCount, 
-    subtotal, 
-    gstAmount, 
+const PaymentSummary = ({
+    itemCount,
+    subtotal,
+    gstAmount,
     total,
     buttonText = 'Continue to pay',
-    onCheckout = () => {}
+    onCheckout = () => { },
+    isCreatingOrder = false
 }) => {
+    const { defaultAddress } = useAddress();
+
     return (
         <div className="lg:col-span-5">
             <div className="rounded-lg lg:sticky lg:top-8">
@@ -46,12 +51,29 @@ const PaymentSummary = ({
                     </div>
                 </div>
 
+                {/* Address Selection */}
+                <div className="mb-4">
+                    <h4 className="font-medium text-gray-900 text-sm md:text-base mb-2">Delivery Address</h4>
+                    <AddressSelector />
+                </div>
+
                 {/* Continue to Pay Button */}
-                <button 
+                <button
                     onClick={onCheckout}
-                    className="w-full bg-button-diagonal-gradient-orange text-white py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium hover:opacity-90 transition-opacity shadow-md text-sm md:text-base"
+                    disabled={isCreatingOrder || !defaultAddress}
+                    className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium transition-opacity shadow-md text-sm md:text-base ${isCreatingOrder || !defaultAddress
+                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                        : 'bg-button-diagonal-gradient-orange text-white hover:opacity-90'
+                        }`}
                 >
-                    {buttonText}
+                    {isCreatingOrder ? (
+                        <div className="flex items-center justify-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Creating Order...</span>
+                        </div>
+                    ) : (
+                        buttonText
+                    )}
                 </button>
             </div>
         </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { addToCart } from '../../api';
+import { updateProductQuantity } from '../../redux/Slices/cartSlice';
 import toast from 'react-hot-toast';
 
 const AddToCartButton = ({
@@ -8,8 +10,11 @@ const AddToCartButton = ({
     stock = true,
     className = '',
     size = 'default',
-    variant = 'default'
+    variant = 'default',
+    isInCart = false,
+    cartItemId = null
 }) => {
+    const dispatch = useDispatch();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     const handleAddToCart = async () => {
@@ -19,19 +24,30 @@ const AddToCartButton = ({
         if (!token) return toast.error('Please login to add items to cart');
 
         setIsAddingToCart(true);
-        const toastId = toast.loading('Adding to cart...');
+        const toastId = toast.loading(isInCart ? 'Updating cart...' : 'Adding to cart...');
 
         try {
-            const response = await addToCart(productId, quantity);
-            const message = response?.message || (response?.success ? 'Product added to cart' : 'Failed to add product');
+            if (isInCart && cartItemId) {
+                // Product is already in cart - update quantity via Redux
+                await dispatch(updateProductQuantity({
+                    id: cartItemId,
+                    quantity: quantity
+                })).unwrap();
 
-            if (response?.success) {
-                toast.success(message, { id: toastId });
+                toast.success('Cart updated successfully', { id: toastId });
             } else {
-                toast.error(message, { id: toastId });
+                // Product not in cart - add to cart via API
+                const response = await addToCart(productId, quantity);
+                const message = response?.message || (response?.success ? 'Product added to cart' : 'Failed to add product');
+
+                if (response?.success) {
+                    toast.success(message, { id: toastId });
+                } else {
+                    toast.error(message, { id: toastId });
+                }
             }
         } catch (error) {
-            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to add to cart';
+            const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update cart';
             toast.error(errorMessage, { id: toastId });
         } finally {
             setIsAddingToCart(false);
@@ -74,7 +90,7 @@ const AddToCartButton = ({
                     </svg>
                     Adding...
                 </>
-            ) : stock ? 'Add to Cart' : 'Out of Stock'}
+            ) : stock ? (isInCart ? 'Update Cart' : 'Add to Cart') : 'Out of Stock'}
         </button>
     );
 };

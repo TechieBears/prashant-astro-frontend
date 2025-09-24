@@ -5,6 +5,7 @@ import PaymentSummary from './PaymentSummary';
 
 const ProductsSection = ({
     cartItems,
+    localQuantities = {},
     onUpdateQuantity,
     onRemoveItem,
     onCheckout,
@@ -12,7 +13,8 @@ const ProductsSection = ({
     gstAmount = 0,
     total = 0,
     isUpdating = false,
-    isRemoving = null
+    isRemoving = null,
+    isCreatingOrder = false
 }) => {
     const navigate = useNavigate();
 
@@ -56,7 +58,7 @@ const ProductsSection = ({
                                             ₹{item.totalPrice?.toLocaleString()}
                                         </div>
                                         <div className="text-black text-xs md:text-sm">
-                                            <span>Qty: {item.quantity}</span>
+                                            <span>Qty: {localQuantities[item._id] || item.quantity}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -68,9 +70,8 @@ const ProductsSection = ({
                                         <span className="text-xs md:text-sm text-gray-600 font-medium">QTY:</span>
                                         <input
                                             type="number"
-                                            value={item.quantity}
+                                            value={localQuantities[item._id] || item.quantity}
                                             min={1}
-                                            disabled={isUpdating}
                                             onChange={(e) => onUpdateQuantity(item._id, Number(e.target.value))}
                                             onBlur={(e) => {
                                                 const value = Number(e.target.value);
@@ -78,8 +79,7 @@ const ProductsSection = ({
                                                     onUpdateQuantity(item._id, 1);
                                                 }
                                             }}
-                                            className={`w-12 md:w-16 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-center text-gray-800 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm md:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''
-                                                }`}
+                                            className="w-12 md:w-16 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-center text-gray-800 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm md:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto"
                                         />
                                     </div>
 
@@ -108,7 +108,9 @@ const ProductsSection = ({
                             subtotal={subtotal}
                             gstAmount={gstAmount}
                             total={total}
+                            buttonText="Proceed to Checkout"
                             onCheckout={onCheckout}
+                            isCreatingOrder={isCreatingOrder}
                         />
                     </div>
                 </div>
