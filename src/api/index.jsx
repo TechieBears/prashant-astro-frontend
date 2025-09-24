@@ -1488,3 +1488,25 @@ export const postContactUs = async (data) => {
         return error?.response?.data || { success: false, message: 'Failed to post contact us' };
     }
 };
+// ==================== Create Product Order Api ====================
+export const createProductOrder = async (orderData) => {
+    const url = `${environment.baseUrl}product-order/public/create`;
+    try {
+        const response = await axios.post(url, orderData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating product order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create order' };
+    }
+};
+// ==================== Get All Product Orders Api ====================
+export const getAllProductOrders = async () => {
+    const url = `${environment.baseUrl}product-order/public/get-all`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching product orders:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch orders' };
+    }
+};

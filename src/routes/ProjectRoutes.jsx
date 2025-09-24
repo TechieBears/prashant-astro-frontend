@@ -39,6 +39,8 @@ import AllUserProfiles from '../pages/Admin/UserManagement/AllUserProfiles';
 import AllProducts from '../pages/Admin/AllProducts/AllProducts';
 import ProductDetail from '../pages/Home/ProductDetail';
 import CartPage from '../pages/Home/CartPage';
+import BuyNowPage from '../pages/Home/BuyNowPage';
+import { AddressProvider } from '../context/AddressContext';
 import PaymentSuccess from '../pages/Home/PaymentSuccess';
 import ProductBookings from '../pages/Admin/Bookings/ProductBookings';
 import ServiceBookings from '../pages/Admin/Bookings/ServiceBookings';
@@ -89,7 +91,16 @@ const ProjectRoutes = () => {
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/products" element={<ProductsPage />} />
                     <Route path="/products/:id" element={<ProductDetail />} />
-                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/cart" element={
+                        <AddressProvider>
+                            <CartPage />
+                        </AddressProvider>
+                    } />
+                    <Route path="/buy-now" element={
+                        <AddressProvider>
+                            <BuyNowPage />
+                        </AddressProvider>
+                    } />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:id" element={<ServiceDetail />} />
                     <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
