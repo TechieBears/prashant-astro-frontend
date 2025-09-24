@@ -9,7 +9,7 @@ import 'react-calendar/dist/Calendar.css';
 import '../../css/react-calendar.css';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import { Input, Select } from '../../components/Form';
-import { getServicesList, getAllAstrologer, checkAvailability } from '../../api';
+import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart } from '../../api';
 
 const BookingCalendar = () => {
     const navigate = useNavigate();
@@ -25,6 +25,7 @@ const BookingCalendar = () => {
     const [selectedService, setSelectedService] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
+    const [allServicesData, setAllServicesData] = useState([]); // Store complete service data
     const [isServicesLoading, setIsServicesLoading] = useState(false);
     const [astrologers, setAstrologers] = useState([]);
     const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
@@ -49,6 +50,7 @@ const BookingCalendar = () => {
     // Watch form values for availability checks
     const watchedAstrologer = watch('astrologer');
     const watchedDate = watch('selectedDate');
+    const watchedServiceType = watch('serviceType');
 
     // User details population
     useEffect(() => {
@@ -62,11 +64,11 @@ const BookingCalendar = () => {
     // Calendar state
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Static options
+    // Static options - mapped to API serviceType values
     const serviceMoodOptions = useMemo(() => [
-        { value: 'consult-online', label: 'Consult Online' },
-        { value: 'consult-astrologer-location', label: 'Consult at Astrologer location' },
-        { value: 'pooja-at-home', label: 'Pooja at Home' }
+        { value: 'online', label: 'Consult Online' },
+        { value: 'pandit_center', label: 'Consult at Astrologer location' },
+        { value: 'pooja_at_home', label: 'Pooja at Home' }
     ], []);
 
     // Generate time slots from availability data - only show available slots
@@ -117,7 +119,9 @@ const BookingCalendar = () => {
                         label: service.name
                     }))
                 );
+                const completeServicesData = response.data.flatMap(category => category.services);
                 setServices(allServices);
+                setAllServicesData(completeServicesData);
             } else {
                 setError('Failed to load services. Please try again.');
             }
@@ -178,8 +182,14 @@ const BookingCalendar = () => {
 
         setSelectedService(serviceData);
         setValue('serviceType', serviceData?._id || '');
+
+        // Auto-select service mood based on serviceType from API
+        if (serviceData?.serviceType) {
+            setValue('serviceMode', serviceData.serviceType);
+        }
+
         setIsLoading(false);
-    }, [isLogged, authLoading, serviceData, navigate]);
+    }, [isLogged, authLoading, serviceData, navigate, setValue]);
 
     // Services fetching
     useEffect(() => {
@@ -192,6 +202,17 @@ const BookingCalendar = () => {
         if (!isLogged || authLoading) return;
         fetchAstrologers();
     }, [isLogged, authLoading, fetchAstrologers]);
+
+    // Watch for service type changes and update service mode
+    useEffect(() => {
+        if (!watchedServiceType || !allServicesData.length) return;
+
+        const selectedServiceData = allServicesData.find(service => service._id === watchedServiceType);
+        if (selectedServiceData?.serviceType) {
+            setValue('serviceMode', selectedServiceData.serviceType);
+            setSelectedService(selectedServiceData);
+        }
+    }, [watchedServiceType, allServicesData, setValue]);
 
     if (authLoading || !isLogged || !serviceData || Object.keys(serviceData).length === 0) {
         return (
@@ -206,8 +227,8 @@ const BookingCalendar = () => {
         );
     }
 
-    const checkAstrologerAvailability = useCallback(async (date, astrologerId) => {
-        if (!date || !astrologerId) return;
+    const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType) => {
+        if (!date || !astrologerId || !serviceType) return;
 
         try {
             setIsAvailabilityLoading(true);
@@ -216,7 +237,8 @@ const BookingCalendar = () => {
             const formattedDate = date.toLocaleDateString('en-CA');
             const payload = {
                 date: formattedDate,
-                astrologer_id: astrologerId
+                astrologer_id: astrologerId,
+                service_type: serviceType == 'pooja_at_home' ? 'offline' : 'online'
             };
             const response = await checkAvailability(payload);
 
@@ -259,44 +281,79 @@ const BookingCalendar = () => {
 
         setSelectedDate(date);
         setValue('selectedDate', date);
-        setValue('timeSlot', ''); // Clear time slot when date changes
+        setValue('timeSlot', '');
     }, [setValue]);
 
-    // Watch for astrologer changes and check availability
     useEffect(() => {
-        if (watchedAstrologer && watchedDate) {
+        if (watchedAstrologer && watchedDate && watchedServiceType) {
             const selectedAstrologer = astrologers.find(astrologer => astrologer._id === watchedAstrologer);
-            if (selectedAstrologer) {
-                checkAstrologerAvailability(watchedDate, selectedAstrologer.empId);
+            const selectedService = allServicesData.find(service => service._id === watchedServiceType);
+            if (selectedAstrologer && selectedService) {
+                checkAstrologerAvailability(watchedDate, selectedAstrologer._id, selectedService?.serviceType);
             }
         }
-    }, [watchedAstrologer, watchedDate, astrologers, checkAstrologerAvailability]);
+    }, [watchedAstrologer, watchedDate, watchedServiceType, checkAstrologerAvailability]);
 
     // Form submission handler
     const onSubmit = useCallback(async (data) => {
         setError(null);
 
         try {
-            // Format the date for submission (ISO string)
-            const bookingData = {
-                ...data,
-                selectedDate: data.selectedDate.toISOString(),
-                formattedDate: data.selectedDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })
+            // Validate required fields
+            if (!data.selectedDate) {
+                setError('Please select a date');
+                return;
+            }
+
+            if (!data.timeSlot) {
+                setError('Please select a time slot');
+                return;
+            }
+
+            if (!data.astrologer) {
+                setError('Please select an astrologer');
+                return;
+            }
+
+            // Format date for API (YYYY-MM-DD format)
+            const formattedDate = data.selectedDate.toLocaleDateString('en-CA');
+
+            // Map serviceMode values to API enum
+            const serviceModeMap = {
+                'consult-online': 'consult_online',
+                'consult_at_pandit_location': 'consult_at_pandit_location',
+                'pooja_at_home': 'pooja_at_home'
             };
 
-            console.log('Booking data:', bookingData);
+            // Prepare payload for addServiceToCart API
+            const servicePayload = {
+                serviceId: data.serviceType, // service ID from form
+                quantity: 1, // default quantity
+                serviceMode: serviceModeMap[data.serviceMood] || 'consult_online',
+                astrologer: data.astrologer,
+                timeSlot: data.timeSlot,
+                date: formattedDate
+            };
 
-            alert(`Service booked for ${bookingData.formattedDate} at ${bookingData.timeSlot}`);
+            console.log('Adding service to cart with payload:', servicePayload);
+
+            // Call the API to add service to cart
+            const response = await addServiceToCart(servicePayload);
+
+            if (response.success) {
+                toast.success('Service added to cart successfully!');
+                // Navigate to cart page
+                navigate('/cart');
+            } else {
+                setError(response.message || 'Failed to add service to cart');
+                toast.error(response.message || 'Failed to add service to cart');
+            }
         } catch (error) {
             console.error('Booking error:', error);
             setError('Failed to book service. Please try again.');
+            toast.error('Failed to book service. Please try again.');
         }
-    }, [setError]);
+    }, [setError, navigate]);
 
 
     // Show loading state
@@ -393,35 +450,36 @@ const BookingCalendar = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.serviceType.message}</p>
                                 )}
 
-                                {/* Select Service Mood */}
+                                {/* Select Service Mode */}
                                 <Controller
-                                    name="serviceMood"
+                                    name="serviceMode"
                                     control={control}
                                     rules={{ required: 'Service mood is required' }}
                                     render={({ field }) => (
                                         <div>
                                             <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
-                                                Select Service Mood <span className="text-red-500">*</span>
+                                                Service Mode
                                             </label>
-                                            <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-6">
+                                            <div className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto pb-2">
                                                 {serviceMoodOptions.map((option) => (
-                                                    <label key={option.value} className="flex items-center cursor-pointer">
+                                                    <label key={option.value} className={`flex items-center whitespace-nowrap flex-shrink-0 ${field.value === option.value ? 'cursor-default' : 'cursor-not-allowed opacity-50'}`}>
                                                         <div className="relative flex items-center">
                                                             <input
                                                                 type="radio"
                                                                 name="serviceMood"
                                                                 value={option.value}
                                                                 checked={field.value === option.value}
-                                                                onChange={field.onChange}
+                                                                onChange={() => { }} // Disabled - no onChange action
+                                                                disabled={true} // Disable all radio buttons
                                                                 className="absolute opacity-0 w-0 h-0"
                                                             />
-                                                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${field.value === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
+                                                            <span className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center transition-colors ${field.value === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
                                                                 {field.value === option.value && (
-                                                                    <span className="w-2 h-2 bg-[#FF8835] rounded-full"></span>
+                                                                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#FF8835] rounded-full"></span>
                                                                 )}
                                                             </span>
                                                         </div>
-                                                        <span className="ml-2 sm:ml-3 text-gray-700 text-xs sm:text-sm">{option.label}</span>
+                                                        <span className={`ml-1.5 sm:ml-2 text-xs sm:text-sm ${field.value === option.value ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{option.label}</span>
                                                     </label>
                                                 ))}
                                             </div>

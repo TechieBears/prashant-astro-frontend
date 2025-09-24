@@ -72,6 +72,25 @@ export const getServiceCartItems = async () => {
     }
 };
 
+// ==================== Service Add to Cart Api ====================
+export const addServiceToCart = async (body) => {
+    const url = `${environment.baseUrl}service-cart/public/add`;
+
+    try {
+        const response = await axios.post(url, body);
+        return {
+            success: response.data?.success || false,
+            message: response.data?.message || 'Service added to cart',
+            data: response.data?.data
+        };
+    } catch (error) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Failed to add service to cart'
+        };
+    }
+};
+
 export const removeServiceCartItem = async (itemId) => {
     const token = localStorage.getItem('token');
     const url = `${environment.baseUrl}service-cart/public/remove-item`;
@@ -1510,3 +1529,4 @@ export const getAllProductOrders = async () => {
         return err?.response?.data || { success: false, message: 'Failed to fetch orders' };
     }
 };
+
