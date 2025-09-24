@@ -15,44 +15,44 @@
  * @returns {Object} Formatted order data
  */
 export const createOrderData = ({
-  productId,
-  quantity,
-  cartItems,
-  addressId,
-  paymentDetails = {},
-  paymentMethod = 'UPI',
-  paymentProvider = 'PhonePe'
+    productId,
+    quantity,
+    cartItems,
+    addressId,
+    paymentDetails = {},
+    paymentMethod = 'UPI',
+    paymentProvider = 'PhonePe'
 }) => {
-  if (!addressId) {
-    throw new Error('addressId is required');
-  }
+    if (!addressId) {
+        throw new Error('addressId is required');
+    }
 
-  if (!cartItems && (!productId || quantity === undefined)) {
-    throw new Error('Either cartItems or both productId and quantity must be provided');
-  }
+    if (!cartItems && (!productId || quantity === undefined)) {
+        throw new Error('Either cartItems or both productId and quantity must be provided');
+    }
 
-  const defaultPaymentDetails = {
-    transactionId: `TXN${Date.now()}`,
-    provider: paymentProvider,
-    status: 'PENDING',
-    paidAt: null,
-    ...paymentDetails
-  };
+    const defaultPaymentDetails = {
+        transactionId: `TXN${Date.now()}`,
+        provider: paymentProvider,
+        status: 'PENDING',
+        paidAt: null,
+        ...paymentDetails
+    };
 
-  // Create items array based on input type
-  const items = cartItems 
-    ? cartItems.map(item => ({
-        product: item.productId || item.product?._id || item._id,
-        quantity: item.quantity
-      }))
-    : [{ product: productId, quantity }];
+    // Create items array based on input type
+    const items = cartItems
+        ? cartItems.map(item => ({
+            product: item.productId || item.product?._id || item._id,
+            quantity: item.quantity
+        }))
+        : [{ product: productId, quantity }];
 
-  return {
-    items,
-    address: addressId,
-    paymentMethod,
-    paymentDetails: defaultPaymentDetails
-  };
+    return {
+        items,
+        address: addressId,
+        paymentMethod,
+        paymentDetails: defaultPaymentDetails
+    };
 };
 
 /**
@@ -167,3 +167,4 @@ export const formatOrderSummary = (orderData, orderType) => {
 
     return null;
 };
+
