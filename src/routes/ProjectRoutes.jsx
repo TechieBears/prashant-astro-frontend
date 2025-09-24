@@ -108,7 +108,11 @@ const ProjectRoutes = () => {
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/profile" element={<ProfileLayout />}>
+                    <Route path="/profile" element={
+                        <AddressProvider>
+                            <ProfileLayout />
+                        </AddressProvider>
+                    }>
                         <Route index element={<MyAccount />} />
                         <Route path="address" element={<Address />} />
                         <Route path="orders" element={<Orders />} />
