@@ -8,13 +8,14 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addService, editService } from '../../../api';
+import { addService, editService, getServiceCategoriesDropdown } from '../../../api';
 import { configTextEditor, TableTitle } from '../../../helper/Helper';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import JoditEditor from 'jodit-react';
 import { validateYoutubeUrl } from '../../../utils/validateFunction';
 import Error from '../../Errors/Error';
 import CustomTextArea from '../../TextInput/CustomTextArea';
+import { setServiceCategories } from '../../../redux/Slices/rootSlice';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -23,6 +24,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const [loader, setLoader] = useState(false);
     const editorRef = useRef(null);
     const serviceCategories = useSelector(state => state.appRoot?.serviceCategories || []);
+    const dispatch = useDispatch();
     const { fields, append, remove } = useFieldArray({
         control,
         name: "videoUrl"
@@ -90,13 +92,22 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                 subTitle: '',
                 price: '',
                 description: '',
-                durationInMinutes: '',
+                durationInMinutes: 30,
                 htmlContent: '',
                 image: '',
                 videoUrl: []
             });
         }
     }, [edit, userData, reset, setValue, open]);
+
+
+    useEffect(() => {
+        const apiCall = async () => {
+            const response = await getServiceCategoriesDropdown();
+            dispatch(setServiceCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name }))));
+        }
+        apiCall();
+    }, []);
 
     return <>
         {
@@ -154,7 +165,11 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             options={serviceCategories}
                                                             placeholder="Select Service Category"
                                                             props={{
-                                                                ...register('category', { required: true })
+                                                                ...register('category', { required: true }),
+                                                                value: watch('category') || '',
+                                                                onChange: (e) => {
+                                                                    setValue('category', e.target.value);
+                                                                }
                                                             }}
                                                             errors={errors.category}
                                                         />
@@ -274,16 +289,49 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Duration (30/60 Minutes)
+                                                        Service Duration (Minutes)
                                                     </h4>
-                                                    <TextInput
-                                                        label="Enter Service Duration"
-                                                        placeholder="Enter Service Duration"
-                                                        type="number"
-                                                        registerName="durationInMinutes"
-                                                        props={{ ...register('durationInMinutes', { required: "Service is required", min: 0 }) }}
-                                                        errors={errors.durationInMinutes}
+                                                    <div className="flex items-center space-x-3">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const currentValue = watch('durationInMinutes') || 30;
+                                                                const newValue = Math.max(30, currentValue - 30);
+                                                                setValue('durationInMinutes', newValue);
+                                                            }}
+                                                            className="flex items-center justify-center w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-lg font-bold text-xl transition-colors duration-200"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="h-12 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
+                                                                <span className="text-lg font-semibold text-gray-700">
+                                                                    {watch('durationInMinutes') || 30} min
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const currentValue = watch('durationInMinutes') || 30;
+                                                                const newValue = currentValue + 30;
+                                                                setValue('durationInMinutes', newValue);
+                                                            }}
+                                                            className="flex items-center justify-center w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-xl transition-colors duration-200"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    <input
+                                                        type="hidden"
+                                                        {...register('durationInMinutes', {
+                                                            required: "Service duration is required",
+                                                            min: { value: 30, message: "Minimum duration is 30 minutes" }
+                                                        })}
                                                     />
+                                                    {errors.durationInMinutes && (
+                                                        <p className="text-red-500 text-sm mt-1">{errors.durationInMinutes.message}</p>
+                                                    )}
                                                 </div>
                                                 <div className=''>
                                                     <h4

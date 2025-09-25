@@ -64,10 +64,12 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
             setValue('description', userData?.description);
             setValue('type', userData?.type);
             setValue('position', userData?.position);
-            setValue('startDate', userData?.startDate);
-            setValue('endDate', userData?.endDate);
+            setValue('startDate', userData?.startDate?.split('T')[0]);
+            setValue('endDate', userData?.endDate?.split('T')[0]);
             setValue('isActive', userData?.isActive);
             setValue('image', userData?.image);
+        } else {
+            reset();
         }
     }, [edit, userData, reset, setValue, open]);
 
@@ -243,8 +245,8 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                 </div>
                                             </div>
 
-                                            <footer className="py-3 flex bg-slate-100 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className="relative block w-auto px-5 transition-colors font-tb tracking-wide duration-200 py-2.5 overflow-hidden text-base font-semibold text-center text-white rounded-lg bg-primary hover:bg-primary capitalize" /> : <button type='submit' className={formBtn1}>submit</button>}
+                                            <footer className="py-3 flex bg-slate1 justify-end px-4 space-x-3">
+                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
                                             </footer>
                                         </form>
                                     </div>

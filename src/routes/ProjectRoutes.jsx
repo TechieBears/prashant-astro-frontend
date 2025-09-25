@@ -48,6 +48,8 @@ import ServicesCategories from '../pages/Admin/Services/ServicesCategories';
 import { WhatsappIcon } from 'hugeicons-react';
 import ProfileLayout from '../components/Profile/ProfileLayout';
 import Orders from '../pages/Home/Profile/Orders';
+import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
+import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 
 
 const ProjectRoutes = () => {
@@ -143,21 +145,26 @@ const ProjectRoutes = () => {
                 <Sidebar>
                     <Routes>
                         <Route path="/" element={<Dashboard />} />
+                        <Route path="/calender" element={<BookingCalender />} />
                         <Route path="/product-bookings" element={<ProductBookings />} />
                         <Route path="/service-bookings" element={<ServiceBookings />} />
-                        <Route path="/calender" element={<BookingCalender />} />
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/product-categories" element={<ProductCategories />} />
                         <Route path="/all-services" element={<AllServices />} />
-                        <Route path="/service-categories" element={<ServicesCategories />} />
+                        <Route
+                            path="/service-categories"
+                            element={<ServicesCategories />}
+                        />
                         <Route path="/all-employees" element={<Employees />} />
                         <Route path="/all-users" element={<AllUserProfiles />} />
                         <Route path="/user-transaction" element={<UserTransactios />} />
                         <Route path="/banner" element={<Banner />} />
+                        <Route path="/customerFeedback" element={<CustomerFeedback />} />
                         <Route path="/notifications" element={<Notifications />} />
                         <Route path="/offersCoupons" element={<OffersCoupons />} />
                         <Route path="/referEarn" element={<ReferEarn />} />
                         <Route path="/testimonials" element={<Testimonials />} />
+                        <Route path="/admin-profile" element={<AdminProfile />} />
                         <Route path="*" element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>

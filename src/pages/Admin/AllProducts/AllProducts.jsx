@@ -94,7 +94,7 @@ function AllUserProfiles() {
 
     const imageComponet = (row) => (<div className="w-16 h-16">
         <img
-            src={row?.images[0]?.url || "https://avatar.iran.liara.run/public"}
+            src={row?.images[0] || "https://avatar.iran.liara.run/public"}
             className="object-cover w-full h-full rounded-full bg-slate1"
             alt={row?.name}
         />
@@ -167,12 +167,10 @@ function AllUserProfiles() {
                 </form>
             </div>
 
-            {/* Product Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title='All Products' subtitle='List of all Products' component={<CreateProductModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
+                <TableHeader title='All Products' subtitle='Recently added products will appear here' component={<CreateProductModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
                 <Table data={filterData} columns={columns} paginator={false} />
 
-                {/* Pagination Controls */}
                 <div className="flex justify-end items-center gap-4 mt-4">
                     <button
                         onClick={() => pageChangeHandler(pageNo - 1)}
