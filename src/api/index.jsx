@@ -1507,3 +1507,118 @@ export const createProductOrder = async (orderData) => {
         return err?.response?.data || { success: false, message: 'Failed to create order' };
     }
 };
+export const getProductSubCategoriesByCategory = async (id) => {
+    try {
+        const url = `${environment.baseUrl}product-subcategories/get-by-category?id=${id || ''}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProductSubCategoriesSingle api file", err);
+        return err?.response?.data
+    }
+}
+
+// ================== Customer Feedback Api ==================
+
+export const getAllFeedback = async (data) => {
+    try {
+        const url = `${environment.baseUrl}feedback/get-all?search=${data?.name || ''}&page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAllFeedback api file", err);
+        return err?.response?.data
+    }
+}
+
+
+export const addFeedback = async (data) => {
+    const url = `${environment.baseUrl}feedback/create`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in addFeedback api file", err);
+        return err?.response?.data
+    }
+}
+
+export const respondFeedback = async (data) => {
+    const url = `${environment.baseUrl}feedback/respond`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in respondFeedback api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteFeedback = async (id) => {
+    const url = `${environment.baseUrl}/feedback/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deleteFeedback api file", err);
+        return err?.response?.data
+    }
+}
+
+// =========================== admin product order api ====================
+
+export const getAllProductOrders = async (data) => {
+    console.log('data', data)
+    try {
+        const url = `${environment.baseUrl}product-order/get-all?orderId=${data?.orderId || ""}&date=${data?.date || ""}&status=${data?.status || ""}&page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAllProductOrders api file", err);
+        return err?.response?.data
+    }
+}
+
+export const updateProductOrder = async (data) => {
+    try {
+        const url = `${environment.baseUrl}product-order/update-order-status`;
+        console.log("⚡️🤯 ~ index.jsx:1230 ~ getPublicServicesSingle ~ url:", url)
+        const response = await axios.post(url, data);
+        return response.data;
+    }
+    catch (err) {
+        console.log("==========error in updateProductOrderStatus api file", err);
+        return err?.response?.data;
+    }
+}
+// ======================= calendar api =======================
+
+export const checkAvailability = async (data) => {
+    try {
+        const url = `${environment.baseUrl}calender/check-availability`;
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in checkAvailability api file", err);
+        return err?.response?.data
+    }
+}
+
+export const logoutUser = async (data) => {
+    const url = `${environment.baseUrl}auth/logout`;
+    try {
+        const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in logout User api file", err);
+        return err?.response?.data
+    }
+};
