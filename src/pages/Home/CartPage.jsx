@@ -83,6 +83,21 @@ const CartPage = () => {
         };
     }, []);
 
+    // Show error toasts when errors occur
+    useEffect(() => {
+        if (orderError) {
+            toast.error(orderError);
+            dispatch(clearOrderError());
+        }
+    }, [orderError, dispatch]);
+
+    useEffect(() => {
+        if (cartError) {
+            toast.error(cartError);
+            dispatch(clearCartError());
+        }
+    }, [cartError, dispatch]);
+
     const updateQuantity = (id, newQuantity) => {
         const quantity = Math.max(1, newQuantity);
 
@@ -151,9 +166,6 @@ const CartPage = () => {
     };
 
     const handleServicesCheckout = () => {
-        dispatch(clearOrderError());
-        dispatch(clearCartError());
-
         if (!serviceCartItems || serviceCartItems.length === 0) {
             toast.error('No services in cart to checkout');
             return;
@@ -180,9 +192,6 @@ const CartPage = () => {
                 return;
             }
 
-            dispatch(clearOrderError());
-            dispatch(clearCartError());
-
             const orderData = createOrderData({
                 cartItems,
                 addressId: defaultAddress._id,
@@ -208,48 +217,6 @@ const CartPage = () => {
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading your cart...</p>
-                </div>
-            </div>
-        );
-    }
-
-    const displayError = orderError || cartError;
-
-    if (displayError) {
-        return (
-            <div className="min-h-screen bg-slate1 flex items-center justify-center">
-                <div className="text-center p-6 max-w-md mx-4 bg-white rounded-lg shadow">
-                    <div className="text-red-500 mb-4">
-                        <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading cart</h3>
-                    <p className="text-gray-600 mb-4">{displayError}</p>
-                    <div className="space-x-2">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                        >
-                            Try Again
-                        </button>
-                        {orderError && (
-                            <button
-                                onClick={() => dispatch(clearOrderError())}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                Clear Error
-                            </button>
-                        )}
-                        {cartError && (
-                            <button
-                                onClick={() => dispatch(clearCartError())}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                Clear Cart Error
-                            </button>
-                        )}
-                    </div>
                 </div>
             </div>
         );

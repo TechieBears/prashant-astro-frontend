@@ -15,7 +15,6 @@ const BookingCalendar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const serviceData = location.state?.serviceData || {};
-    console.log('serviceData', serviceData);
 
     // Get auth state and user details from Redux
     const isLogged = useSelector(state => state.user.isLogged);
@@ -24,14 +23,12 @@ const BookingCalendar = () => {
 
     // Service state
     const [selectedService, setSelectedService] = useState({});
-    console.log('selectedService', selectedService);
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
     const [allServicesData, setAllServicesData] = useState([]);
     const [isServicesLoading, setIsServicesLoading] = useState(false);
     const [astrologers, setAstrologers] = useState([]);
     const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [availability, setAvailability] = useState(null);
     const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
 
@@ -109,7 +106,6 @@ const BookingCalendar = () => {
 
         try {
             setIsServicesLoading(true);
-            setError(null);
             const response = await getServicesList();
             if (response?.success && response?.data) {
                 const allServices = response.data.flatMap(category =>
@@ -122,15 +118,15 @@ const BookingCalendar = () => {
                 setServices(allServices);
                 setAllServicesData(completeServicesData);
             } else {
-                setError('Failed to load services. Please try again.');
+                toast.error('Failed to load services. Please try again.');
             }
         } catch (error) {
             console.error('Error fetching services:', error);
-            setError('Failed to load services. Please try again.');
+            toast.error('Failed to load services. Please try again.');
         } finally {
             setIsServicesLoading(false);
         }
-    }, [services.length, isServicesLoading, setIsServicesLoading, setError, setServices]);
+    }, [services.length, isServicesLoading]);
 
     // Fetch astrologers
     const fetchAstrologers = useCallback(async () => {
@@ -138,20 +134,19 @@ const BookingCalendar = () => {
 
         try {
             setIsAstrologersLoading(true);
-            setError(null);
             const response = await getAllAstrologer();
             if (response?.success && response?.data) {
                 setAstrologers(response.data);
             } else {
-                setError('Failed to load astrologers. Please try again.');
+                toast.error('Failed to load astrologers. Please try again.');
             }
         } catch (error) {
             console.error('Error fetching astrologers:', error);
-            setError('Failed to load astrologers. Please try again.');
+            toast.error('Failed to load astrologers. Please try again.');
         } finally {
             setIsAstrologersLoading(false);
         }
-    }, [astrologers.length, isAstrologersLoading, setIsAstrologersLoading, setError, setAstrologers]);
+    }, [astrologers.length, isAstrologersLoading]);
 
     useEffect(() => {
         if (authLoading) return;
@@ -230,7 +225,6 @@ const BookingCalendar = () => {
 
         try {
             setIsAvailabilityLoading(true);
-            setError(null);
 
             const formattedDate = date.toLocaleDateString('en-CA');
             const payload = {
@@ -268,7 +262,7 @@ const BookingCalendar = () => {
         } finally {
             setIsAvailabilityLoading(false);
         }
-    }, [setIsAvailabilityLoading, setError, setAvailability]);
+    }, [serviceData.durationInMinutes]);
 
     // Date selection handler for react-calendar
     const handleDateSelect = useCallback((date) => {
@@ -295,23 +289,20 @@ const BookingCalendar = () => {
 
     // Form submission handler
     const onSubmit = useCallback(async (data) => {
-        setError(null);
-
-
         try {
             // Validate required fields
             if (!data.selectedDate) {
-                setError('Please select a date');
+                toast.error('Please select a date');
                 return;
             }
 
             if (!data.timeSlot) {
-                setError('Please select a time slot');
+                toast.error('Please select a time slot');
                 return;
             }
 
             if (!data.astrologer) {
-                setError('Please select an astrologer');
+                toast.error('Please select an astrologer');
                 return;
             }
 
@@ -346,15 +337,13 @@ const BookingCalendar = () => {
                 // Navigate to cart page with services tab selected
                 navigate('/cart', { state: { activeTab: 'services' } });
             } else {
-                setError(response.message || 'Failed to add service to cart');
                 toast.error(response.message || 'Failed to add service to cart');
             }
         } catch (error) {
             console.error('Booking error:', error);
-            setError('Failed to book service. Please try again.');
             toast.error('Failed to book service. Please try again.');
         }
-    }, [setError, navigate]);
+    }, [navigate]);
 
 
     // Show loading state
@@ -607,14 +596,6 @@ const BookingCalendar = () => {
                             </div>
                         </div>
 
-                        {/* Error Display */}
-                        {error && (
-                            <div className="flex justify-center mt-4">
-                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-md">
-                                    {error}
-                                </div>
-                            </div>
-                        )}
 
                         {/* Book Service Button */}
                         <div className="flex justify-center mt-8 w-full px-4">
