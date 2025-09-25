@@ -2,21 +2,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useAddress } from "../../context/AddressContext";
-import { createCustomerAddress, updateCustomerAddress } from "../../api";
 import toast from "react-hot-toast";
 
 const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Try to use context, fallback to direct API calls if context is not available
-    let contextMethods = null;
-    try {
-        contextMethods = useAddress();
-    } catch (err) {
-        // Context not available, will use direct API calls
-        console.log('AddressContext not available, using direct API calls');
-    }
+    // Use AddressContext methods
+    const { addAddress, updateAddress } = useAddress();
 
     const {
         register,
@@ -81,20 +74,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             };
 
             let response;
-            if (contextMethods) {
-                // Use context methods (for cart page)
-                if (mode === "add") {
-                    response = await contextMethods.addAddress(apiData);
-                } else {
-                    response = await contextMethods.updateAddress(addressData._id, apiData);
-                }
+            // Use context methods for both add and edit operations
+            if (mode === "add") {
+                response = await addAddress(apiData);
             } else {
-                // Use direct API calls (for profile page)
-                if (mode === "add") {
-                    response = await createCustomerAddress(apiData);
-                } else {
-                    response = await updateCustomerAddress(addressData._id, apiData);
-                }
+                response = await updateAddress(addressData._id, apiData);
             }
 
             if (response.success) {
@@ -116,7 +100,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                 }
                 onClose();
             } else {
-                const errorMessage = response.message || `Failed to ${mode} address`;
+                const errorMessage = response.error || `Failed to ${mode} address`;
                 setError(errorMessage);
                 toast.error(errorMessage);
             }
@@ -128,7 +112,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
         } finally {
             setLoading(false);
         }
-    }, [mode, addressData, onSuccess, onClose, reset]);
+    }, [mode, addressData, onSuccess, onClose, reset, addAddress, updateAddress]);
 
     const handleCancel = useCallback(() => {
         // Reset form data for add mode
