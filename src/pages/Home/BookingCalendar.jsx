@@ -15,6 +15,7 @@ const BookingCalendar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const serviceData = location.state?.serviceData || {};
+    console.log('serviceData', serviceData);
 
     // Get auth state and user details from Redux
     const isLogged = useSelector(state => state.user.isLogged);
@@ -23,9 +24,10 @@ const BookingCalendar = () => {
 
     // Service state
     const [selectedService, setSelectedService] = useState({});
+    console.log('selectedService', selectedService);
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
-    const [allServicesData, setAllServicesData] = useState([]); // Store complete service data
+    const [allServicesData, setAllServicesData] = useState([]);
     const [isServicesLoading, setIsServicesLoading] = useState(false);
     const [astrologers, setAstrologers] = useState([]);
     const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
@@ -37,7 +39,7 @@ const BookingCalendar = () => {
     const { control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm({
         defaultValues: {
             serviceType: '',
-            serviceMood: 'consult-online',
+            serviceMode: 'consult-online',
             astrologer: '',
             fullName: '',
             mobileNumber: '',
@@ -54,24 +56,21 @@ const BookingCalendar = () => {
 
     // User details population
     useEffect(() => {
-        if (loggedUserDetails) {
+        if (loggedUserDetails && Object.keys(loggedUserDetails).length > 0) {
             setValue('fullName', `${loggedUserDetails.firstName || ''} ${loggedUserDetails.lastName || ''}`.trim());
             setValue('mobileNumber', loggedUserDetails.mobileNo || '');
             setValue('emailAddress', loggedUserDetails.email || '');
         }
     }, [loggedUserDetails, setValue]);
 
-    // Calendar state
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Static options - mapped to API serviceType values
-    const serviceMoodOptions = useMemo(() => [
+    const serviceModeOptions = useMemo(() => [
         { value: 'online', label: 'Consult Online' },
         { value: 'pandit_center', label: 'Consult at Astrologer location' },
         { value: 'pooja_at_home', label: 'Pooja at Home' }
     ], []);
 
-    // Generate time slots from availability data - only show available slots
     const timeSlots = useMemo(() => {
         if (!availability?.data?.timeSlots) return [];
         const availableSlots = availability.data.timeSlots
@@ -154,7 +153,6 @@ const BookingCalendar = () => {
         }
     }, [astrologers.length, isAstrologersLoading, setIsAstrologersLoading, setError, setAstrologers]);
 
-    // Authentication check
     useEffect(() => {
         if (authLoading) return;
 
@@ -183,7 +181,7 @@ const BookingCalendar = () => {
         setSelectedService(serviceData);
         setValue('serviceType', serviceData?._id || '');
 
-        // Auto-select service mood based on serviceType from API
+        // Auto-select service Mode based on serviceType from API
         if (serviceData?.serviceType) {
             setValue('serviceMode', serviceData.serviceType);
         }
@@ -238,7 +236,8 @@ const BookingCalendar = () => {
             const payload = {
                 date: formattedDate,
                 astrologer_id: astrologerId,
-                service_type: serviceType == 'pooja_at_home' ? 'offline' : 'online'
+                service_type: serviceType == 'pooja_at_home' ? 'offline' : 'online',
+                bookingMinutes: parseInt(serviceData.durationInMinutes) || 60
             };
             const response = await checkAvailability(payload);
 
@@ -331,7 +330,7 @@ const BookingCalendar = () => {
             const servicePayload = {
                 serviceId: data.serviceType, // service ID from form
                 quantity: 1, // default quantity
-                serviceMode: serviceModeMap[data.serviceMood] || 'consult_online',
+                serviceMode: serviceModeMap[data.serviceMode] || 'consult_online',
                 astrologer: data.astrologer,
                 timeSlot: data.timeSlot,
                 date: formattedDate
@@ -344,8 +343,8 @@ const BookingCalendar = () => {
 
             if (response.success) {
                 toast.success('Service added to cart successfully!');
-                // Navigate to cart page
-                navigate('/cart');
+                // Navigate to cart page with services tab selected
+                navigate('/cart', { state: { activeTab: 'services' } });
             } else {
                 setError(response.message || 'Failed to add service to cart');
                 toast.error(response.message || 'Failed to add service to cart');
@@ -456,19 +455,19 @@ const BookingCalendar = () => {
                                 <Controller
                                     name="serviceMode"
                                     control={control}
-                                    rules={{ required: 'Service mood is required' }}
+                                    rules={{ required: 'Service Mode is required' }}
                                     render={({ field }) => (
                                         <div>
                                             <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
                                                 Service Mode
                                             </label>
                                             <div className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto pb-2">
-                                                {serviceMoodOptions.map((option) => (
+                                                {serviceModeOptions.map((option) => (
                                                     <label key={option.value} className={`flex items-center whitespace-nowrap flex-shrink-0 ${field.value === option.value ? 'cursor-default' : 'cursor-not-allowed opacity-50'}`}>
                                                         <div className="relative flex items-center">
                                                             <input
                                                                 type="radio"
-                                                                name="serviceMood"
+                                                                name="serviceMode"
                                                                 value={option.value}
                                                                 checked={field.value === option.value}
                                                                 onChange={() => { }} // Disabled - no onChange action
@@ -488,8 +487,8 @@ const BookingCalendar = () => {
                                         </div>
                                     )}
                                 />
-                                {errors.serviceMood && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.serviceMood.message}</p>
+                                {errors.serviceMode && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.serviceMode.message}</p>
                                 )}
 
                                 {/* Select Astrologer */}
