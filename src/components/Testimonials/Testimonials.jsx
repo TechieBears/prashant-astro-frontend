@@ -21,7 +21,7 @@ const testimonialsData = [
     },
     {
         name: "Priya Sharma",
-        location: "Bangalore, Karnataka",
+        location: "Nagpur, Maharashtra",
         category: "Marriage Compatibility",
         description: "The kundali matching was done with great precision. The detailed analysis helped our families make an informed decision. Highly recommended for marriage consultations.",
         image2: Profile2,
@@ -29,7 +29,7 @@ const testimonialsData = [
     },
     {
         name: "Rahul Mehta",
-        location: "Delhi",
+        location: "Kolhapur, Maharashtra",
         category: "Career Guidance",
         description: "The career prediction was spot on! The astrologer's guidance helped me make crucial career decisions. The remedies suggested have been very effective.",
         image2: Profile3,
@@ -68,7 +68,7 @@ const Testimonials = () => {
     const [isAnimating, setIsAnimating] = useState(false);
     const DESCRIPTION_LIMIT = 140;
     const SLIDES_PER_GROUP = 3;
-    
+
     // Calculate total groups
     const totalGroups = Math.ceil(testimonialsData.length / SLIDES_PER_GROUP);
 
@@ -82,15 +82,15 @@ const Testimonials = () => {
 
     const handlePrevClick = () => {
         if (isAnimating) return;
-        
+
         setIsAnimating(true);
         setIsVisible(false); // Start disappear animation
-        
+
         setTimeout(() => {
             // Change to previous group
             const prevGroupIndex = currentGroup === 0 ? totalGroups - 1 : currentGroup - 1;
             setCurrentGroup(prevGroupIndex);
-            
+
             // Start appear animation
             setTimeout(() => {
                 setIsVisible(true);
@@ -101,15 +101,15 @@ const Testimonials = () => {
 
     const handleNextClick = () => {
         if (isAnimating) return;
-        
+
         setIsAnimating(true);
         setIsVisible(false); // Start disappear animation
-        
+
         setTimeout(() => {
             // Change to next group
             const nextGroupIndex = currentGroup === totalGroups - 1 ? 0 : currentGroup + 1;
             setCurrentGroup(nextGroupIndex);
-            
+
             // Start appear animation
             setTimeout(() => {
                 setIsVisible(true);
