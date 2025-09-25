@@ -18,6 +18,7 @@ import {
     requestNotificationPermission,
 } from './utils/pushNotifications';
 import { useEffect } from "react";
+import { useLocation } from 'react-router-dom';
 
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
@@ -39,6 +40,14 @@ const App = () => {
 
         initializeNotifications();
     }, []);
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'instant',  
+        });
+    }, [pathname]);
     return (
         <>
             <Provider store={store}>

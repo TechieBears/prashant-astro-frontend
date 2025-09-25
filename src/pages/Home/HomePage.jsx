@@ -318,7 +318,7 @@ const HomePage = () => {
 
                         {/* Right: Text & Cards */}
                         <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6 text-center lg:text-left order-1 lg:order-2">
-                            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800">
+                            <h2 className="text-lg sm:text-lg md:text-xl font-semibold text-slate-800">
                                 16 Years of Spiritual Guidance
                             </h2>
                             <p className="text-slate-600 text-sm sm:text-base md:text-base leading-relaxed">
