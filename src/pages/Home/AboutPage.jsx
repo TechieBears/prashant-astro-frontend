@@ -1,63 +1,51 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import BackgroundTitle from '../../components/Titles/BackgroundTitle'
 import { ArrowRight02Icon, Saturn01Icon } from 'hugeicons-react';
 import aboutImg from '../../assets/user/aboutus.png'
 import SectionHeader from '../../components/Titles/SectionHeader';
 import { FavouriteIcon, StarIcon, Calendar03Icon } from 'hugeicons-react';
 import Testimonials from '../../components/Testimonials/Testimonials';
-import { getAllAstrologer } from '../../api';
+import { getAllAstrologer, getServicesList } from '../../api';
 
-const astrologer = [
-    { id: 1, name: 'Suvigya Indusoot' },
-    { id: 2, name: 'Ravi Kumar' },
-    { id: 3, name: 'Suvigya Indusoot' },
-    { id: 4, name: 'Suvigya Indusoot' },
-    { id: 5, name: 'Priya Sharma' },
-    { id: 6, name: 'Ravi Kumar' }
+
+// Static icons for services (keeping as requested)
+const serviceIcons = [
+    '/src/assets/user/about/core (1).svg',
+    '/src/assets/user/about/core (2).svg',
+    '/src/assets/user/about/core (3).svg',
+    '/src/assets/user/about/core (4).svg',
+    '/src/assets/user/about/core (5).svg',
+    '/src/assets/user/about/core (6).svg'
 ];
 
-const services = [
+const aboutData = [
     {
-        id: 1,
-        title: 'DOB Analysis',
-        description: 'Detailed life guidance based on your birth date covering personality traits, career paths, love compatibility, and health patterns.',
-        icon: '/src/assets/user/about/core (1).svg'
+        title: "Compassionate Guidance",
+        icon: <FavouriteIcon size={25} className="text-white" />,
+        bg: '#0088FF',
+        content: "Every soul deserves profound understanding and divine clarity. I approach consultation with deep empathy, ensuring you feel spiritually supported, and truly heard on your sacred journey.",
     },
     {
-        id: 2,
-        title: 'Personal Kundali Reading',
-        description: 'Complete birth chart analysis revealing your personality, career potential, relationships, and life cycles with precise cosmic insights.',
-        icon: '/src/assets/user/about/core (2).svg'
+        title: "Compassionate Guidance",
+        icon: <StarIcon size={25} className="text-white" />,
+        bg: '#FF8D28',
+        content: "Seamlessly blending time-honored Vedic traditions with contemporary spiritual understanding, I provide guidance that is both deeply rooted in ancient wisdom and practically applicable to modern life.",
     },
     {
-        id: 3,
-        title: 'Kundli Matching',
-        description: 'Traditional compatibility analysis for marriages and partnerships ensuring harmonious relationships and shared prosperity.',
-        icon: '/src/assets/user/about/core (3).svg'
+        title: "Transformation Focus",
+        icon: <Calendar03Icon size={25} className="text-white" />,
+        bg: '#34C759',
+        content: "Astrology is not merely prediction—it is divine transformation. I help you decode your cosmic blueprint to unlock your highest potential, heal past wounds, and create meaningful positive change.",
     },
-    {
-        id: 4,
-        title: 'Numerology & Correction',
-        description: 'Align your name vibrations with cosmic energies for enhanced success, prosperity, and life harmony.',
-        icon: '/src/assets/user/about/core (4).svg'
-    },
-    {
-        id: 5,
-        title: 'Palmistry',
-        description: 'Ancient hand reading techniques revealing your destiny, success patterns, and hidden life potentials.',
-        icon: '/src/assets/user/about/core (5).svg'
-    },
-    {
-        id: 6,
-        title: 'Vastu Consultation',
-        description: 'Balance your home and office spaces with cosmic energies for enhanced positivity, prosperity, and peace.',
-        icon: '/src/assets/user/about/core (6).svg'
-    }
 ];
 
 const AboutPage = () => {
+    const navigate = useNavigate();
     const [hoveredCard, setHoveredCard] = useState(null);
     const [astrologers, setAstrologers] = useState([]);
+    const [services, setServices] = useState([]);
+    const [servicesLoading, setServicesLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -76,30 +64,39 @@ const AboutPage = () => {
         fetchData()
     }, [])
 
+    useEffect(() => {
+        const fetchServices = async () => {
+            setServicesLoading(true);
+            try {
+                const response = await getServicesList();
 
-    const aboutData = [
-        {
-            title: "Compassionate Guidance",
-            icon: <FavouriteIcon size={25} className="text-white" />,
-            bg: '#0088FF',
-            content:
-                "Every soul deserves profound understanding and divine clarity. I approach consultation with deep empathy, ensuring you feel spiritually supported, and truly heard on your sacred journey.",
-        },
-        {
-            title: "Compassionate Guidance",
-            icon: <StarIcon size={25} className="text-white" />,
-            bg: '#FF8D28',
-            content:
-                "Seamlessly blending time-honored Vedic traditions with contemporary spiritual understanding, I provide guidance that is both deeply rooted in ancient wisdom and practically applicable to modern life.",
-        },
-        {
-            title: "Transformation Focus",
-            icon: <Calendar03Icon size={25} className="text-white" />,
-            bg: '#34C759',
-            content:
-                "Astrology is not merely prediction—it is divine transformation. I help you decode your cosmic blueprint to unlock your highest potential, heal past wounds, and create meaningful positive change.",
-        },
-    ];
+                if (response?.success && response?.data?.length > 0) {
+                    // Extract and transform services in one operation
+                    const transformedServices = response.data
+                        .filter(category => category.services?.length > 0)
+                        .flatMap(category => category.services)
+                        .slice(0, 6)
+                        .map((service, index) => ({
+                            id: service._id,
+                            title: service.name,
+                            description: service.subTitle || service.title || 'Service description not available',
+                            icon: service.image || serviceIcons[index % serviceIcons.length]
+                        }));
+
+                    setServices(transformedServices);
+                } else {
+                    setServices([]);
+                }
+            } catch (error) {
+                console.error("Error fetching services:", error);
+                setServices([]);
+            } finally {
+                setServicesLoading(false);
+            }
+        };
+
+        fetchServices();
+    }, []);
     return (
         <div className='bg-slate1'>
 
@@ -133,16 +130,16 @@ const AboutPage = () => {
                             <h2 className="text-3xl mb-4 text-slate-800">About Pandit Prashant Shastri</h2>
                         </div>
                         <p className="text-base-font mb-4 text-sm">
-                            Welcome to a sacred journey of self-discovery and cosmic understanding. I am Pandit Prashant Suryavanshi, also known as Pandit Prashant Shastri, a dedicated Vedic astrologer and spiritual guide with over 15 years of transformative experience in helping souls navigate their divine path.
+                            Pandit Prashant Shastri—today often recognized as a 'celebrity priest'—yet beyond this public image, my truest identity is that of a trusted companion who walks beside you on the path of peace, happiness, and progress. My work is not limited to recognition or popularity; it is rooted in the timeless wisdom of our scriptures and the sincere desire to guide every seeker toward balance and fulfillment.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            My spiritual awakening began in my early years, blessed by an ancient lineage of Vedic scholars and guided by the timeless wisdom of our sacred scriptures. Through decades of devoted study, meditation, and practice, I have developed a unique approach that honors traditional Vedic principles while embracing the evolving consciousness of modern seekers.
+                            Be it the sacred conduct of traditional pujas, the application of vastu shastra for harmony in living and working spaces, or the resolution of personal challenges that life inevitably brings, my purpose remains constant: to provide authentic, scripture-based remedies with compassion and clarity. Every ritual, every suggestion, and every consultation is offered with the intent to uplift and empower those who place their trust in me.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            What distinguishes my practice is the profound understanding that astrology transcends mere prediction—it is a divine science of transformation, empowerment, and soul awakening. Every consultation becomes a sacred dialogue between your inner wisdom, cosmic energies, and the eternal guidance that flows through us all.
+                            My journey has been shaped by years of devotion, learning, and practice. While firmly grounded in tradition, I also carry a fresh perspective that bridges the gap between ancient practices and modern lifestyles. This unique blend allows me to make puja rituals, vastu principles, and astrological insights accessible and relevant to contemporary lives while never compromising on authenticity.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            Having served over 10,000+ clients worldwide, I am honored to be recognized as a trusted voice in the spiritual community, with a growing presence across digital platforms where ancient wisdom meets modern accessibility.
+                            As an Astro and Vastu Consultant, I see my role as a bridge between tradition and transformation. For me, the sacred path is not just about rituals but about meaningful change. It is about weaving together scriptures, traditions, and a renewed outlook, creating a powerful synergy that guides you toward peace, prosperity, and spiritual growth.
                         </p>
                     </div>
                 </div>
@@ -267,22 +264,39 @@ const AboutPage = () => {
                     </div>
 
                     {/* Services Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {services.map((service) => (
-                            <div key={service.id} className="group bg-white p-6 rounded-lg shadow-md hover:-translate-y-3 transition-all duration-300 flex flex-col">
-                                <div className="w-20 h-20 flex items-center justify-start mb-4">
-                                    <div className="w-16 h-16 rounded-full transition-all duration-300 group-hover:bg-button-diagonal-gradient-orange flex items-center justify-center">
-                                        <img src={service.icon} alt={service.title} className="w-16 h-16 transition-all duration-300 group-hover:brightness-0 group-hover:invert" />
+                    {servicesLoading ? (
+                        <div className="flex justify-center items-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                        </div>
+                    ) : services.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                            {services.map((service) => (
+                                <div key={service.id} className="group bg-white p-6 rounded-lg shadow-md hover:-translate-y-3 transition-all duration-300 flex flex-col">
+                                    <div className="w-20 h-20 flex items-center justify-start mb-4">
+                                        <div className="w-16 h-16 rounded-full transition-all duration-300 group-hover:bg-button-diagonal-gradient-orange flex items-center justify-center overflow-hidden">
+                                            <img
+                                                src={service.icon}
+                                                alt={service.title}
+                                                className="w-16 h-16 object-cover transition-all duration-300"
+                                            />
+                                        </div>
                                     </div>
+                                    <h3 className="text-lg font-semibold text-left mb-2">{service.title}</h3>
+                                    <p className="text-sm text-gray-600 text-left mb-4 flex-grow">{service.description}</p>
+                                    <button
+                                        onClick={() => navigate(`/services/${service.id}`)}
+                                        className="text-[#0088FF] hover:text-blue-700 text-sm font-medium text-left mt-auto cursor-pointer"
+                                    >
+                                        Read More →
+                                    </button>
                                 </div>
-                                <h3 className="text-lg font-semibold text-left mb-2">{service.title}</h3>
-                                <p className="text-sm text-gray-600 text-left mb-4 flex-grow">{service.description}</p>
-                                <a href="#" className="text-[#0088FF] hover:text-blue-700 text-sm font-medium text-left mt-auto">
-                                    Read More →
-                                </a>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex justify-center items-center py-12">
+                            <p className="text-gray-500">No services available at the moment.</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* == Testimonials Section == */}
