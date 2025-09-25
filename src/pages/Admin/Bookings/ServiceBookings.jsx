@@ -1,22 +1,20 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Copy } from 'iconsax-reactjs';
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import Switch from "react-js-switch";
-import { blacklistUser, blockUser, getAllBlockedUser } from '../../../api'
+import { getAllProductOrders, updateProductOrder } from '../../../api';
 import Table from '../../../components/Table/Table'
 import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
-import { formatRole, imageComponet } from '../../../helper/Helper'
 import TableHeader from '../../../components/Table/TableHeader'
 
 const initialFilterState = {
-    name: '',
-    email: '',
-    role: '',
+    orderId: '',
+    date: '',
+    status: '',
 };
 
 const ServiceBookings = () => {
@@ -29,7 +27,6 @@ const ServiceBookings = () => {
         refresh: refreshTrigger
     }), [filterCriteria, refreshTrigger]);
 
-    // Pagination hook
     const {
         filterData,
         pageNo,
@@ -39,19 +36,16 @@ const ServiceBookings = () => {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, getAllBlockedUser, combinedFilters);
-    // Handle API errors
+    } = usePagination(1, 10, getAllProductOrders, combinedFilters);
     useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
+        if (error) toast.error('Failed to fetch product bookings');
     }, [error]);
 
-    // Form submit handler
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
-        pageChangeHandler(1); // Reset to first page when filters change
+        pageChangeHandler(1);
     };
 
-    // Clear filters
     const handleClearFilters = () => {
         reset(initialFilterState);
         setFilterCriteria(initialFilterState);
@@ -59,132 +53,229 @@ const ServiceBookings = () => {
     };
 
 
-    const handleBlockChange = async (id, isBlocked) => {
+    const handleOrderStatusChange = async (orderId, newStatus, currentStatus) => {
         try {
-            const updatedData = {
-                isBlocked: !isBlocked
+            const validOptions = getValidStatusOptions(currentStatus);
+            const isValidTransition = validOptions.some(option => option.value === newStatus);
+
+            if (!isValidTransition) {
+                toast.error('Invalid status transition');
+                return;
             }
-            await blockUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
+
+            const updatedData = {
+                "orderId": orderId,
+                "status": newStatus
+            }
+
+            await updateProductOrder(updatedData);
+            setRefreshTrigger(prev => prev + 1);
+
+            const statusMessages = {
+                'CONFIRMED': 'Order confirmed successfully!',
+                'SHIPPED': 'Order marked as shipped!',
+                'DELIVERED': 'Order delivered successfully!',
+                'CANCELLED': 'Order cancelled.',
+                'REFUNDED': 'Order refunded.'
+            };
+
+            toast.success(statusMessages[newStatus] || 'Order status updated successfully');
         } catch (error) {
             console.log('error', error)
-            toast.error('Update failed');
+            toast.error('Failed to update order status');
         }
     };
 
-    // const ActionBody = (row) => (
-    //     <NavLink to={`/dashboard/${row?._id}`}>
-    //         <Eye size={20} className="text-gray-500 cursor-pointer" />
-    //     </NavLink>
-    // )
+    const orderStatusOptions = [
+        { value: 'PENDING', label: 'Pending' },
+        { value: 'CONFIRMED', label: 'Confirmed' },
+        { value: 'SHIPPED', label: 'Shipped' },
+        { value: 'DELIVERED', label: 'Delivered' },
+        { value: 'CANCELLED', label: 'Cancelled' },
+        { value: 'REFUNDED', label: 'Refunded' }
+    ];
 
+    const getValidStatusOptions = (currentStatus) => {
+        const statusFlow = {
+            'PENDING': ['PENDING', 'CONFIRMED', 'CANCELLED'],
+            'CONFIRMED': ['CONFIRMED', 'SHIPPED', 'CANCELLED'],
+            'SHIPPED': ['SHIPPED', 'DELIVERED', 'CANCELLED'],
+            'DELIVERED': ['DELIVERED', 'REFUNDED'],
+            'CANCELLED': ['CANCELLED', 'REFUNDED'],
+            'REFUNDED': ['REFUNDED']
+        };
 
-    const varificationBody = (row) => (
-        <Switch
-            value={row?.isVerified}
-            disabled
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+        const validStatuses = statusFlow[currentStatus] || ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
 
-    const handleBlackListChange = async (id, isBlacklisted) => {
-        try {
-            const updatedData = {
-                isBlacklisted: !isBlacklisted
+        return orderStatusOptions.filter(option =>
+            validStatuses.includes(option.value)
+        );
+    };
+
+    const orderStatusBody = (row) => {
+        const currentStatus = row?.orderStatus || 'PENDING';
+        const validOptions = getValidStatusOptions(currentStatus);
+
+        const getStatusColor = (status) => {
+            switch (status) {
+                case 'PENDING': return 'text-yellow-600 bg-yellow-50/80 border-yellow-200';
+                case 'CONFIRMED': return 'text-blue-600 bg-blue-50/80 border-blue-200';
+                case 'SHIPPED': return 'text-purple-600 bg-purple-50/80 border-purple-200';
+                case 'DELIVERED': return 'text-green-600 bg-green-50/80 border-green-200';
+                case 'CANCELLED': return 'text-red-600 bg-red-50/80 border-red-200';
+                case 'REFUNDED': return 'text-gray-600 bg-gray-50/80 border-gray-200';
+                default: return 'text-gray-600 bg-gray-50/80 border-gray-200';
             }
-            await blacklistUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
+        };
 
-    const blackListBody = (row) => (
-        <Switch
-            value={row?.isBlacklisted}
-            disabled={row?.is_registered == false ? true : false}
-            onChange={() => handleBlackListChange(row?._id, row?.isBlacklisted)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+        return (
+            <div className="space-y-1">
+                <select
+                    value={currentStatus}
+                    onChange={(e) => handleOrderStatusChange(row?._id, e.target.value, currentStatus)}
+                    className={`px-6 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-tbLex tracking-tight ${getStatusColor(currentStatus)}`}
+                >
+                    {validOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    };
 
-    const blockBody = (row) => (
-        <Switch
-            value={row?.isBlocked} onChange={() => handleBlockChange(row?._id, row?.isBlocked)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+    const paymentStatusBody = (row) => {
+        const statusColor = row?.paymentStatus === 'PAID' ? 'text-green-600 bg-green-100' :
+            row?.paymentStatus === 'PENDING' ? 'text-yellow-600 bg-yellow-100' :
+                'text-red-600 bg-red-100';
+        return (
+            <span className={`px-4 py-2 rounded-full text-xs font-tbLex tracking-tight font-medium ${statusColor}`}>
+                {row?.paymentStatus || 'PENDING'}
+            </span>
+        );
+    };
     const columns = [
-        { field: "profile", header: "Profile", body: imageComponet, style: true },
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
-        { field: 'role', header: 'Role', body: (row) => row?.role == "primary" ? "Primary" : row?.role == "secondary" ? "Secondary" : row?.subRole == "castingAgency" ? "Casting Agency" : formatRole(row?.subRole) || "---- -----", style: true },
-        { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
+        {
+            field: '_id', header: 'Order Id', body: (row) => <div className="flex items-center gap-2"><span className='capitalize'>{row?._id?.slice(-10) || "---- -----"}</span> <span><Copy className="cursor-pointer text-primary hover:text-primary" size={18}
+                onClick={() => {
+                    navigator.clipboard.writeText(row?._id);
+                    toast.success('ID Copied!');
+                }} /></span>
+            </div>, style: true, sortable: true
+        },
+        {
+            field: 'user',
+            header: 'Customer',
+            body: (row) => (
+                <div className='space-y-1'>
+                    <div className='font-medium capitalize'>{row?.user?.firstName} {row?.user?.lastName}</div>
+                    <div className='text-xs text-gray-500'>{row?.user?.email}</div>
+                </div>
+            ),
+            style: true, sortable: true
+        },
+        {
+            field: 'items',
+            header: 'Products',
+            body: (row) => (
+                <div className='space-y-1'>
+                    {row?.items?.map((item, index) => (
+                        <div key={index} className='text-sm'>
+                            <div className='font-medium'>{item?.product?.name}</div>
+                            <div className='text-xs text-gray-500'>Qty: {item?.quantity} × ₹{item?.sellingPrice}</div>
+                        </div>
+                    ))}
+                </div>
+            ),
+            style: true, sortable: true
+        },
+        {
+            field: 'address',
+            header: 'Delivery Address',
+            body: (row) => (
+                <div className='text-sm space-y-1'>
+                    <div className='font-medium'>{row?.address?.firstName} {row?.address?.lastName}</div>
+                    <div className='text-xs text-gray-500'>{row?.address?.phoneNumber}</div>
+                    <div className='text-xs text-gray-500'>{row?.address?.city}, {row?.address?.state}</div>
+                </div>
+            ),
+            style: true, sortable: true
+        },
+        {
+            field: 'finalAmount',
+            header: 'Total Amount',
+            body: (row) => (
+                <div className='space-y-1'>
+                    <div className='font-bold text-green-600'>₹{row?.finalAmount}</div>
+                    <div className='text-xs text-gray-500'>Base: ₹{row?.amount?.basePrice}</div>
+                    <div className='text-xs text-gray-500'>GST: ₹{row?.amount?.gst}</div>
+                </div>
+            ),
+            style: true, sortable: true
+        },
+        {
+            field: 'paymentMethod',
+            header: 'Payment Method',
+            body: (row) => <span className='px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-tbLex tracking-tight'>{row?.paymentMethod || 'COD'}</span>,
+            style: true, sortable: true
+        },
+        {
+            field: 'paymentStatus',
+            header: 'Payment Status',
+            body: paymentStatusBody,
+            style: true, sortable: true
+        },
+        {
+            field: 'orderStatus',
+            header: 'Order Status',
+            body: orderStatusBody,
+            style: true, sortable: true
+        },
         {
             field: 'createdAt',
-            header: 'Registration date',
-            body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}</>,
-            style: true
-        },
-        { field: 'rejectionCount', header: 'Rejection Count', style: true },
-        {
-            field: 'isVerified',
-            header: 'Verification',
-            body: varificationBody,
-            style: true
-        },
-        {
-            field: 'isBlacklisted',
-            header: 'Blacklisted',
-            body: blackListBody,
-            style: true
-        },
+            header: 'Order Date',
+            body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY HH:mm') || '---- -----'}</>,
+            style: true, sortable: true
+        }
     ];
     return (
         <div className="space-y-5">
-            {/* Filter Form */}
+            {/* Filter */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
                     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-2">
                         <TextInput
-                            label="Enter Full Name*"
-                            placeholder="Enter Full Name"
+                            label="Enter Order Id*"
+                            placeholder="Enter Order Id"
                             type="text"
-                            registerName="name"
-                            props={{ ...register('name') }}
+                            registerName="orderId"
+                            props={{ ...register('orderId') }}
                         />
                         <TextInput
-                            label="Enter Email*"
-                            placeholder="Enter Email"
-                            type="email"
-                            registerName="email"
-                            props={{ ...register('email') }}
+                            label="Enter Date*"
+                            placeholder="Enter Date"
+                            type="date"
+                            registerName="date"
+                            props={{ ...register('date') }}
                         />
                         <div className="">
                             <SelectTextInput
-                                label="Select Role*"
-                                registerName="role"
+                                label="Select Status*"
+                                registerName="status"
                                 options={[
-                                    { value: '', label: 'Select Role' },
-                                    { value: 'primary', label: 'Primary Actor' },
-                                    { value: 'secondary', label: 'Secondary Actor' },
-                                    { value: 'castingAgency', label: 'Casting Agency' },
-                                    { value: 'castingDirector', label: 'Casting Director' },
-                                    { value: 'productionTeam', label: 'Production Team' }
+                                    { value: 'PENDING', label: 'Pending' },
+                                    { value: 'CONFIRMED', label: 'Confirmed' },
+                                    { value: 'PROCESSING', label: 'Processing' },
+                                    { value: 'SHIPPED', label: 'Shipped' },
+                                    { value: 'DELIVERED', label: 'Delivered' },
+                                    { value: 'CANCELLED', label: 'Cancelled' },
+                                    { value: 'REFUNDED', label: 'Refunded' }
                                 ]}
-                                placeholder="Select Role"
+                                placeholder="Select Status"
                                 props={{
-                                    ...register('role', { required: true }),
-                                    value: watch('role') || ''
+                                    ...register('status'),
+                                    value: watch('status') || ''
                                 }}
                             />
                         </div>
@@ -197,14 +288,14 @@ const ServiceBookings = () => {
                 </form>
             </div>
 
-            {/* User Table Section */}
+            {/* Product Booking Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
 
-                <TableHeader title={"Service Booking"} subtitle={"Recently added service bookings will appear here"} />
+                <TableHeader title={"Product Booking"} subtitle={"Recently added product bookings will appear here"} />
 
                 <Table data={filterData} columns={columns} paginator={false} />
 
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 <div className="flex justify-end items-center gap-4 mt-4">
                     <button
                         onClick={() => pageChangeHandler(pageNo - 1)}

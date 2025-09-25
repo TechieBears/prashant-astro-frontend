@@ -46,6 +46,7 @@ const ServicesCategories = () => {
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true, sortable: true },
         { field: "name", header: "Name", body: (row) => (<h6 className="">{row?.name}</h6>), style: false, sortable: true },
+        { field: "description", header: "Description", body: (row) => (<h6 className="">{row?.description}</h6>), style: false, sortable: true },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
 

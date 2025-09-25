@@ -9,6 +9,7 @@ import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import { addServiceCategory, editServiceCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
+import CustomTextArea from '../../TextInput/CustomTextArea';
 
 function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -21,7 +22,8 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
             setLoader(true);
             const updatedData = {
                 name: data?.name,
-                image: data?.image
+                image: data?.image,
+                description: data?.description
             }
             if (edit) {
                 await editServiceCategory(userData?._id, updatedData).then(res => {
@@ -60,10 +62,15 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('name', userData?.name);
-            setValue('image', userData?.image);
+            reset({
+                name: userData?.name,
+                image: userData?.image,
+                description: userData?.description,
+            });
+        } else {
+            reset();
         }
-    }, [edit, userData, reset, setValue]);
+    }, [edit, userData, reset, setValue, open]);
 
     return (
         <>
@@ -121,6 +128,28 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                             registerName="name"
                                                             props={{ ...register('name', { required: "Service Category is required" }) }}
                                                             errors={errors.name}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Service Category Description
+                                                        </h4>
+                                                        <CustomTextArea
+                                                            label="Enter Service Category Description"
+                                                            placeholder="Enter Service Category Description"
+                                                            registerName="description"
+                                                            props={{
+                                                                ...register('description', {
+                                                                    minLength: {
+                                                                        value: 10,
+                                                                        message: "Description must be at least 10 characters"
+                                                                    }
+                                                                })
+                                                            }}
+                                                            errors={errors.description}
                                                         />
                                                     </div>
                                                     <div className=''>

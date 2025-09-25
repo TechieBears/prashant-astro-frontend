@@ -92,6 +92,7 @@ const AllServices = () => {
         { field: 'serviceType', header: 'Service Type', body: (row) => <span className='capitalize'>{row?.serviceType || "---- -----"}</span>, style: true, sortable: true },
         { field: 'title', header: 'Title', body: (row) => <span className='capitalize'>{row?.title || "---- -----"}</span>, style: true, sortable: true },
         { field: 'subTitle', header: 'Sub Title', body: (row) => <span className='capitalize'>{row?.subTitle || "---- -----"}</span>, style: true, sortable: true },
+        { field: 'description', header: 'Description', body: (row) => <span className='capitalize'>{row?.description || "---- -----"}</span>, style: true, sortable: true },
         { field: 'categoryName', header: 'Category', body: (row) => <span className='capitalize'>{row?.category?.name || "---- -----"}</span>, style: true, sortable: true },
         { field: 'price', header: 'Price', body: (row) => <span className='capitalize'>{row?.price || "---- -----"}</span>, style: true, sortable: true },
         { field: 'durationInMinutes', header: 'Duration', body: (row) => <span className='capitalize'>{row?.durationInMinutes || "---- -----"}</span>, style: true, sortable: true },
@@ -102,7 +103,7 @@ const AllServices = () => {
             style: true,
             sortable: true
         },
-        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true }
+        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true, style: true }
     ];
     return (
         <div className="space-y-5">

@@ -1,238 +1,299 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
-import moment from 'moment'
-import { useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
-import Switch from "react-js-switch";
-import { blacklistUser, blockUser, getAllBlockedUser } from '../../../api'
-import Table from '../../../components/Table/Table'
-import SelectTextInput from '../../../components/TextInput/SelectTextInput'
-import TextInput from '../../../components/TextInput/TextInput'
-import usePagination from '../../../utils/customHooks/usePagination'
-import { formBtn1 } from '../../../utils/CustomClass'
-import { formatRole, imageComponet } from '../../../helper/Helper'
-import TableHeader from '../../../components/Table/TableHeader'
+import React, { useMemo, useEffect, useState } from "react";
+import moment from "moment";
+import BookingDetailsModal from "../../../components/Modals/AdminModals/BookingDetailsModal";
+import { ArrowLeft2, ArrowRight2 } from "iconsax-reactjs";
 
-const initialFilterState = {
-    name: '',
-    email: '',
-    role: '',
+const dummyCalendarData = {
+    bookings: [
+        {
+            bookingId: "BK001",
+            date: "2025-09-25",
+            serviceId: "SRV001",
+            start_time: "09:00",
+            slot_booked: true,
+            customer: {
+                first_name: "Ravi",
+                last_name: "Sharma",
+                email: "ravi.sharma@example.com",
+                phone: "+91 9876543210",
+            },
+            zoom_link: "https://zoom.us/j/1234567890",
+        },
+        {
+            bookingId: "BK_BLOCK_102_1030",
+            date: "2025-09-28",
+            start_time: "10:30",
+            blocked: true,
+        },
+        {
+            bookingId: "BK002",
+            date: "2025-10-01",
+            serviceId: "SRV002",
+            start_time: "12:00",
+            slot_booked: true,
+            customer: {
+                first_name: "Raj",
+                last_name: "Kumar",
+                email: "raj.kumar@example.com",
+                phone: "+91 9876543211",
+            },
+            zoom_link: "https://zoom.us/j/9876543210",
+        },
+    ],
 };
 
-const BookingCalender = () => {
-    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
-    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
+// Generate full-day slots (09:00 to 21:00, every 30 mins)
+const generateFullDaySlots = () => {
+    const slots = [];
+    let start = moment("09:00", "HH:mm");
+    const end = moment("21:00", "HH:mm");
 
-    const combinedFilters = useMemo(() => ({
-        ...filterCriteria,
-        refresh: refreshTrigger
-    }), [filterCriteria, refreshTrigger]);
-
-    // Pagination hook
-    const {
-        filterData,
-        pageNo,
-        nextIsValid,
-        prevIsValid,
-        pageChangeHandler,
-        recordChangeHandler,
-        records,
-        error
-    } = usePagination(1, 10, getAllBlockedUser, combinedFilters);
-    // Handle API errors
-    useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
-    }, [error]);
-
-    // Form submit handler
-    const handleFilterSubmit = (data) => {
-        setFilterCriteria(data);
-        pageChangeHandler(1); // Reset to first page when filters change
-    };
-
-    // Clear filters
-    const handleClearFilters = () => {
-        reset(initialFilterState);
-        setFilterCriteria(initialFilterState);
-        toast.success('Filters cleared');
-    };
-
-
-    const handleBlockChange = async (id, isBlocked) => {
-        try {
-            const updatedData = {
-                isBlocked: !isBlocked
-            }
-            await blockUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    };
-
-    // const ActionBody = (row) => (
-    //     <NavLink to={`/dashboard/${row?._id}`}>
-    //         <Eye size={20} className="text-gray-500 cursor-pointer" />
-    //     </NavLink>
-    // )
-
-
-    const varificationBody = (row) => (
-        <Switch
-            value={row?.isVerified}
-            disabled
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
-
-    const handleBlackListChange = async (id, isBlacklisted) => {
-        try {
-            const updatedData = {
-                isBlacklisted: !isBlacklisted
-            }
-            await blacklistUser(id, updatedData); // Toggle verification state
-            setRefreshTrigger(prev => prev + 1); // Trigger refresh
-            toast.success('Status updated');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
+    while (start.isBefore(end)) {
+        const slotStart = start.format("HH:mm");
+        const slotEnd = start.add(30, "minutes").format("HH:mm");
+        slots.push({ slots_start_time: slotStart, slots_end_time: slotEnd });
     }
+    return slots;
+};
 
-    const blackListBody = (row) => (
-        <Switch
-            value={row?.isBlacklisted}
-            disabled={row?.is_registered == false ? true : false}
-            onChange={() => handleBlackListChange(row?._id, row?.isBlacklisted)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+// Generate a range of consecutive days
+const generateDaysRange = (startDate, daysCount = 6) => {
+    const days = [];
+    for (let i = 0; i < daysCount; i++) {
+        const date = moment(startDate).add(i, "day");
+        days.push({
+            id: date.format("YYYY-MM-DD"),
+            name: date.format("DD MMM"),
+            fullDate: date.toDate(),
+        });
+    }
+    return days;
+};
 
-    const blockBody = (row) => (
-        <Switch
-            value={row?.isBlocked} onChange={() => handleBlockChange(row?._id, row?.isBlocked)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
-    const columns = [
-        { field: "profile", header: "Profile", body: imageComponet, style: true },
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
-        { field: 'role', header: 'Role', body: (row) => row?.role == "primary" ? "Primary" : row?.role == "secondary" ? "Secondary" : row?.subRole == "castingAgency" ? "Casting Agency" : formatRole(row?.subRole) || "---- -----", style: true },
-        { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
-        {
-            field: 'createdAt',
-            header: 'Registration date',
-            body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}</>,
-            style: true
-        },
-        { field: 'rejectionCount', header: 'Rejection Count', style: true },
-        {
-            field: 'isVerified',
-            header: 'Verification',
-            body: varificationBody,
-            style: true
-        },
-        {
-            field: 'isBlacklisted',
-            header: 'Blacklisted',
-            body: blackListBody,
-            style: true
-        },
-    ];
+// Format time for display
+const slotTimeFormatter = (start, end) =>
+    `${moment(start, "HH:mm").format("hh:mm A")} - ${moment(
+        end,
+        "HH:mm"
+    ).format("hh:mm A")}`;
+
+// Skeleton Loader
+const SkeletonTimeSlot = () => (
+    <div className="py-3">
+        <div className="w-40 h-6 bg-slate-300 rounded animate-pulse mx-auto"></div>
+    </div>
+);
+
+// Slot Card
+const SlotCard = ({ status, booking, onClick, isLoading }) => {
+    if (isLoading)
+        return (
+            <div className="h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl animate-pulse shadow-sm"></div>
+        );
+
+    const getSlotConfig = () => {
+        switch (status) {
+            case "blocked":
+                return {
+                    bg: "bg-gradient-to-br from-red-50 via-red-50 to-red-100",
+                    text: "text-red-600",
+                    title: "Blocked",
+                    border: "border-red-300/80",
+                };
+            case "booked":
+                return {
+                    bg: "bg-gradient-to-br from-amber-50 via-orange-50 to-orange-100",
+                    text: "text-orange-600",
+                    title: `${booking?.customer?.first_name} ${booking?.customer?.last_name}`,
+                    border: "border-orange-300/80",
+                };
+            case "available":
+            default:
+                return {
+                    bg: "bg-gradient-to-br from-green-50 via-emerald-50 to-green-100",
+                    text: "text-green-600",
+                    title: "Available",
+                    border: "border-green-300/80",
+                };
+        }
+    };
+
+    const config = getSlotConfig();
+    const isClickable = status === "available" || status === "booked";
+
     return (
-        <div className="space-y-5">
-            {/* Filter Form */}
-            <div className="bg-white p-4 sm:m-5 rounded-xl">
-                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-2">
-                        <TextInput
-                            label="Enter Full Name*"
-                            placeholder="Enter Full Name"
-                            type="text"
-                            registerName="name"
-                            props={{ ...register('name') }}
-                        />
-                        <TextInput
-                            label="Enter Email*"
-                            placeholder="Enter Email"
-                            type="email"
-                            registerName="email"
-                            props={{ ...register('email') }}
-                        />
-                        <div className="">
-                            <SelectTextInput
-                                label="Select Role*"
-                                registerName="role"
-                                options={[
-                                    { value: '', label: 'Select Role' },
-                                    { value: 'primary', label: 'Primary Actor' },
-                                    { value: 'secondary', label: 'Secondary Actor' },
-                                    { value: 'castingAgency', label: 'Casting Agency' },
-                                    { value: 'castingDirector', label: 'Casting Director' },
-                                    { value: 'productionTeam', label: 'Production Team' }
-                                ]}
-                                placeholder="Select Role"
-                                props={{
-                                    ...register('role', { required: true }),
-                                    value: watch('role') || ''
-                                }}
-                            />
-                        </div>
-
+        <div
+            onClick={isClickable ? onClick : undefined}
+            className={`
+        py-5 ${config.bg} ${config.text}
+        rounded-md flex flex-col items-center justify-center
+        font-semibold text-sm transition-all duration-300 ease-in-out
+        ${isClickable ? "cursor-pointer transform" : "cursor-default"}
+        border ${config.border}
+      `}
+        >
+            <div className="text-center leading-tight">
+                {status === "booked" ? (
+                    <h4 className="text-sm font-semibold line-clamp-1 px-5">
+                        {booking?.customer?.first_name} {booking?.customer?.last_name}
+                    </h4>
+                ) : (
+                    <div className="text-sm font-bold text-center px-5">
+                        {config.title}
                     </div>
-                    <div className="flex space-x-2">
-                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
-                    </div>
-                </form>
-            </div>
-
-            {/* User Table Section */}
-            <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-
-                <TableHeader title={"All Bookings"} subtitle={"Recently added bookings will appear here"} />
-
-                <Table data={filterData} columns={columns} paginator={false} />
-
-                {/* Pagination Controls */}
-                <div className="flex justify-end items-center gap-4 mt-4">
-                    <button
-                        onClick={() => pageChangeHandler(pageNo - 1)}
-                        disabled={!prevIsValid}
-                    >
-                        <ArrowLeft2 size={20} color={prevIsValid ? "#8833FF" : "#ccc"} />
-                    </button>
-                    <button
-                        onClick={() => pageChangeHandler(pageNo + 1)}
-                        disabled={!nextIsValid}
-                    >
-                        <ArrowRight2 size={20} color={nextIsValid ? "#8833FF" : "#ccc"} />
-                    </button>
-                    <div className="relative">
-                        <select
-                            value={records}
-                            onChange={(e) => recordChangeHandler(Number(e.target.value))}
-                            className="pr-8 appearance-none"
-                        >
-                            {[10, 25, 50].map((size) => (
-                                <option key={size} value={size}>{size}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
-}
+};
 
-export default BookingCalender;
+const BookingCalendar = () => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState(null);
+
+    const fullDaySlots = useMemo(() => generateFullDaySlots(), []);
+
+    const [startDate, setStartDate] = useState(moment().startOf("day"));
+    const daysRange = useMemo(() => generateDaysRange(startDate, 6), [startDate]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, [startDate]);
+
+    const handleSlotClick = (day, timeSlot, booking, status) => {
+        if (status === "booked" && booking) {
+            const endTime = moment(timeSlot.slots_start_time, "HH:mm")
+                .add(30, "minutes")
+                .format("HH:mm");
+
+            const bookingData = {
+                ...booking,
+                date: day.fullDate,
+                start_time: timeSlot.slots_start_time,
+                end_time: endTime,
+            };
+
+            setSelectedBooking(bookingData);
+            setShowBookingModal(true);
+        } else {
+            console.log(
+                `Clicked slot: ${day.name} at ${timeSlot.slots_start_time} - Status: ${status}`
+            );
+        }
+    };
+
+    return (
+        <div className="bg-white rounded-2xl m-4 sm:m-6 p-4 md:p-6">
+            <div className="mb-6 flex flex-wrap gap-4 justify-between px-2">
+                <h6 className="text-xl font-semibold text-black">All Days Slots</h6>
+                <div className="flex flex-wrap gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-600 rounded"></div>
+                        <span className="text-sm text-gray-600">Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded"></div>
+                        <span className="text-sm text-gray-600">Booked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-gradient-to-br from-red-500 to-red-700 rounded"></div>
+                        <span className="text-sm text-gray-600">Blocked</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-6">
+                <button
+                    className="p-2 bg-slate1 rounded-full hover:bg-slate-200"
+                    onClick={() => setStartDate((prev) => moment(prev).subtract(6, "days"))}
+                >
+                    <ArrowLeft2 size={22} color="#000" />
+                </button>
+                <h6 className="text-lg font-semibold">
+                    {moment(startDate).format("DD MMM")} -{" "}
+                    {moment(startDate).add(16, "days").format("DD MMM YYYY")}
+                </h6>
+                <button
+                    className="p-2 bg-slate1 rounded-full hover:bg-slate-200"
+                    onClick={() => setStartDate((prev) => moment(prev).add(6, "days"))}
+                >
+                    <ArrowRight2 size={22} color="#000" />
+                </button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <div className="min-w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+                    <div className="bg-slate1 text-gray-800 border-b border-gray-200">
+                        <div className="grid grid-cols-[200px_repeat(auto-fit,_minmax(120px,_1fr))] gap-4 p-3">
+                            <div className="font-bold text-center py-2 text-black">
+                                Time Slots
+                            </div>
+                            {daysRange.map((day) => (
+                                <div key={day.id} className="font-semibold font-tbLex text-center py-2 text-black">
+                                    {day.name}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="divide-y divide-slate-200/60">
+                        {fullDaySlots.map((timeSlot) => (
+                            <div
+                                key={timeSlot.slots_start_time}
+                                className="grid grid-cols-[200px_repeat(auto-fit,_minmax(120px,_1fr))] gap-4 p-2.5 hover:bg-slate-50 transition-colors duration-200"
+                            >
+                                <div className="flex items-center justify-center">
+                                    {isLoading ? (
+                                        <SkeletonTimeSlot />
+                                    ) : (
+                                        <div className="font-semibold text-sm text-center text-slate-700">
+                                            {slotTimeFormatter(
+                                                timeSlot.slots_start_time,
+                                                timeSlot.slots_end_time
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {daysRange.map((day) => {
+                                    const booking = dummyCalendarData.bookings.find(
+                                        (b) =>
+                                            moment(b.date).isSame(day.fullDate, "day") &&
+                                            b.start_time === timeSlot.slots_start_time
+                                    );
+
+                                    let status = "available";
+                                    if (booking?.blocked) status = "blocked";
+                                    else if (booking?.slot_booked) status = "booked";
+
+                                    return (
+                                        <div key={day.id}>
+                                            <SlotCard
+                                                status={status}
+                                                booking={booking}
+                                                isLoading={isLoading}
+                                                onClick={() =>
+                                                    handleSlotClick(day, timeSlot, booking, status)
+                                                }
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <BookingDetailsModal
+                open={showBookingModal}
+                toggle={() => setShowBookingModal(false)}
+                bookingData={selectedBooking}
+            />
+        </div>
+    );
+};
+
+export default BookingCalendar;

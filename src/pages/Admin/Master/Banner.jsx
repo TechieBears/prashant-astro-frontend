@@ -65,12 +65,12 @@ function Banner() {
     // ================= columns of the table ===============
 
     const imageBodyTemp = (row) => (
-        <div className="h-24 rounded bg-slate-100">
+        <div className="h-24 rounded bg-slate1">
             <img
                 loading="lazy"
                 src={row?.image}
                 alt="image"
-                className="object-cover w-full h-full rounded bg-slate-100"
+                className="object-cover w-full h-full rounded bg-slate1"
             />
         </div>
     );
@@ -78,8 +78,8 @@ function Banner() {
 
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true },
-        { field: 'title', header: 'Banner title', sortable: true, style: true },
-        { field: 'description', header: 'Banner description', sortable: true, style: true },
+        { field: 'title', header: 'Banner title', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.title}</h5>, sortable: true, style: true },
+        { field: 'description', header: 'Banner description', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.description}</h5>, sortable: true, style: true },
         { field: 'type', header: 'Banner For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
         { field: 'Featured Time', header: 'Featured Time (Start -> End)', body: (row) => <h6>{(moment(row?.startDate).format('YYYY-MM-DD ,HH:mm') + " -> " + moment(row?.endDate).format('YYYY-MM-DD ,HH:mm')) || '-----'}</h6>, sortable: true, style: true },
         { field: "isactive", header: "Active", body: activeBody, sortable: true, style: true },
