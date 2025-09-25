@@ -58,10 +58,14 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('name', userData?.name);
-            setValue('image', userData?.image);
+            reset({
+                name: userData?.name,
+                image: userData?.image
+            });
+        } else {
+            reset();
         }
-    }, [edit, userData, reset, setValue]);
+    }, [edit, userData, reset, setValue, open]);
 
     return (
         <>

@@ -4,12 +4,10 @@ import Table from '../../../components/Table/Table';
 import TableHeader from '../../../components/Table/TableHeader';
 import ProductCategoriesModal from '../../../components/Modals/AdminModals/ProductCategoriesModal';
 import ProductSubCategoriesModal from '../../../components/Modals/AdminModals/ProductSubCategoriesModal';
-import { getProductCategories, getProductCategoriesDropdown, getProductSubCategories } from '../../../api';
+import { getProductCategories, getProductSubCategories } from '../../../api';
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
 import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
-import { setProductCategories } from '../../../redux/Slices/rootSlice';
-import { useDispatch } from 'react-redux';
 
 const ProductCategories = () => {
     const [selectedTab, setSelectedTab] = useState(0);
@@ -46,7 +44,6 @@ const ProductCategories = () => {
 
 const ProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-    const dispatch = useDispatch();
     const emptyFilters = useMemo(() => ({
         refresh: refreshTrigger
     }), [refreshTrigger]);
@@ -82,10 +79,6 @@ const ProductCategoriesPanel = () => {
         { field: "name", header: "Name", body: (row) => (<h6 className="">{row?.name}</h6>), style: false, sortable: true },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
-
-    useEffect(() => {
-        dispatch(setProductCategories(filterData?.map(item => ({ value: item?._id, label: item?.name }))));
-    }, [refreshTrigger, filterData]);
 
     return (
         <>
@@ -125,7 +118,6 @@ const ProductCategoriesPanel = () => {
 }
 const SubProductCategoriesPanel = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-    const dispatch = useDispatch();
     const emptyFilters = useMemo(() => ({
         refresh: refreshTrigger
     }), [refreshTrigger]);
@@ -164,14 +156,6 @@ const SubProductCategoriesPanel = () => {
         },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
-
-    useEffect(() => {
-        const apiCall = async () => {
-            const response = await getProductCategoriesDropdown();
-            dispatch(setProductCategories(response?.map(item => ({ value: item?._id, label: item?.name }))));
-        }
-        apiCall();
-    }, [refreshTrigger, filterData]);
 
     return (
         <>

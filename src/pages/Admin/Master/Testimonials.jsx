@@ -46,7 +46,7 @@ export default function Testimonials() {
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
         { field: 'phoneNumber', header: 'Phone No', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
         { field: 'createdAt', header: 'Enquiry Date', body: (row) => <>{moment(row?.createdAt)?.format('DD-MM-YYYY') || "---- -----"}</>, style: true },
-        { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
+        { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate1 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
         { field: 'status', header: 'Status', body: (row) => <h6 className={`${row?.status == 'rejected' ? 'text-red-500 bg-red-200' : row?.status == 'accepted' ? 'text-green-500 bg-green-200' : 'text-yellow-500 bg-yellow-100/80'} p-2 text-center rounded-full capitalize px-5`}>{row?.status}</h6>, sortable: true, style: true },
     ];
     return (

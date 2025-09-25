@@ -1482,17 +1482,6 @@ export const getAllAstrologer = async (data = { employeeType: "astrologer" }) =>
     }
 };
 
-export const checkAvailability = async (data = { date: "", astrologer_id: "" }) => {
-    const url = `${environment.baseUrl}calender/check-availability`;
-    try {
-        const response = await axios.post(url, data);
-        return response.data;
-    } catch (error) {
-        console.error('Error checking availability:', error);
-        throw error;
-    }
-};
-
 // ==================== Post Contact Us & Feedback Api ====================
 export const postContactUs = async (data) => {
     const url = `${environment.baseUrl}feedback/create`;
@@ -1518,15 +1507,3 @@ export const createProductOrder = async (orderData) => {
         return err?.response?.data || { success: false, message: 'Failed to create order' };
     }
 };
-// ==================== Get All Product Orders Api ====================
-export const getAllProductOrders = async () => {
-    const url = `${environment.baseUrl}product-order/public/get-all`;
-    try {
-        const response = await axios.get(url);
-        return response.data;
-    } catch (err) {
-        console.error('Error fetching product orders:', err);
-        return err?.response?.data || { success: false, message: 'Failed to fetch orders' };
-    }
-};
-

@@ -64,11 +64,16 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('name', userData?.name);
-            setValue('categoryId', userData?.categoryId?._id);
-            setValue('image', userData?.image);
+            reset({
+                name: userData?.name,
+                categoryId: userData?.categoryId?._id,
+                image: userData?.image
+            });
         }
-    }, [edit, userData, reset, setValue]);
+        else {
+            reset();
+        }
+    }, [edit, userData, reset, setValue, open]);
 
     return (
         <>

@@ -8,15 +8,21 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProduct, editProduct } from '../../../api';
+import {
+    addProduct,
+    editProduct,
+    getProductCategoriesDropdown,
+    getProductSubCategoriesByCategory,
+} from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import CustomTextArea from '../../TextInput/CustomTextArea';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProductCategories } from '../../../redux/Slices/rootSlice';
 
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
     const productCategories = useSelector(state => state.appRoot?.productCategories || []);
-    const productSubCategories = useSelector(state => state.appRoot?.productSubCategories || []);
+    const [productSubCategories, setProductSubCategories] = useState([]);
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
@@ -61,18 +67,72 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
-            setValue('name', userData?.name);
-            setValue('category', userData?.category?.name);
-            setValue('subcategory', userData?.subcategory?.name);
-            setValue('description', userData?.description);
-            setValue('additionalInfo', userData?.additionalInfo);
-            setValue('stock', userData?.stock);
-            setValue('sellingPrice', userData?.sellingPrice);
-            setValue('stock', userData?.stock);
-            setValue('image', userData?.image);
-            setValue('mrpPrice', userData?.mrpPrice);
+            reset({
+                name: userData?.name,
+                category: userData?.category?._id,
+                subcategory: userData?.subcategory?._id,
+                description: userData?.description,
+                highlights: userData?.highlights,
+                additionalInfo: userData?.additionalInfo,
+                stock: userData?.stock,
+                sellingPrice: userData?.sellingPrice,
+                image: userData?.image,
+                mrpPrice: userData?.mrpPrice,
+                ...userData?.specification
+            });
+
+            if (userData?.category?._id) {
+                const loadSubcategories = async () => {
+                    const response = await getProductSubCategoriesByCategory(userData?.category?._id);
+                    setProductSubCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name })));
+                };
+                loadSubcategories();
+            }
+        } else {
+            reset({
+                category: '',
+                subcategory: '',
+                name: '',
+                description: '',
+                highlights: '',
+                additionalInfo: '',
+                stock: '',
+                sellingPrice: '',
+                mrpPrice: '',
+                image: '',
+                Certification: '',
+                Origin: '',
+                Size: '',
+                Type: ''
+            });
         }
-    }, [edit, userData, reset, setValue, productCategories, productSubCategories]);
+    }, [edit, userData, reset, setValue, open]);
+
+    const watchCategory = watch('category');
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const apiCall = async () => {
+            const response = await getProductCategoriesDropdown();
+            dispatch(setProductCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name }))));
+        }
+        apiCall();
+    }, []);
+
+    useEffect(() => {
+        if (watchCategory) {
+            setValue('subcategory', '');
+
+            const apiCall = async () => {
+                const response = await getProductSubCategoriesByCategory(watchCategory);
+                setProductSubCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name })));
+            }
+            apiCall();
+        } else {
+            setProductSubCategories([]);
+            setValue('subcategory', '');
+        }
+    }, [watchCategory, setValue]);
 
     return (
         <>
@@ -108,16 +168,16 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-7xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
                                         title={edit ? "Edit Product" : "Create New Product"}
                                         toggle={toggle}
                                     />
-                                    <div className=" bg-slate1">
+                                    <div className="">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
-                                                <div className='grid grid-cols-2 gap-x-3 gap-y-5' >
+                                                <div className='grid grid-cols-3 gap-x-3 gap-y-5' >
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -132,7 +192,10 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 placeholder="Select Product Category"
                                                                 props={{
                                                                     ...register('category', { required: true }),
-                                                                    value: watch('category') || ''
+                                                                    value: watch('category') || '',
+                                                                    onChange: (e) => {
+                                                                        setValue('category', e.target.value);
+                                                                    }
                                                                 }}
                                                                 errors={errors.category}
                                                             />
@@ -152,7 +215,10 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 placeholder="Select Product Sub Category "
                                                                 props={{
                                                                     ...register('subcategory', { required: true }),
-                                                                    value: watch('subcategory') || ''
+                                                                    value: watch('subcategory') || '',
+                                                                    onChange: (e) => {
+                                                                        setValue('subcategory', e.target.value);
+                                                                    }
                                                                 }}
                                                                 errors={errors.subcategory}
                                                             />
@@ -177,18 +243,18 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Image
+                                                            Product Image (multiple)
                                                         </h4>
                                                         <ImageUploadInput
                                                             label="Upload Product Image"
-                                                            multiple={false}
+                                                            multiple={true}
                                                             registerName="image"
                                                             errors={errors.image}
                                                             {...register("image", { required: "Product Image is required" })}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
-                                                        // defaultValue={user?.user?.profilePicture}
+                                                            defaultValue={userData?.images}
                                                         />
 
                                                     </div>
@@ -274,25 +340,115 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
+                                                            Product highlights
+                                                        </h4>
+                                                        <CustomTextArea
+                                                            label="Enter Product Highlights"
+                                                            placeholder="Enter Product Highlights"
+                                                            registerName="highlights"
+                                                            props={{
+                                                                ...register('highlights', {
+                                                                    minLength: {
+                                                                        value: 10,
+                                                                        message: "Highlights must be at least 10 characters"
+                                                                    }
+                                                                })
+                                                            }}
+                                                            errors={errors.highlights}
+                                                        />
+                                                    </div>
+                                                    <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
                                                             Product Additional Information
                                                         </h4>
                                                         <CustomTextArea
                                                             label="Enter Product Additional Information"
-                                                            placeholder="Enter Description"
+                                                            placeholder="Enter Product Additional Information"
                                                             registerName="additionalInfo"
                                                             props={{
                                                                 ...register('additionalInfo', {
                                                                     minLength: {
                                                                         value: 10,
-                                                                        message: "Description must be at least 10 characters"
+                                                                        message: "Additional Information must be at least 10 characters"
                                                                     }
                                                                 })
                                                             }}
                                                             errors={errors.additionalInfo}
                                                         />
                                                     </div>
-
                                                 </div>
+                                                <div className="py-4">
+                                                    <h4
+                                                        className="text-base font-tbLex font-normal text-black pb-2.5"
+                                                    >
+                                                        Product Specification
+                                                    </h4>
+                                                    <div className="grid grid-cols-3 gap-x-3 gap-y-5">
+                                                        <div className="">
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Product Certification
+                                                            </h4>
+                                                            <TextInput
+                                                                label="Enter Product Certification"
+                                                                placeholder="Enter Product Certification"
+                                                                type="text"
+                                                                registerName="Certification"
+                                                                props={{ ...register('Certification') }}
+                                                                errors={errors.Certification}
+                                                            />
+                                                        </div>
+                                                        <div className="">
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Product Origin (ex. India & Nepal)
+                                                            </h4>
+                                                            <TextInput
+                                                                label="Enter Product Origin"
+                                                                placeholder="Enter Product Origin"
+                                                                type="text"
+                                                                registerName="Origin"
+                                                                props={{ ...register('Origin') }}
+                                                                errors={errors.Origin}
+                                                            />
+                                                        </div>
+                                                        <div className="">
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Product Size (ex. 10–20 mm)
+                                                            </h4>
+                                                            <TextInput
+                                                                label="Enter Product Size"
+                                                                placeholder="Enter Product Size"
+                                                                type="text"
+                                                                registerName="Size"
+                                                                props={{ ...register('Size') }}
+                                                                errors={errors.Size}
+                                                            />
+                                                        </div>
+                                                        <div className="">
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Product Type
+                                                            </h4>
+                                                            <TextInput
+                                                                label="Enter Product Type"
+                                                                placeholder="Enter Product Type"
+                                                                type="text"
+                                                                registerName="Type"
+                                                                props={{ ...register('Type') }}
+                                                                errors={errors.Type}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
                                                 {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}

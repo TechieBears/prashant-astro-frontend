@@ -82,7 +82,6 @@ function AllUserProfiles() {
         { field: "profile", header: "Profile", body: imageComponet, style: true },
         { field: 'firstName', header: 'First Name', body: (row) => <span className='capitalize'>{row?.profile?.firstName || "---- -----"}</span>, style: true },
         { field: 'lastName', header: 'Last Name', body: (row) => <span className='capitalize'>{row?.profile?.lastName || "---- -----"}</span>, style: true },
-        { field: 'address', header: 'Address', body: (row) => <span className='capitalize'>{row?.profile?.addresse || "---- -----"}</span>, style: true },
         { field: 'role', header: 'Role', body: (row) => <span className='capitalize'>{row?.role || "---- -----"}</span>, style: true },
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
         { field: 'mobileNo', header: 'Phone No.', body: (row) => <span className='capitalize'>{row?.mobileNo || "---- -----"}</span>, style: true },
