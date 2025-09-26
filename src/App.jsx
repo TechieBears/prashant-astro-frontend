@@ -6,6 +6,7 @@ import { PersistGate } from "redux-persist/integration/react";
 let persistor = persistStore(store);
 import { PrimeReactProvider } from 'primereact/api';
 import ProjectRoutes from "./routes/ProjectRoutes";
+import { Toaster } from 'react-hot-toast';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -45,7 +46,7 @@ const App = () => {
     useEffect(() => {
         window.scrollTo({
             top: 0,
-            behavior: 'instant',  
+            behavior: 'instant',
         });
     }, [pathname]);
     return (
@@ -54,6 +55,36 @@ const App = () => {
                 <PersistGate loading={null} persistor={persistor}>
                     <PrimeReactProvider>
                         <ProjectRoutes />
+                        <Toaster
+                            position="top-right"
+                            reverseOrder={false}
+                            gutter={8}
+                            containerClassName=""
+                            containerStyle={{}}
+                            toastOptions={{
+                                // Default options for all toasts
+                                duration: 3000,
+                                style: {
+                                    background: '#363636',
+                                    color: '#fff',
+                                },
+                                // Default options for specific types
+                                success: {
+                                    duration: 2000,
+                                    style: {
+                                        background: '#10B981',
+                                        color: '#fff',
+                                    },
+                                },
+                                error: {
+                                    duration: 4000,
+                                    style: {
+                                        background: '#EF4444',
+                                        color: '#fff',
+                                    },
+                                },
+                            }}
+                        />
                     </PrimeReactProvider>
                 </PersistGate>
             </Provider>
