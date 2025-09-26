@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from '../components/Sidebar/Sidebar';
 import Dashboard from '../pages/Admin/Dashboard/Dashboard';
 import { useSelector } from 'react-redux';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
 import ServicesPage from '../pages/Home/ServicesPage';
 import ServiceDetail from '../pages/Home/ServiceDetail';
@@ -322,7 +322,6 @@ const ProjectRoutes = () => {
                 <PublicSite />
             )}
 
-            <Toaster position="top-right" reverseOrder={false} />
         </div>
     )
 }

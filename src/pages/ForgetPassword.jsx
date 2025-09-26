@@ -55,8 +55,8 @@ const ForgotPassword = () => {
                         type="submit"
                         disabled={isSubmitting}
                         className={`w-full py-3 rounded-lg text-white font-semibold transition ${isSubmitting
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-gradient-orange hover:opacity-90"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gradient-orange hover:opacity-90"
                             }`}
                     >
                         {isSubmitting ? "Please wait..." : "Continue"}
@@ -70,7 +70,6 @@ const ForgotPassword = () => {
                     </Link>
                 </div>
             </div>
-            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };

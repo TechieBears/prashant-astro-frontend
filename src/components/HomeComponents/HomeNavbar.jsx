@@ -27,12 +27,22 @@ const HomeNavbar = () => {
 
     const login = useSelector((state) => state.user.isLogged);
     const user = useSelector((state) => state.user.userDetails);
+    const { productItems, serviceItems } = useSelector((state) => state.cart);
+
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [activeCategory, setActiveCategory] = useState(null);
     const [hoverTimeout, setHoverTimeout] = useState(null);
+
+    // Calculate total cart items count
+    const totalCartItems = useMemo(() => {
+        const productCount = productItems?.reduce((total, item) => total + (item.quantity || 1), 0) || 0;
+        const serviceCount = serviceItems?.length || 0;
+        return productCount + serviceCount;
+    }, [productItems, serviceItems]);
 
 
     const toggleExpanded = (index) => {
@@ -49,7 +59,6 @@ const HomeNavbar = () => {
     //    services: category.services 
     //  }));
 
-    //  console.log('servicesDropdown', servicesDropdown)
 
     const navLinks = useMemo(() => {
         const transformedServices = (servicesDropdown || []).map(category => ({
@@ -414,16 +423,28 @@ const HomeNavbar = () => {
 
                         {/* Cart & Profile */}
                         <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
-                            <ShoppingCart size={20} className="cursor-pointer" onClick={() => navigate("/cart")} />
+                            <div className="relative">
+                                <ShoppingCart size={20} className="cursor-pointer" onClick={() => navigate("/cart")} />
+                                {totalCartItems > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium border border-red-200">
+                                        {totalCartItems > 99 ? '99+' : totalCartItems}
+                                    </span>
+                                )}
+                            </div>
                             {login ? (
                                 <NavLink to={'/profile'}>
                                     <img
                                         alt="profile"
                                         src={
-                                            user?.user?.profilePicture ||
+                                            user?.user?.profileImage ||
                                             "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
                                         }
-                                        onClick={() => setCard(!card)}
+                                        onClick={() => {
+                                            setCard(!card);
+                                        }}
+                                        onError={(e) => {
+                                            e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                                        }}
                                         className="size-7 rounded-full border-2 border-white cursor-pointer"
                                     />
                                 </NavLink>
@@ -579,8 +600,29 @@ const HomeNavbar = () => {
                         ))}
                     </nav>
 
-                    {/* Authentication Buttons - Bottom Section */}
+                    {/* Cart & Authentication Buttons - Bottom Section */}
                     <div className="w-full px-6 py-4 border-t border-gray-100 bg-white/80">
+                        {/* Cart Button */}
+                        <div className="mb-4">
+                            <button
+                                className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                                onClick={() => {
+                                    navigate("/cart");
+                                    setIsMenuOpen(false);
+                                }}
+                            >
+                                <div className="relative">
+                                    <ShoppingCart size={20} />
+                                    {totalCartItems > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium border border-red-200">
+                                            {totalCartItems > 99 ? '99+' : totalCartItems}
+                                        </span>
+                                    )}
+                                </div>
+                                <span>Cart ({totalCartItems} items)</span>
+                            </button>
+                        </div>
+
                         {!login ? (
                             <div className="flex flex-col gap-4">
                                 <button className={`${formBtn1}`} onClick={() => navigate("/login")}>

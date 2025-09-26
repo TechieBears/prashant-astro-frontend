@@ -213,11 +213,20 @@ const MyAccount = () => {
                                 }`}
                             {...register("phone", {
                                 required: "Phone number is required",
-                                pattern: {
-                                    value: /^[0-9]{10}$/,
-                                    message: "Please enter a valid 10-digit phone number"
+                                validate: (value) => {
+                                    // Remove any non-digit characters for validation
+                                    const cleanValue = value.replace(/\D/g, '');
+                                    if (cleanValue.length === 10 || cleanValue.length === 11) {
+                                        return true;
+                                    }
+                                    return "Please enter a valid 10 or 11-digit phone number";
                                 }
                             })}
+                            onChange={(e) => {
+                                // Format phone number as user types (remove non-digits, limit to 11)
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                setValue("phone", value, { shouldValidate: true });
+                            }}
                         />
                         {errors.phone && (
                             <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>

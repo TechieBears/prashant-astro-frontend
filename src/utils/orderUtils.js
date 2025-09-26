@@ -118,6 +118,189 @@ export const transformServiceData = (serviceCartItems) => {
 };
 
 /**
+ * Transform service order API response to ServiceSuccessSection props
+ * @param {Object} serviceOrderData - The service order data from API
+ * @returns {Object} Transformed data for ServiceSuccessSection
+ */
+export const transformServiceOrderData = (serviceOrderData) => {
+    if (!serviceOrderData) {
+        return {
+            services: [{
+                serviceType: "Service",
+                sessionDuration: "30-60 minutes",
+                date: "Date will be confirmed",
+                time: "Time will be confirmed",
+                mode: "Online",
+                zoomLink: "Link will be provided"
+            }],
+            orderId: null,
+            totalAmount: 0
+        };
+    }
+
+    // Format the order ID
+    const orderId = serviceOrderData._id || `SRV-${Date.now()}`;
+
+    // Format the total amount
+    const totalAmount = serviceOrderData.finalAmount || serviceOrderData.totalAmount || 0;
+
+    // Transform services array - handle both ID arrays and full service objects
+    const services = [];
+
+    if (serviceOrderData.services && Array.isArray(serviceOrderData.services)) {
+        serviceOrderData.services.forEach((service, index) => {
+            // Check if service is an object with details or just an ID
+            if (typeof service === 'object' && service !== null) {
+                // Full service object
+                services.push({
+                    serviceType: service.serviceName || `Service ${index + 1}`,
+                    sessionDuration: service.durationInMinutes
+                        ? `${service.durationInMinutes} minutes`
+                        : "30-60 minutes",
+                    date: service.bookingDate
+                        ? new Date(service.bookingDate).toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })
+                        : "Date will be confirmed",
+                    time: service.startTime && service.endTime
+                        ? `${service.startTime} - ${service.endTime}`
+                        : "Time will be confirmed",
+                    mode: service.serviceType === 'online'
+                        ? 'Consult Online'
+                        : service.serviceType === 'pandit_center'
+                            ? 'Consult at Astrologer location'
+                            : service.serviceType === 'pooja_at_home'
+                                ? 'Pooja at Home'
+                                : "Online",
+                    zoomLink: service.zoomLink || "Meeting link will be provided"
+                });
+            } else {
+                // Service ID - create placeholder service
+                services.push({
+                    serviceType: `Service ${index + 1}`,
+                    sessionDuration: "30-60 minutes",
+                    date: "Date will be confirmed",
+                    time: "Time will be confirmed",
+                    mode: "Online",
+                    zoomLink: "Meeting link will be provided"
+                });
+            }
+        });
+    }
+
+    // If no services found, create a default one
+    if (services.length === 0) {
+        services.push({
+            serviceType: "Astrology Service",
+            sessionDuration: "30-60 minutes",
+            date: "Date will be confirmed",
+            time: "Time will be confirmed",
+            mode: "Online",
+            zoomLink: "Meeting link will be provided"
+        });
+    }
+
+    return {
+        services,
+        orderId,
+        totalAmount
+    };
+};
+
+/**
+ * Create service order data object with consistent structure
+ * @param {Object} options - Service order creation options
+ * @param {string} options.serviceId - Service ID
+ * @param {string} options.astrologerId - Astrologer ID
+ * @param {string} options.bookingDate - Booking date (YYYY-MM-DD format)
+ * @param {string} options.startTime - Start time (HH:MM format)
+ * @param {string} [options.paymentType='COD'] - Payment type (default: 'COD')
+ * @param {string} [options.address] - Address ID (optional, for non-online services)
+ * @param {Object} [options.paymentDetails] - Optional payment details
+ * @returns {Object} Formatted service order data
+ */
+export const createServiceOrderData = ({
+    serviceId,
+    astrologerId,
+    bookingDate,
+    startTime,
+    paymentType = 'COD',
+    address,
+    paymentDetails = {}
+}) => {
+    if (!serviceId || !astrologerId || !bookingDate || !startTime) {
+        throw new Error('serviceId, astrologerId, bookingDate, and startTime are required');
+    }
+
+    const defaultPaymentDetails = {
+        note: "Cash will be collected at time of service",
+        ...paymentDetails
+    };
+
+    // Generate payment ID
+    const paymentId = `COD-${new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)}`;
+
+    const orderData = {
+        serviceId,
+        astrologerId,
+        bookingDate,
+        startTime,
+        paymentType,
+        paymentId,
+        paymentDetails: defaultPaymentDetails
+    };
+
+    // Add address only if provided (for non-online services)
+    if (address) {
+        orderData.address = address;
+    }
+
+    return orderData;
+};
+
+/**
+ * Transform service cart items to service order data
+ * @param {Array} serviceCartItems - Array of service cart items
+ * @param {string} [addressId] - Optional address ID for non-online services
+ * @returns {Object} Service order data ready for API
+ */
+export const transformServiceCartToOrderData = (serviceCartItems, addressId = null) => {
+    if (!serviceCartItems || serviceCartItems.length === 0) {
+        throw new Error('No service items in cart');
+    }
+
+    // For now, we'll create an order for the first service
+    // In the future, you might want to handle multiple services
+    const firstService = serviceCartItems[0];
+
+    // Ensure date is in YYYY-MM-DD format
+    let bookingDate = firstService.date;
+    if (bookingDate) {
+        // If date is in a different format, convert it
+        const dateObj = new Date(bookingDate);
+        if (!isNaN(dateObj.getTime())) {
+            bookingDate = dateObj.toISOString().split('T')[0];
+        }
+    } else {
+        bookingDate = new Date().toISOString().split('T')[0];
+    }
+
+    return createServiceOrderData({
+        serviceId: firstService.serviceId,
+        astrologerId: firstService.astrologer?._id || firstService.astrologer,
+        bookingDate: bookingDate,
+        startTime: firstService.startTime,
+        paymentType: 'COD',
+        address: addressId,
+        paymentDetails: {
+            note: "Cash will be collected at time of service"
+        }
+    });
+};
+
+/**
  * Validate order data before processing
  * @param {Object} orderData - Order data to validate
  * @param {string} orderType - Type of order ('products' or 'services')
@@ -164,7 +347,5 @@ export const formatOrderSummary = (orderData, orderType) => {
             orderId: orderData.orderId
         };
     }
-
     return null;
 };
-

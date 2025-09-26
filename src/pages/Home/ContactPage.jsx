@@ -14,18 +14,18 @@ const ContactPage = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
     const onSubmit = async (data) => {
-      
+
         try {
             const response = await postContactUs(data);
             console.log('response contact us', response)
-            if(response.success) {
-               toast.success(response?.message, {
-                autoClose: 3000,  
+            if (response.success) {
+                toast.success(response?.message, {
+                    autoClose: 3000,
                 });
                 reset();
-            }else{
-               toast.error(response?.message, {
-                autoClose: 3000,  
+            } else {
+                toast.error(response?.message, {
+                    autoClose: 3000,
                 });
             }
         } catch (error) {

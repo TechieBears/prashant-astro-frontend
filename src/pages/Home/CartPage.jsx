@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -8,8 +8,9 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
 import EditServiceModal from '../../components/Modals/EditServiceModal';
-import { createOrder, setServiceBooking, clearError as clearOrderError } from '../../redux/Slices/orderSlice';
-import { createOrderData, transformServiceData } from '../../utils/orderUtils';
+import { createOrder, createServiceOrderThunk, clearError as clearOrderError, clearCurrentOrder } from '../../redux/Slices/orderSlice';
+import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
+import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
     fetchCartData,
     updateProductQuantity,
@@ -28,7 +29,9 @@ const CartPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
+    const { defaultAddress } = useAddress();
 
+    // Redux selectors
     const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
     const { productItems: cartItems, serviceItems: serviceCartItems } = useSelector(state => state.cart);
     const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
@@ -36,13 +39,14 @@ const CartPage = () => {
     const productCalculations = useSelector(selectProductCalculations);
     const serviceCalculations = useSelector(selectServiceCalculations);
 
+    // Local state
     const [activeTab, setActiveTab] = useState('products');
     const [localQuantities, setLocalQuantities] = useState({});
     const [pendingUpdates, setPendingUpdates] = useState({});
-    const debounceTimeouts = useRef({});
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedServiceForEdit, setSelectedServiceForEdit] = useState(null);
-    const { defaultAddress } = useAddress();
+
+    const debounceTimeouts = useRef({});
 
     // Set active tab based on navigation state
     useEffect(() => {
@@ -52,41 +56,67 @@ const CartPage = () => {
         }
     }, [location.state]);
 
-    // Utility function to calculate duration from startTime and endTime
-    const calculateDuration = (startTime, endTime) => {
-        if (!startTime || !endTime) return 'To be scheduled';
-
-        const start = new Date(`2000-01-01T${startTime}`);
-        const end = new Date(`2000-01-01T${endTime}`);
-        const diffInMinutes = (end - start) / (1000 * 60);
-
-        return `${Math.round(diffInMinutes)} mins`;
-    };
-
-    const transformedServices = serviceCartItems.map(service => ({
-        id: service._id,
-        type: service.name,
-        duration: calculateDuration(service.startTime, service.endTime),
-        mode: service.serviceMode === 'online' ? 'Online' :
-            service.serviceMode === 'pandit_center' ? 'At Astrologer Location' :
-                service.serviceMode === 'pooja_at_home' ? 'At Home' : 'Online',
-        price: service.originalPrice,
-        quantity: service.quantity,
-        totalPrice: service.totalPrice,
-        // Include original service data for editing
-        serviceId: service.serviceId,
-        serviceMode: service.serviceMode,
-        astrologer: service.astrologer,
-        timeSlot: service.timeSlot,
-        startTime: service.startTime,
-        endTime: service.endTime,
-        date: service.date || 'Date and time will be confirmed'
-    }));
-
+    // Fetch cart data on mount
     useEffect(() => {
         dispatch(fetchCartData());
     }, [dispatch]);
 
+    // Error handling effects
+    useEffect(() => {
+        if (orderError) {
+            toast.dismiss();
+            toast.error(orderError);
+            dispatch(clearOrderError());
+        }
+    }, [orderError, dispatch]);
+
+    useEffect(() => {
+        if (cartError) {
+            toast.dismiss();
+            toast.error(cartError);
+            dispatch(clearCartError());
+        }
+    }, [cartError, dispatch]);
+
+    // Cleanup timeouts on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(debounceTimeouts.current).forEach(timeout => {
+                if (timeout) clearTimeout(timeout);
+            });
+        };
+    }, []);
+
+    // Utility functions
+    const calculateDuration = useCallback((startTime, endTime) => {
+        if (!startTime || !endTime) return 'To be scheduled';
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const diffInMinutes = (end - start) / (1000 * 60);
+        return `${Math.round(diffInMinutes)} mins`;
+    }, []);
+
+    // Memoized service transformation
+    const transformedServices = useMemo(() => {
+        return serviceCartItems.map(service => ({
+            id: service._id,
+            type: service.name,
+            duration: calculateDuration(service.startTime, service.endTime),
+            mode: getServiceModeLabel(service.serviceMode),
+            price: service.originalPrice,
+            quantity: service.quantity,
+            totalPrice: service.totalPrice,
+            serviceId: service.serviceId,
+            serviceMode: service.serviceMode,
+            astrologer: service.astrologer,
+            timeSlot: service.timeSlot,
+            startTime: service.startTime,
+            endTime: service.endTime,
+            date: service.date || 'Date and time will be confirmed'
+        }));
+    }, [serviceCartItems, calculateDuration]);
+
+    // Update local quantities when cart items change
     useEffect(() => {
         const newLocalQuantities = {};
         cartItems.forEach(item => {
@@ -97,43 +127,14 @@ const CartPage = () => {
             }
         });
         setLocalQuantities(newLocalQuantities);
-    }, [cartItems, pendingUpdates]);
+    }, [cartItems, pendingUpdates]); // Removed localQuantities from dependencies
 
-    useEffect(() => {
-        return () => {
-            Object.values(debounceTimeouts.current).forEach(timeout => {
-                if (timeout) clearTimeout(timeout);
-            });
-        };
-    }, []);
-
-    // Show error toasts when errors occur
-    useEffect(() => {
-        if (orderError) {
-            toast.error(orderError);
-            dispatch(clearOrderError());
-        }
-    }, [orderError, dispatch]);
-
-    useEffect(() => {
-        if (cartError) {
-            toast.error(cartError);
-            dispatch(clearCartError());
-        }
-    }, [cartError, dispatch]);
-
-    const updateQuantity = (id, newQuantity) => {
+    // Event handlers
+    const updateQuantity = useCallback((id, newQuantity) => {
         const quantity = Math.max(1, newQuantity);
 
-        setLocalQuantities(prev => ({
-            ...prev,
-            [id]: quantity
-        }));
-
-        setPendingUpdates(prev => ({
-            ...prev,
-            [id]: true
-        }));
+        setLocalQuantities(prev => ({ ...prev, [id]: quantity }));
+        setPendingUpdates(prev => ({ ...prev, [id]: true }));
 
         if (debounceTimeouts.current[id]) {
             clearTimeout(debounceTimeouts.current[id]);
@@ -148,13 +149,11 @@ const CartPage = () => {
                     return newPending;
                 });
             } catch (err) {
+                toast.dismiss();
                 toast.error('Failed to update quantity');
                 const originalItem = cartItems.find(item => item._id === id);
                 if (originalItem) {
-                    setLocalQuantities(prev => ({
-                        ...prev,
-                        [id]: originalItem.quantity
-                    }));
+                    setLocalQuantities(prev => ({ ...prev, [id]: originalItem.quantity }));
                 }
                 setPendingUpdates(prev => {
                     const newPending = { ...prev };
@@ -163,74 +162,110 @@ const CartPage = () => {
                 });
             }
         }, 500);
-    };
+    }, [dispatch, cartItems]);
 
-    const removeItem = async (id) => {
+    const removeItem = useCallback(async (id) => {
         try {
             await dispatch(removeProductItem(id)).unwrap();
+            toast.dismiss();
             toast.success('Item removed from cart');
         } catch (err) {
+            toast.dismiss();
             toast.error('Failed to remove item');
         }
-    };
+    }, [dispatch]);
 
-    const removeServiceItem = async (id) => {
+    const removeServiceItem = useCallback(async (id) => {
         try {
             await dispatch(removeServiceItemAction(id)).unwrap();
+            toast.dismiss();
             toast.success('Service removed from cart');
         } catch (err) {
+            toast.dismiss();
             toast.error('Failed to remove service');
         }
-    };
+    }, [dispatch]);
 
-    const handleEditService = (service) => {
+    const handleEditService = useCallback((service) => {
         setSelectedServiceForEdit(service);
         setIsEditModalOpen(true);
-    };
+    }, []);
 
-    const handleUpdateService = async (updatedServiceData) => {
+    const handleUpdateService = useCallback(async (updatedServiceData) => {
         try {
             await dispatch(updateServiceItem({
                 id: selectedServiceForEdit.id,
                 updateData: updatedServiceData
             })).unwrap();
+            toast.dismiss();
             toast.success('Service updated successfully');
             setIsEditModalOpen(false);
             setSelectedServiceForEdit(null);
         } catch (err) {
+            toast.dismiss();
             toast.error('Failed to update service');
         }
-    };
+    }, [dispatch, selectedServiceForEdit]);
 
-    const { subtotal, gstAmount, total } = productCalculations;
-
-    const handleTabChange = (tab) => {
+    const handleTabChange = useCallback((tab) => {
         setActiveTab(tab);
-    };
+    }, []);
 
-    const handleServicesCheckout = () => {
-        if (!serviceCartItems || serviceCartItems.length === 0) {
-            toast.error('No services in cart to checkout');
-            return;
-        }
-
-        const serviceData = transformServiceData(serviceCartItems);
-        if (serviceData) {
-            dispatch(setServiceBooking(serviceData));
-            navigate('/payment-success');
-        } else {
-            toast.error('Failed to process services');
-        }
-    };
-
-    const handleProductsCheckout = async () => {
+    const handleServicesCheckout = useCallback(async () => {
         try {
-            if (!cartItems || cartItems.length === 0) {
+            if (!serviceCartItems?.length) {
+                toast.dismiss();
+                toast.error('No services in cart to checkout');
+                return;
+            }
+
+            const requiresAddress = serviceCartItems.some(service => service.serviceMode !== 'online');
+            if (requiresAddress && !defaultAddress) {
+                toast.dismiss();
+                toast.error('Please select a delivery address for this service');
+                return;
+            }
+
+            const serviceOrderData = transformServiceCartToOrderData(
+                serviceCartItems,
+                requiresAddress ? defaultAddress._id : null
+            );
+
+            await dispatch(createServiceOrderThunk(serviceOrderData)).unwrap();
+
+            toast.dismiss();
+            toast.success('Service order created successfully!');
+
+            // Clear only error state, keep currentOrder for PaymentSuccess page
+            dispatch(clearOrderError());
+
+            // Navigate immediately without delay
+            try {
+                navigate('/payment-success');
+            } catch (navError) {
+                console.error('Navigation failed:', navError);
+                // Fallback: force navigation
+                window.location.href = '/payment-success';
+            }
+
+        } catch (err) {
+            console.error('Service checkout error:', err);
+            toast.dismiss();
+            const errorMessage = err?.message || err?.error || 'Failed to create service order';
+            toast.error(errorMessage);
+        }
+    }, [serviceCartItems, defaultAddress, dispatch, navigate]);
+
+    const handleProductsCheckout = useCallback(async () => {
+        try {
+            if (!cartItems?.length) {
+                toast.dismiss();
                 toast.error('Your cart is empty');
                 return;
             }
 
             if (!defaultAddress) {
+                toast.dismiss();
                 toast.error('Please select a delivery address');
                 return;
             }
@@ -245,15 +280,57 @@ const CartPage = () => {
             });
 
             await dispatch(createOrder(orderData)).unwrap();
-            navigate('/payment-success');
+
+            toast.dismiss();
+            toast.success('Product order created successfully!');
+
+            // Navigate after a short delay to ensure toast is visible
+            setTimeout(() => {
+                navigate('/payment-success');
+            }, 100);
         } catch (err) {
             console.error('Error during checkout:', err);
+            toast.dismiss();
             toast.error('Failed to create order');
         }
-    };
+    }, [cartItems, defaultAddress, dispatch, navigate]);
 
+    // Memoized tab component
+    const TabComponent = useMemo(() => {
+        const tabProps = {
+            activeTab,
+            onTabChange: handleTabChange,
+            tabs: [
+                { id: 'services', label: 'Services' },
+                { id: 'products', label: 'Products' }
+            ]
+        };
 
+        return (
+            <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+                <button
+                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
+                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    onClick={() => handleTabChange('services')}
+                >
+                    Services
+                </button>
+                <button
+                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
+                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    onClick={() => handleTabChange('products')}
+                >
+                    Products
+                </button>
+            </div>
+        );
+    }, [activeTab, handleTabChange]);
 
+    // Loading state
     if (isLoading) {
         return (
             <div className="min-h-screen bg-slate1 flex items-center justify-center">
@@ -294,51 +371,13 @@ const CartPage = () => {
                     <h1 className="text-xl md:text-2xl font-normal text-gray-900">Cart</h1>
 
                     <div className="absolute right-0 hidden lg:block">
-                        <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button
-                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('services')}
-                            >
-                                Services
-                            </button>
-                            <button
-                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('products')}
-                            >
-                                Products
-                            </button>
-                        </div>
+                        {TabComponent}
                     </div>
                 </div>
 
                 <div className="lg:hidden mb-6">
                     <div className="flex justify-center">
-                        <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button
-                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'services'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('services')}
-                            >
-                                Services
-                            </button>
-                            <button
-                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'products'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('products')}
-                            >
-                                Products
-                            </button>
-                        </div>
+                        {TabComponent}
                     </div>
                 </div>
 
@@ -353,6 +392,7 @@ const CartPage = () => {
                             gstAmount={serviceCalculations.gstAmount}
                             total={serviceCalculations.total}
                             isRemoving={isRemovingItem}
+                            isCreatingOrder={isCreatingOrder}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -367,9 +407,9 @@ const CartPage = () => {
                         onUpdateQuantity={updateQuantity}
                         onRemoveItem={removeItem}
                         onCheckout={handleProductsCheckout}
-                        subtotal={subtotal}
-                        gstAmount={gstAmount}
-                        total={total}
+                        subtotal={productCalculations.subtotal}
+                        gstAmount={productCalculations.gstAmount}
+                        total={productCalculations.total}
                         isUpdating={isUpdatingQuantity}
                         isRemoving={isRemovingItem}
                         isCreatingOrder={isCreatingOrder}
@@ -377,7 +417,6 @@ const CartPage = () => {
                 )}
             </div>
 
-            {/* Edit Service Modal */}
             <EditServiceModal
                 isOpen={isEditModalOpen}
                 onClose={() => {
@@ -390,4 +429,5 @@ const CartPage = () => {
         </div>
     );
 };
+
 export default CartPage;

@@ -305,17 +305,23 @@ export const selectCartSummary = createSelector(
     })
 );
 
-export const selectCartLoadingStates = (state) => ({
-    isLoading: state.cart.isLoading,
-    isUpdatingQuantity: state.cart.isUpdatingQuantity,
-    isRemovingItem: state.cart.isRemovingItem
-});
+export const selectCartLoadingStates = createSelector(
+    [(state) => state.cart.isLoading, (state) => state.cart.isUpdatingQuantity, (state) => state.cart.isRemovingItem],
+    (isLoading, isUpdatingQuantity, isRemovingItem) => ({
+        isLoading,
+        isUpdatingQuantity,
+        isRemovingItem
+    })
+);
 
-export const selectCartErrors = (state) => ({
-    error: state.cart.error,
-    productsError: state.cart.productsError,
-    servicesError: state.cart.servicesError
-});
+export const selectCartErrors = createSelector(
+    [(state) => state.cart.error, (state) => state.cart.productsError, (state) => state.cart.servicesError],
+    (error, productsError, servicesError) => ({
+        error,
+        productsError,
+        servicesError
+    })
+);
 
 export const {
     clearCart,
