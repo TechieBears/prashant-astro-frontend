@@ -33,7 +33,7 @@ export const logoutUser = createAsyncThunk(
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/auth/logout`,
+                `${import.meta.env.VITE_BASE_URL}/api/auth/logout`,
                 {},
                 {
                     headers: {

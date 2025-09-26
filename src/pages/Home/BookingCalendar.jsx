@@ -36,7 +36,7 @@ const BookingCalendar = () => {
     const { control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm({
         defaultValues: {
             serviceType: '',
-            serviceMode: 'consult-online',
+            serviceMode: 'online',
             astrologer: '',
             fullName: '',
             mobileNumber: '',
@@ -311,19 +311,24 @@ const BookingCalendar = () => {
 
             // Map serviceMode values to API enum
             const serviceModeMap = {
-                'consult-online': 'consult_online',
-                'consult_at_pandit_location': 'consult_at_pandit_location',
+                'online': 'online',
+                'pandit_center': 'pandit_center',
                 'pooja_at_home': 'pooja_at_home'
             };
             console.log('formData', data);
 
+            // Parse timeSlot to extract startTime and endTime
+            const timeSlotParts = data.timeSlot.split(' - ');
+            const startTime = timeSlotParts[0];
+            const endTime = timeSlotParts[1];
+
             // Prepare payload for addServiceToCart API
             const servicePayload = {
-                serviceId: data.serviceType, // service ID from form
-                quantity: 1, // default quantity
-                serviceMode: serviceModeMap[data.serviceMode] || 'consult_online',
+                serviceId: data.serviceType,
+                serviceMode: serviceModeMap[data.serviceMode] || 'online',
                 astrologer: data.astrologer,
-                timeSlot: data.timeSlot,
+                startTime: startTime,
+                endTime: endTime,
                 date: formattedDate
             };
 

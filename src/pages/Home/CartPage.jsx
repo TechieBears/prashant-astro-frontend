@@ -7,6 +7,7 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
+import EditServiceModal from '../../components/Modals/EditServiceModal';
 import { createOrder, setServiceBooking, clearError as clearOrderError } from '../../redux/Slices/orderSlice';
 import { createOrderData, transformServiceData } from '../../utils/orderUtils';
 import {
@@ -14,6 +15,7 @@ import {
     updateProductQuantity,
     removeProductItem,
     removeServiceItem as removeServiceItemAction,
+    updateServiceItem,
     clearError as clearCartError,
     selectProductCalculations,
     selectServiceCalculations,
@@ -38,6 +40,8 @@ const CartPage = () => {
     const [localQuantities, setLocalQuantities] = useState({});
     const [pendingUpdates, setPendingUpdates] = useState({});
     const debounceTimeouts = useRef({});
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedServiceForEdit, setSelectedServiceForEdit] = useState(null);
     const { defaultAddress } = useAddress();
 
     // Set active tab based on navigation state
@@ -48,15 +52,35 @@ const CartPage = () => {
         }
     }, [location.state]);
 
+    // Utility function to calculate duration from startTime and endTime
+    const calculateDuration = (startTime, endTime) => {
+        if (!startTime || !endTime) return 'To be scheduled';
+
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const diffInMinutes = (end - start) / (1000 * 60);
+
+        return `${Math.round(diffInMinutes)} mins`;
+    };
+
     const transformedServices = serviceCartItems.map(service => ({
         id: service._id,
         type: service.name,
-        duration: 'To be scheduled',
-        date: 'Date and time will be confirmed',
-        mode: 'Online',
+        duration: calculateDuration(service.startTime, service.endTime),
+        mode: service.serviceMode === 'online' ? 'Online' :
+            service.serviceMode === 'pandit_center' ? 'At Astrologer Location' :
+                service.serviceMode === 'pooja_at_home' ? 'At Home' : 'Online',
         price: service.originalPrice,
         quantity: service.quantity,
-        totalPrice: service.totalPrice
+        totalPrice: service.totalPrice,
+        // Include original service data for editing
+        serviceId: service.serviceId,
+        serviceMode: service.serviceMode,
+        astrologer: service.astrologer,
+        timeSlot: service.timeSlot,
+        startTime: service.startTime,
+        endTime: service.endTime,
+        date: service.date || 'Date and time will be confirmed'
     }));
 
     useEffect(() => {
@@ -156,6 +180,25 @@ const CartPage = () => {
             toast.success('Service removed from cart');
         } catch (err) {
             toast.error('Failed to remove service');
+        }
+    };
+
+    const handleEditService = (service) => {
+        setSelectedServiceForEdit(service);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateService = async (updatedServiceData) => {
+        try {
+            await dispatch(updateServiceItem({
+                id: selectedServiceForEdit.id,
+                updateData: updatedServiceData
+            })).unwrap();
+            toast.success('Service updated successfully');
+            setIsEditModalOpen(false);
+            setSelectedServiceForEdit(null);
+        } catch (err) {
+            toast.error('Failed to update service');
         }
     };
 
@@ -304,6 +347,7 @@ const CartPage = () => {
                         <ServicesSection
                             services={transformedServices}
                             onRemoveService={removeServiceItem}
+                            onEditService={handleEditService}
                             onCheckout={handleServicesCheckout}
                             subtotal={serviceCalculations.subtotal}
                             gstAmount={serviceCalculations.gstAmount}
@@ -332,6 +376,17 @@ const CartPage = () => {
                     />
                 )}
             </div>
+
+            {/* Edit Service Modal */}
+            <EditServiceModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedServiceForEdit(null);
+                }}
+                serviceData={selectedServiceForEdit}
+                onUpdateService={handleUpdateService}
+            />
         </div>
     );
 };

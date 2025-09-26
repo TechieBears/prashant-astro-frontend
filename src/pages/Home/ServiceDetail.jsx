@@ -122,6 +122,63 @@ const ServiceDetail = () => {
                             </div>
                         </div>
                         <div className='mt-4 sm:mt-6 prose max-w-none prose-sm sm:prose-base' dangerouslySetInnerHTML={{ __html: selectedService.htmlContent }} />
+
+                        {selectedService.videoUrl && selectedService.videoUrl.length > 0 && (
+                            <div className="mt-8 sm:mt-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                    {selectedService.videoUrl.map((video, index) => {
+                                        const getYouTubeThumbnail = (url) => {
+                                            const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
+                                            return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
+                                        };
+
+                                        const thumbnailUrl = getYouTubeThumbnail(video.videoUrl);
+
+                                        return (
+                                            <div key={video._id || index} className="relative group">
+                                                <div className="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-amber-50 to-orange-100">
+                                                    <div className="aspect-video flex items-center justify-center relative">
+                                                        {thumbnailUrl ? (
+                                                            <img
+                                                                src={thumbnailUrl}
+                                                                alt={`${selectedService.name} - Video ${index + 1}`}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.target.src = '/path/to/your/placeholder-image.jpg';
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <img
+                                                                src="/path/to/your/placeholder-image.jpg"
+                                                                alt="Video Placeholder"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        )}
+
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <button
+                                                                onClick={() => window.open(video.videoUrl, '_blank')}
+                                                                className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-110 border-2 border-amber-300"
+                                                            >
+                                                                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M8 5v14l11-7z" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                                                        <h4 className="text-white font-medium text-sm sm:text-base">
+                                                            {selectedService.name} - Video {index + 1}
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Column - Related Services */}

@@ -112,6 +112,44 @@ export const removeServiceCartItem = async (itemId) => {
     }
 };
 
+export const updateServiceCartItem = async (itemId, updateData) => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}service-cart/public/update`;
+    try {
+        // Map serviceMode values to API enum
+        const serviceModeMap = {
+            'online': 'online',
+            'pandit_center': 'pandit_center',
+            'pooja_at_home': 'pooja_at_home'
+        };
+
+        // Prepare payload according to new API structure
+        const payload = {
+            serviceItemId: itemId,
+            astrologer: updateData.astrologer || '',
+            serviceMode: serviceModeMap[updateData.serviceMode] || 'online',
+            startTime: updateData.startTime || '',
+            endTime: updateData.endTime || '',
+            date: updateData.date || ''
+        };
+
+        const response = await axios.put(
+            url,
+            payload,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error updating service cart item:', err);
+        return err?.response?.data || { success: false, message: 'Failed to update service cart item' };
+    }
+};
+
 
 axios.interceptors.request.use(
     (config) => {
