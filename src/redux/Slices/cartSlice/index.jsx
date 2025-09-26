@@ -4,7 +4,8 @@ import {
     updateCartItem,
     removeCartItem,
     getServiceCartItems,
-    removeServiceCartItem
+    removeServiceCartItem,
+    updateServiceCartItem
 } from "../../../api";
 
 // Async thunks for cart operations
@@ -83,6 +84,25 @@ export const removeServiceItem = createAsyncThunk(
                 return servicesResponse.success ? (servicesResponse.data.items || []) : [];
             } else {
                 return rejectWithValue(response.message || 'Failed to remove service item');
+            }
+        } catch (error) {
+            return rejectWithValue(error.message || 'Network error occurred');
+        }
+    }
+);
+
+export const updateServiceItem = createAsyncThunk(
+    'cart/updateServiceItem',
+    async ({ id, updateData }, { rejectWithValue }) => {
+        try {
+            const response = await updateServiceCartItem(id, updateData);
+
+            if (response.success) {
+                // Refetch service cart items to ensure sync
+                const servicesResponse = await getServiceCartItems();
+                return servicesResponse.success ? (servicesResponse.data.items || []) : [];
+            } else {
+                return rejectWithValue(response.message || 'Failed to update service item');
             }
         } catch (error) {
             return rejectWithValue(error.message || 'Network error occurred');
@@ -224,6 +244,21 @@ const cartSlice = createSlice({
             })
             .addCase(removeServiceItem.rejected, (state, action) => {
                 state.isRemovingItem = null;
+                state.error = action.payload;
+            })
+
+            // Update service item
+            .addCase(updateServiceItem.pending, (state) => {
+                state.isUpdatingQuantity = true;
+                state.error = null;
+            })
+            .addCase(updateServiceItem.fulfilled, (state, action) => {
+                state.isUpdatingQuantity = false;
+                state.serviceItems = action.payload;
+                state.lastUpdated = Date.now();
+            })
+            .addCase(updateServiceItem.rejected, (state, action) => {
+                state.isUpdatingQuantity = false;
                 state.error = action.payload;
             });
     }
