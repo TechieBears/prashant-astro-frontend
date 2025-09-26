@@ -177,12 +177,14 @@ const ProductsPage = () => {
             // Filter by selected categories
             const matchesCategory =
                 selectedCategories.length === 0 ||
-                (product.category && selectedCategories.includes(product.category._id));
+                (product.category && selectedCategories.includes(product.category._id)) ||
+                (product.categoryId && selectedCategories.includes(product.categoryId));
 
             // Filter by selected subcategories
             const matchesSubcategory =
                 selectedSubcategories.length === 0 ||
-                (product.subcategory && selectedSubcategories.includes(product.subcategory._id));
+                (product.subcategory && selectedSubcategories.includes(product.subcategory._id)) ||
+                (product.subcategoryId && selectedSubcategories.includes(product.subcategoryId));
 
             // Filter by price range
             const productPrice = product.sellingPrice || 0;
