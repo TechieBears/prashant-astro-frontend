@@ -231,7 +231,7 @@ const BookingCalendar = () => {
                 date: formattedDate,
                 astrologer_id: astrologerId,
                 service_type: serviceType == 'pooja_at_home' ? 'offline' : 'online',
-                bookingMinutes: parseInt(serviceData.durationInMinutes) || 60
+                service_duration: parseInt(serviceData.durationInMinutes) || 60
             };
             const response = await checkAvailability(payload);
 
