@@ -347,7 +347,5 @@ export const formatOrderSummary = (orderData, orderType) => {
             orderId: orderData.orderId
         };
     }
-
     return null;
 };
-
