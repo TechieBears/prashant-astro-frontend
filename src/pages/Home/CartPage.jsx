@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { BsArrowLeft } from 'react-icons/bs';
@@ -7,117 +7,78 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
-import { createOrder, setServiceBooking, clearError as clearOrderError } from '../../redux/Slices/orderSlice';
-import { createOrderData } from '../../utils/orderUtils';
+import EditServiceModal from '../../components/Modals/EditServiceModal';
+import { createOrder, createServiceOrderThunk, clearError as clearOrderError, clearCurrentOrder } from '../../redux/Slices/orderSlice';
+import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
+import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
     fetchCartData,
     updateProductQuantity,
     removeProductItem,
-    removeServiceItem,
+    removeServiceItem as removeServiceItemAction,
+    updateServiceItem,
     clearError as clearCartError,
     selectProductCalculations,
     selectServiceCalculations,
     selectCartLoadingStates,
-    selectCartErrors,
-    optimisticUpdateQuantity,
-    optimisticRemoveItem
+    selectCartErrors
 } from '../../redux/Slices/cartSlice';
 import { useAddress } from '../../context/AddressContext';
-import { transformServiceData } from '../../utils/orderUtils';
 
 const CartPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
-
-    // Redux state
-    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
-    const {
-        productItems: cartItems,
-        serviceItems: serviceCartItems
-    } = useSelector(state => state.cart);
-
-    // Optimized selectors
-    const productCalculations = useSelector(selectProductCalculations);
-    const serviceCalculations = useSelector(selectServiceCalculations);
-    const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
-    const { error: cartError } = useSelector(selectCartErrors);
-
-    // Local state
-    const [activeTab, setActiveTab] = useState('services'); // 'services' or 'products'
-    const [localQuantities, setLocalQuantities] = useState({});
-
-    // Refs for debouncing
-    const debounceTimeouts = useRef({});
-
     const { defaultAddress } = useAddress();
 
-    // Use utility function for service transformation
-    const transformedServices = useMemo(() => {
-        return serviceCartItems.map(service => ({
-            id: service._id,
-            type: service.name,
-            duration: 'To be scheduled',
-            date: 'Date and time will be confirmed',
-            mode: 'Online',
-            price: service.originalPrice,
-            quantity: service.quantity,
-            totalPrice: service.totalPrice
-        }));
-    }, [serviceCartItems]);
+    // Redux selectors
+    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
+    const { productItems: cartItems, serviceItems: serviceCartItems } = useSelector(state => state.cart);
+    const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
+    const { error: cartError } = useSelector(selectCartErrors);
+    const productCalculations = useSelector(selectProductCalculations);
+    const serviceCalculations = useSelector(selectServiceCalculations);
 
-    // Fetch cart data on component mount
+    // Local state
+    const [activeTab, setActiveTab] = useState('products');
+    const [localQuantities, setLocalQuantities] = useState({});
+    const [pendingUpdates, setPendingUpdates] = useState({});
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedServiceForEdit, setSelectedServiceForEdit] = useState(null);
+
+    const debounceTimeouts = useRef({});
+
+    // Set active tab based on navigation state
+    useEffect(() => {
+        const navigationTab = location.state?.activeTab;
+        if (navigationTab) {
+            setActiveTab(navigationTab);
+        }
+    }, [location.state]);
+
+    // Fetch cart data on mount
     useEffect(() => {
         dispatch(fetchCartData());
     }, [dispatch]);
 
-    // Debounced API update function
-    const debouncedApiUpdate = useCallback(async (id, quantity) => {
-        try {
-            await dispatch(updateProductQuantity({ id, quantity })).unwrap();
-        } catch (err) {
-            toast.error('Failed to update quantity');
-            // Revert local state on error
-            const originalItem = cartItems.find(item => item._id === id);
-            if (originalItem) {
-                setLocalQuantities(prev => ({
-                    ...prev,
-                    [id]: originalItem.quantity
-                }));
-            }
-        }
-    }, [dispatch, cartItems]);
-
-    // Optimized quantity update with debouncing
-    const updateQuantity = useCallback((id, newQuantity) => {
-        const quantity = Math.max(1, newQuantity);
-
-        // Immediate local state update for instant UI feedback
-        setLocalQuantities(prev => ({
-            ...prev,
-            [id]: quantity
-        }));
-
-        // Clear existing timeout for this item
-        if (debounceTimeouts.current[id]) {
-            clearTimeout(debounceTimeouts.current[id]);
-        }
-
-        // Set new timeout for API call (debounced)
-        debounceTimeouts.current[id] = setTimeout(() => {
-            debouncedApiUpdate(id, quantity);
-        }, 500);
-    }, [debouncedApiUpdate]);
-
-    // Sync local quantities with Redux state when cart data changes
+    // Error handling effects
     useEffect(() => {
-        const newLocalQuantities = {};
-        cartItems.forEach(item => {
-            newLocalQuantities[item._id] = item.quantity;
-        });
-        setLocalQuantities(newLocalQuantities);
-    }, [cartItems]);
+        if (orderError) {
+            toast.dismiss();
+            toast.error(orderError);
+            dispatch(clearOrderError());
+        }
+    }, [orderError, dispatch]);
 
-    // Cleanup debounce timeouts on unmount
+    useEffect(() => {
+        if (cartError) {
+            toast.dismiss();
+            toast.error(cartError);
+            dispatch(clearCartError());
+        }
+    }, [cartError, dispatch]);
+
+    // Cleanup timeouts on unmount
     useEffect(() => {
         return () => {
             Object.values(debounceTimeouts.current).forEach(timeout => {
@@ -126,75 +87,188 @@ const CartPage = () => {
         };
     }, []);
 
-    // Remove item using Redux with optimistic updates
-    const removeItem = useCallback(async (id) => {
-        // Optimistic update for immediate UI feedback
-        dispatch(optimisticRemoveItem(id));
+    // Utility functions
+    const calculateDuration = useCallback((startTime, endTime) => {
+        if (!startTime || !endTime) return 'To be scheduled';
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        const diffInMinutes = (end - start) / (1000 * 60);
+        return `${Math.round(diffInMinutes)} mins`;
+    }, []);
 
+    // Memoized service transformation
+    const transformedServices = useMemo(() => {
+        return serviceCartItems.map(service => ({
+            id: service._id,
+            type: service.name,
+            duration: calculateDuration(service.startTime, service.endTime),
+            mode: getServiceModeLabel(service.serviceMode),
+            price: service.originalPrice,
+            quantity: service.quantity,
+            totalPrice: service.totalPrice,
+            serviceId: service.serviceId,
+            serviceMode: service.serviceMode,
+            astrologer: service.astrologer,
+            timeSlot: service.timeSlot,
+            startTime: service.startTime,
+            endTime: service.endTime,
+            date: service.date || 'Date and time will be confirmed'
+        }));
+    }, [serviceCartItems, calculateDuration]);
+
+    // Update local quantities when cart items change
+    useEffect(() => {
+        const newLocalQuantities = {};
+        cartItems.forEach(item => {
+            if (!pendingUpdates[item._id]) {
+                newLocalQuantities[item._id] = item.quantity;
+            } else {
+                newLocalQuantities[item._id] = localQuantities[item._id] || item.quantity;
+            }
+        });
+        setLocalQuantities(newLocalQuantities);
+    }, [cartItems, pendingUpdates]); // Removed localQuantities from dependencies
+
+    // Event handlers
+    const updateQuantity = useCallback((id, newQuantity) => {
+        const quantity = Math.max(1, newQuantity);
+
+        setLocalQuantities(prev => ({ ...prev, [id]: quantity }));
+        setPendingUpdates(prev => ({ ...prev, [id]: true }));
+
+        if (debounceTimeouts.current[id]) {
+            clearTimeout(debounceTimeouts.current[id]);
+        }
+
+        debounceTimeouts.current[id] = setTimeout(async () => {
+            try {
+                await dispatch(updateProductQuantity({ id, quantity })).unwrap();
+                setPendingUpdates(prev => {
+                    const newPending = { ...prev };
+                    delete newPending[id];
+                    return newPending;
+                });
+            } catch (err) {
+                toast.dismiss();
+                toast.error('Failed to update quantity');
+                const originalItem = cartItems.find(item => item._id === id);
+                if (originalItem) {
+                    setLocalQuantities(prev => ({ ...prev, [id]: originalItem.quantity }));
+                }
+                setPendingUpdates(prev => {
+                    const newPending = { ...prev };
+                    delete newPending[id];
+                    return newPending;
+                });
+            }
+        }, 500);
+    }, [dispatch, cartItems]);
+
+    const removeItem = useCallback(async (id) => {
         try {
             await dispatch(removeProductItem(id)).unwrap();
+            toast.dismiss();
             toast.success('Item removed from cart');
         } catch (err) {
+            toast.dismiss();
             toast.error('Failed to remove item');
         }
     }, [dispatch]);
 
-    // Remove service item using Redux
     const removeServiceItem = useCallback(async (id) => {
         try {
-            await dispatch(removeServiceItem(id)).unwrap();
+            await dispatch(removeServiceItemAction(id)).unwrap();
+            toast.dismiss();
             toast.success('Service removed from cart');
         } catch (err) {
+            toast.dismiss();
             toast.error('Failed to remove service');
         }
     }, [dispatch]);
 
-    // Use Redux selectors for calculations
-    const { subtotal, gstAmount, total } = productCalculations;
+    const handleEditService = useCallback((service) => {
+        setSelectedServiceForEdit(service);
+        setIsEditModalOpen(true);
+    }, []);
 
+    const handleUpdateService = useCallback(async (updatedServiceData) => {
+        try {
+            await dispatch(updateServiceItem({
+                id: selectedServiceForEdit.id,
+                updateData: updatedServiceData
+            })).unwrap();
+            toast.dismiss();
+            toast.success('Service updated successfully');
+            setIsEditModalOpen(false);
+            setSelectedServiceForEdit(null);
+        } catch (err) {
+            toast.dismiss();
+            toast.error('Failed to update service');
+        }
+    }, [dispatch, selectedServiceForEdit]);
 
-    // Memoized tab handler
     const handleTabChange = useCallback((tab) => {
         setActiveTab(tab);
     }, []);
 
-    // Memoized checkout handlers
-    const handleServicesCheckout = useCallback(() => {
-        // Clear any previous errors
-        dispatch(clearOrderError());
-        dispatch(clearCartError());
+    const handleServicesCheckout = useCallback(async () => {
+        try {
+            if (!serviceCartItems?.length) {
+                toast.dismiss();
+                toast.error('No services in cart to checkout');
+                return;
+            }
 
-        if (!serviceCartItems || serviceCartItems.length === 0) {
-            toast.error('No services in cart to checkout');
-            return;
-        }
+            const requiresAddress = serviceCartItems.some(service => service.serviceMode !== 'online');
+            if (requiresAddress && !defaultAddress) {
+                toast.dismiss();
+                toast.error('Please select a delivery address for this service');
+                return;
+            }
 
-        // Transform service data and set in Redux
-        const serviceData = transformServiceData(serviceCartItems);
-        if (serviceData) {
-            dispatch(setServiceBooking(serviceData));
-            navigate('/payment-success');
-        } else {
-            toast.error('Failed to process services');
+            const serviceOrderData = transformServiceCartToOrderData(
+                serviceCartItems,
+                requiresAddress ? defaultAddress._id : null
+            );
+
+            await dispatch(createServiceOrderThunk(serviceOrderData)).unwrap();
+
+            toast.dismiss();
+            toast.success('Service order created successfully!');
+
+            // Clear only error state, keep currentOrder for PaymentSuccess page
+            dispatch(clearOrderError());
+
+            // Navigate immediately without delay
+            try {
+                navigate('/payment-success');
+            } catch (navError) {
+                console.error('Navigation failed:', navError);
+                // Fallback: force navigation
+                window.location.href = '/payment-success';
+            }
+
+        } catch (err) {
+            console.error('Service checkout error:', err);
+            toast.dismiss();
+            const errorMessage = err?.message || err?.error || 'Failed to create service order';
+            toast.error(errorMessage);
         }
-    }, [navigate, serviceCartItems, dispatch]);
+    }, [serviceCartItems, defaultAddress, dispatch, navigate]);
 
     const handleProductsCheckout = useCallback(async () => {
         try {
-            // Validate required data
-            if (!cartItems || cartItems.length === 0) {
+            if (!cartItems?.length) {
+                toast.dismiss();
                 toast.error('Your cart is empty');
                 return;
             }
 
             if (!defaultAddress) {
+                toast.dismiss();
                 toast.error('Please select a delivery address');
                 return;
             }
-
-            // Clear any previous errors
-            dispatch(clearOrderError());
-            dispatch(clearCartError());
 
             const orderData = createOrderData({
                 cartItems,
@@ -205,21 +279,58 @@ const CartPage = () => {
                 }
             });
 
-            console.log('Creating order with data:', orderData);
+            await dispatch(createOrder(orderData)).unwrap();
 
-            // Dispatch the createOrder action
-            const result = await dispatch(createOrder(orderData)).unwrap();
+            toast.dismiss();
+            toast.success('Product order created successfully!');
 
-            console.log('Order created successfully:', result);
-            // Navigate to success page - Redux will handle the data
-            navigate('/payment-success');
+            // Navigate after a short delay to ensure toast is visible
+            setTimeout(() => {
+                navigate('/payment-success');
+            }, 100);
         } catch (err) {
             console.error('Error during checkout:', err);
+            toast.dismiss();
+            toast.error('Failed to create order');
         }
-    }, [dispatch, cartItems, defaultAddress, navigate]);
+    }, [cartItems, defaultAddress, dispatch, navigate]);
 
+    // Memoized tab component
+    const TabComponent = useMemo(() => {
+        const tabProps = {
+            activeTab,
+            onTabChange: handleTabChange,
+            tabs: [
+                { id: 'services', label: 'Services' },
+                { id: 'products', label: 'Products' }
+            ]
+        };
 
+        return (
+            <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+                <button
+                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
+                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    onClick={() => handleTabChange('services')}
+                >
+                    Services
+                </button>
+                <button
+                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
+                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                        : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    onClick={() => handleTabChange('products')}
+                >
+                    Products
+                </button>
+            </div>
+        );
+    }, [activeTab, handleTabChange]);
 
+    // Loading state
     if (isLoading) {
         return (
             <div className="min-h-screen bg-slate1 flex items-center justify-center">
@@ -231,52 +342,8 @@ const CartPage = () => {
         );
     }
 
-    // Use Redux errors
-    const displayError = orderError || cartError;
-
-    if (displayError) {
-        return (
-            <div className="min-h-screen bg-slate1 flex items-center justify-center">
-                <div className="text-center p-6 max-w-md mx-4 bg-white rounded-lg shadow">
-                    <div className="text-red-500 mb-4">
-                        <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading cart</h3>
-                    <p className="text-gray-600 mb-4">{displayError}</p>
-                    <div className="space-x-2">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-                        >
-                            Try Again
-                        </button>
-                        {orderError && (
-                            <button
-                                onClick={() => dispatch(clearOrderError())}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                Clear Error
-                            </button>
-                        )}
-                        {cartError && (
-                            <button
-                                onClick={() => dispatch(clearCartError())}
-                                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                            >
-                                Clear Cart Error
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-slate1">
-            {/* Header Section with Background */}
             <BackgroundTitle
                 title="Cart"
                 breadcrumbs={[
@@ -289,9 +356,7 @@ const CartPage = () => {
                 backgroundSize="100%"
             />
 
-            {/* Main Content */}
             <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 md:py-14">
-                {/* Navigation Bar with Centered Title */}
                 <div className="relative flex items-center justify-center mb-6 md:mb-8">
                     <div className="absolute left-0">
                         <button
@@ -305,68 +370,29 @@ const CartPage = () => {
                     </div>
                     <h1 className="text-xl md:text-2xl font-normal text-gray-900">Cart</h1>
 
-                    {/* Desktop Tabs */}
                     <div className="absolute right-0 hidden lg:block">
-                        <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button
-                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('services')}
-                            >
-                                Services
-                            </button>
-                            <button
-                                className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('products')}
-                            >
-                                Products
-                            </button>
-                        </div>
+                        {TabComponent}
                     </div>
                 </div>
 
-                {/* Mobile Tabs - Above Cart Summary */}
                 <div className="lg:hidden mb-6">
                     <div className="flex justify-center">
-                        <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                            <button
-                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'services'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('services')}
-                            >
-                                Services
-                            </button>
-                            <button
-                                className={`px-6 py-2 rounded-full text-sm ${activeTab === 'products'
-                                    ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                onClick={() => handleTabChange('products')}
-                            >
-                                Products
-                            </button>
-                        </div>
+                        {TabComponent}
                     </div>
                 </div>
 
                 {activeTab === 'services' ? (
-                    /* Services Section with Payment Summary */
                     serviceCartItems.length > 0 ? (
                         <ServicesSection
                             services={transformedServices}
                             onRemoveService={removeServiceItem}
+                            onEditService={handleEditService}
                             onCheckout={handleServicesCheckout}
                             subtotal={serviceCalculations.subtotal}
                             gstAmount={serviceCalculations.gstAmount}
                             total={serviceCalculations.total}
                             isRemoving={isRemovingItem}
+                            isCreatingOrder={isCreatingOrder}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -375,23 +401,33 @@ const CartPage = () => {
                         </div>
                     )
                 ) : (
-                    /* Products Section with Payment Summary */
                     <ProductsSection
                         cartItems={cartItems}
                         localQuantities={localQuantities}
                         onUpdateQuantity={updateQuantity}
                         onRemoveItem={removeItem}
                         onCheckout={handleProductsCheckout}
-                        subtotal={subtotal}
-                        gstAmount={gstAmount}
-                        total={total}
+                        subtotal={productCalculations.subtotal}
+                        gstAmount={productCalculations.gstAmount}
+                        total={productCalculations.total}
                         isUpdating={isUpdatingQuantity}
                         isRemoving={isRemovingItem}
                         isCreatingOrder={isCreatingOrder}
                     />
                 )}
             </div>
+
+            <EditServiceModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedServiceForEdit(null);
+                }}
+                serviceData={selectedServiceForEdit}
+                onUpdateService={handleUpdateService}
+            />
         </div>
     );
 };
+
 export default CartPage;

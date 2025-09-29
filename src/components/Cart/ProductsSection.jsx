@@ -1,7 +1,8 @@
 import React from 'react';
-import { FaRegTrashAlt, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaRegTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import PaymentSummary from './PaymentSummary';
+import QuantityCounter from '../Common/QuantityCounter';
 
 const ProductsSection = ({
     cartItems,
@@ -68,18 +69,12 @@ const ProductsSection = ({
                                     {/* Quantity Controls */}
                                     <div className="flex items-center space-x-2">
                                         <span className="text-xs md:text-sm text-gray-600 font-medium">QTY:</span>
-                                        <input
-                                            type="number"
+                                        <QuantityCounter
                                             value={localQuantities[item._id] || item.quantity}
+                                            onChange={(newQuantity) => onUpdateQuantity(item._id, newQuantity)}
                                             min={1}
-                                            onChange={(e) => onUpdateQuantity(item._id, Number(e.target.value))}
-                                            onBlur={(e) => {
-                                                const value = Number(e.target.value);
-                                                if (!value || value < 1) {
-                                                    onUpdateQuantity(item._id, 1);
-                                                }
-                                            }}
-                                            className="w-12 md:w-16 border border-gray-300 rounded-md px-1 md:px-2 py-1 text-center text-gray-800 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm md:text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-auto [&::-webkit-inner-spin-button]:appearance-auto"
+                                            max={999}
+                                            size="default"
                                         />
                                     </div>
 

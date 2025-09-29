@@ -1,13 +1,10 @@
 import React, { useRef } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import AddToCartButton from './AddToCartButton';
 
 const RelatedProducts = ({
-    products = [],
-    isWishlisted,
-    onToggleWishlist
+    products = []
 }) => {
     const carouselRef = useRef(null);
 
@@ -79,17 +76,6 @@ const RelatedProducts = ({
                                         <span className="text-gray-400 text-sm">No Image</span>
                                     </div>
                                 )}
-                                <button
-                                    onClick={onToggleWishlist}
-                                    className="absolute top-2 right-2 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow"
-                                    aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-                                >
-                                    {isWishlisted ? (
-                                        <FaHeart className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
-                                    ) : (
-                                        <FaRegHeart className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
-                                    )}
-                                </button>
                             </div>
 
                             <div className="flex flex-col flex-1 p-3 sm:p-4">

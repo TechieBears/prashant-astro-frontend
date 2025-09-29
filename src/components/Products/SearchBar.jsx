@@ -7,15 +7,15 @@ const SearchBar = ({ value, onChange }) => {
         type="text"
         placeholder="Search products..."
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         className="w-full rounded-md border border-slate-200 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
         aria-label="Search products"
       />
       <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          className="w-4 h-4" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          className="w-4 h-4"
           fill="currentColor"
           aria-hidden="true"
         >

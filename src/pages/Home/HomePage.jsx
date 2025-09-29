@@ -188,9 +188,9 @@ const HomePage = () => {
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: 'Quick Results',
+            title: 'Quick and Reliable Results',
             description:
-                'Detailed reports delivered within 24-48 hours of consultation booking',
+                'Most of the clients got quick results and almost all of them are loyal with us',
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
@@ -202,7 +202,7 @@ const HomePage = () => {
             icon: <Medal06Icon size={36} className="text-white" />,
             title: '500+ Happy Clients',
             description:
-                'Trusted by clients worldwide for life-changing guidance and solutions',
+                'Trusted by clients for life-changing guidance and solutions',
         },
         {
             icon: <FavouriteIcon size={36} className="text-white" />,
@@ -318,7 +318,7 @@ const HomePage = () => {
 
                         {/* Right: Text & Cards */}
                         <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6 text-center lg:text-left order-1 lg:order-2">
-                            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-slate-800">
+                            <h2 className="text-lg sm:text-lg md:text-xl font-semibold text-slate-800">
                                 16 Years of Spiritual Guidance
                             </h2>
                             <p className="text-slate-600 text-sm sm:text-base md:text-base leading-relaxed">
@@ -420,7 +420,7 @@ const HomePage = () => {
                         src={servicesElement}
                         alt="OM"
                         className="w-[60%] sm:w-[70%] md:w-[60%] lg:w-full h-auto max-w-full mx-auto animate-spin-slow"
-                    style={{ transformOrigin: 'center center' }}
+                        style={{ transformOrigin: 'center center' }}
                     />
                 </div>
 
@@ -484,7 +484,10 @@ const HomePage = () => {
 
                     {/* View More Button */}
                     <div className="flex justify-center mt-8 sm:mt-12">
-                        <button className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2 sm:py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base">
+                        <button
+                            onClick={() => navigate('/services')}
+                            className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2 sm:py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                        >
                             View More
                         </button>
                     </div>
@@ -573,7 +576,10 @@ const HomePage = () => {
 
                         {/* View More Button */}
                         <div className="flex justify-center">
-                            <button className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 sm:px-16 py-2 sm:py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base">
+                            <button
+                                onClick={() => navigate('/products')}
+                                className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 sm:px-16 py-2 sm:py-3 rounded-sm font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                            >
                                 View More
                             </button>
                         </div>
@@ -627,16 +633,26 @@ const HomePage = () => {
                             </a>
 
                             <div className='mt-3 sm:mt-4 flex justify-center'>
-                                <button className='bg-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base hover:shadow-lg transition-all duration-300'>
+                                <a
+                                    href="https://www.youtube.com/watch?v=3ystrJLmjtI"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className='bg-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md text-sm sm:text-base hover:shadow-lg transition-all duration-300 inline-block'
+                                >
                                     Watch Introduction Video
-                                </button>
+                                </a>
                             </div>
                         </div>
 
                         {/* Right Side - Social Media Links */}
                         <div className='w-full lg:w-1/2 flex flex-col justify-between gap-3 sm:gap-6'>
                             {/* Instagram Block */}
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                            <a
+                                href="https://www.instagram.com/pandit_prashant_shastri?igsh=dW40bnY2azljeWlw"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1 cursor-pointer'
+                            >
                                 <div className='w-12 sm:w-12 md:w-14 flex-shrink-0'>
                                     <img
                                         src={InstagramImg}
@@ -648,9 +664,14 @@ const HomePage = () => {
                                     <h2 className='text-base sm:text-lg md:text-xl text-orange-500 mb-1'>Instagram</h2>
                                     <p className='text-xs sm:text-sm text-slate-500'>Daily astrology tips and spiritual guidance</p>
                                 </div>
-                            </div>
+                            </a>
 
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                            <a
+                                href="https://www.facebook.com/share/19fmxP8B9f/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1 cursor-pointer'
+                            >
                                 <div className='w-12 sm:w-12 md:w-14 flex-shrink-0'>
                                     <img
                                         src={FacebookImg}
@@ -662,9 +683,14 @@ const HomePage = () => {
                                     <h2 className='text-base sm:text-lg md:text-xl text-orange-500 mb-1'>Facebook</h2>
                                     <p className='text-xs sm:text-sm text-slate-500'>Connect with our community and get updates</p>
                                 </div>
-                            </div>
+                            </a>
 
-                            <div className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1'>
+                            <a
+                                href="https://youtube.com/@pandit_prashant_shastri?si=mLcdUBeXyHIro4xq"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className='flex flex-row bg-white p-4 sm:p-5 md:p-6 py-6 sm:py-8 items-center rounded-lg border-[#00000026] border-[1px] hover:shadow-lg transition-shadow duration-300 flex-1 cursor-pointer'
+                            >
                                 <div className='w-14 sm:w-14 md:w-16 flex-shrink-0'>
                                     <img
                                         src={YoutubeImg}
@@ -676,18 +702,18 @@ const HomePage = () => {
                                     <h2 className='text-base sm:text-lg md:text-xl text-orange-500 mb-1'>YouTube</h2>
                                     <p className='text-xs sm:text-sm text-slate-500'>Educational videos and spiritual content</p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>
 
                 {/* Flower positioned between sections - mobile only */}
                 <div className="relative">
-                       <img
-                    src={Flower}
-                    className="absolute left-[-10px] sm:left-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-32 animate-spin-slow"
-                    style={{ transformOrigin: 'center center' }}
-                />
+                    <img
+                        src={Flower}
+                        className="absolute left-[-10px] sm:left-[-15px] top-[-45px] xl:top-[-65px] w-12 sm:w-16 md:w-16 lg:w-20 xl:w-32 animate-spin-slow"
+                        style={{ transformOrigin: 'center center' }}
+                    />
                 </div>
 
                 {/* Download app */}

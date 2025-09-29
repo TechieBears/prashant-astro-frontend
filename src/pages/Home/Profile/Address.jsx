@@ -2,13 +2,10 @@
 import { useState, useEffect } from "react";
 import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import AddressForm from "../../../components/Modals/AddressForm";
-import { getAllCustomerAddresses, deleteCustomerAddress } from "../../../api";
+import { useAddress } from "../../../context/AddressContext";
+import toast from "react-hot-toast";
 
 export default function Address() {
-    const [addressData, setAddressData] = useState([]);
-    const [originalAddressData, setOriginalAddressData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [formMode, setFormMode] = useState("add"); // "add" or "edit"
     const [editingAddress, setEditingAddress] = useState(null);
@@ -16,39 +13,17 @@ export default function Address() {
     const [deletingAddress, setDeletingAddress] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
 
-    useEffect(() => {
-        fetchAddresses();
-    }, []);
+    const { addresses, defaultAddress, addAddress, updateAddress, removeAddress, error, loading } = useAddress();
 
-    const fetchAddresses = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await getAllCustomerAddresses();
-
-            if (response.success) {
-                setOriginalAddressData(response.data);
-
-                // Map API response to component format
-                const mappedAddresses = response.data.map(address => ({
-                    id: address._id,
-                    name: `${address.firstName} ${address.lastName}`,
-                    phone: address.phoneNumber,
-                    address: `${address.address}, ${address.city}, ${address.state}, ${address.country} - ${address.postalCode}`,
-                    isDefault: address.isDefault,
-                    type: address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1)
-                }));
-                setAddressData(mappedAddresses);
-            } else {
-                setError(response.message || "Failed to fetch addresses");
-            }
-        } catch (err) {
-            setError("An error occurred while fetching addresses");
-            console.error("Error fetching addresses:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Map addresses for display
+    const mappedAddresses = addresses.map(address => ({
+        id: address._id,
+        name: `${address.firstName} ${address.lastName}`,
+        phone: address.phoneNumber,
+        address: `${address.address}, ${address.city}, ${address.state}, ${address.country} - ${address.postalCode}`,
+        isDefault: address.isDefault,
+        type: address.addressType.charAt(0).toUpperCase() + address.addressType.slice(1)
+    }));
 
     const handleAddAddress = () => {
         setFormMode("add");
@@ -57,8 +32,8 @@ export default function Address() {
     };
 
     const handleEditAddress = (mappedAddress) => {
-        // Find the original address data from the API response
-        const originalAddress = originalAddressData.find(addr => addr._id === mappedAddress.id);
+        // Find the original address data from the context
+        const originalAddress = addresses.find(addr => addr._id === mappedAddress.id);
         if (originalAddress) {
             setEditingAddress(originalAddress);
             setFormMode("edit");
@@ -74,13 +49,12 @@ export default function Address() {
 
     const handleFormSuccess = (addressData) => {
         console.log(`Address ${formMode === "add" ? "added" : "updated"} successfully:`, addressData);
-        // Refresh addresses after successful operation
-        fetchAddresses();
+        // Context automatically updates, no need to refresh
     };
 
     const handleDeleteAddress = (mappedAddress) => {
-        // Find the original address data from the API response
-        const originalAddress = originalAddressData.find(addr => addr._id === mappedAddress.id);
+        // Find the original address data from the context
+        const originalAddress = addresses.find(addr => addr._id === mappedAddress.id);
         if (originalAddress) {
             setDeletingAddress(originalAddress);
             setShowDeleteModal(true);
@@ -92,18 +66,18 @@ export default function Address() {
 
         try {
             setDeleteLoading(true);
-            const response = await deleteCustomerAddress(deletingAddress._id);
+            const response = await removeAddress(deletingAddress._id);
 
             if (response.success) {
-                console.log('Address deleted successfully');
-                fetchAddresses();
+                toast.success('Address deleted successfully!');
                 setShowDeleteModal(false);
                 setDeletingAddress(null);
             } else {
-                console.error('Failed to delete address:', response.message);
+                toast.error(response.error || 'Failed to delete address');
             }
         } catch (err) {
             console.error('Error deleting address:', err);
+            toast.error('An error occurred while deleting the address');
         } finally {
             setDeleteLoading(false);
         }
@@ -153,13 +127,13 @@ export default function Address() {
                             </div>
                             <p className="text-gray-600 mb-4">{error}</p>
                             <button
-                                onClick={fetchAddresses}
+                                onClick={() => window.location.reload()}
                                 className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
                             >
                                 Try Again
                             </button>
                         </div>
-                    ) : addressData.length === 0 ? (
+                    ) : mappedAddresses.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-gray-400 mb-4">
                                 <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +146,7 @@ export default function Address() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {addressData.map((address) => (
+                            {mappedAddresses.map((address) => (
                                 <div key={address.id} className="bg-gray-100 p-4 rounded-lg">
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">

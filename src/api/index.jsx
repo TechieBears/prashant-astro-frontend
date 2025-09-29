@@ -72,6 +72,25 @@ export const getServiceCartItems = async () => {
     }
 };
 
+// ==================== Service Add to Cart Api ====================
+export const addServiceToCart = async (body) => {
+    const url = `${environment.baseUrl}service-cart/public/add`;
+
+    try {
+        const response = await axios.post(url, body);
+        return {
+            success: response.data?.success || false,
+            message: response.data?.message || 'Service added to cart',
+            data: response.data?.data
+        };
+    } catch (error) {
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Failed to add service to cart'
+        };
+    }
+};
+
 export const removeServiceCartItem = async (itemId) => {
     const token = localStorage.getItem('token');
     const url = `${environment.baseUrl}service-cart/public/remove-item`;
@@ -90,6 +109,44 @@ export const removeServiceCartItem = async (itemId) => {
     } catch (err) {
         console.error('Error removing service cart item:', err);
         return err?.response?.data || { success: false, message: 'Failed to remove service cart item' };
+    }
+};
+
+export const updateServiceCartItem = async (itemId, updateData) => {
+    const token = localStorage.getItem('token');
+    const url = `${environment.baseUrl}service-cart/public/update`;
+    try {
+        // Map serviceMode values to API enum
+        const serviceModeMap = {
+            'online': 'online',
+            'pandit_center': 'pandit_center',
+            'pooja_at_home': 'pooja_at_home'
+        };
+
+        // Prepare payload according to new API structure
+        const payload = {
+            serviceItemId: itemId,
+            astrologer: updateData.astrologer || '',
+            serviceMode: serviceModeMap[updateData.serviceMode] || 'online',
+            startTime: updateData.startTime || '',
+            endTime: updateData.endTime || '',
+            date: updateData.date || ''
+        };
+
+        const response = await axios.put(
+            url,
+            payload,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error updating service cart item:', err);
+        return err?.response?.data || { success: false, message: 'Failed to update service cart item' };
     }
 };
 
@@ -1489,9 +1546,29 @@ export const createProductOrder = async (orderData) => {
     }
 };
 
-// =======================
+// ==================== Create Service Order Api ====================
+export const createServiceOrder = async (orderData) => {
+    const url = `${environment.baseUrl}service-order/public/create`;
+    try {
+        const response = await axios.post(url, orderData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating service order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create service order' };
+    }
+};
 
-
+// ==================== Get All Service Orders Api ====================
+export const getAllServiceOrders = async () => {
+    const url = `${environment.baseUrl}service-order/public/get-all`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching service orders:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch service orders' };
+    }
+};
 export const getProductSubCategoriesByCategory = async (id) => {
     try {
         const url = `${environment.baseUrl}product-subcategories/get-by-category?id=${id || ''}`;

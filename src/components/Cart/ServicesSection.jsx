@@ -1,10 +1,11 @@
 import React from 'react';
-import { FaRegTrashAlt, FaClock, FaCalendarAlt, FaLink } from 'react-icons/fa';
+import { FaRegTrashAlt, FaClock, FaCalendarAlt, FaLink, FaEdit } from 'react-icons/fa';
 import PaymentSummary from './PaymentSummary';
 
 const ServicesSection = ({
     services,
     onRemoveService,
+    onEditService,
     onCheckout,
     subtotal,
     gstAmount,
@@ -40,7 +41,14 @@ const ServicesSection = ({
                                                         </div>
                                                         <div className="flex items-start sm:items-center gap-2">
                                                             <FaCalendarAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 mt-0.5 sm:mt-0 flex-shrink-0" />
-                                                            <span className="break-words">{service.date}</span>
+                                                            <span className="break-words">
+                                                                {service.date}
+                                                                {service.startTime && service.endTime && (
+                                                                    <span className="text-gray-500 ml-2">
+                                                                        / {service.startTime} - {service.endTime}
+                                                                    </span>
+                                                                )}
+                                                            </span>
                                                         </div>
                                                         <div className="flex items-start sm:items-center gap-2">
                                                             <FaLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 mt-0.5 sm:mt-0 flex-shrink-0" />
@@ -48,19 +56,28 @@ const ServicesSection = ({
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <button
-                                                    className={`text-red-500 hover:text-red-600 transition-colors self-end sm:self-start mt-1 sm:mt-0 ${isRemoving === service.id ? 'opacity-50 cursor-not-allowed' : ''
-                                                        }`}
-                                                    onClick={() => onRemoveService(service.id)}
-                                                    disabled={isRemoving === service.id}
-                                                    aria-label="Remove service"
-                                                >
-                                                    {isRemoving === service.id ? (
-                                                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <FaRegTrashAlt className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                    )}
-                                                </button>
+                                                <div className="flex items-center gap-2 self-end sm:self-start mt-1 sm:mt-0">
+                                                    <button
+                                                        className="text-blue-500 hover:text-blue-600 transition-colors"
+                                                        onClick={() => onEditService(service)}
+                                                        aria-label="Edit service"
+                                                    >
+                                                        <FaEdit className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                    </button>
+                                                    <button
+                                                        className={`text-red-500 hover:text-red-600 transition-colors ${isRemoving === service.id ? 'opacity-50 cursor-not-allowed' : ''
+                                                            }`}
+                                                        onClick={() => onRemoveService(service.id)}
+                                                        disabled={isRemoving === service.id}
+                                                        aria-label="Remove service"
+                                                    >
+                                                        {isRemoving === service.id ? (
+                                                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <FaRegTrashAlt className="w-4 h-4 sm:w-5 sm:h-5" />
+                                                        )}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

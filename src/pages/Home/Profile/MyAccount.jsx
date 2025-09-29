@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from "react-redux";
 import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import { updateCustomerProfile, uploadToCloudinary } from "../../../api";
+import { setUserDetails, setLoggedUserDetails } from "../../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
 
 const MyAccount = () => {
+    const dispatch = useDispatch();
+    const userDetails = useSelector(state => state.user.userDetails);
+    const loggedUserDetails = useSelector(state => state.user.loggedUserDetails);
+
     const {
         register,
         handleSubmit,
@@ -25,6 +31,22 @@ const MyAccount = () => {
 
     const title = watch("title");
     const profileImage = watch("profileImage");
+
+    useEffect(() => {
+        if (userDetails?.user || loggedUserDetails) {
+            const userData = userDetails?.user || loggedUserDetails;
+
+            if (userData) {
+                setValue("title", userData.title || "");
+                setValue("firstName", userData.firstName || "");
+                setValue("lastName", userData.lastName || "");
+                setValue("email", userData.email || "");
+                setValue("phone", userData.mobileNo || userData.phone || "");
+            }
+        }
+    }, [userDetails, loggedUserDetails, setValue]);
+
+    const isUserDataLoaded = userDetails?.user || loggedUserDetails;
 
     const onSubmit = async (data) => {
         const toastId = toast.loading('Updating profile...');
@@ -58,6 +80,16 @@ const MyAccount = () => {
             const response = await updateCustomerProfile(payload);
 
             if (response?.success) {
+                const updatedUserData = response.data.user;
+
+                dispatch(setLoggedUserDetails(updatedUserData));
+
+                const updatedUserDetails = {
+                    ...userDetails,
+                    user: updatedUserData
+                };
+                dispatch(setUserDetails(updatedUserDetails));
+
                 toast.success('Profile updated successfully!', { id: toastId });
             } else {
                 throw new Error(response?.message || 'Failed to update profile');
@@ -68,20 +100,31 @@ const MyAccount = () => {
         }
     };
 
-    return (
-      <div className="  rounded-lg bg-white p-4 sm:p-6 h-[100%]">
+    if (!isUserDataLoaded) {
+        return (
+            <div className="rounded-lg bg-white p-4 sm:p-6 h-[100%]">
                 <h2 className="font-semibold text-lg mb-6">My Account</h2>
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-between h-[90%]">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1 md:col-span-2">
+                <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="  rounded-lg bg-white p-4 sm:p-6 h-[100%]">
+            <h2 className="font-semibold text-lg mb-6">My Account</h2>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-between h-[90%]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1 md:col-span-2">
                         <label>Title <span className="text-red-500">*</span></label>
                         <div className="flex gap-2">
                             {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt) => (
                                 <label
                                     key={opt}
                                     className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all duration-150 whitespace-nowrap ${title === opt
-                                            ? "border-primary text-primary font-medium"
-                                            : "bg-white text-black"
+                                        ? "border-primary text-primary font-medium"
+                                        : "bg-white text-black"
                                         }`}
                                 >
                                     <input
@@ -170,11 +213,20 @@ const MyAccount = () => {
                                 }`}
                             {...register("phone", {
                                 required: "Phone number is required",
-                                pattern: {
-                                    value: /^[0-9]{10}$/,
-                                    message: "Please enter a valid 10-digit phone number"
+                                validate: (value) => {
+                                    // Remove any non-digit characters for validation
+                                    const cleanValue = value.replace(/\D/g, '');
+                                    if (cleanValue.length === 10 || cleanValue.length === 11) {
+                                        return true;
+                                    }
+                                    return "Please enter a valid 10 or 11-digit phone number";
                                 }
                             })}
+                            onChange={(e) => {
+                                // Format phone number as user types (remove non-digits, limit to 11)
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                setValue("phone", value, { shouldValidate: true });
+                            }}
                         />
                         {errors.phone && (
                             <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
@@ -194,27 +246,27 @@ const MyAccount = () => {
                             }}
                         />
                     </div>
-                    </div>
+                </div>
 
-                    <div className="flex flex-col sm:flex-row justify-end items-end space-y-3 sm:space-y-0 sm:space-x-4 md:col-span-2">
-                        <button
-                            type="button"
-                            onClick={() => reset()}
-                            className="px-4 sm:px-6 py-2 border border-black hover:bg-gray-100 transition text-sm sm:text-base"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className={`bg-primary text-white rounded-lg py-2 px-6 hover:bg-primary-dark transition-colors text-base ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                                }`}
-                        >
-                            {isSubmitting ? "Saving..." : "Save Changes"}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div className="flex flex-col sm:flex-row justify-end items-end space-y-3 sm:space-y-0 sm:space-x-4 md:col-span-2">
+                    <button
+                        type="button"
+                        onClick={() => reset()}
+                        className="px-4 sm:px-6 py-2 border border-black hover:bg-gray-100 transition text-sm sm:text-base"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`bg-primary text-white rounded-lg py-2 px-6 hover:bg-primary-dark transition-colors text-base ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                            }`}
+                    >
+                        {isSubmitting ? "Saving..." : "Save Changes"}
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 };
 

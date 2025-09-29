@@ -22,7 +22,7 @@ const FilterSidebar = ({
 }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
   return (
-    <div className="bg-white rounded-xl shadow-md ring-1 ring-slate-200 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm  overflow-hidden">
       {/* Mobile filter header */}
       <button
         type="button"

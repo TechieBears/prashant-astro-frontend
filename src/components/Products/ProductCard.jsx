@@ -30,12 +30,12 @@ const ProductCard = ({ product }) => {
   const image = images && images.length > 0 ? images[0] : '/placeholder-product.png';
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100">
-      <div className="relative pt-[100%] bg-gray-50">
+    <div className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden">
+      <div className="relative pt-[100%] ">
         <img
           src={image}
           alt={title}
-          className="absolute top-0 left-0 w-full h-full object-cover p-1 sm:p-2"
+          className="absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2"
           loading="lazy"
         />
       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../../api';
 import { updateProductQuantity } from '../../redux/Slices/cartSlice';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ const AddToCartButton = ({
     cartItemId = null
 }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
     const handleAddToCart = async () => {
@@ -35,6 +37,10 @@ const AddToCartButton = ({
                 })).unwrap();
 
                 toast.success('Cart updated successfully', { id: toastId });
+                // Navigate to cart page after successful update
+                setTimeout(() => {
+                    navigate('/cart', { state: { activeTab: 'products' } });
+                }, 1000);
             } else {
                 // Product not in cart - add to cart via API
                 const response = await addToCart(productId, quantity);
@@ -42,6 +48,10 @@ const AddToCartButton = ({
 
                 if (response?.success) {
                     toast.success(message, { id: toastId });
+                    // Navigate to cart page after successful add
+                    setTimeout(() => {
+                        navigate('/cart', { state: { activeTab: 'products' } });
+                    }, 1000);
                 } else {
                     toast.error(message, { id: toastId });
                 }

@@ -89,7 +89,6 @@ const ResetPassword = () => {
                     </a>
                 </div>
             </div>
-            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };

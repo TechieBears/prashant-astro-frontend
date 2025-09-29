@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from '../components/Sidebar/Sidebar';
 import Dashboard from '../pages/Admin/Dashboard/Dashboard';
 import { useSelector } from 'react-redux';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
 import ServicesPage from '../pages/Home/ServicesPage';
 import ServiceDetail from '../pages/Home/ServiceDetail';
@@ -50,7 +50,7 @@ import ProfileLayout from '../components/Profile/ProfileLayout';
 import Orders from '../pages/Home/Profile/Orders';
 import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
 import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
-
+import ProtectedRoute from '../components/ProtectedRoute'
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -93,16 +93,28 @@ const ProjectRoutes = () => {
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/products" element={<ProductsPage />} />
                     <Route path="/products/:id" element={<ProductDetail />} />
-                    <Route path="/cart" element={
-                        <AddressProvider>
-                            <CartPage />
-                        </AddressProvider>
-                    } />
-                    <Route path="/buy-now" element={
-                        <AddressProvider>
-                            <BuyNowPage />
-                        </AddressProvider>
-                    } />
+                    <Route
+                        path="/cart"
+                        element={
+                            <ProtectedRoute>
+                                <AddressProvider>
+                                    <CartPage />
+                                </AddressProvider>
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/buy-now"
+                        element={
+                            <ProtectedRoute>
+                                <AddressProvider>
+                                    <BuyNowPage />
+                                </AddressProvider>
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:id" element={<ServiceDetail />} />
                     <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
@@ -110,15 +122,29 @@ const ProjectRoutes = () => {
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/profile" element={<ProfileLayout />}>
-                        <Route index element={<MyAccount />} />
-                        <Route path="address" element={<Address />} />
-                        <Route path="orders" element={<Orders />} />
-                        <Route path="customer-support" element={<CustomerSupport />} />
-                        <Route path="privacy-policy" element={<Policy />} />
+                    <Route path="/profile" element={
+                        <ProtectedRoute>
+                            <AddressProvider>
+                                <ProfileLayout />
+                            </AddressProvider>
+                        </ProtectedRoute>
+                    }>
+                        <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                        <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
+                        <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                        <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
+                        <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
                     </Route>
                     <Route path="/terms-conditions" element={<TermsConditions />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route
+                        path="/payment-success"
+                        element={
+                            <ProtectedRoute>
+                                <PaymentSuccess />
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route path='*' element={<ErrorPage />} />
                 </Routes>
             </div>
@@ -144,36 +170,158 @@ const ProjectRoutes = () => {
             ) : isAdminOrEmployee ? (
                 <Sidebar>
                     <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/calender" element={<BookingCalender />} />
-                        <Route path="/product-bookings" element={<ProductBookings />} />
-                        <Route path="/service-bookings" element={<ServiceBookings />} />
-                        <Route path="/all-products" element={<AllProducts />} />
-                        <Route path="/product-categories" element={<ProductCategories />} />
-                        <Route path="/all-services" element={<AllServices />} />
+                        <Route
+                            path="/"
+                            element={
+                                <ProtectedRoute>
+                                    <Dashboard />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/calender"
+                            element={
+                                <ProtectedRoute>
+                                    <BookingCalender />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/product-bookings"
+                            element={
+                                <ProtectedRoute>
+                                    <ProductBookings />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/service-bookings"
+                            element={
+                                <ProtectedRoute>
+                                    <ServiceBookings />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/all-products"
+                            element={
+                                <ProtectedRoute>
+                                    <AllProducts />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/product-categories"
+                            element={
+                                <ProtectedRoute>
+                                    <ProductCategories />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/all-services"
+                            element={
+                                <ProtectedRoute>
+                                    <AllServices />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route
                             path="/service-categories"
-                            element={<ServicesCategories />}
+                            element={
+                                <ProtectedRoute>
+                                    <ServicesCategories />
+                                </ProtectedRoute>
+                            }
                         />
-                        <Route path="/all-employees" element={<Employees />} />
-                        <Route path="/all-users" element={<AllUserProfiles />} />
-                        <Route path="/user-transaction" element={<UserTransactios />} />
-                        <Route path="/banner" element={<Banner />} />
-                        <Route path="/customerFeedback" element={<CustomerFeedback />} />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/offersCoupons" element={<OffersCoupons />} />
-                        <Route path="/referEarn" element={<ReferEarn />} />
-                        <Route path="/testimonials" element={<Testimonials />} />
-                        <Route path="/admin-profile" element={<AdminProfile />} />
+                        <Route
+                            path="/all-employees"
+                            element={
+                                <ProtectedRoute>
+                                    <Employees />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/all-users"
+                            element={
+                                <ProtectedRoute>
+                                    <AllUserProfiles />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/user-transaction"
+                            element={
+                                <ProtectedRoute>
+                                    <UserTransactios />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/banner"
+                            element={
+                                <ProtectedRoute>
+                                    <Banner />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/customerFeedback"
+                            element={
+                                <ProtectedRoute>
+                                    <CustomerFeedback />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/notifications"
+                            element={
+                                <ProtectedRoute>
+                                    <Notifications />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/offersCoupons"
+                            element={
+                                <ProtectedRoute>
+                                    <OffersCoupons />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/referEarn"
+                            element={
+                                <ProtectedRoute>
+                                    <ReferEarn />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/testimonials"
+                            element={
+                                <ProtectedRoute>
+                                    <Testimonials />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin-profile"
+                            element={
+                                <ProtectedRoute>
+                                    <AdminProfile />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route path="*" element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>
+
             ) : (
                 <PublicSite />
             )}
 
-
-            <Toaster position="top-right" reverseOrder={false} />
         </div>
     )
 }

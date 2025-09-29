@@ -1,11 +1,15 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { createCustomerAddress, updateCustomerAddress } from "../../api";
+import { useAddress } from "../../context/AddressContext";
+import toast from "react-hot-toast";
 
 const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Use AddressContext methods
+    const { addAddress, updateAddress } = useAddress();
 
     const {
         register,
@@ -70,13 +74,21 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             };
 
             let response;
+            // Use context methods for both add and edit operations
             if (mode === "add") {
-                response = await createCustomerAddress(apiData);
+                response = await addAddress(apiData);
             } else {
-                response = await updateCustomerAddress(addressData._id, apiData);
+                response = await updateAddress(addressData._id, apiData);
             }
 
             if (response.success) {
+                // Show success toast
+                if (mode === "add") {
+                    toast.success('Address added successfully!');
+                } else {
+                    toast.success('Address updated successfully!');
+                }
+
                 // Call success callback with the created/updated address data
                 if (onSuccess) {
                     onSuccess(response.data);
@@ -88,15 +100,19 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                 }
                 onClose();
             } else {
-                setError(response.message || `Failed to ${mode} address`);
+                const errorMessage = response.error || `Failed to ${mode} address`;
+                setError(errorMessage);
+                toast.error(errorMessage);
             }
         } catch (err) {
-            setError(`An error occurred while ${mode === "add" ? "creating" : "updating"} the address`);
+            const errorMessage = `An error occurred while ${mode === "add" ? "creating" : "updating"} the address`;
+            setError(errorMessage);
+            toast.error(errorMessage);
             console.error(`Error ${mode === "add" ? "creating" : "updating"} address:`, err);
         } finally {
             setLoading(false);
         }
-    }, [mode, addressData, onSuccess, onClose, reset]);
+    }, [mode, addressData, onSuccess, onClose, reset, addAddress, updateAddress]);
 
     const handleCancel = useCallback(() => {
         // Reset form data for add mode
@@ -111,7 +127,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
     const loadingText = isEditMode ? "Updating..." : "Saving...";
 
     return (
-        <div className="bg-white p-6 rounded-lg mb-6">
+        <div className="p-4">
             {/* Error Message */}
             {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -125,12 +141,12 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             )}
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Left Column */}
                     <div className="space-y-4">
                         {/* First Name */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 First Name
                             </label>
                             <input
@@ -147,7 +163,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     }
                                 })}
                                 placeholder="Enter first name"
-                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.firstName ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.firstName ? 'border-red-500' : ''
                                     }`}
                             />
                             {errors.firstName && (
@@ -157,7 +173,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* Phone Number */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Phone Number
                             </label>
                             <input
@@ -174,7 +190,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     }
                                 })}
                                 placeholder="Enter phone number"
-                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.phoneNumber ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.phoneNumber ? 'border-red-500' : ''
                                     }`}
                             />
                             {errors.phoneNumber && (
@@ -184,7 +200,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* Address */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Address
                             </label>
                             <input
@@ -197,7 +213,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     }
                                 })}
                                 placeholder="Enter address"
-                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.address ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.address ? 'border-red-500' : ''
                                     }`}
                             />
                             {errors.address && (
@@ -207,14 +223,14 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* State */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 State
                             </label>
                             <select
                                 {...register("state", {
                                     required: "Please select a state"
                                 })}
-                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.state ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.state ? 'border-red-500' : ''
                                     }`}
                             >
                                 <option value="">Select state</option>
@@ -234,7 +250,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* Zip Code */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Zip code / Postal Code
                             </label>
                             <input
@@ -247,7 +263,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     }
                                 })}
                                 placeholder="Enter zip code"
-                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.postalCode ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.postalCode ? 'border-red-500' : ''
                                     }`}
                             />
                             {errors.postalCode && (
@@ -260,7 +276,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                     <div className="space-y-4">
                         {/* Last Name */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Last Name
                             </label>
                             <input
@@ -277,7 +293,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                     }
                                 })}
                                 placeholder="Enter last name"
-                                className={`w-full px-3 py-4 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.lastName ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.lastName ? 'border-red-500' : ''
                                     }`}
                             />
                             {errors.lastName && (
@@ -287,16 +303,16 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* Address Type */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Address Type
                             </label>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1 flex-wrap">
                                 {['home', 'office', 'friend', 'other'].map((type) => (
                                     <button
                                         key={type}
                                         type="button"
                                         onClick={() => setValue("addressType", type, { shouldValidate: true })}
-                                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${watchedAddressType === type
+                                        className={`px-2 py-1 rounded-md font-medium transition-colors text-xs ${watchedAddressType === type
                                             ? 'bg-button-vertical-gradient-orange text-white'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             }`}
@@ -309,14 +325,14 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* Country */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Country
                             </label>
                             <select
                                 {...register("country", {
                                     required: "Please select a country"
                                 })}
-                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.country ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.country ? 'border-red-500' : ''
                                     }`}
                             >
                                 <option value="">Select country</option>
@@ -332,14 +348,14 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                         {/* City */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
                                 City
                             </label>
                             <select
                                 {...register("city", {
                                     required: "Please select a city"
                                 })}
-                                className={`w-full px-3 py-4 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none ${errors.city ? 'border-red-500' : ''
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.city ? 'border-red-500' : ''
                                     }`}
                             >
                                 <option value="">Select city</option>
@@ -367,28 +383,28 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             {...register("isDefault")}
                             className="w-5 h-5 text-orange-500 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
                         />
-                        <span className="text-sm font-medium text-gray-700">Set as default address</span>
+                        <span className="text-xs font-medium text-gray-700">Set as default address</span>
                     </label>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-end gap-4">
+                <div className="flex justify-end gap-3">
                     <button
                         type="button"
                         onClick={handleCancel}
                         disabled={loading}
-                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={loading || !isValid}
-                        className="px-6 py-2 bg-gradient-to-r from-orange-400 to-yellow-400 text-white rounded-lg hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-3 py-1.5 bg-gradient-to-r from-orange-400 to-yellow-400 text-white rounded-lg hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
                     >
                         {loading ? (
                             <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                                 {loadingText}
                             </>
                         ) : (
