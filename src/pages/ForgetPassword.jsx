@@ -30,12 +30,12 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="m-4 sm:m-8 md:m-12 lg:m-16 flex items-center justify-center bg-yellow-50 min-h-screen">
-            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-                <h2 className="text-2xl font-bold text-center mb-2 text-primary">
+        <div className="flex items-start pt-12 pb-4 justify-center bg-yellow-50 min-h-[calc(60vh-2rem)] px-4">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mt-4">
+                <h2 className="text-xl font-bold text-center mb-1 text-primary">
                     Forgot Password?
                 </h2>
-                <p className="text-center text-gray-500 mb-6 text-sm">
+                <p className="text-center text-gray-500 mb-4 text-sm">
                     No worries, we’ll send you reset instructions.
                 </p>
 
