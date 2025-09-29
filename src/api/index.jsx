@@ -1742,3 +1742,15 @@ export const logoutUser = async (data) => {
         return err?.response?.data
     }
 };
+
+export const adminSlots = async (date) => {
+    const url = `${environment.baseUrl}calender/admin-slots?date=${date}`;
+    try {
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in logout User api file", err);
+        return err?.response?.data
+    }
+};

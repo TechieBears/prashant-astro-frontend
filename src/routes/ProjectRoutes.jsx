@@ -51,6 +51,7 @@ import Orders from '../pages/Home/Profile/Orders';
 import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
 import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 import ProtectedRoute from '../components/ProtectedRoute'
+import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -118,6 +119,7 @@ const ProjectRoutes = () => {
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:id" element={<ServiceDetail />} />
                     <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
+                    <Route path="/admin-calendar" element={<VenueCalendar />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
@@ -183,6 +185,14 @@ const ProjectRoutes = () => {
                             element={
                                 <ProtectedRoute>
                                     <BookingCalender />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin-calender"
+                            element={
+                                <ProtectedRoute>
+                                    <VenueCalendar />
                                 </ProtectedRoute>
                             }
                         />
