@@ -1245,6 +1245,56 @@ export const deleteBanner = async (id) => {
 }
 
 
+
+// ================== Coupon API ==================
+
+export const getAllCoupons = async (data) => {
+    try {
+        const url = `${environment.baseUrl}coupon/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getAllCoupons api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const addCoupon = async (data) => {
+    const url = `${environment.baseUrl}coupon/create`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in addCoupon api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const editCoupon = async (id, data) => {
+    const url = `${environment.baseUrl}coupon/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in editCoupon api file", err);
+        return err?.response?.data;
+    }
+};
+
+export const deleteCoupon = async (id) => {
+    const url = `${environment.baseUrl}coupon/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in deleteCoupon api file", err);
+        return err?.response?.data;
+    }
+};
+
+
+
+
 // ==================== Website APi Binding ====================
 
 

@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { registerUser, loginUser } from "../redux/Slices/loginSlice";
+import { fetchCartData } from "../redux/Slices/cartSlice";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import google from "../assets/google-icon.png";
@@ -24,13 +25,23 @@ const Register = () => {
     const onSubmit = (data) => {
         const { title, firstName, lastName, email, password, mobileNo } = data;
 
-        dispatch(registerUser({ title, firstName, lastName, email, password, mobileNo }))
+        dispatch(registerUser({
+            title,
+            firstName,
+            lastName,
+            email,
+            password,
+            phone: mobileNo,
+            registerType: "normal"
+        }))
             .unwrap()
             .then(() => {
                 dispatch(loginUser({ email, password }))
                     .unwrap()
                     .then((res) => {
                         if (res.success) {
+                            // Fetch user's cart data after successful login
+                            dispatch(fetchCartData());
                             toast.success(res.message);
                             navigate("/");
                         } else {
@@ -57,8 +68,8 @@ const Register = () => {
                                 <label
                                     key={opt}
                                     className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${watch("title") === opt
-                                            ? "border-primary text-primary font-medium"
-                                            : "bg-white text-black"
+                                        ? "border-primary text-primary font-medium"
+                                        : "bg-white text-black"
                                         }`}
                                 >
                                     <input
@@ -156,12 +167,12 @@ const Register = () => {
                         <button className="w-12 h-12 rounded-full bg-white shadow hover:shadow-md flex items-center justify-center transition">
                             <img src={google} alt="Google" className="w-6 h-6" />
                         </button>
-                        <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
+                        {/* <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
                             <img src={facebook} alt="Facebook" className="w-6 h-6" />
                         </button>
                         <button className="w-12 h-12 rounded-full bg-black shadow hover:shadow-md flex items-center justify-center transition">
                             <img src={apple} alt="Apple" className="w-6 h-6" />
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>

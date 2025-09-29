@@ -32,7 +32,7 @@ export const fetchCartData = createAsyncThunk(
 
 export const updateProductQuantity = createAsyncThunk(
     'cart/updateProductQuantity',
-    async ({ id, quantity }, { rejectWithValue, getState }) => {
+    async ({ id, quantity, increment = false }, { rejectWithValue, getState, dispatch }) => {
         try {
             const state = getState();
             const currentItems = state.cart.productItems;
@@ -42,14 +42,50 @@ export const updateProductQuantity = createAsyncThunk(
                 return rejectWithValue('Item not found in cart');
             }
 
-            const response = await updateCartItem(id, quantity);
+            // Calculate the new quantity
+            const newQuantity = increment ? (item.quantity + 1) : quantity;
+            
+            // Optimistic update with the new quantity
+            dispatch(cartSlice.actions.optimisticUpdateQuantity({ 
+                id, 
+                quantity: newQuantity 
+            }));
+
+            // Call the API with the new quantity
+            const response = await updateCartItem(id, newQuantity);
 
             if (response.success) {
-                return response.data.items;
+                // Refresh the entire cart data to ensure consistency
+                const [productsResponse] = await Promise.all([
+                    getCartItems()
+                ]);
+
+                if (productsResponse.success) {
+                    return {
+                        products: productsResponse.data.items || [],
+                        updatedItem: response.data.item
+                    };
+                } else {
+                    throw new Error('Failed to refresh cart data');
+                }
             } else {
+                // Revert optimistic update on failure
+                dispatch(cartSlice.actions.revertOptimisticUpdate({
+                    id,
+                    previousQuantity: item.quantity
+                }));
                 return rejectWithValue(response.message || 'Failed to update quantity');
             }
         } catch (error) {
+            // Revert optimistic update on error
+            const state = getState();
+            const currentItem = state.cart.productItems.find(item => item._id === id);
+            if (currentItem) {
+                dispatch(cartSlice.actions.revertOptimisticUpdate({
+                    id,
+                    previousQuantity: currentItem.quantity
+                }));
+            }
             return rejectWithValue(error.message || 'Network error occurred');
         }
     }
@@ -155,14 +191,16 @@ const cartSlice = createSlice({
             const { id, quantity } = action.payload;
             const item = state.productItems.find(item => item._id === id);
             if (item) {
-                item.quantity = quantity;
-                item.totalPrice = (item.totalPrice / item.quantity) * quantity;
+                // If quantity is a number, use it directly, otherwise increment by 1
+                const newQuantity = typeof quantity === 'number' ? quantity : (item.quantity + 1);
+                item.quantity = newQuantity;
+                item.totalPrice = item.price * newQuantity;
             }
         },
 
         // Revert optimistic update
         revertOptimisticUpdate: (state, action) => {
-            const { id, originalQuantity } = action.payload;
+            const { id, previousQuantity } = action.payload;
             const item = state.productItems.find(item => item._id === id);
             if (item) {
                 item.quantity = originalQuantity;
@@ -209,7 +247,7 @@ const cartSlice = createSlice({
             })
             .addCase(updateProductQuantity.fulfilled, (state, action) => {
                 state.isUpdatingQuantity = false;
-                state.productItems = action.payload;
+                state.productItems = action.payload.products;
                 state.lastUpdated = Date.now();
             })
             .addCase(updateProductQuantity.rejected, (state, action) => {
