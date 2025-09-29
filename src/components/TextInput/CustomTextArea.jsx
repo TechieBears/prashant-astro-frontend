@@ -6,7 +6,7 @@ const CustomTextArea = ({ label, props, errors, registerName, style, placeholder
             <div className="h-[100px] relative flex rounded-md w-full">
                 <textarea
                     id={registerName}
-                    className={`peer w-full  outline-none px-4 py-3 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
+                    className={`peer w-full  outline-none px-4 py-3 text-base font-tbLex text-black rounded-md bg-slate-100 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
                     placeholder={placeholder}
                     {...props}
                 />

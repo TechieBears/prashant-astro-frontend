@@ -82,7 +82,7 @@ const ProjectRoutes = () => {
     }, []);
 
     // ====== Derived booleans & shared UI blocks ======
-    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "employee"));
+    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "superadmin" || role === "employee" || role === "astrologer"));
 
     const PublicSite = () => (
         <main className="flex flex-col min-h-screen">
@@ -119,7 +119,6 @@ const ProjectRoutes = () => {
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:id" element={<ServiceDetail />} />
                     <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
-                    <Route path="/admin-calendar" element={<VenueCalendar />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/forget-password" element={<ForgetPassword />} />
                     <Route path="/password/reset/:token" element={<ResetPassword />} />
@@ -166,7 +165,6 @@ const ProjectRoutes = () => {
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
                 <div className="relative">
-                    <HomeNavbar />
                     <Preloaders />
                 </div>
             ) : isAdminOrEmployee ? (

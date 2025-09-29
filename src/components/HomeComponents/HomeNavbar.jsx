@@ -56,7 +56,7 @@ const HomeNavbar = () => {
 
     // const transformedServicess = servicesDropdown.map(category => ({
     //    category: category.name,
-    //    services: category.services 
+    //    services: category.services
     //  }));
 
 

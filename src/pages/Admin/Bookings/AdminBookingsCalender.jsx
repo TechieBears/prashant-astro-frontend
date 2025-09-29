@@ -1,60 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 import BookingDetailsModal from '../../../components/Modals/AdminModals/BookingDetailsModal';
 import HorizontalSlotCalendar from "../../../components/Calendar/HorizontalSlotCalendar";
 import { adminSlots } from "../../../api";
 
-const dummyVenueList = [
-    { id: 1, name: "Astro Club A" },
-    { id: 2, name: "Astro Club B" },
-];
 
-const dummyCalendarData = {
-    court: [
-        { id: 101, name: "Astrologer 1" },
-        { id: 102, name: "Astrologer 2" },
-        { id: 103, name: "Astrologer 3" },
-    ],
-    bookings: [
-        {
-            bookingId: "BK001",
-            astrologer: 101,
-            serviceId: "SRV001",
-            start_time: "09:00",
-            slot_booked: true,
-            customer: {
-                first_name: "Ravi",
-                last_name: "Sharma",
-                email: "ravi.sharma@example.com",
-                phone: "+91 9876543210"
-            },
-            zoom_link: "https://zoom.us/j/1234567890"
-        },
-        {
-            bookingId: "BK_BLOCK_102_1030",
-            astrologer: 102,
-            start_time: "10:30",
-            blocked: true
-        },
-        {
-            bookingId: "BK002",
-            astrologer: 103,
-            serviceId: "SRV002",
-            start_time: "12:00",
-            slot_booked: true,
-            customer: {
-                first_name: "Raj",
-                last_name: "Kumar",
-                email: "raj.kumar@example.com",
-                phone: "+91 9876543211"
-            },
-            zoom_link: "https://zoom.us/j/9876543210"
-        }
-    ]
-};
-
-
-// Generate full-day slots (09:00 to 21:00, every 30 mins)
 const generateFullDaySlots = (data) => {
     const slots = [];
     let start = moment(data?.time?.start || "09:00", "HH:mm");
@@ -160,7 +110,6 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
 
 const VenueCalendar = () => {
     const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
-    const [selectedVenue, setSelectedVenue] = useState(dummyVenueList[0]?.id);
     const [isLoading, setIsLoading] = useState(true);
     const [inLoading, setInLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
@@ -190,7 +139,7 @@ const VenueCalendar = () => {
             setIsLoading(false);
         }, 2000);
         return () => clearTimeout(timer);
-    }, [selectedDate, selectedVenue]);
+    }, [selectedDate]);
 
     const handleSearch = () => {
         setIsLoading(true);
@@ -246,62 +195,75 @@ const VenueCalendar = () => {
                 </div>
             </div>
 
-            <div className="overflow-x-auto">
-                <div className="min-w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                    <div className="bg-slate-100 text-gray-800 border-b border-gray-200">
-                        <div className="grid grid-cols-[200px_repeat(auto-fit,_minmax(200px,_1fr))] gap-4 p-3">
-                            <div className="font-bold text-center py-2 text-black font-tbLex">
-                                Time Slots
-                            </div>
-                            {slots?.astrologers.map((court) => (
-                                <div key={court.id} className="font-semibold font-tbLex text-center py-2 text-black">
-                                    {court.name}
-                                </div>
+            <div className="overflow-x-auto w-full">
+                <div className="inline-block min-w-max ">
+                    <table className="table-auto border-separate border-spacing border border-slate-100    w-full rounded-lg ">
+                        <thead className="bg-slate-100 py-4">
+                            <tr>
+                                <th className="sticky left-0 z-30 bg-slate-100 w-[200px]  px-3 py-4 text-center font-medium font-tbLex">
+                                    Time Slots
+                                </th>
+
+                                {slots?.astrologers.map((court) => (
+                                    <th
+                                        key={court.id}
+                                        className="w-[200px] px-3 py-2 text-center font-medium font-tbLex capitalize "
+                                    >
+                                        {court.name}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {fullDaySlots.map((timeSlot) => (
+                                <tr key={timeSlot.slots_start_time} className="hover:bg-slate-50">
+                                    <td className="sticky left-0 z-20 bg-white w-[200px] px-3 py-2 text-center">
+                                        {isLoading ? (
+                                            <SkeletonTimeSlot />
+                                        ) : (
+                                            <div className="font-semibold text-sm text-slate-700">
+                                                {slotTimeFormatter(
+                                                    timeSlot.slots_start_time,
+                                                    timeSlot.slots_end_time
+                                                )}
+                                            </div>
+                                        )}
+                                    </td>
+
+                                    {slots?.astrologers.map((court) => {
+                                        const booking = slots?.bookings.find(
+                                            (b) =>
+                                                b.astrologer === court.astrologer_id &&
+                                                b.startTime === timeSlot.slots_start_time
+                                        );
+
+                                        let status = "available";
+                                        if (booking?.blocked) status = "blocked";
+                                        else if (booking?.status === "paid") status = "booked";
+
+                                        return (
+                                            <td key={court.id} className="w-[200px] px-2 py-2">
+                                                <div className="w-full">
+                                                    <SlotCard
+                                                        status={status}
+                                                        booking={booking}
+                                                        isLoading={isLoading}
+                                                        onClick={() =>
+                                                            handleSlotClick(court, timeSlot, booking, status)
+                                                        }
+                                                    />
+                                                </div>
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
                             ))}
-                        </div>
-                    </div>
-
-                    <div className="divide-y divide-slate-200/60">
-                        {fullDaySlots.map((timeSlot) => (
-                            <div
-                                key={timeSlot.slots_start_time}
-                                className="grid grid-cols-[200px_repeat(auto-fit,_minmax(200px,_1fr))] gap-4 p-2.5 hover:bg-slate-50 transition-colors duration-200"
-                            >
-                                <div className="flex items-center justify-center">
-                                    {isLoading ? (
-                                        <SkeletonTimeSlot />
-                                    ) : (
-                                        <div className="font-semibold font-tbLex text-sm text-center text-slate-700">
-                                            {slotTimeFormatter(timeSlot.slots_start_time, timeSlot.slots_end_time)}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {slots?.astrologers.map((court) => {
-                                    const booking = slots?.bookings.find(
-                                        (b) => b.astrologer === court.astrologer_id && b.startTime === timeSlot.slots_start_time
-                                    );
-
-                                    let status = 'available';
-                                    if (booking?.blocked) status = 'blocked'
-                                    else if (booking?.status === 'paid') status = 'booked';
-
-                                    return (
-                                        <div key={court.id} className="">
-                                            <SlotCard
-                                                status={status}
-                                                booking={booking}
-                                                isLoading={isLoading}
-                                                onClick={() => handleSlotClick(court, timeSlot, booking, status)}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
 
             <BookingDetailsModal
                 open={showBookingModal}

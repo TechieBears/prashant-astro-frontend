@@ -12,6 +12,7 @@ import { TableTitle } from '../../../helper/Helper';
 import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 import { Controller } from 'react-hook-form';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
+import SelectTextInput from '../../TextInput/SelectTextInput';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     console.log("⚡️🤯 ~ CreateEmployeeModal.jsx:16 ~ CreateEmployeeModal ~ userData:", userData)
@@ -20,11 +21,17 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
 
+    const employeeType = watch('employeeType');
+
     const formSubmit = async (data) => {
         try {
             setLoader(true);
+            const payload = {
+                ...data,
+                "preBooking": true
+            }
             if (edit) {
-                await editEmployee(userData?._id, data).then(res => {
+                await editEmployee(userData?._id, payload).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -37,7 +44,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addEmployee(data).then(res => {
+                await addEmployee(payload).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
@@ -60,6 +67,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
+            setValue('employeeType', userData?.employeeType);
             setValue('firstName', userData?.profile?.firstName);
             setValue('lastName', userData?.profile?.lastName);
             setValue('email', userData?.email);
@@ -72,7 +80,20 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('endTime', userData?.endTime);
             setValue('profileImage', userData?.profileImage);
         } else {
-            reset();
+            reset({
+                employeeType: '',
+                firstName: '',
+                lastName: '',
+                email: '',
+                mobileNo: '',
+                skills: [],
+                languages: [],
+                experience: '',
+                days: [],
+                startTime: '',
+                endTime: '',
+                profileImage: '',
+            });
         }
     }, [edit, userData, reset, setValue, open]);
 
@@ -119,6 +140,30 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className='p-5 py-8  grid grid-cols-3 gap-x-3 gap-y-5 ' >
+                                                <div className="">
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        Employee Type
+                                                    </h4>
+                                                    <div className="">
+                                                        <SelectTextInput
+                                                            label="Select Employee Type"
+                                                            registerName="employeeType"
+                                                            options={[
+                                                                { value: 'astrologer', label: 'Astrologer' },
+                                                                { value: 'employee', label: 'Employee' },
+                                                            ]}
+                                                            placeholder="Select Employee Type"
+                                                            props={{
+                                                                ...register('employeeType'),
+                                                                value: watch('employeeType') || ''
+                                                            }}
+                                                            errors={errors.employeeType}
+                                                            defaultValue={userData?.employeeType}
+                                                        />
+                                                    </div>
+                                                </div>
                                                 <div className="">
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -198,7 +243,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     />
                                                 </div>
 
-                                                <div className="">
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -228,8 +273,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             )}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div className="">
+                                                </div>}
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -259,8 +304,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             )}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div>
+                                                </div>}
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -276,8 +321,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         props={{ ...register('experience', { validate: validateCommision }), maxLength: 2, minLength: 1 }}
                                                         errors={errors.experience}
                                                     />
-                                                </div>
-                                                <div>
+                                                </div>}
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -309,8 +354,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             )}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div>
+                                                </div>}
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -326,8 +371,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             errors={errors.startTime}
                                                         />
                                                     </div>
-                                                </div>
-                                                <div>
+                                                </div>}
+                                                {employeeType === 'astrologer' && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -343,7 +388,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             errors={errors.endTime}
                                                         />
                                                     </div>
-                                                </div>
+                                                </div>}
 
                                             </div>
                                             <footer className="py-3 flex bg-slate1 justify-end px-4 space-x-3">

@@ -79,13 +79,13 @@ const ImageUploadInput = ({
 
     return (
         <>
-            <div className={`h-[53px] relative flex rounded-lg w-full cursor-pointer bg-slate1 ${style}`}>
+            <div className={`h-[53px] relative flex rounded-lg w-full cursor-pointer bg-slate-100 ${style}`}>
                 <input
                     type="file"
                     id={registerName}
                     accept="image/*"
                     multiple={multiple}
-                    className={`peer w-full bg-transparent outline-none px-4 text-base font-tbLex text-black rounded-lg bg-slate1 ${style}
+                    className={`peer w-full bg-transparent outline-none px-4 text-base font-tbLex text-black rounded-lg bg-slate-100 ${style}
                         ${!errors?.ref?.value && errors?.type === "required"
                             ? 'border-red-500'
                             : 'border-slate-300 focus:border-primary'}
@@ -99,7 +99,7 @@ const ImageUploadInput = ({
                         : 'border-slate-300 peer-focus:border-primary'} ${style}`}>
                     <label
                         htmlFor={registerName}
-                        className={`px-2 bg-slate1 text-base font-tbLex ${style}
+                        className={`px-2 bg-slate-100 text-base font-tbLex ${style}
                             ${!errors?.ref?.value && errors?.type === "required"
                                 ? 'text-red-500'
                                 : fileName
@@ -110,7 +110,7 @@ const ImageUploadInput = ({
                         {!fileName && <span><DocumentUpload size="22" /></span>}
                         <span className="truncate w-full overflow-hidden">{isUploading ? "Uploading..." : fileName || label}</span>
                     </label>
-                    <div className={`ml-auto flex items-center gap-2 z-50 absolute right-2 bg-slate1 pl-3 cursor-pointer ${style}`}>
+                    <div className={`ml-auto flex items-center gap-2 z-50 absolute right-2 bg-slate-100 pl-3 cursor-pointer ${style}`}>
                         {fileName && !isUploading && (
                             <span className="text-sm text-green-500 text-nowrap flex items-center">
                                 <TickCircle size="22" variant="Bold" />

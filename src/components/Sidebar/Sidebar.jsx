@@ -1,14 +1,31 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import SidebarLink from './SidebarLink';
 import Navbar from './Navbar';
-import { SidebarAdminApi } from './SidebarApi';
+import { SidebarSuperAdminApi, SidebarEmployeeApi, SidebarAstrologerApi, SidebarAdminApi } from './SidebarApi';
 import logo from '../../assets/logo.png';
 import { Trade } from 'iconsax-reactjs';
 
 const Sidebar = ({ children }) => {
     const [isActiveLink, setIsActiveLink] = useState(false);
     const [mobileSidebar, setMobileSidebar] = useState(false);
+
+    const userDetails = useSelector(state => state.user.userDetails);
+    const userRole = userDetails?.user?.role;
+
+    const getSidebarApi = () => {
+        switch (userRole) {
+            case 'employee':
+                return SidebarEmployeeApi;
+            case 'astrologer':
+                return SidebarAstrologerApi;
+            default:
+                return SidebarSuperAdminApi;
+        }
+    };
+
+    const sidebarApi = getSidebarApi();
     return (
         <>
             <div className="w-full h-screen  flex ">
@@ -23,8 +40,8 @@ const Sidebar = ({ children }) => {
                                 <h2 className={isActiveLink ? 'hidden ' : 'font-tbLex font-bold  text-2xl text-black transition-all duration-700 delay-200 capitalize'}>Astroguid</h2>
                             </NavLink>
                         </div>
-                        <ul className='flex  items-center flex-col overflow-y-scroll h-full  mt-2 mb-20 space-y-1.5 scroll-hide'>
-                            {SidebarAdminApi?.map((item, i) =>
+                        <ul className='flex  items-center flex-col overflow-y-scroll h-[calc(100vh-100px)]  mt-2 mb-20 space-y-1.5 scroll-hide'>
+                            {sidebarApi?.map((item, i) =>
                                 <SidebarLink
                                     i={i}
                                     key={i}
@@ -36,15 +53,23 @@ const Sidebar = ({ children }) => {
                     </div>
                 </aside>
                 {/* ====================== sidebar end ===================== */}
-                <div className={isActiveLink ? "navbar-section-active transition-all duration-700 w-full" : "navbar-section transition-all duration-700  w-full "} >
+                <div className={isActiveLink ? "navbar-section-active transition-all duration-700 w-full bg-slate-100" : "navbar-section transition-all duration-700  w-full bg-slate-100"} >
+
                     {/* ====================== Navbar start ===================== */}
+
                     <Navbar setMobileSidebar={setMobileSidebar} mobileSidebar={mobileSidebar} setIsActiveLink={setIsActiveLink} isActiveLink={isActiveLink} />
+
                     {/* ====================== sidebar end ===================== */}
-                    <main className="pb-5 px-2 w-full" >
+
+                    <main className="pb-5 px-2 w-full bg-slate-100 h-full" >
+
                         {/* ====================== Routes start ===================== */}
+
                         {children}
+
                         {/* ======================Routes start ===================== */}
                     </main>
+
                 </div>
             </div>
         </>

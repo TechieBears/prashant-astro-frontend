@@ -100,7 +100,7 @@ function AllUserProfiles() {
     ];
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
 
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">

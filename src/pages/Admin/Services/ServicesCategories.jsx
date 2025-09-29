@@ -45,7 +45,7 @@ const ServicesCategories = () => {
     // ================= columns of the table ===============
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true, sortable: true },
-        { field: "name", header: "Name", body: (row) => (<h6 className="">{row?.name}</h6>), style: false, sortable: true },
+        { field: "name", header: "Name", body: (row) => (<h6 className="">{row?.name}</h6>), style: true, sortable: true },
         { field: "description", header: "Description", body: (row) => (<h6 className="">{row?.description}</h6>), style: false, sortable: true },
         { field: "action", header: "Action", body: actionBodyTemplate, style: true, sortable: true },
     ];
@@ -55,9 +55,9 @@ const ServicesCategories = () => {
     }, [refreshTrigger, filterData]);
 
     return (
-        <>
+        <div className='h-screen bg-slate-100'>
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 " >
-                <TableHeader title='Service Categories' subtitle='List of all Service Categories' component={<ServiceCategoriesModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
+                <TableHeader title='Service Categories' subtitle='List of all Service Categories with their images and descriptions' component={<ServiceCategoriesModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
                 <Table data={filterData} columns={columns} />
 
                 {/* Pagination Controls */}
@@ -87,7 +87,7 @@ const ServicesCategories = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
