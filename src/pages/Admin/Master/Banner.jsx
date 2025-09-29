@@ -87,7 +87,7 @@ function Banner() {
     ];
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
                 <TableHeader title="All Banners" subtitle="Recently added banners will appear here" component={<CreateBannersModal edit={false} userData={null} setRefreshTrigger={setRefreshTrigger} />} />

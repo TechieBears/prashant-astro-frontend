@@ -7,12 +7,12 @@ const TextInput = ({ label, type, props, errors, registerName, style, placeholde
     const isPasswordField = type === 'password';
 
     return (
-         <div className="flex flex-col">
+        <>
             <div className="relative">
                 <input
                     type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
                     id={registerName}
-                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
+                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md !bg-slate-100 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
                     placeholder={placeholder}
                     {...props}
                 />
@@ -39,7 +39,7 @@ const TextInput = ({ label, type, props, errors, registerName, style, placeholde
                     }
                 />
             )}
-        </div>
+        </>
     );
 };
 

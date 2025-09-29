@@ -86,13 +86,23 @@ const AllServices = () => {
         <CreateServiceModal edit={true} title='Edit Service' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
+    const imageBodyTemp = (row) => (
+        <div className="h-24 w-[12rem] rounded bg-slate1">
+            <img
+                loading="lazy"
+                src={row?.image}
+                alt="image"
+                className="object-cover w-full h-full rounded bg-slate1"
+            />
+        </div>
+    );
+
     const columns = [
-        { field: "image", header: "Image", body: imageComponet1, style: true, sortable: true },
+        { field: "image", header: "Image", body: imageBodyTemp, style: true, sortable: true },
         { field: 'name', header: 'Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true, sortable: true },
         { field: 'serviceType', header: 'Service Type', body: (row) => <span className='capitalize'>{row?.serviceType || "---- -----"}</span>, style: true, sortable: true },
         { field: 'title', header: 'Title', body: (row) => <span className='capitalize'>{row?.title || "---- -----"}</span>, style: true, sortable: true },
         { field: 'subTitle', header: 'Sub Title', body: (row) => <span className='capitalize'>{row?.subTitle || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'description', header: 'Description', body: (row) => <span className='capitalize'>{row?.description || "---- -----"}</span>, style: true, sortable: true },
         { field: 'categoryName', header: 'Category', body: (row) => <span className='capitalize'>{row?.category?.name || "---- -----"}</span>, style: true, sortable: true },
         { field: 'price', header: 'Price', body: (row) => <span className='capitalize'>{row?.price || "---- -----"}</span>, style: true, sortable: true },
         { field: 'durationInMinutes', header: 'Duration', body: (row) => <span className='capitalize'>{row?.durationInMinutes || "---- -----"}</span>, style: true, sortable: true },
@@ -106,7 +116,7 @@ const AllServices = () => {
         { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true, style: true }
     ];
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
@@ -136,7 +146,7 @@ const AllServices = () => {
                     </div>
                     <div className="flex space-x-2">
                         <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
                     </div>
                 </form>
             </div>

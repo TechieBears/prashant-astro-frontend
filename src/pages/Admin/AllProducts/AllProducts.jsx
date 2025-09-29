@@ -92,16 +92,20 @@ function AllUserProfiles() {
         <CreateProductModal edit={true} title='Edit Product' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
-    const imageComponet = (row) => (<div className="w-16 h-16">
-        <img
-            src={row?.images[0] || "https://avatar.iran.liara.run/public"}
-            className="object-cover w-full h-full rounded-full bg-slate1"
-            alt={row?.name}
-        />
-    </div>)
+    const imageBodyTemp = (row) => (
+        <div className="h-24 w-[12rem] rounded bg-slate1">
+            <img
+                loading="lazy"
+                src={row?.images[0] || "https://avatar.iran.liara.run/public"}
+                alt="image"
+                className="object-cover w-full h-full rounded bg-slate1"
+            />
+        </div>
+    );
+
 
     const columns = [
-        { field: "image", header: "Image", body: imageComponet, style: true, sortable: true },
+        { field: "image", header: "Image", body: imageBodyTemp, style: true, sortable: true },
         {
             field: 'code', header: 'Product Id', body: (row) => <div className="flex items-center gap-2"><span className='capitalize'>{row?._id?.slice(-10) || "---- -----"}</span> <span><Copy className="cursor-pointer text-primary hover:text-primary" size={18}
                 onClick={() => {
@@ -134,7 +138,7 @@ function AllUserProfiles() {
 
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
@@ -162,7 +166,7 @@ function AllUserProfiles() {
                     </div>
                     <div className="flex space-x-2">
                         <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
                     </div>
                 </form>
             </div>

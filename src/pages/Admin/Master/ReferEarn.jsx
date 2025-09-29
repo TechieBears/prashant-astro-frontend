@@ -50,7 +50,7 @@ function ReferEarn() {
     ];
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
                 <div className="flex justify-between flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 mb-6">

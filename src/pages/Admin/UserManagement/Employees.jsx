@@ -11,6 +11,7 @@ import { formBtn1, tableBtn } from '../../../utils/CustomClass'
 import { validateAlphabets } from '../../../utils/validateFunction';
 import CreateEmployeeModal from '../../../components/Modals/AdminModals/CreateEmployeeModal';
 import TableHeader from '../../../components/Table/TableHeader';
+import { imageComponet } from '../../../helper/Helper';
 
 
 const Employees = () => {
@@ -59,6 +60,7 @@ const Employees = () => {
 
 
     const columns = [
+        { field: "profile", header: "Profile", body: imageComponet, style: true },
         {
             field: 'code', header: 'Employee Id', body: (row) => <div className="flex items-center gap-2"><span className='capitalize'>{row?._id?.slice(-10) || "---- -----"}</span> <span><Copy className="cursor-pointer text-primary hover:text-primary" size={18}
                 onClick={() => {
@@ -83,7 +85,7 @@ const Employees = () => {
 
     return (
         <section className='h-full w-full'>
-            <div className="space-y-5">
+            <div className="space-y-5 h-screen bg-slate-100">
                 <div className="bg-white p-4 sm:m-5 rounded-xl">
                     <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
                         <div className="grid grid-cols-1 w-full gap-2">
@@ -97,7 +99,7 @@ const Employees = () => {
                         </div>
                         <div className="flex space-x-2">
                             <button type="submit" className={`${tableBtn} w-full`}>Search</button>
-                            <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
+                            <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
                         </div>
                     </form>
                 </div>

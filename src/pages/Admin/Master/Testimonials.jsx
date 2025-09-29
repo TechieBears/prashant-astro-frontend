@@ -50,7 +50,7 @@ export default function Testimonials() {
         { field: 'status', header: 'Status', body: (row) => <h6 className={`${row?.status == 'rejected' ? 'text-red-500 bg-red-200' : row?.status == 'accepted' ? 'text-green-500 bg-green-200' : 'text-yellow-500 bg-yellow-100/80'} p-2 text-center rounded-full capitalize px-5`}>{row?.status}</h6>, sortable: true, style: true },
     ];
     return (
-        <div className="space-y-5">
+        <div className="space-y-5 h-screen bg-slate-100">
 
             {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">

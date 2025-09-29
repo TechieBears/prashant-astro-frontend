@@ -51,6 +51,7 @@ import Orders from '../pages/Home/Profile/Orders';
 import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
 import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 import ProtectedRoute from '../components/ProtectedRoute'
+import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -81,7 +82,7 @@ const ProjectRoutes = () => {
     }, []);
 
     // ====== Derived booleans & shared UI blocks ======
-    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "employee"));
+    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "superadmin" || role === "employee" || role === "astrologer"));
 
     const PublicSite = () => (
         <main className="flex flex-col min-h-screen">
@@ -164,7 +165,6 @@ const ProjectRoutes = () => {
         <div className='min-h-screen transition-all duration-300'>
             {loading ? (
                 <div className="relative">
-                    <HomeNavbar />
                     <Preloaders />
                 </div>
             ) : isAdminOrEmployee ? (
@@ -183,6 +183,14 @@ const ProjectRoutes = () => {
                             element={
                                 <ProtectedRoute>
                                     <BookingCalender />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/admin-calender"
+                            element={
+                                <ProtectedRoute>
+                                    <VenueCalendar />
                                 </ProtectedRoute>
                             }
                         />

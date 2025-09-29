@@ -3,7 +3,51 @@ import { environment } from "../env";
 
 axios.defaults.withCredentials = environment?.production;
 
-// Cart APIs
+const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem("persist:root");
+    localStorage.removeItem('rememberedCredentials');
+    toast.error('Your session has expired. Please login again.');
+    window.location.href = '/login';
+};
+
+axios.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+axios.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response?.status === 401) {
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || '';
+
+            if (errorMessage.toLowerCase().includes('token') &&
+                (errorMessage.toLowerCase().includes('expired') ||
+                    errorMessage.toLowerCase().includes('invalid') ||
+                    errorMessage.toLowerCase().includes('unauthorized'))) {
+
+                const token = localStorage.getItem('token');
+                if (token) {
+                    handleLogout();
+                }
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 export const removeCartItem = async (itemId) => {
     const token = localStorage.getItem('token');
     const url = `${environment.baseUrl}product-cart/public/remove-item`;
@@ -1596,6 +1640,20 @@ export const createProductOrder = async (orderData) => {
     }
 };
 
+// =========================== admin service order api ====================
+
+export const getAllServiceOrdersAdmin = async (data) => {
+    try {
+        const url = `${environment.baseUrl}service-order/get-all?orderId=${data?.orderId || ""}&date=${data?.date || ""}&status=${data?.status || ""}&page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAllServiceOrdersAdmin api file", err);
+        return err?.response?.data
+    }
+}
+
 // ==================== Create Service Order Api ====================
 export const createServiceOrder = async (orderData) => {
     const url = `${environment.baseUrl}service-order/public/create`;
@@ -1727,6 +1785,18 @@ export const logoutUser = async (data) => {
     const url = `${environment.baseUrl}auth/logout`;
     try {
         const response = await axios.post(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in logout User api file", err);
+        return err?.response?.data
+    }
+};
+
+export const adminSlots = async (date) => {
+    const url = `${environment.baseUrl}calender/admin-slots?date=${date}`;
+    try {
+        const response = await axios.get(url)
         return response.data
     }
     catch (err) {

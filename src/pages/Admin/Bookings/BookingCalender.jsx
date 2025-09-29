@@ -206,7 +206,7 @@ const BookingCalendar = () => {
 
             <div className="flex justify-between items-center mb-6">
                 <button
-                    className="p-2 bg-slate1 rounded-full hover:bg-slate-200"
+                    className="p-2 bg-slate-100 rounded-full hover:bg-slate-200"
                     onClick={() => setStartDate((prev) => moment(prev).subtract(6, "days"))}
                 >
                     <ArrowLeft2 size={22} color="#000" />
@@ -216,7 +216,7 @@ const BookingCalendar = () => {
                     {moment(startDate).add(16, "days").format("DD MMM YYYY")}
                 </h6>
                 <button
-                    className="p-2 bg-slate1 rounded-full hover:bg-slate-200"
+                    className="p-2 bg-slate-100 rounded-full hover:bg-slate-200"
                     onClick={() => setStartDate((prev) => moment(prev).add(6, "days"))}
                 >
                     <ArrowRight2 size={22} color="#000" />
@@ -225,7 +225,7 @@ const BookingCalendar = () => {
 
             <div className="overflow-x-auto">
                 <div className="min-w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                    <div className="bg-slate1 text-gray-800 border-b border-gray-200">
+                    <div className="bg-slate-100 text-gray-800 border-b border-gray-200">
                         <div className="grid grid-cols-[200px_repeat(auto-fit,_minmax(120px,_1fr))] gap-4 p-3">
                             <div className="font-bold text-center py-2 text-black">
                                 Time Slots

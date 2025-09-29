@@ -53,6 +53,14 @@ const HomeNavbar = () => {
         }));
     };
 
+
+
+    // const transformedServicess = servicesDropdown.map(category => ({
+    //    category: category.name,
+    //    services: category.services
+    //  }));
+
+
     const navLinks = useMemo(() => {
         const transformedServices = (servicesDropdown || []).map(category => ({
             category: category.name,
