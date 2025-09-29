@@ -2,12 +2,13 @@ import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
 import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { getAllCoupons, editCoupon } from '../../../api';
+import { getAllCoupons, editCoupon, deleteCoupon } from '../../../api';
 import Table from '../../../components/Table/Table';
 import TableHeader from '../../../components/Table/TableHeader';
-import CreateCouponModal from '../../../components/Modals/AdminModals/MasterModals/CreateCouponModal.jsx'; // <-- You'll create this
+import CreateCouponModal from '../../../components/Modals/AdminModals/MasterModals/CreateCouponModal.jsx';
 import usePagination from '../../../utils/customHooks/usePagination';
 import Switch from 'react-js-switch';
+import { TrashIcon } from 'lucide-react';
 
 function OffersCoupons() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -53,15 +54,35 @@ function OffersCoupons() {
     />
   );
 
-  // ================= Action Buttons (Edit) =================
+  // ================= Delete Coupon =================
+  const handleDeleteCoupon = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this coupon?")) return;
+
+    try {
+      await deleteCoupon(id);
+      toast.success("Coupon deleted successfully");
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to delete coupon", error);
+      toast.error("Failed to delete coupon");
+    }
+  };
+
+  // ================= Action Buttons =================
   const actionBodyTemplate = (row) => (
     <div className="flex items-center gap-2">
-      <CreateCouponModal edit={true} title='Edit Coupon' userData={row} setRefreshTrigger={setRefreshTrigger} />
+      <CreateCouponModal edit={true} title="Edit Coupon" userData={row} setRefreshTrigger={setRefreshTrigger} />
+      <button
+        onClick={() => handleDeleteCoupon(row?._id)}
+        className="px-2 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm"
+      >
+        <TrashIcon size={16} />
+      </button>
     </div>
   );
 
   // ================= Expiry Status =================
-  const expiryStatus = (row)    => {
+  const expiryStatus = (row) => {
     const isExpired = moment().isAfter(moment(row?.expiryDate));
     return (
       <h6 className={`${!isExpired ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"} py-2 px-5 text-center capitalize rounded-full`}>
@@ -90,8 +111,8 @@ function OffersCoupons() {
     },
     { field: 'couponType', header: 'Coupon Type', sortable: true },
     { field: 'status', header: 'Status', body: expiryStatus },
-    { field: 'isActive', header: 'Active', body: activeBody },
-    { field: 'action', header: 'Action', body: actionBodyTemplate }
+    { field: 'isActive', header: 'Active', body: activeBody, sortable: true },
+    { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true }
   ];
 
   return (
