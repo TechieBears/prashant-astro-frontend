@@ -12,6 +12,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
 import { logoutUser } from "../../redux/Slices/loginSlice";
+import { clearCart } from "../../redux/Slices/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
 import { ChevronDown, ChevronUp, User } from 'lucide-react';
@@ -51,14 +52,6 @@ const HomeNavbar = () => {
             [index]: !prev[index]
         }));
     };
-
-
-
-    // const transformedServicess = servicesDropdown.map(category => ({
-    //    category: category.name,
-    //    services: category.services 
-    //  }));
-
 
     const navLinks = useMemo(() => {
         const transformedServices = (servicesDropdown || []).map(category => ({
@@ -188,6 +181,7 @@ const HomeNavbar = () => {
             const res = await dispatch(logoutUser()).unwrap();
 
             if (res?.success) {
+                dispatch(clearCart());
                 toast.success(res.message || "Logged out successfully");
                 navigate("/");
                 setCard(true);
@@ -217,9 +211,8 @@ const HomeNavbar = () => {
                 opacity: 0,
                 ease: "power1.inOut",
                 duration: 1.2,
-                delay: 0.1, // Small delay to ensure DOM is ready
+                delay: 0.1,
                 onComplete: () => {
-                    // Ensure navbar is visible after animation
                     gsap.set(".navbar", { opacity: 1, y: 0 });
                 }
             });

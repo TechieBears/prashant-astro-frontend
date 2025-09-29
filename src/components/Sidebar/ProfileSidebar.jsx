@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Power } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, deleteUser } from "../../redux/Slices/loginSlice";
+import { clearCart } from "../../redux/Slices/cartSlice";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import DeleteModal from "../Modals/DeleteModal/DeleteModal";
@@ -24,6 +25,7 @@ const ProfileSidebar = () => {
   const handleLogout = async () => {
     try {
       const res = await dispatch(logoutUser()).unwrap();
+      dispatch(clearCart());
       toast.success(res.message || "Logged out successfully!");
       navigate("/");
     } catch (error) {
@@ -50,29 +52,29 @@ const ProfileSidebar = () => {
 
   return (
     <div className="w-full sm:w-64  bg-white rounded-xl py-4 border border-[#CAD5E2]  hidden lg:flex flex-col justify-between">
-     <div>
-       <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
-      <ul className="space-y-1">
-        {menuItems.map((item) => (
-          <li key={item.path}>
-            <NavLink
-              to={item.path}
-              end
-              className={({ isActive }) =>
-                `block px-4 py-3 sm:py-4 border-b border-[#E2E8F0] cursor-pointer ${isActive
-                  ? "bg-button-vertical-gradient-orange text-white"
-                  : "hover:bg-gray-50"
-                }`
-              }>
+      <div>
+        <h2 className="font-semibold text-lg mb-4 px-4">My Profile</h2>
+        <ul className="space-y-1">
+          {menuItems.map((item) => (
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                end
+                className={({ isActive }) =>
+                  `block px-4 py-3 sm:py-4 border-b border-[#E2E8F0] cursor-pointer ${isActive
+                    ? "bg-button-vertical-gradient-orange text-white"
+                    : "hover:bg-gray-50"
+                  }`
+                }>
                 <div className="flex flex-row items-center justify-between">
                   <span>{item.name} </span>
-                <ArrowRight01Icon size={20} />
+                  <ArrowRight01Icon size={20} />
                 </div>
               </NavLink>
             </li>
           ))}
-      </ul>
-     </div>
+        </ul>
+      </div>
 
       <div className=" mt-14  flex flex-col space-y-3 sm:space-y-4 px-4">
         <button

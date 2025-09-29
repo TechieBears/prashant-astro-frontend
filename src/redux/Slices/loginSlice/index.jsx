@@ -50,11 +50,11 @@ export const logoutUser = createAsyncThunk(
 );
 export const registerUser = createAsyncThunk(
     "user/register",
-    async ({ title, firstName, lastName, email, password, mobileNo, registerType }, { rejectWithValue }) => {
+    async ({ title, firstName, lastName, email, password, phone, registerType = "normal" }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_BASE_URL}/api/customer-users/register`,
-                { title, firstName, lastName, email, password, mobileNo, registerType },
+                { title, firstName, lastName, email, password, phone, registerType },
                 { headers: { "Content-type": "application/json" } }
             );
             return response.data;
