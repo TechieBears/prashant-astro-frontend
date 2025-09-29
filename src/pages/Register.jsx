@@ -24,7 +24,7 @@ const Register = () => {
     const onSubmit = (data) => {
         const { title, firstName, lastName, email, password, mobileNo } = data;
 
-        dispatch(registerUser({ title, firstName, lastName, email, password, mobileNo }))
+        dispatch(registerUser({ title, firstName, lastName, email, password, mobileNo, registerType: 'normal' }))
             .unwrap()
             .then(() => {
                 dispatch(loginUser({ email, password }))
