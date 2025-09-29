@@ -3,7 +3,7 @@ import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { getAllProductOrders, updateProductOrder } from '../../../api';
+import { getAllServiceOrdersAdmin } from '../../../api';
 import Table from '../../../components/Table/Table'
 import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import TextInput from '../../../components/TextInput/TextInput'
@@ -36,9 +36,9 @@ const ServiceBookings = () => {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, getAllProductOrders, combinedFilters);
+    } = usePagination(1, 10, getAllServiceOrdersAdmin, combinedFilters);
     useEffect(() => {
-        if (error) toast.error('Failed to fetch product bookings');
+        if (error) toast.error('Failed to fetch service bookings');
     }, [error]);
 
     const handleFilterSubmit = (data) => {
@@ -52,39 +52,6 @@ const ServiceBookings = () => {
         toast.success('Filters cleared');
     };
 
-
-    const handleOrderStatusChange = async (orderId, newStatus, currentStatus) => {
-        try {
-            const validOptions = getValidStatusOptions(currentStatus);
-            const isValidTransition = validOptions.some(option => option.value === newStatus);
-
-            if (!isValidTransition) {
-                toast.error('Invalid status transition');
-                return;
-            }
-
-            const updatedData = {
-                "orderId": orderId,
-                "status": newStatus
-            }
-
-            await updateProductOrder(updatedData);
-            setRefreshTrigger(prev => prev + 1);
-
-            const statusMessages = {
-                'CONFIRMED': 'Order confirmed successfully!',
-                'SHIPPED': 'Order marked as shipped!',
-                'DELIVERED': 'Order delivered successfully!',
-                'CANCELLED': 'Order cancelled.',
-                'REFUNDED': 'Order refunded.'
-            };
-
-            toast.success(statusMessages[newStatus] || 'Order status updated successfully');
-        } catch (error) {
-            console.log('error', error)
-            toast.error('Failed to update order status');
-        }
-    };
 
     const orderStatusOptions = [
         { value: 'PENDING', label: 'Pending' },
@@ -130,17 +97,7 @@ const ServiceBookings = () => {
 
         return (
             <div className="space-y-1">
-                <select
-                    value={currentStatus}
-                    onChange={(e) => handleOrderStatusChange(row?._id, e.target.value, currentStatus)}
-                    className={`px-6 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-tbLex tracking-tight ${getStatusColor(currentStatus)}`}
-                >
-                    {validOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
+                <h3>{currentStatus}</h3>
             </div>
         );
     };
@@ -177,12 +134,12 @@ const ServiceBookings = () => {
         },
         {
             field: 'items',
-            header: 'Products',
+            header: 'Services',
             body: (row) => (
                 <div className='space-y-1'>
                     {row?.items?.map((item, index) => (
                         <div key={index} className='text-sm'>
-                            <div className='font-medium'>{item?.product?.name}</div>
+                            <div className='font-medium'>{item?.service?.name}</div>
                             <div className='text-xs text-gray-500'>Qty: {item?.quantity} × ₹{item?.sellingPrice}</div>
                         </div>
                     ))}
@@ -239,6 +196,8 @@ const ServiceBookings = () => {
             style: true, sortable: true
         }
     ];
+
+    console.log("==========filterData", filterData)
     return (
         <div className="space-y-5">
             {/* Filter */}
@@ -283,7 +242,7 @@ const ServiceBookings = () => {
                     </div>
                     <div className="flex space-x-2">
                         <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
                     </div>
                 </form>
             </div>
@@ -291,7 +250,7 @@ const ServiceBookings = () => {
             {/* Product Booking Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
 
-                <TableHeader title={"Product Booking"} subtitle={"Recently added product bookings will appear here"} />
+                <TableHeader title={"Service Booking"} subtitle={"Recently added service bookings will appear here"} />
 
                 <Table data={filterData} columns={columns} paginator={false} />
 

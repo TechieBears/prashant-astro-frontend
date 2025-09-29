@@ -115,7 +115,7 @@ function AllUserProfiles() {
                     </div>
                     <div className="flex space-x-2">
                         <button type="submit" className={`${tableBtn} w-full`}>Search</button>
-                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-transparent border border-primary !text-primary`}>Clear</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
                     </div>
                 </form>
             </div>

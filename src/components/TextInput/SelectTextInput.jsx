@@ -3,19 +3,14 @@ import Error from "../Errors/Error";
 
 const SelectTextInput = ({ label, options, props, errors, registerName, style, disabled, placeholder }) => {
 
-    const handleChange = (e) => {
-        props?.onChange(e);
-    };
-
     return (
         <>
             <div className="">
                 <select
                     disabled={disabled}
                     id={registerName}
-                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${style} ${errors ? 'border-red-500' : 'border-transparent '} `}
+                    className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate1 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
                     placeholder={placeholder}
-                    onChange={handleChange}
                     {...props}
                 >
                     <option value="" disabled>{placeholder}</option>

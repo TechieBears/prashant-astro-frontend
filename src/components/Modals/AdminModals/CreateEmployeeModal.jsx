@@ -11,8 +11,10 @@ import { addEmployee, editEmployee } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 import { Controller } from 'react-hook-form';
+import ImageUploadInput from '../../TextInput/ImageUploadInput';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
+    console.log("⚡️🤯 ~ CreateEmployeeModal.jsx:16 ~ CreateEmployeeModal ~ userData:", userData)
     const { register, handleSubmit, control, watch, reset, setValue, formState: { errors } } = useForm();
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
@@ -68,6 +70,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('days', userData?.days);
             setValue('startTime', userData?.startTime);
             setValue('endTime', userData?.endTime);
+            setValue('profileImage', userData?.profileImage);
         } else {
             reset();
         }
@@ -107,7 +110,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
                                         title={edit ? "Edit Employee" : "Create New Employee"}
                                         toggle={toggle}
@@ -115,7 +118,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                     <div className=" bg-white">
                                         {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
-                                            <div className='p-5 py-8  grid grid-cols-2 gap-x-3 gap-y-5 ' >
+                                            <div className='p-5 py-8  grid grid-cols-3 gap-x-3 gap-y-5 ' >
                                                 <div className="">
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -144,6 +147,24 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         registerName="lastName"
                                                         props={{ ...register('lastName', { required: "Last name is required", validate: validateAlphabets }), minLength: 3 }}
                                                         errors={errors.lastName}
+                                                    />
+                                                </div>
+                                                <div className=''>
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        Employee Image
+                                                    </h4>
+                                                    <ImageUploadInput
+                                                        label="Upload Employee Image"
+                                                        multiple={false}
+                                                        registerName="profileImage"
+                                                        errors={errors.profileImage}
+                                                        {...register("profileImage", { required: "Product Image is required" })}
+                                                        register={register}
+                                                        setValue={setValue}
+                                                        control={control}
+                                                        defaultValue={userData?.profileImage}
                                                     />
                                                 </div>
                                                 <div className="">

@@ -4,8 +4,8 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Error from '../Errors/Error';
 
 export default function MultiSelectTextInput({ label, options, value, onChange, errors }) {
-    const selectedOptions = options.filter(option =>
-        (value || []).includes(option.value)
+    const selectedOptions = options?.filter(option =>
+        (value || [])?.includes(option?.value)
     );
 
     return (
@@ -16,42 +16,44 @@ export default function MultiSelectTextInput({ label, options, value, onChange, 
                 disableCloseOnSelect
                 value={selectedOptions}
                 onChange={(event, newOptions) => {
-                    const newValues = newOptions.map(option => option.value);
+                    const newValues = newOptions?.map(option => option?.value);
                     onChange(newValues);
                 }}
                 getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value.value}
+                isOptionEqualToValue={(option, value) => option?.value === value?.value}
                 renderOption={(props, option, { selected }) => {
                     return (
                         <li {...props} className={`px-2 bg-white text-sm font-tbLex text-slate-500 transition-all duration-150 tracking-tight`}>
                             <Checkbox
                                 checked={selected}
                             />
-                            {option.label}
+                            {option?.label}
                         </li>
                     );
                 }}
                 sx={{
                     '& .MuiOutlinedInput-root': {
                         borderRadius: '8px',
+                        backgroundColor: '#f1f5f9',
                         '& fieldset': {
                             color: 'red',
-                            border: '1.5px solid #cbd5e1',
-                            borderColor: errors ? '#ef4444' : '#cbd5e1',
+                            border: '1.5px solid #f1f5f9',
+                            borderColor: errors ? '#ef4444' : '#f1f5f9',
                         },
                         '&:hover fieldset': {
-                            border: '1.5px solid #cbd5e1',
-                            borderColor: errors ? '#ef4444' : '#cbd5e1',
+                            border: '1.5px solid #f1f5f9',
+                            borderColor: errors ? '#ef4444' : '#f1f5f9',
                         },
                         '&.Mui-focused fieldset': {
-                            borderColor: '#007bff',
+                            borderColor: '#fff',
                         },
                     },
                 }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label={label}
+                        // label={label}
+                        placeholder={label}
                         className='[&>div]:!rounded-lg [&>div]:hover:!border-primary [&>div]:!py-[8px] [&>div]:!border-slate-300 [&>label]:!text-base [&>label]:!font-tbLex [&>label]:!text-slate-400 [&>label]:!px-2'
                     />
                 )}
@@ -59,7 +61,7 @@ export default function MultiSelectTextInput({ label, options, value, onChange, 
             {errors && (
                 <Error
                     message={
-                        errors.message ||
+                        errors?.message ||
                         `${label.replace(/\b(enter|your)\b/gi, "").trim()} is required`
                     }
                 />
