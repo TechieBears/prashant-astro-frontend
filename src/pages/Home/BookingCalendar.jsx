@@ -267,7 +267,6 @@ const BookingCalendar = () => {
         const formattedDate = date ?
             date.toLocaleDateString('en-CA') :
             null;
-        console.log('Formatted date:', formattedDate);
 
         setSelectedDate(date);
         setValue('selectedDate', date);
@@ -312,7 +311,6 @@ const BookingCalendar = () => {
                 'pandit_center': 'pandit_center',
                 'pooja_at_home': 'pooja_at_home'
             };
-            console.log('formData', data);
 
             // Parse timeSlot to extract startTime and endTime
             const timeSlotParts = data.timeSlot.split(' - ');
@@ -328,8 +326,6 @@ const BookingCalendar = () => {
                 endTime: endTime,
                 date: formattedDate
             };
-
-            console.log('Adding service to cart with payload:', servicePayload);
 
             // Call the API to add service to cart
             const response = await addServiceToCart(servicePayload);

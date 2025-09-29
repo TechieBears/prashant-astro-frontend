@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/Slices/loginSlice";
+import { fetchCartData } from "../redux/Slices/cartSlice";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import google from "../assets/google-icon.png";
@@ -22,13 +23,17 @@ const Login = () => {
   const onSubmit = (data) => {
     dispatch(loginUser(data))
       .unwrap()
-      .then(() => navigate("/"))
+      .then(() => {
+        // Fetch user's cart data after successful login
+        dispatch(fetchCartData());
+        navigate("/");
+      })
       .catch((err) => toast.error(err || "Login failed"));
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-yellow-50">
-<div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16">
         <h2 className="text-2xl font-bold text-center mb-6 text-primary">Login</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -92,12 +97,12 @@ const Login = () => {
             <button className="w-12 h-12 rounded-full bg-white shadow hover:shadow-md flex items-center justify-center transition">
               <img src={google} alt="Google" className="w-6 h-6" />
             </button>
-            <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
+            {/* <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
               <img src={facebook} alt="Facebook" className="w-6 h-6" />
             </button>
             <button className="w-12 h-12 rounded-full bg-black shadow hover:shadow-md flex items-center justify-center transition">
               <img src={apple} alt="Apple" className="w-6 h-6" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

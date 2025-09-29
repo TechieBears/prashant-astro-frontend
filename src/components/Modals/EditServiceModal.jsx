@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { FaTimes } from 'react-icons/fa';
@@ -21,6 +21,7 @@ const EditServiceModal = ({
     const [availability, setAvailability] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const { control, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm({
         defaultValues: {
@@ -32,10 +33,13 @@ const EditServiceModal = ({
         }
     });
 
-    // Watch form values
+    // Watch form values with debounce to prevent multiple calls
     const watchedAstrologer = watch('astrologer');
     const watchedDate = watch('selectedDate');
-    const watchedServiceType = watch('serviceType');
+    const watchedServiceType = watch('serviceMode');
+
+    // Track if we've already processed the initial data
+    const hasProcessedInitialData = React.useRef(false);
 
     // Memoized options
     const serviceModeOptions = useMemo(() => [
@@ -60,11 +64,20 @@ const EditServiceModal = ({
             label: astrologer.fullName
         })), [astrologers]);
 
+    // Track if we need to reset the form
+    const shouldResetForm = useRef(true);
+
     // Consolidated data fetching
     const fetchData = useCallback(async () => {
         if (!isOpen) return;
 
         setIsLoading(true);
+        hasProcessedInitialData.current = false;
+
+        // Check if we need to preserve the form state
+        const shouldPreserveState = !shouldResetForm.current;
+        shouldResetForm.current = false;
+
         try {
             const [servicesRes, astrologersRes, latestServiceData] = await Promise.all([
                 getServicesList(),
@@ -91,37 +104,93 @@ const EditServiceModal = ({
             }
 
             // Initialize form with latest data
-            if (serviceData && latestServiceData?.success) {
-                const latestItem = latestServiceData.data.items.find(item => item._id === serviceData.id);
+            if (serviceData) {
+                const latestItem = latestServiceData?.success
+                    ? latestServiceData.data.items.find(item => item._id === serviceData.id)
+                    : null;
                 const dataToUse = latestItem || serviceData;
 
-                reset();
-                setSelectedDate(null);
-                setAvailability(null);
+                // Only reset if we're not preserving state
+                if (!shouldPreserveState) {
+                    reset();
+                    setSelectedDate(null);
+                    setAvailability(null);
+                }
+                hasProcessedInitialData.current = false;
 
                 // Set form values
                 setValue('serviceType', dataToUse.serviceId || '');
-                setValue('serviceMode', dataToUse.serviceMode || 'online');
+                const serviceMode = dataToUse.serviceMode || 'online';
+                setValue('serviceMode', serviceMode);
 
                 // Handle astrologer (object or string)
                 const astrologerId = typeof dataToUse.astrologer === 'object'
                     ? dataToUse.astrologer._id
                     : dataToUse.astrologer;
+
+                // Set the astrologer value
                 setValue('astrologer', astrologerId || '');
 
-                // Handle time slot
-                let timeSlotValue = dataToUse.timeSlot || '';
-                if (dataToUse.startTime && dataToUse.endTime && !timeSlotValue) {
-                    timeSlotValue = `${dataToUse.startTime} - ${dataToUse.endTime}`;
-                }
-                setValue('timeSlot', timeSlotValue);
-
-                // Handle date
+                // Handle date and time slot together
                 if (dataToUse.date) {
-                    const date = new Date(dataToUse.date);
+                    const date = typeof dataToUse.date === 'string'
+                        ? new Date(dataToUse.date)
+                        : dataToUse.date;
+
                     setSelectedDate(date);
                     setValue('selectedDate', date);
+
+                    // Set time slot immediately if we have the data
+                    let timeSlotValue = '';
+                    if (dataToUse.timeSlot) {
+                        timeSlotValue = dataToUse.timeSlot;
+                    } else if (dataToUse.startTime && dataToUse.endTime) {
+                        timeSlotValue = `${dataToUse.startTime} - ${dataToUse.endTime}`;
+                    }
+
+                    if (timeSlotValue) {
+                        // Add the time slot to the available slots if it doesn't exist
+                        setAvailability(prev => {
+                            const timeSlots = prev?.data?.timeSlots || [];
+                            const slotExists = timeSlots.some(slot =>
+                                slot.time === timeSlotValue ||
+                                `${slot.display_time} - ${slot.display_end_time}` === timeSlotValue
+                            );
+
+                            if (!slotExists && timeSlotValue.includes(' - ')) {
+                                const [startTime, endTime] = timeSlotValue.split(' - ');
+                                return {
+                                    ...(prev || {}),
+                                    data: {
+                                        ...(prev?.data || {}),
+                                        timeSlots: [
+                                            ...timeSlots,
+                                            {
+                                                time: timeSlotValue,
+                                                display_time: startTime,
+                                                display_end_time: endTime,
+                                                status: 'available'
+                                            }
+                                        ]
+                                    }
+                                };
+                            }
+                            return prev;
+                        });
+
+                        // Use setTimeout to ensure the time slot is available in the dropdown
+                        setTimeout(() => {
+                            setValue('timeSlot', timeSlotValue);
+                        }, 100);
+                    }
+
+                    // Only fetch availability if we don't have a time slot and we have required data
+                    if (astrologerId && dataToUse.serviceId && !timeSlotValue) {
+                        await checkAstrologerAvailability(date, astrologerId, serviceMode, true);
+                    }
                 }
+
+                hasProcessedInitialData.current = true;
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -131,10 +200,18 @@ const EditServiceModal = ({
         }
     }, [isOpen, serviceData, setValue, reset]);
 
-    // Check availability
-    const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType) => {
+    // Check astrologer availability
+    const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType, isInitialLoad = false) => {
         if (!date || !astrologerId || !serviceType) return;
+        if (isInitialLoad && hasProcessedInitialData.current) return; // Skip if already processed
 
+        const currentTimeSlot = watch('timeSlot');
+        // If we already have a time slot and this isn't a forced refresh, keep it
+        if (currentTimeSlot && !isInitialLoad) {
+            return;
+        }
+
+        setIsLoading(true);
         try {
             const formattedDate = date.toLocaleDateString('en-CA');
             const payload = {
@@ -147,7 +224,32 @@ const EditServiceModal = ({
             const response = await checkAvailability(payload);
 
             if (response?.success) {
-                setAvailability(response);
+                // Ensure we have time slots in the response
+                const updatedResponse = {
+                    ...response,
+                    data: {
+                        ...response.data,
+                        timeSlots: response.data?.timeSlots || []
+                    }
+                };
+                setAvailability(updatedResponse);
+
+                // If we have a time slot value in the form but not in the response, add it
+                const currentTimeSlot = watch('timeSlot');
+                if (currentTimeSlot && !updatedResponse.data.timeSlots.some(slot =>
+                    `${slot.display_time} - ${slot.display_end_time}` === currentTimeSlot ||
+                    slot.time === currentTimeSlot
+                )) {
+                    // Add the current time slot to the available slots if it's not already there
+                    const [startTime, endTime] = currentTimeSlot.split(' - ');
+                    updatedResponse.data.timeSlots.push({
+                        time: currentTimeSlot,
+                        display_time: startTime,
+                        display_end_time: endTime,
+                        status: 'available'
+                    });
+                    setAvailability({ ...updatedResponse });
+                }
             } else {
                 setAvailability(null);
                 toast.error(response?.message || 'No availability found');
@@ -156,15 +258,27 @@ const EditServiceModal = ({
             console.error('Error checking availability:', error);
             setAvailability(null);
             toast.error('Failed to check availability');
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
-    // Date selection handler
+    // Handle date selection
     const handleDateSelect = useCallback((date) => {
-        setSelectedDate(date);
-        setValue('selectedDate', date);
-        setValue('timeSlot', '');
-    }, [setValue]);
+        const currentTimeSlot = watch('timeSlot');
+        const currentDate = watch('selectedDate');
+
+        // Only update if the date actually changed
+        if (!currentDate || date.getTime() !== currentDate.getTime()) {
+            setSelectedDate(date);
+            setValue('selectedDate', date);
+
+            // Only clear the time slot if the date changed
+            if (currentTimeSlot) {
+                setValue('timeSlot', '');
+            }
+        }
+    }, [setValue, selectedDate, watch]);
 
     // Main effects
     useEffect(() => {
@@ -174,13 +288,23 @@ const EditServiceModal = ({
     }, [isOpen, fetchData]);
 
     useEffect(() => {
-        if (watchedAstrologer && watchedDate && watchedServiceType) {
-            const selectedService = allServicesData.find(service => service._id === watchedServiceType);
-            if (selectedService) {
-                checkAstrologerAvailability(watchedDate, watchedAstrologer, selectedService.serviceType);
-            }
+        if (!watchedDate || !watchedAstrologer || !watchedServiceType) return;
+
+        const currentTimeSlot = watch('timeSlot');
+        const currentServiceMode = watch('serviceMode');
+
+        // Skip if we already have a time slot and the service mode hasn't changed
+        if (currentTimeSlot && currentServiceMode === watchedServiceType) {
+            return;
         }
-    }, [watchedAstrologer, watchedDate, watchedServiceType, allServicesData, checkAstrologerAvailability]);
+
+        // Skip if this is the initial load and we've already processed it
+        if (hasProcessedInitialData.current) {
+            checkAstrologerAvailability(watchedDate, watchedAstrologer, watchedServiceType);
+        } else {
+            hasProcessedInitialData.current = true;
+        }
+    }, [watchedDate, watchedAstrologer, watchedServiceType, checkAstrologerAvailability]);
 
     useEffect(() => {
         if (watchedServiceType && allServicesData.length) {

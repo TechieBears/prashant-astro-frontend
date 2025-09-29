@@ -9,6 +9,7 @@ import greetingTime from "greeting-time";
 import moment from "moment";
 import { useDispatch } from 'react-redux';
 import { logoutUser } from '../../redux/Slices/loginSlice';
+import { clearCart } from '../../redux/Slices/cartSlice';
 import toast, { Toaster } from "react-hot-toast";
 
 const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink }) => {
@@ -21,6 +22,7 @@ const Navbar = ({ mobileSidebar, setMobileSidebar, setIsActiveLink, isActiveLink
     const logOut = async () => {
         try {
             const res = await dispatch(logoutUser()).unwrap();
+            dispatch(clearCart());
             setOpen(false);
             setCard(true);
             navigate("/");
