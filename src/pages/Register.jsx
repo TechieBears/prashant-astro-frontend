@@ -44,7 +44,7 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-yellow-50">
-<div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16 sm:mt-6 mt-20">
+            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16 sm:mt-6 mt-20">
                 <h2 className="text-2xl font-bold text-center mb-2 text-primary">Register</h2>
                 <p className="text-center text-gray-500 mb-6 text-sm">Create a new account</p>
 
@@ -56,11 +56,10 @@ const Register = () => {
                             {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt) => (
                                 <label
                                     key={opt}
-                                    className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${
-                                        watch("title") === opt
+                                    className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${watch("title") === opt
                                             ? "border-primary text-primary font-medium"
                                             : "bg-white text-black"
-                                    }`}
+                                        }`}
                                 >
                                     <input
                                         type="radio"
@@ -167,7 +166,6 @@ const Register = () => {
                 </div>
             </div>
 
-            <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };

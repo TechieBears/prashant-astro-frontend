@@ -1545,6 +1545,30 @@ export const createProductOrder = async (orderData) => {
         return err?.response?.data || { success: false, message: 'Failed to create order' };
     }
 };
+
+// ==================== Create Service Order Api ====================
+export const createServiceOrder = async (orderData) => {
+    const url = `${environment.baseUrl}service-order/public/create`;
+    try {
+        const response = await axios.post(url, orderData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating service order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create service order' };
+    }
+};
+
+// ==================== Get All Service Orders Api ====================
+export const getAllServiceOrders = async () => {
+    const url = `${environment.baseUrl}service-order/public/get-all`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching service orders:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch service orders' };
+    }
+};
 export const getProductSubCategoriesByCategory = async (id) => {
     try {
         const url = `${environment.baseUrl}product-subcategories/get-by-category?id=${id || ''}`;

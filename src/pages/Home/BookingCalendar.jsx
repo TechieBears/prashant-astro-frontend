@@ -3,11 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../../css/react-calendar.css';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
+import { getServiceModeOptions, getServiceType } from '../../utils/serviceConfig';
 import { Input, Select } from '../../components/Form';
 import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart } from '../../api';
 
@@ -62,11 +63,7 @@ const BookingCalendar = () => {
 
     const [selectedDate, setSelectedDate] = useState(null);
 
-    const serviceModeOptions = useMemo(() => [
-        { value: 'online', label: 'Consult Online' },
-        { value: 'pandit_center', label: 'Consult at Astrologer location' },
-        { value: 'pooja_at_home', label: 'Pooja at Home' }
-    ], []);
+    const serviceModeOptions = getServiceModeOptions();
 
     const timeSlots = useMemo(() => {
         if (!availability?.data?.timeSlots) return [];
@@ -230,7 +227,7 @@ const BookingCalendar = () => {
             const payload = {
                 date: formattedDate,
                 astrologer_id: astrologerId,
-                service_type: serviceType == 'pooja_at_home' ? 'offline' : 'online',
+                service_type: getServiceType(serviceType),
                 service_duration: parseInt(serviceData.durationInMinutes) || 60
             };
             const response = await checkAvailability(payload);
@@ -338,14 +335,19 @@ const BookingCalendar = () => {
             const response = await addServiceToCart(servicePayload);
 
             if (response.success) {
+                toast.dismiss();
                 toast.success('Service added to cart successfully!');
                 // Navigate to cart page with services tab selected
-                navigate('/cart', { state: { activeTab: 'services' } });
+                setTimeout(() => {
+                    navigate('/cart', { state: { activeTab: 'services' } });
+                }, 100);
             } else {
+                toast.dismiss();
                 toast.error(response.message || 'Failed to add service to cart');
             }
         } catch (error) {
             console.error('Booking error:', error);
+            toast.dismiss();
             toast.error('Failed to book service. Please try again.');
         }
     }, [navigate]);
@@ -365,30 +367,8 @@ const BookingCalendar = () => {
 
     return (
         <>
-            <Toaster
-                position="top-right"
-                toastOptions={{
-                    duration: 4000,
-                    style: {
-                        background: '#363636',
-                        color: '#fff',
-                    },
-                    success: {
-                        duration: 3000,
-                        style: {
-                            background: '#10B981',
-                        },
-                    },
-                    error: {
-                        duration: 4000,
-                        style: {
-                            background: '#EF4444',
-                        },
-                    },
-                }}
-            />
             <BackgroundTitle
-                title="Booking Calender"
+                title="Booking Calendar"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
                     { label: "Services", href: "/services" },
