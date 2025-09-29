@@ -109,16 +109,24 @@ const AddressSelector = () => {
 
     // Optimized handlers
     const openForm = useCallback((mode, address = null) => {
+        console.log('Opening form with mode:', mode);
         setFormMode(mode);
         setEditingAddress(address);
         setShowForm(true);
         setShowSelector(false);
+
+        // Ensure the modal is properly mounted
+        requestAnimationFrame(() => {
+            document.body.style.overflow = 'hidden';
+        });
     }, []);
 
     const closeForm = useCallback(() => {
+        console.log('Closing form');
         setShowForm(false);
         setEditingAddress(null);
         setFormMode("add");
+        document.body.style.overflow = 'unset';
     }, []);
 
     const openDeleteModal = useCallback((address) => {
@@ -188,11 +196,6 @@ const AddressSelector = () => {
 
     // Handle escape key to close modals - optimized with memoized condition
     useEffect(() => {
-        if (!isModalOpen) {
-            document.body.style.overflow = 'unset';
-            return;
-        }
-
         const handleEscapeKey = (event) => {
             if (event.key === 'Escape') {
                 if (showForm) closeForm();
@@ -200,43 +203,130 @@ const AddressSelector = () => {
             }
         };
 
-        document.addEventListener('keydown', handleEscapeKey);
-        document.body.style.overflow = 'hidden';
+        if (showForm || showDeleteModal) {
+            document.addEventListener('keydown', handleEscapeKey);
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
 
         return () => {
             document.removeEventListener('keydown', handleEscapeKey);
-            document.body.style.overflow = 'unset';
+            if (!showForm && !showDeleteModal) {
+                document.body.style.overflow = 'unset';
+            }
         };
-    }, [isModalOpen, showForm, showDeleteModal, closeForm, closeDeleteModal]);
+    }, [showForm, showDeleteModal, closeForm, closeDeleteModal]);
 
 
-    if (!defaultAddress) {
-        return (
-            <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                <div>
-                    <p className="text-red-600 text-sm">No delivery address selected</p>
-                    <p className="text-red-500 text-xs mt-1">Please select or add an address to continue</p>
+    const renderContent = () => (
+        <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+            <div className="flex flex-col">
+                <div className="mb-2">
+                    <p className="text-red-600 text-sm font-medium">No delivery address selected</p>
+                    <p className="text-red-500 text-xs mt-1">
+                        {hasAddresses
+                            ? 'Please select or add an address to continue'
+                            : 'Please add a delivery address to continue'}
+                    </p>
                 </div>
 
-                {/* Show address selector dropdown when no default but addresses exist */}
-                {hasAddresses && (
-                    <div className="mt-3 border border-gray-200 rounded-lg bg-white shadow-sm">
-                        <div className="p-3 border-b border-gray-100">
-                            <AddButton onClick={() => openForm("add")} />
-                        </div>
-                        {addresses.map((address) => (
-                            <AddressItem
-                                key={address._id}
-                                address={address}
-                                isSelecting={selectingAddress === address._id}
-                                onSelect={handleAddressSelect}
-                                onEdit={(address) => openForm("edit", address)}
-                                onDelete={openDeleteModal}
-                            />
-                        ))}
+                {/* Show add button directly when no addresses exist */}
+                {!hasAddresses && (
+                    <div className="mt-2">
+                        <AddButton
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log('Add button clicked');
+                                openForm("add");
+                            }}
+                            className="w-full"
+                        />
                     </div>
                 )}
             </div>
+
+            {/* Show address selector dropdown when addresses exist */}
+            {hasAddresses && (
+                <div className="mt-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                    <div className="p-3 border-b border-gray-100">
+                        <AddButton
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openForm("add");
+                            }}
+                        />
+                    </div>
+                    {addresses.map((address) => (
+                        <AddressItem
+                            key={address._id}
+                            address={address}
+                            isSelecting={selectingAddress === address._id}
+                            onSelect={handleAddressSelect}
+                            onEdit={(address) => openForm("edit", address)}
+                            onDelete={openDeleteModal}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    if (!defaultAddress) {
+        return (
+            <>
+                {renderContent()}
+                {showForm && createPortal(
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
+                        onClick={(e) => handleBackdropClick(e, 'form')}
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 9999,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1rem',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                        }}
+                    >
+                        <div
+                            className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] shadow-2xl flex flex-col"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg z-10">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        {formMode === "add" ? "Add New Address" : "Edit Address"}
+                                    </h3>
+                                    <button
+                                        onClick={closeForm}
+                                        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4">
+                                <AddressForm
+                                    key={`${formMode}-${editingAddress?._id || 'new'}`}
+                                    mode={formMode}
+                                    addressData={editingAddress}
+                                    onClose={closeForm}
+                                    onSuccess={closeForm}
+                                />
+                            </div>
+                        </div>
+                    </div>,
+                    document.body
+                )}
+            </>
         );
     }
 
@@ -302,8 +392,35 @@ const AddressSelector = () => {
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
                     onClick={(e) => handleBackdropClick(e, 'form')}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 9999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                    }}
                 >
-                    <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] shadow-2xl flex flex-col">
+                    <div
+                        className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] shadow-2xl flex flex-col"
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                            width: '100%',
+                            maxWidth: '42rem',
+                            maxHeight: '90vh',
+                            backgroundColor: 'white',
+                            borderRadius: '0.5rem',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden'
+                        }}
+                    >
                         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg z-10">
                             <div className="flex justify-between items-center">
                                 <h3 className="text-lg font-semibold text-gray-900">
@@ -320,11 +437,16 @@ const AddressSelector = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4">
+                            {console.log('Rendering AddressForm with mode:', formMode, 'and address:', editingAddress)}
                             <AddressForm
+                                key={`${formMode}-${editingAddress?._id || 'new'}`}
                                 mode={formMode}
                                 addressData={editingAddress}
                                 onClose={closeForm}
-                                onSuccess={() => { }}
+                                onSuccess={() => {
+                                    console.log('Address form submitted successfully');
+                                    closeForm();
+                                }}
                             />
                         </div>
                     </div>
