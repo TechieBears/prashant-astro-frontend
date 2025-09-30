@@ -26,7 +26,6 @@ const ServiceDetail = () => {
     useEffect(() => {
         const fetchService = async () => {
             const response = await getSelectedService(id);
-            console.log('selected services', response?.data)
             if (response?.success) {
                 setSelectedService(response?.data);
             }
@@ -37,7 +36,6 @@ const ServiceDetail = () => {
     }, [id]);
 
     const handleCheckAvailability = () => {
-        console.log('Check availability clicked');
         // Navigate to booking calendar page with service ID and data
         navigate(`/booking-calendar/${id}`, {
             state: {

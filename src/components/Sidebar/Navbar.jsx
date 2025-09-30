@@ -93,7 +93,6 @@ const ProfilePage = () => {
     // ============================= logout user dashbaord ================================
     const logOut = async () => {
         await logoutUser({ userId: user?.user?._id }).then((res) => {
-            console.log(res)
             if (res?.success) {
                 setDropdownOpen(!dropdownOpen)
                 dispatch(setLoggedUserDetails(undefined))

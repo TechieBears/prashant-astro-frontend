@@ -15,7 +15,6 @@ import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
-    console.log("⚡️🤯 ~ CreateEmployeeModal.jsx:16 ~ CreateEmployeeModal ~ userData:", userData)
     const { register, handleSubmit, control, watch, reset, setValue, formState: { errors } } = useForm();
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };

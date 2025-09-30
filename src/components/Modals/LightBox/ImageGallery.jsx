@@ -4,7 +4,6 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, FreeMode, Autoplay } from 'swiper/modules';
 
 export default function ImageGallery({ images }) {
-    console.log("⚡️🤯 ~ ImageGallery.jsx:5 ~ ImageGallery ~ images:", images)
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {

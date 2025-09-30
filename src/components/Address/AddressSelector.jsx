@@ -109,7 +109,6 @@ const AddressSelector = () => {
 
     // Optimized handlers
     const openForm = useCallback((mode, address = null) => {
-        console.log('Opening form with mode:', mode);
         setFormMode(mode);
         setEditingAddress(address);
         setShowForm(true);
@@ -122,7 +121,6 @@ const AddressSelector = () => {
     }, []);
 
     const closeForm = useCallback(() => {
-        console.log('Closing form');
         setShowForm(false);
         setEditingAddress(null);
         setFormMode("add");
@@ -237,7 +235,6 @@ const AddressSelector = () => {
                         <AddButton
                             onClick={(e) => {
                                 e.stopPropagation();
-                                console.log('Add button clicked');
                                 openForm("add");
                             }}
                             className="w-full"
@@ -437,7 +434,6 @@ const AddressSelector = () => {
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4">
-                            {console.log('Rendering AddressForm with mode:', formMode, 'and address:', editingAddress)}
                             <AddressForm
                                 key={`${formMode}-${editingAddress?._id || 'new'}`}
                                 mode={formMode}

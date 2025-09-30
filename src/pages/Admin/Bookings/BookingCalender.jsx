@@ -152,7 +152,6 @@ const BookingCalendar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
-    console.log("⚡️🤯 ~ BookingCalender.jsx:155 ~ BookingCalendar ~ selectedBooking:", selectedBooking)
     const [slots, setSlots] = useState({
         bookings: [],
         date: {},
