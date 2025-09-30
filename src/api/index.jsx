@@ -1804,3 +1804,15 @@ export const adminSlots = async (date) => {
         return err?.response?.data
     }
 };
+
+export const astrologerSlots = async (sdate, edate, astrologerId) => {
+    const url = `${environment.baseUrl}calender/astrologer-slots?sdate=${sdate}&edate=${edate}&astrologerId=${astrologerId}`;
+    try {
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in logout User api file", err);
+        return err?.response?.data
+    }
+};
