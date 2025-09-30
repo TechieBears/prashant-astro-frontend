@@ -1816,3 +1816,47 @@ export const astrologerSlots = async (sdate, edate, astrologerId) => {
         return err?.response?.data
     }
 };
+
+export const getSingleServiceOrder = async (orderId) => {
+    const url = `${environment.baseUrl}service-order/public/get-single?id=${orderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching single service order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch service order details' };
+    }
+};
+
+export const getAllTestimonials = async (page = 1, limit = 10, isActive = true) => {
+    const url = `${environment.baseUrl}testimonials/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching testimonials:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch testimonials' };
+    }
+};
+
+export const createTestimonial = async (testimonialData) => {
+    const url = `${environment.baseUrl}testimonials/create`;
+    try {
+        const response = await axios.post(url, testimonialData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating testimonial:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create testimonial' };
+    }
+};
+
+export const getSingleProductOrder = async (orderId) => {
+    const url = `${environment.baseUrl}product-order/public/get-single?id=${orderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching single product order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch product order details' };
+    }
+};
