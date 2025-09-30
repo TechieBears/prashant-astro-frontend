@@ -110,11 +110,11 @@ export const SidebarSuperAdminApi = [
                 icon: <Gallery size="21" variant="TwoTone" />,
                 link: '/banner',
             },
-            {
-                title: 'Refer & Earn',
-                icon: <Send2 size="21" variant="TwoTone" />,
-                link: '/referEarn',
-            },
+            // {
+            //     title: 'Refer & Earn',
+            //     icon: <Send2 size="21" variant="TwoTone" />,
+            //     link: '/referEarn',
+            // },
             {
                 title: 'Offers & Coupons',
                 icon: <DiscountShape size="21" variant="TwoTone" />,
@@ -224,11 +224,11 @@ export const SidebarEmployeeApi = [
                 icon: <Gallery size="21" variant="TwoTone" />,
                 link: '/banner',
             },
-            {
-                title: 'Refer & Earn',
-                icon: <Send2 size="21" variant="TwoTone" />,
-                link: '/referEarn',
-            },
+            // {
+            //     title: 'Refer & Earn',
+            //     icon: <Send2 size="21" variant="TwoTone" />,
+            //     link: '/referEarn',
+            // },
             {
                 title: 'Offers & Coupons',
                 icon: <DiscountShape size="21" variant="TwoTone" />,

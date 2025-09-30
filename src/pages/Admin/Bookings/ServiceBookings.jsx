@@ -10,14 +10,18 @@ import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
 import TableHeader from '../../../components/Table/TableHeader'
-
-const initialFilterState = {
-    orderId: '',
-    date: '',
-    status: '',
-};
+import ServiceBookingViewModal from '../../../components/Modals/AdminModals/ServiceBookingViewModal';
+import { useSelector } from 'react-redux';
 
 const ServiceBookings = () => {
+    const user = useSelector((state) => state.user.userDetails);
+    const initialFilterState = {
+        orderId: '',
+        date: '',
+        status: '',
+        astrologerId: user?.user?.role === 'astrologer' ? user?.user?._id : '',
+    };
+
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -185,12 +189,19 @@ const ServiceBookings = () => {
             header: 'Order Date',
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY HH:mm') || '---- -----'}</>,
             style: true, sortable: true
+        },
+        {
+            field: 'action',
+            header: 'Action',
+            body: (row) => <div className="flex items-center gap-2">
+                <ServiceBookingViewModal bookingData={row} />
+            </div>,
+            style: true, sortable: false
         }
     ];
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
-            {/* Filter */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
                     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-2">

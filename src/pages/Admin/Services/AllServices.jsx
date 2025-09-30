@@ -9,7 +9,6 @@ import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1 } from '../../../utils/CustomClass'
-import { imageComponet1 } from '../../../helper/Helper';
 import TableHeader from '../../../components/Table/TableHeader'
 import CreateServiceModal from '../../../components/Modals/AdminModals/CreateServiceModal';
 import { useSelector } from 'react-redux';
