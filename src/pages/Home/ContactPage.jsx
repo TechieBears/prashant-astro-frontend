@@ -8,6 +8,7 @@ import { Facebook01Icon, InstagramIcon, TwitterIcon, Linkedin01Icon } from 'huge
 import SectionHeader from '../../components/Titles/SectionHeader'; // Importing SectionHeader
 import { postContactUs } from '../../api';
 import toast from 'react-hot-toast';
+import ClickableContact from '../../components/Common/ClickableContact';
 
 
 const ContactPage = () => {
@@ -110,7 +111,23 @@ const ContactPage = () => {
                                         </div>
                                         <div>
                                             <p className="text-slate-800 text-md mb-1">{item.name}</p>
-                                            <p className="text-slate-500 text-base">{item.value}</p>
+                                            {item.name === "Email.ID" ? (
+                                                <ClickableContact
+                                                    type="email"
+                                                    value={item.value}
+                                                    className="text-slate-500 text-base"
+                                                    hoverColor="hover:text-orange-500"
+                                                />
+                                            ) : item.name === "WhatsApp" ? (
+                                                <ClickableContact
+                                                    type="whatsapp"
+                                                    value={item.value}
+                                                    className="text-slate-500 text-base"
+                                                    hoverColor="hover:text-orange-500"
+                                                />
+                                            ) : (
+                                                <p className="text-slate-500 text-base whitespace-pre-line">{item.value}</p>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -124,21 +141,21 @@ const ContactPage = () => {
                             <h3 className="text-md mt-6 mb-4 font-semibold text-slate-800">Follow & Connect</h3>
                             <div className="mt-6 flex flex-nowrap overflow-x-auto gap-4 w-full justify-center md:justify-start no-scrollbar">
                                 {/* Instagram */}
-                                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.instagram.com/pandit_prashant_shastri?igsh=dW40bnY2azljeWlw" target="_blank" rel="noopener noreferrer">
                                     <div className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-3 rounded-full hover:bg-pink-600 transition-colors">
                                         <InstagramIcon size={25} className="text-white" />
                                     </div>
                                 </a>
 
                                 {/* Facebook */}
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.facebook.com/share/19fmxP8B9f/" target="_blank" rel="noopener noreferrer">
                                     <div className="bg-blue-600 p-3 rounded-full hover:bg-blue-700 transition-colors">
                                         <Facebook01Icon size={25} className="text-white" />
                                     </div>
                                 </a>
 
                                 {/* YouTube */}
-                                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+                                <a href="https://youtube.com/@pandit_prashant_shastri?si=mLcdUBeXyHIro4xq" target="_blank" rel="noopener noreferrer">
                                     <div className="bg-red-600 p-3 rounded-full hover:bg-red-700 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                                             <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
@@ -254,7 +271,7 @@ const ContactPage = () => {
 
                 <div className='py-8 md:py-12'>
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d963630.5438557793!2d72.33098132816288!3d19.36127872923214!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c6306644edc1%3A0x5da4ed8f8d648c69!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1757404179280!5m2!1sen!2sin"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3770.8084634819257!2d72.83203597501634!3d19.074084482119097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c9d90d601081%3A0x3e3e3e3e3e3e3e3e!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1707404179280!5m2!1sen!2sin"
                         width="100%"
                         height="400"
                         className='w-full rounded-xl shadow-sm'

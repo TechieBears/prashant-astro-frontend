@@ -1028,6 +1028,17 @@ export const getServices = async (data) => {
         return err?.response?.data
     }
 }
+export const getServiceDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}service/public/dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getServiceDropdown api file", err);
+        return err?.response?.data
+    }
+}
 
 export const addService = async (data) => {
     const url = `${environment.baseUrl}service/create`;
@@ -1644,7 +1655,7 @@ export const createProductOrder = async (orderData) => {
 
 export const getAllServiceOrdersAdmin = async (data) => {
     try {
-        const url = `${environment.baseUrl}service-order/get-all?orderId=${data?.orderId || ""}&date=${data?.date || ""}&status=${data?.status || ""}&page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}service-order/get-all?orderId=${data?.orderId || ""}&date=${data?.date || ""}&status=${data?.status || ""}&page=${data?.p}&limit=${data?.records}&astrologerId=${data?.astrologerId || ""}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1780,6 +1791,32 @@ export const checkAvailability = async (data) => {
         return err?.response?.data
     }
 }
+export const checkAvailabilityById = async (id) => {
+    try {
+        const url = `${environment.baseUrl}service-order/item/get-single?id=${id || ""}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in checkAvailability api file", err);
+        return err?.response?.data
+    }
+}
+
+
+export const updateServiceOrderStatus = async (data) => {
+    const url = `${environment.baseUrl}service-order/update-order-status`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in updateAvailability api file", err);
+        return err?.response?.data
+    }
+}
+
+
 
 export const logoutUser = async (data) => {
     const url = `${environment.baseUrl}auth/logout`;
@@ -1805,6 +1842,31 @@ export const adminSlots = async (date) => {
     }
 };
 
+// =========================== admin product order api ====================
+
+// export const getAllTestimonials = async (data) => {
+//     try {
+//         const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+//         const response = await axios.get(url)
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log("==========error in getAllTestimonials api file", err);
+//         return err?.response?.data
+//     }
+// }
+export const editTestimonials = async (id, data) => {
+    const url = `${environment.baseUrl}testimonials/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editTestimonials api file", err);
+        return err?.response?.data
+    }
+}
+
 export const astrologerSlots = async (sdate, edate, astrologerId) => {
     const url = `${environment.baseUrl}calender/astrologer-slots?sdate=${sdate}&edate=${edate}&astrologerId=${astrologerId}`;
     try {
@@ -1814,5 +1876,49 @@ export const astrologerSlots = async (sdate, edate, astrologerId) => {
     catch (err) {
         console.log("==========error in logout User api file", err);
         return err?.response?.data
+    }
+};
+
+export const getSingleServiceOrder = async (orderId) => {
+    const url = `${environment.baseUrl}service-order/public/get-single?id=${orderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching single service order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch service order details' };
+    }
+};
+
+export const getAllTestimonials = async (page = 1, limit = 10, isActive = true) => {
+    const url = `${environment.baseUrl}testimonials/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching testimonials:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch testimonials' };
+    }
+};
+
+export const createTestimonial = async (testimonialData) => {
+    const url = `${environment.baseUrl}testimonials/create`;
+    try {
+        const response = await axios.post(url, testimonialData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating testimonial:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create testimonial' };
+    }
+};
+
+export const getSingleProductOrder = async (orderId) => {
+    const url = `${environment.baseUrl}product-order/public/get-single?id=${orderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching single product order:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch product order details' };
     }
 };

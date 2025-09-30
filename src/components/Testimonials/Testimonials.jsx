@@ -1,215 +1,180 @@
 import React, { useState, useEffect } from 'react';
-import SectionHeader from '../Titles/SectionHeader';
-import Flowers from '../../assets/user/home/flowers.png';
-import Testimonial1 from '../../assets/user/home/t1.png';
-import Testimonial2 from '../../assets/user/home/t2.png';
-import Testimonial3 from '../../assets/user/home/t3.jpg';
-import Profile1 from '../../assets/user/home/profile1.png';
-import Profile2 from '../../assets/user/home/profile2.png';
-import Profile3 from '../../assets/user/home/profile3.png';
-import Comment from '../../assets/user/home/comment.png';
+import { FaStar } from 'react-icons/fa';
 import { ArrowLeft02Icon, ArrowRight02Icon } from 'hugeicons-react';
-
-const testimonialsData = [
-    {
-        name: "Vikram Singh",
-        location: "Pune, Maharashtra",
-        category: "Kundali Analysis",
-        description: "The astrologer provided deep insights into my career path that were surprisingly accurate. The remedies suggested have brought positive changes in my professional life.",
-        image2: Profile1,
-        image: Testimonial1
-    },
-    {
-        name: "Priya Sharma",
-        location: "Nagpur, Maharashtra",
-        category: "Marriage Compatibility",
-        description: "The kundali matching was done with great precision. The detailed analysis helped our families make an informed decision. Highly recommended for marriage consultations.",
-        image2: Profile2,
-        image: Testimonial2
-    },
-    {
-        name: "Rahul Mehta",
-        location: "Kolhapur, Maharashtra",
-        category: "Career Guidance",
-        description: "The career prediction was spot on! The astrologer's guidance helped me make crucial career decisions. The remedies suggested have been very effective.",
-        image2: Profile3,
-        image: Testimonial3
-    },
-    {
-        name: "Anjali Verma",
-        location: "Mumbai, Maharashtra",
-        category: "Business Astrology",
-        description: "I was unsure about starting my new business, but the consultation gave me the confidence to go ahead. Everything is now falling into place, just as predicted!",
-        image2: Profile1,
-        image: Testimonial2
-    },
-    {
-        name: "Suresh Kumar",
-        location: "Chennai, Tamil Nadu",
-        category: "Health Astrology",
-        description: "The health predictions were incredibly accurate. Following the suggested remedies has improved my overall well-being significantly. Grateful for the guidance!",
-        image2: Profile3,
-        image: Testimonial3
-    },
-    {
-        name: "Meera Patel",
-        location: "Ahmedabad, Gujarat",
-        category: "Financial Guidance",
-        description: "The financial advice based on my birth chart helped me make better investment decisions. The return on investments has been exactly as predicted.",
-        image2: Profile2,
-        image: Testimonial1
-    }
-];
+import SectionHeader from '../Titles/SectionHeader';
+import { getAllTestimonials } from '../../api';
+import Comment from '../../assets/user/home/comment.png';
 
 const Testimonials = () => {
-    const [expandedIndexes, setExpandedIndexes] = useState([]);
-    const [currentGroup, setCurrentGroup] = useState(0);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [fadeClass, setFadeClass] = useState('opacity-100');
-    const [slidesPerGroup, setSlidesPerGroup] = useState(3);
-
-    const DESCRIPTION_LIMIT = 140;
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [testimonialsData, setTestimonialsData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const updateSlides = () => {
-            const width = window.innerWidth;
-            if (width < 640) setSlidesPerGroup(1);
-            else if (width < 1024) setSlidesPerGroup(2);
-            else setSlidesPerGroup(3);
+        const fetchTestimonials = async () => {
+            try {
+                const response = await getAllTestimonials(1, 10, true);
+
+                if (response.success && response.data?.length > 0) {
+                    const transformedData = response.data.map(testimonial => ({
+                        name: `${testimonial.user?.firstName || ''} ${testimonial.user?.lastName || ''}`.trim() || 'Anonymous',
+                        review: testimonial.message || '',
+                        rating: testimonial.rating || 5,
+                        image: testimonial.user?.profileImage || 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+                    }));
+                    setTestimonialsData(transformedData);
+                }
+            } catch (err) {
+                console.error('Error fetching testimonials:', err);
+            } finally {
+                setLoading(false);
+            }
         };
 
-        updateSlides();
-        window.addEventListener('resize', updateSlides);
-        return () => window.removeEventListener('resize', updateSlides);
+        fetchTestimonials();
     }, []);
 
-    const totalGroups = Math.ceil(testimonialsData.length / slidesPerGroup);
+    const handlePrev = () => setCurrentIndex(prev => prev === 0 ? testimonialsData.length - 1 : prev - 1);
+    const handleNext = () => setCurrentIndex(prev => prev === testimonialsData.length - 1 ? 0 : prev + 1);
 
-    const toggleReadMore = (index) => {
-        setExpandedIndexes((prev) =>
-            prev.includes(index)
-                ? prev.filter((i) => i !== index)
-                : [...prev, index]
+    const renderStars = (rating) => Array.from({ length: 5 }, (_, index) => (
+        <FaStar key={index} className={`w-4 h-4 ${index < rating ? 'text-yellow-400' : 'text-gray-300'}`} />
+    ));
+
+    const getTestimonial = (index) => testimonialsData[index] || testimonialsData[0];
+
+    if (loading || testimonialsData.length === 0) {
+        return (
+            <div className="relative bg-light-orange py-16 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto">
+                    <div className="text-center mb-12">
+                        <SectionHeader prefix="Our" highlight="Testimonials" />
+                        <div className="mt-4 flex items-center gap-2 justify-center">
+                            <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
+                        </div>
+                        <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
+                            Read the testimonials by our clients and find more about our services.
+                        </p>
+                    </div>
+                    <div className="flex justify-center items-center h-96">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    </div>
+                </div>
+            </div>
         );
-    };
-
-    const animateTransition = (newGroupIndex) => {
-        if (isAnimating) return;
-        setIsAnimating(true);
-        setFadeClass('opacity-0');
-
-        setTimeout(() => {
-            setCurrentGroup(newGroupIndex);
-            setTimeout(() => {
-                setFadeClass('opacity-100');
-                setIsAnimating(false);
-            }, 50);
-        }, 300);
-    };
-
-    const handlePrevClick = () => {
-        const prevGroupIndex = currentGroup === 0 ? totalGroups - 1 : currentGroup - 1;
-        animateTransition(prevGroupIndex);
-    };
-
-    const handleNextClick = () => {
-        const nextGroupIndex = currentGroup === totalGroups - 1 ? 0 : currentGroup + 1;
-        animateTransition(nextGroupIndex);
-    };
-
-    const getCurrentSlides = () => {
-        const startIndex = currentGroup * slidesPerGroup;
-        return testimonialsData.slice(startIndex, startIndex + slidesPerGroup);
-    };
+    }
 
     return (
-        <div className="relative bg-[#F7E8D4] w-full mt-8 sm:mt-12 md:mt-16 lg:mt-20">
-            {/* Flowers */}
-            <img src={Flowers} alt="Flowers left" className="absolute left-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80" />
-            <img src={Flowers} alt="Flowers right" className="absolute right-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]" />
+        <div className="relative bg-light-orange py-16 px-4 sm:px-6 lg:px-8">
+            {/* Background decorative hands */}
+            {/* <div className="absolute top-8 left-8 w-16 h-16 opacity-20">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <path
+                        d="M20 30 Q30 20 40 30 Q50 40 60 30 Q70 20 80 30 Q85 35 80 40 Q75 45 70 40 Q65 35 60 40 Q55 45 50 40 Q45 35 40 40 Q35 45 30 40 Q25 35 20 40 Q15 35 20 30 Z"
+                        fill="url(#gradient1)"
+                        stroke="url(#gradient1)"
+                        strokeWidth="2"
+                    />
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#FBBF24" />
+                            <stop offset="100%" stopColor="#F43F5E" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div> */}
 
-            {/* Section Header */}
-            <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
-                <SectionHeader prefix="Our" highlight="Testimonials" />
-                <div className="flex items-center gap-2 justify-center">
-                    <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
+            {/* <div className="absolute bottom-8 right-8 w-16 h-16 opacity-20">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <path
+                        d="M20 30 Q30 20 40 30 Q50 40 60 30 Q70 20 80 30 Q85 35 80 40 Q75 45 70 40 Q65 35 60 40 Q55 45 50 40 Q45 35 40 40 Q35 45 30 40 Q25 35 20 40 Q15 35 20 30 Z"
+                        fill="url(#gradient2)"
+                        stroke="url(#gradient2)"
+                        strokeWidth="2"
+                    />
+                    <defs>
+                        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#FBBF24" />
+                            <stop offset="100%" stopColor="#F43F5E" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div> */}
+
+            {/* Main Content */}
+            <div className="max-w-6xl mx-auto">
+                {/* Title Section */}
+                <div className="text-center mb-12">
+                    <SectionHeader prefix="Our" highlight="Testimonials" />
+                    <div className="mt-4 flex items-center gap-2 justify-center">
+                        <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
+                    </div>
+                    <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
+                        Read the testimonials by our clients and find more about our services.
+                    </p>
                 </div>
-                <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
-                    Read the testimonials by our clients and find more about our services.
-                </p>
-            </div>
 
-            {/* Background Shape */}
-            <div className="hidden sm:block absolute bottom-24 left-1/2 -translate-x-1/2 translate-y-2 w-40 sm:w-1/2 md:w-[50%] h-48 sm:h-64 md:h-80 bg-orange-light z-0 rounded-lg"></div>
+                {/* Testimonials Carousel */}
+                <div className="relative">
+                    {/* Navigation Arrows */}
+                    <button
+                        onClick={handlePrev}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
+                    >
+                        <ArrowLeft02Icon className="w-6 h-6 text-gray-600" />
+                    </button>
 
-            {/* Cards */}
-            <div className="mt-2 px-4 sm:px-6 lg:px-16 py-16 relative z-10 max-w-[1280px] mx-auto pt-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {getCurrentSlides().map((item, index) => {
-                        const globalIndex = currentGroup * slidesPerGroup + index;
-                        const isExpanded = expandedIndexes.includes(globalIndex);
-                        const shouldTruncate = item.description.length > DESCRIPTION_LIMIT;
-                        const displayedText = isExpanded
-                            ? item.description
-                            : item.description.slice(0, DESCRIPTION_LIMIT) + (shouldTruncate ? '...' : '');
+                    <button
+                        onClick={handleNext}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
+                    >
+                        <ArrowRight02Icon className="w-6 h-6 text-gray-600" />
+                    </button>
 
-                        return (
-                            <div key={`${currentGroup}-${index}`} className="mx-6 relative transform transition-all duration-300 ease-in-out">
-                                <img src={Comment} alt="Comment" className="absolute top-3 right-1 w-10 h-10 z-20" />
-                                <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full flex flex-col hover:shadow-lg transition-shadow duration-200">
-                                    {/* ✅ Only this inner content is animated */}
-                                    <div className={`transition-opacity duration-300 ease-in-out ${fadeClass}`}>
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <img src={item.image} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
-                                            <div>
-                                                <h3 className="text-sm font-semibold text-slate-800">{item.name}</h3>
-                                                <p className="text-xs text-slate-500">{item.location}</p>
+                    {/* Testimonials Cards */}
+                    <div className="flex items-center justify-center gap-6 px-16">
+                        {[
+                            { index: currentIndex === 0 ? testimonialsData.length - 1 : currentIndex - 1, isCenter: false },
+                            { index: currentIndex, isCenter: true },
+                            { index: currentIndex === testimonialsData.length - 1 ? 0 : currentIndex + 1, isCenter: false }
+                        ].map(({ index, isCenter }, cardIndex) => {
+                            const testimonial = getTestimonial(index);
+                            return (
+                                <div
+                                    key={cardIndex}
+                                    className={`relative transition-all duration-500 ease-in-out ${isCenter ? 'scale-100 opacity-100 z-20' : 'scale-90 opacity-50 z-10'
+                                        }`}
+                                >
+                                    <img src={Comment} alt="Comment" className="absolute -top-4 -left-4 w-16 h-16 z-20 scale-x-[-1]" />
+                                    <div className={`w-80 h-96 rounded-2xl p-6 flex flex-col ${isCenter ? 'bg-button-gradient-orange text-white shadow-2xl' : 'bg-slate1 text-base-font shadow-lg'
+                                        }`}>
+                                        <div className="flex justify-center mb-4">
+                                            <img
+                                                src={testimonial.image}
+                                                alt={testimonial.name}
+                                                className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
+                                            />
+                                        </div>
+                                        <p className={`text-sm leading-relaxed mb-4 flex-grow ${isCenter ? 'text-white' : 'text-base-font'
+                                            }`}>
+                                            {testimonial.review}
+                                        </p>
+                                        <div className="flex justify-center mb-3">
+                                            <div className="flex gap-1">
+                                                {renderStars(testimonial.rating)}
                                             </div>
                                         </div>
-
-                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-[#0088FF] rounded-full">
-                                            {item.category}
-                                        </span>
-
-                                        <p className="text-sm text-slate-600 mb-2">
-                                            {displayedText}
-                                            {shouldTruncate && (
-                                                <button
-                                                    onClick={() => toggleReadMore(globalIndex)}
-                                                    className="text-blue-600 font-medium ml-1 hover:text-blue-800 transition-colors duration-200"
-                                                >
-                                                    {isExpanded ? 'Read less' : 'Read more'}
-                                                </button>
-                                            )}
-                                        </p>
-
-                                        <div className="rounded-md overflow-hidden mt-auto">
-                                            <img src={item.image2} alt="testimonial" className="w-full h-32 sm:h-40 object-cover" />
+                                        <div className="text-center">
+                                            <h3 className={`font-semibold ${isCenter ? 'text-white' : 'text-base-font'
+                                                }`}>
+                                                {testimonial.name}
+                                            </h3>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Navigation Buttons */}
-                <div className="flex justify-around gap-4 mt-8">
-                    <button
-                        onClick={handlePrevClick}
-                        disabled={isAnimating}
-                        className={`flex items-center justify-center p-3 rounded-full bg-primary hover:bg-primary transition-all duration-300 text-white ${isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
-                    >
-                        <ArrowLeft02Icon size={30} />
-                    </button>
-
-                    <button
-                        onClick={handleNextClick}
-                        disabled={isAnimating}
-                        className={`flex items-center justify-center p-3 rounded-full bg-primary hover:bg-primary transition-all duration-300 text-white ${isAnimating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
-                    >
-                        <ArrowRight02Icon size={30} />
-                    </button>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

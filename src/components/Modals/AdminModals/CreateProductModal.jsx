@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
@@ -18,6 +18,7 @@ import { TableTitle } from '../../../helper/Helper';
 import CustomTextArea from '../../TextInput/CustomTextArea';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProductCategories } from '../../../redux/Slices/rootSlice';
+import Error from '../../Errors/Error';
 
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -26,6 +27,11 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "specification"
+    });
+
 
 
     const formSubmit = async (data) => {
@@ -78,7 +84,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 sellingPrice: userData?.sellingPrice,
                 image: userData?.image,
                 mrpPrice: userData?.mrpPrice,
-                ...userData?.specification
+                specification: userData?.specification || []
             });
 
             if (userData?.category?._id) {
@@ -100,10 +106,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 sellingPrice: '',
                 mrpPrice: '',
                 image: '',
-                Certification: '',
-                Origin: '',
-                Size: '',
-                Type: ''
+                specification: []
             });
         }
     }, [edit, userData, reset, setValue, open]);
@@ -336,28 +339,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                     <div className="">
-
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Product highlights
-                                                        </h4>
-                                                        <CustomTextArea
-                                                            label="Enter Product Highlights"
-                                                            placeholder="Enter Product Highlights"
-                                                            registerName="highlights"
-                                                            props={{
-                                                                ...register('highlights', {
-                                                                    minLength: {
-                                                                        value: 10,
-                                                                        message: "Highlights must be at least 10 characters"
-                                                                    }
-                                                                })
-                                                            }}
-                                                            errors={errors.highlights}
-                                                        />
-                                                    </div>
-                                                    <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
@@ -379,73 +360,71 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                 </div>
+
+
                                                 <div className="py-4">
                                                     <h4
                                                         className="text-base font-tbLex font-normal text-black pb-2.5"
                                                     >
                                                         Product Specification
                                                     </h4>
-                                                    <div className="grid grid-cols-3 gap-x-3 gap-y-5">
-                                                        <div className="">
-                                                            <h4
-                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    <div className="space-y-4">
+                                                        <div className="flex justify-start">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => append({ key: '', value: '' })}
+                                                                className={`${formBtn1} text-nowrap !h-[52px]`}
                                                             >
-                                                                Product Certification
-                                                            </h4>
-                                                            <TextInput
-                                                                label="Enter Product Certification"
-                                                                placeholder="Enter Product Certification"
-                                                                type="text"
-                                                                registerName="Certification"
-                                                                props={{ ...register('Certification') }}
-                                                                errors={errors.Certification}
-                                                            />
+                                                                + Add Specification
+                                                            </button>
                                                         </div>
-                                                        <div className="">
-                                                            <h4
-                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                            >
-                                                                Product Origin (ex. India & Nepal)
-                                                            </h4>
-                                                            <TextInput
-                                                                label="Enter Product Origin"
-                                                                placeholder="Enter Product Origin"
-                                                                type="text"
-                                                                registerName="Origin"
-                                                                props={{ ...register('Origin') }}
-                                                                errors={errors.Origin}
-                                                            />
-                                                        </div>
-                                                        <div className="">
-                                                            <h4
-                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                            >
-                                                                Product Size (ex. 10–20 mm)
-                                                            </h4>
-                                                            <TextInput
-                                                                label="Enter Product Size"
-                                                                placeholder="Enter Product Size"
-                                                                type="text"
-                                                                registerName="Size"
-                                                                props={{ ...register('Size') }}
-                                                                errors={errors.Size}
-                                                            />
-                                                        </div>
-                                                        <div className="">
-                                                            <h4
-                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                            >
-                                                                Product Type
-                                                            </h4>
-                                                            <TextInput
-                                                                label="Enter Product Type"
-                                                                placeholder="Enter Product Type"
-                                                                type="text"
-                                                                registerName="Type"
-                                                                props={{ ...register('Type') }}
-                                                                errors={errors.Type}
-                                                            />
-                                                        </div>
+
+                                                        {fields.map((field, index) => (
+                                                            <div className="border border-dashed border-gray-200 rounded-lg p-4 bg-white" key={field.id}>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                                                    <TextInput
+                                                                        label={`Specification Key`}
+                                                                        placeholder={`e.g., Material, Size, Weight`}
+                                                                        type="text"
+                                                                        registerName={`specification.${index}.key`}
+                                                                        props={{
+                                                                            ...register(`specification.${index}.key`, {
+                                                                                required: "Specification key is required"
+                                                                            })
+                                                                        }}
+                                                                        errors={errors.specification?.[index]?.key}
+                                                                    />
+                                                                    <TextInput
+                                                                        label={`Specification Value`}
+                                                                        placeholder={`e.g., Cotton, Large, 2kg`}
+                                                                        type="text"
+                                                                        registerName={`specification.${index}.value`}
+                                                                        props={{
+                                                                            ...register(`specification.${index}.value`, {
+                                                                                required: "Specification value is required"
+                                                                            })
+                                                                        }}
+                                                                        errors={errors.specification?.[index]?.value}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex justify-end">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => remove(index)}
+                                                                        className="text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                                                                    >
+                                                                        Remove
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+
+                                                        {fields.length === 0 && (
+                                                            <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                                                                <p>No specifications added yet.</p>
+                                                                <p className="text-sm">Click "Add Specification" to add product specifications.</p>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
 

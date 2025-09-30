@@ -11,10 +11,11 @@ import { useMemo } from 'react';
 import { useState } from 'react';
 import { editBanner, getAllBanners } from '../../../api';
 
-function Banner() {
+const Banner = () => {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-    const emptyFilters = useMemo(() => ({}), []);
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
         pageNo,
@@ -28,12 +29,17 @@ function Banner() {
     } = usePagination(1, 10, getAllBanners, emptyFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch banners');
+        if (error) toast.error('Failed to fetch users');
     }, [error]);
 
     // ================= action of the table ===============
     const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <CreateBannersModal edit={true} title='Edit Banner' userData={row} setRefreshTrigger={setRefreshTrigger} />
+        <CreateBannersModal edit={true} title='Edit Product Category' userData={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
+    </div>
+
+    const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
+        {console.log(row)}
+        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
     </div>
 
     const handleActiveChange = async (id, isActive) => {
@@ -62,20 +68,6 @@ function Banner() {
     )
 
 
-    // ================= columns of the table ===============
-
-    const imageBodyTemp = (row) => (
-        <div className="h-24 rounded bg-slate1">
-            <img
-                loading="lazy"
-                src={row?.image}
-                alt="image"
-                className="object-cover w-full h-full rounded bg-slate1"
-            />
-        </div>
-    );
-
-
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true },
         { field: 'title', header: 'Banner title', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.title}</h5>, sortable: true, style: true },
@@ -88,10 +80,10 @@ function Banner() {
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
-            {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title="All Banners" subtitle="Recently added banners will appear here" component={<CreateBannersModal edit={false} userData={null} setRefreshTrigger={setRefreshTrigger} />} />
-                <Table data={filterData} columns={columns} paginator={false} />
+                <TableHeader title="All Banners" subtitle="Recently added banners will appear here" component={<CreateBannersModal setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />} />
+                <Table data={filterData} columns={columns} />
+
                 {/* Pagination Controls */}
                 <div className="flex justify-end items-center gap-4 mt-4">
                     <button
@@ -120,7 +112,7 @@ function Banner() {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
 export default Banner;
