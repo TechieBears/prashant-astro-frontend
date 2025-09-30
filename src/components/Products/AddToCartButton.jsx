@@ -12,7 +12,8 @@ const AddToCartButton = ({
     size = 'default',
     variant = 'default',
     isInCart = false,
-    cartItemId = null
+    cartItemId = null,
+    redirectToCart = true // New prop to control redirect behavior
 }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -44,8 +45,10 @@ const AddToCartButton = ({
                     toast.success('Added one more to cart', { id: toastId });
                     // Wait a moment for the state to update
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    // Navigate to cart page after successful update
-                    navigate('/cart', { state: { activeTab: 'products' } });
+                    // Navigate to cart page only if redirectToCart is true
+                    if (redirectToCart) {
+                        navigate('/cart', { state: { activeTab: 'products' } });
+                    }
                 } else {
                     throw new Error(resultAction.payload || 'Failed to update cart');
                 }
@@ -59,10 +62,12 @@ const AddToCartButton = ({
                     await dispatch(fetchCartData());
 
                     toast.success(message, { id: toastId });
-                    // Navigate to cart page after successful add
-                    setTimeout(() => {
-                        navigate('/cart', { state: { activeTab: 'products' } });
-                    }, 1000);
+                    // Navigate to cart page only if redirectToCart is true
+                    if (redirectToCart) {
+                        setTimeout(() => {
+                            navigate('/cart', { state: { activeTab: 'products' } });
+                        }, 1000);
+                    }
                 } else {
                     throw new Error(message);
                 }

@@ -106,6 +106,7 @@ const RelatedProducts = ({
                                         className="w-full mt-3"
                                         size="small"
                                         variant="gradient"
+                                        redirectToCart={false}
                                     />
                                 </div>
                             </div>
