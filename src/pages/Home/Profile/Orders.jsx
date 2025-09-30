@@ -7,6 +7,8 @@ import { FaClock, FaCalendarAlt, FaDesktop, FaVideo } from 'react-icons/fa';
 import axios from 'axios';
 import { environment } from '../../../env';
 import { getServiceModeLabel } from '../../../utils/serviceConfig';
+import ServiceDetailModal from '../../../components/Modals/ServiceDetailModal';
+import ProductDetailModal from '../../../components/Modals/ProductDetailModal';
 
 const Orders = () => {
   const location = useLocation();
@@ -16,6 +18,10 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedService, setSelectedService] = useState(null);
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
   const tabs = [
     { id: 'services', label: 'Services' },
@@ -175,6 +181,27 @@ const Orders = () => {
   const handlePreviousPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
   const handleNextPage = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
 
+  // Modal handlers
+  const handleServiceClick = (service) => {
+    setSelectedService(service);
+    setIsServiceModalOpen(true);
+  };
+
+  const handleCloseServiceModal = () => {
+    setIsServiceModalOpen(false);
+    setSelectedService(null);
+  };
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setIsProductModalOpen(true);
+  };
+
+  const handleCloseProductModal = () => {
+    setIsProductModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   // Loading component
   const LoadingSpinner = () => (
     <div className="flex justify-center items-center py-12">
@@ -204,7 +231,10 @@ const Orders = () => {
 
   // Product card component
   const ProductCard = ({ product }) => (
-    <div className="bg-form-bg rounded-lg p-4 shadow-sm border border-gray-300">
+    <div
+      className="bg-form-bg rounded-lg p-4 shadow-sm border border-gray-300 cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => handleProductClick(product)}
+    >
       <div className="flex gap-4">
         <div className="flex-shrink-0">
           <div className="w-24 h-24 bg-white flex items-center justify-center shadow-md">
@@ -238,7 +268,10 @@ const Orders = () => {
 
   // Service card component
   const ServiceCard = ({ service }) => (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+    <div
+      className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => handleServiceClick(service)}
+    >
       <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 mb-4">
         <span className="text-sm sm:text-base font-semibold text-gray-900 whitespace-nowrap">Service Type:</span>
         <div className="flex items-center gap-2">
@@ -379,6 +412,20 @@ const Orders = () => {
           )}
         </>
       )}
+
+      {/* Service Detail Modal */}
+      <ServiceDetailModal
+        isOpen={isServiceModalOpen}
+        onClose={handleCloseServiceModal}
+        service={selectedService}
+      />
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        isOpen={isProductModalOpen}
+        onClose={handleCloseProductModal}
+        product={selectedProduct}
+      />
     </div>
   );
 };
