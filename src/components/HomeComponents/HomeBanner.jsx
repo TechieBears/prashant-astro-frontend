@@ -104,7 +104,8 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                                     alt="Home Banner"
                                     className="w-full h-full absolute inset-0 z-0 object-cover sm:mt-16 mt-16 lg:mt-0"
                                     style={{
-                                        objectPosition: 'bottom left',
+                                        objectPosition: 'center',
+                                        objectFit: 'cover',
                                     }}
                                     onError={(e) => {
                                         console.error("Image failed to load:", slide.image);

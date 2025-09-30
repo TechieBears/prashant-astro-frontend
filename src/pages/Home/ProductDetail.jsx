@@ -231,15 +231,19 @@ const ProductDetail = () => {
                     </span>
                 </div>
 
+                {/* Additional Information */}
+                {product.additionalInfo && (
+                    <div className="mt-4">
+                        <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
+                            Specifications:
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                            {product.additionalInfo}
+                        </p>
+                    </div>
+                )}
+
                 {/* Product Description */}
-                <div className="mt-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
-                        Product Highlights:
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                        {product.description || 'No description available.'}
-                    </p>
-                </div>
                 <div className="mt-6 flex items-center gap-4">
                     {/* Quantity Selector */}
                     {/* <div>
@@ -282,19 +286,6 @@ const ProductDetail = () => {
                         cartItemId={cartItemId}
                     />
                 </div>
-
-
-                {/* Additional Information */}
-                {product.additionalInfo && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
-                            Specifications:
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                            {product.additionalInfo}
-                        </p>
-                    </div>
-                )}
             </div>
         );
     };

@@ -6,7 +6,7 @@ const CategoryFilter = ({ categories = [], selectedCategories = [], onToggleCate
       {categories.map((category) => {
         const isChecked = selectedCategories.includes(category._id);
         return (
-          <li key={category.key} className="flex items-center justify-between">
+          <li key={category._id} className="flex items-center justify-between">
             <button
               type="button"
               onClick={() => onToggleCategory(category._id)}

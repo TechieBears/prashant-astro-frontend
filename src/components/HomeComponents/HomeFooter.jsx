@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useSelector } from "react-redux";
 import footerBg from "../../assets/footer-bg.jpg";
 import logo from "../../assets/astroguid logo.png";
 import logoText from "../../assets/astroguid logo text.png";
+import ClickableContact from "../Common/ClickableContact";
 
 // Dynamic footer data
 const footerData = {
@@ -19,13 +21,6 @@ const footerData = {
         { label: "Products", path: "/products" },
         { label: "Contact", path: "/contact" }
     ],
-    services: [
-        "Kundli Analysis",
-        "Vastu Consultation",
-        "Marriage Compatibility",
-        "Numerology Reading",
-        "Gemstone Consultation"
-    ],
     contactInfo: {
         phone: "+91 98765 43210",
         email: "pandit.prashant@example.com",
@@ -37,7 +32,7 @@ const footerData = {
     },
     copyright: "© 2025 Pandit Prashant Suryavanshi. All rights reserved.",
     legalLinks: [
-        { label: "Privacy Policy", path: "/privacy-policy" },
+        { label: "Privacy Policy", path: "/profile/privacy-policy" },
         { label: "Terms of Service", path: "/terms-conditions" },
         { label: "Disclaimer", path: "/disclaimer" }
     ]
@@ -45,6 +40,9 @@ const footerData = {
 
 const HomeFooter = () => {
     const navigate = useNavigate();
+
+    // Get service categories from Redux store (already fetched in HomePage)
+    const serviceCategories = useSelector(state => state.appRoot.serviceCategories);
 
     return (
         <footer
@@ -99,9 +97,21 @@ const HomeFooter = () => {
                 <div>
                     <h3 className="text-base font-semibold mb-4">Our Services</h3>
                     <ul className="space-y-2 text-sm text-gray-300">
-                        {footerData.services.map((service, index) => (
-                            <li key={index}>{service}</li>
-                        ))}
+                        {serviceCategories && serviceCategories.length > 0 ? (
+                            serviceCategories.slice(0, 5).map((category) => (
+                                <li key={category._id}>
+                                    <button
+                                        onClick={() => navigate(`/services?category=${encodeURIComponent(category.name)}`)}
+                                        className="hover:text-white transition-colors text-left"
+                                    >
+                                        {category.name}
+                                    </button>
+                                </li>
+                            ))
+                        ) : (
+                            // Show nothing if Redux state is empty (data is loading)
+                            <li className="text-gray-400 text-sm">Loading services...</li>
+                        )}
                     </ul>
                 </div>
 
@@ -110,10 +120,20 @@ const HomeFooter = () => {
                     <h3 className="text-base font-semibold mb-4">Contact Info</h3>
                     <ul className="space-y-3 text-sm text-gray-300">
                         <li className="flex items-center gap-2">
-                            <Phone size={16} /> {footerData.contactInfo.phone}
+                            <Phone size={16} />
+                            <ClickableContact
+                                type="whatsapp"
+                                value={footerData.contactInfo.phone}
+                                hoverColor="hover:text-white"
+                            />
                         </li>
                         <li className="flex items-center gap-2">
-                            <Mail size={16} /> {footerData.contactInfo.email}
+                            <Mail size={16} />
+                            <ClickableContact
+                                type="email"
+                                value={footerData.contactInfo.email}
+                                hoverColor="hover:text-white"
+                            />
                         </li>
                         <li className="flex items-center gap-2">
                             <MapPin size={16} /> {footerData.contactInfo.location}

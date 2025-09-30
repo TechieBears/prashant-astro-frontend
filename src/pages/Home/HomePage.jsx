@@ -19,7 +19,8 @@ import Service4 from '../../assets/user/home/services/service-homepage (4).png';
 import { getActiveBanners, getOurProducts, getOurServiceCategories } from "../../api";
 import { environment } from "../../env";
 import { Medal06Icon, FavouriteIcon, FaceIdIcon } from 'hugeicons-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setServiceCategories } from '../../redux/Slices/rootSlice';
 import InstagramImg from '../../assets/instagram.png'
 import FacebookImg from '../../assets/facebook.png'
 import YoutubeImg from '../../assets/youtube.png'
@@ -31,6 +32,7 @@ import servicesElement from '../../assets/elements/servicesEl.svg'
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
     const [slidesData, setSlidesData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -139,8 +141,11 @@ const HomePage = () => {
                     }));
 
                     setServicesData(transformedData);
+                    // Store original service categories in Redux for footer and other components
+                    dispatch(setServiceCategories(response.data));
                 } else {
                     setServicesData([]);
+                    dispatch(setServiceCategories([]));
                 }
             } catch (error) {
                 console.error("Error fetching service categories:", error);

@@ -201,7 +201,7 @@ const ServiceDetail = () => {
 
                                             {/* Animated Services List */}
                                             <div
-                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === category.category ? 'max-h-96 mt-2' : 'max-h-0'
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === category.category ? 'max-h-none mt-2' : 'max-h-0'
                                                     }`}
                                             >
                                                 <ul className="pl-2 sm:pl-4 space-y-1 sm:space-y-2">
