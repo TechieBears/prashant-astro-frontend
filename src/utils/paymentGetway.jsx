@@ -4,6 +4,7 @@ import { environment } from '../env';
 let cashfree;
 
 const initializeSDK = async function () {
+
     try {
         cashfree = await load({
             mode: environment?.production ? "production" : "sandbox"
