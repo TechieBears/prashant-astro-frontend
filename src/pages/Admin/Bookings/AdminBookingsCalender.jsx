@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 import BookingDetailsModal from '../../../components/Modals/AdminModals/BookingDetailsModal';
+import Preloaders from '../../../components/Loader/Preloaders';
 import HorizontalSlotCalendar from "../../../components/Calendar/HorizontalSlotCalendar";
 import { adminSlots } from "../../../api";
 
@@ -46,9 +47,8 @@ const SkeletonTimeSlot = () => (
 // Slot Status Component
 const SlotCard = ({ status, booking, onClick, isLoading }) => {
     if (isLoading) return <SkeletonSlot />;
-
+    status = booking?.paymentStatus ? "booked" : status;
     const getSlotConfig = () => {
-        console.log(status);
         switch (status) {
             case 'blocked':
                 return {
@@ -61,7 +61,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 return {
                     bg: 'bg-gradient-to-br from-amber-50 via-orange-50 to-orange-100',
                     text: 'text-orange-600',
-                    title: `${booking?.customer?.first_name} ${booking?.customer?.last_name}`,
+                    title: `${booking?.customer}`,
                     border: 'border-orange-300/80'
                 };
 
@@ -95,7 +95,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
             <div className="text-center leading-tight">
                 {status === 'booked' ? (
                     <h4 className="text-sm text-center font-tbPop font-semibold line-clamp-1 px-5 text-nowrap">
-                        {booking?.customer?.first_name} {booking?.customer?.last_name}
+                        {config.title}
                     </h4>
                 ) : (
                     <div className="text-sm font-bold text-center px-5 line-clamp-1 text-nowrap">
@@ -111,7 +111,6 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
 const VenueCalendar = () => {
     const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
     const [isLoading, setIsLoading] = useState(true);
-    const [inLoading, setInLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [slots, setSlots] = useState({
@@ -123,22 +122,21 @@ const VenueCalendar = () => {
         }
     });
 
-    let fullDaySlots = useMemo(() => generateFullDaySlots(slots), [inLoading]);
+    let fullDaySlots = useMemo(() => generateFullDaySlots(slots), [slots]);
 
     const getSlots = async () => {
-        const response = await adminSlots(moment(selectedDate).format("YYYY-MM-DD"));
-        console.log("response", response);
-        setSlots(response?.data);
-        setInLoading(!inLoading);
+        setIsLoading(true);
+        try {
+            const response = await adminSlots(moment(selectedDate).format("YYYY-MM-DD"));
+            setSlots(response?.data || { bookings: [], astrologers: [], time: { start: "09:00", end: "21:00" } });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
-    // Simulate loading
+    // Load slots on date change
     useEffect(() => {
-        const timer = setTimeout(() => {
-            getSlots();
-            setIsLoading(false);
-        }, 2000);
-        return () => clearTimeout(timer);
+        getSlots();
     }, [selectedDate]);
 
     const handleSearch = () => {
@@ -196,71 +194,89 @@ const VenueCalendar = () => {
             </div>
 
             <div className="overflow-x-auto w-full">
-                <div className="inline-block min-w-max ">
-                    <table className="table-auto border-separate border-spacing border border-slate-100    w-full rounded-lg ">
-                        <thead className="bg-slate-100 py-4">
-                            <tr>
-                                <th className="sticky left-0 z-30 bg-slate-100 w-[200px]  px-3 py-4 text-center font-medium font-tbLex">
-                                    Time Slots
-                                </th>
-
-                                {slots?.astrologers.map((court) => (
-                                    <th
-                                        key={court.id}
-                                        className="w-[200px] px-3 py-2 text-center font-medium font-tbLex capitalize "
-                                    >
-                                        {court.name}
-                                    </th>
+                <div className={isLoading ? "block w-full min-h-[60vh]" : "block w-full"}>
+                    {isLoading ? (
+                        <Preloaders />
+                    ) : (
+                        <table className="table-fixed w-full border-separate border border-slate-100 rounded-lg ">
+                            <colgroup>
+                                <col style={{ width: '200px' }} />
+                                {slots?.astrologers.map((_, idx) => (
+                                    <col key={`col-${idx}`} />
                                 ))}
-                            </tr>
-                        </thead>
+                            </colgroup>
+                            <thead className="bg-slate-100 py-4">
+                                <tr>
+                                    <th className="sticky left-0 z-30 bg-slate-100 w-[200px]  px-3 py-4 text-center font-medium font-tbLex">
+                                        Time Slots
+                                    </th>
 
-                        <tbody>
-                            {fullDaySlots.map((timeSlot) => (
-                                <tr key={timeSlot.slots_start_time} className="hover:bg-slate-50">
-                                    <td className="sticky left-0 z-20 bg-white w-[200px] px-3 py-2 text-center">
-                                        {isLoading ? (
-                                            <SkeletonTimeSlot />
-                                        ) : (
+                                    {slots?.astrologers.map((court) => (
+                                        <th
+                                            key={court.id}
+                                            className="px-3 py-2 text-center font-medium font-tbLex capitalize"
+                                        >
+                                            {court.name}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {fullDaySlots.map((timeSlot) => (
+                                    <tr key={timeSlot.slots_start_time} className="hover:bg-slate-50">
+                                        <td className="sticky left-0 z-20 bg-white w-[200px] px-3 py-2 text-center">
                                             <div className="font-semibold text-sm text-slate-700">
                                                 {slotTimeFormatter(
                                                     timeSlot.slots_start_time,
                                                     timeSlot.slots_end_time
                                                 )}
                                             </div>
-                                        )}
-                                    </td>
+                                        </td>
 
-                                    {slots?.astrologers.map((court) => {
-                                        const booking = slots?.bookings.find(
-                                            (b) =>
-                                                b.astrologer === court.astrologer_id &&
-                                                b.startTime === timeSlot.slots_start_time
-                                        );
+                                        {slots?.astrologers.map((astrologer) => {
+                                            function toMinutes(timeStr) {
+                                                timeStr = timeStr || "00:00";
+                                                const [h, m] = timeStr.split(":").map(Number);
+                                                return h * 60 + m;
+                                            }
+                                            const booking = slots?.bookings.find((booking) => {
+                                                const bookingStart = toMinutes(booking.startTime);
+                                                const bookingEnd = toMinutes(booking.endTime);
+                                                const slotStart = toMinutes(timeSlot.slots_start_time);
+                                                const slotEnd = toMinutes(timeSlot.slots_end_time);
 
-                                        let status = "available";
-                                        if (booking?.blocked) status = "blocked";
-                                        else if (booking?.status === "paid") status = "booked";
+                                                return (
+                                                    (booking.astrologer === astrologer.astrologer_id || booking.astrologer === astrologer._id) &&
+                                                    (booking.blocked
+                                                        ? booking.startTime === timeSlot.slots_start_time
+                                                        : bookingStart < slotEnd && bookingEnd > slotStart)
+                                                );
+                                            });
+                                            let status = "available";
+                                            if (booking?.blocked) status = "blocked";
+                                            else if (booking?.paymentStatus) status = "booked";
 
-                                        return (
-                                            <td key={court.id} className="w-[200px] px-2 py-2">
-                                                <div className="w-full">
-                                                    <SlotCard
-                                                        status={status}
-                                                        booking={booking}
-                                                        isLoading={isLoading}
-                                                        onClick={() =>
-                                                            handleSlotClick(court, timeSlot, booking, status)
-                                                        }
-                                                    />
-                                                </div>
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                            return (
+                                                <td key={astrologer.id} className="px-2 py-2">
+                                                    <div className="w-full">
+                                                        <SlotCard
+                                                            status={status}
+                                                            booking={booking}
+                                                            isLoading={isLoading}
+                                                            onClick={() =>
+                                                                handleSlotClick(astrologer, timeSlot, booking, status)
+                                                            }
+                                                        />
+                                                    </div>
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
 

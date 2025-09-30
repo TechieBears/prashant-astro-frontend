@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { TableTitle } from '../../../helper/Helper';
 import { Calendar, User, Star } from 'iconsax-reactjs';
 import moment from 'moment';
@@ -63,7 +63,7 @@ function BookingDetailsModal({ open, toggle, bookingData }) {
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm font-medium text-gray-600 font-tbLex">Name:</span>
                                                 <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                    {bookingData?.customer?.first_name} {bookingData?.customer?.last_name}
+                                                    {bookingData?.customer}
                                                 </span>
                                             </div>
                                             {bookingData?.customer?.email && (
@@ -116,7 +116,7 @@ function BookingDetailsModal({ open, toggle, bookingData }) {
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm font-medium text-gray-600 font-tbLex">Astrologer ID:</span>
                                                 <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                    #{bookingData.astrologerId}
+                                                    #{bookingData.astrologer}
                                                 </span>
                                             </div>
                                         </div>
@@ -144,7 +144,7 @@ function BookingDetailsModal({ open, toggle, bookingData }) {
                                             <div className="flex justify-between items-center">
                                                 <span className="text-sm font-medium text-gray-600 font-tbLex">Time:</span>
                                                 <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                    {formatTime(bookingData.start_time)} - {formatTime(bookingData.end_time)}
+                                                    {formatTime(bookingData.startTime)} - {formatTime(bookingData.endTime)}
                                                 </span>
                                             </div>
 
