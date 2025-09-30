@@ -1,76 +1,148 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs'
+import { ArrowLeft2, ArrowRight2, Star1 } from 'iconsax-reactjs';
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { getAllEqnuires } from '../../../api'
+import Switch from "react-js-switch";
+import { getAllTestimonials, editTestimonials } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
 import usePagination from '../../../utils/customHooks/usePagination'
 
-const initialFilterState = {
-    name: '',
-    email: '',
-    status: '',
-    phoneNumber: '',
+const StarRating = ({ rating, maxStars = 5 }) => {
+    return (
+        <div className="flex items-center gap-1 justify-center">
+            {[...Array(maxStars)].map((_, index) => (
+                <Star1
+                    key={index}
+                    size={16}
+                    variant={index < rating ? "Bold" : "Outline"}
+                    color={index < rating ? "#FFD700" : "#E5E7EB"}
+                />
+            ))}
+            <span className="ml-2 text-sm text-gray-600">({rating}/5)</span>
+        </div>
+    );
 };
 
 export default function Testimonials() {
-    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
-    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-    const combinedFilters = useMemo(() => ({
-        ...filterCriteria,
+    const emptyFilters = useMemo(() => ({
         refresh: refreshTrigger
-    }), [filterCriteria, refreshTrigger]);
+    }), [refreshTrigger]);
 
-    // Pagination hook
     const {
-        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
+        filterData,
         error
-    } = usePagination(1, 10, getAllEqnuires, combinedFilters);
-    // Handle API errors
+    } = usePagination(1, 10, getAllTestimonials, emptyFilters);
+
     useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
+        if (error) toast.error('Failed to fetch testimonials');
     }, [error]);
 
+    const handleActiveChange = async (id, isActive) => {
+        try {
+            const updatedData = {
+                isActive: !isActive
+            }
+            await editTestimonials(id, updatedData);
+            setRefreshTrigger(prev => prev + 1);
+            toast.success('Status updated successfully');
+        }
+        catch (error) {
+            console.log('error', error)
+            toast.error('Update failed');
+        }
+    }
+
+    const activeBody = (row) => (
+        <Switch
+            value={row?.isActive}
+            onChange={() => handleActiveChange(row?._id, row?.isActive)}
+            size={50}
+            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+        />
+    )
+
     const columns = [
-        { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
-        { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span>, style: true },
-        { field: 'phoneNumber', header: 'Phone No', body: (row) => <span className='capitalize'>{row?.phoneNumber || "---- -----"}</span>, style: true },
-        { field: 'createdAt', header: 'Enquiry Date', body: (row) => <>{moment(row?.createdAt)?.format('DD-MM-YYYY') || "---- -----"}</>, style: true },
-        { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate1 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
-        { field: 'status', header: 'Status', body: (row) => <h6 className={`${row?.status == 'rejected' ? 'text-red-500 bg-red-200' : row?.status == 'accepted' ? 'text-green-500 bg-green-200' : 'text-yellow-500 bg-yellow-100/80'} p-2 text-center rounded-full capitalize px-5`}>{row?.status}</h6>, sortable: true, style: true },
+        {
+            field: 'user',
+            header: 'User',
+            body: (row) => (
+                <div className="flex items-center gap-3">
+                    <img
+                        src={row?.user?.profileImage || '/api/placeholder/32/32'}
+                        alt={`${row?.user?.firstName} ${row?.user?.lastName}`}
+                        className="w-8 h-8 rounded-full object-cover ring-1 ring-gray-200"
+                        onError={(e) => {
+                            e.target.src = `https://ui-avatars.com/api/?name=${row?.user?.firstName}+${row?.user?.lastName}&background=8833FF&color=fff&size=32`;
+                        }}
+                    />
+                    <div>
+                        <p className="font-medium capitalize text-sm">{row?.user?.firstName} {row?.user?.lastName}</p>
+                        <p className="text-xs text-gray-500">{row?.user?.email}</p>
+                    </div>
+                </div>
+            ),
+            style: true
+        },
+        {
+            field: 'service',
+            header: 'Service',
+            body: (row) => (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {row?.service?.name || row?.service?.title || "N/A"}
+                </span>
+            ),
+            style: true
+        },
+        {
+            field: 'rating',
+            header: 'Rating',
+            body: (row) => <StarRating rating={row?.rating || 0} />,
+            style: true
+        },
+        {
+            field: 'createdAt',
+            header: 'Date',
+            body: (row) => (
+                <div>
+                    <p className="text-sm font-medium">{moment(row?.createdAt)?.format('DD-MM-YYYY') || "N/A"}</p>
+                    <p className="text-xs text-gray-500">{moment(row?.createdAt)?.format('hh:mm A') || ""}</p>
+                </div>
+            ),
+            style: true
+        },
+        { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
+        { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
     ];
+
     return (
         <div className="space-y-5 h-screen bg-slate-100">
-
-            {/* User Table Section */}
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title={`Testimonials (${filterData?.length || 0})`} subtitle={'Recently users testimonials will appear here'} />
+                <TableHeader title="All Testimonials" subtitle="Recently added testimonials will appear here" />
+                <Table data={filterData} columns={columns} />
 
-                <Table data={filterData} columns={columns} paginator={false} />
-
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 <div className="flex justify-end items-center gap-4 mt-4">
                     <button
                         onClick={() => pageChangeHandler(pageNo - 1)}
                         disabled={!prevIsValid}
                     >
-                        <ArrowLeft2 size={20} color={prevIsValid ? "#8833FF" : "#ccc"} />
+                        <ArrowLeft2 size={20} color={prevIsValid ? "#007bff" : "#ccc"} />
                     </button>
                     <button
                         onClick={() => pageChangeHandler(pageNo + 1)}
                         disabled={!nextIsValid}
                     >
-                        <ArrowRight2 size={20} color={nextIsValid ? "#8833FF" : "#ccc"} />
+                        <ArrowRight2 size={20} color={nextIsValid ? "#007bff" : "#ccc"} />
                     </button>
                     <div className="relative">
                         <select

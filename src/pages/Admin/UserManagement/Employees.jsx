@@ -3,7 +3,7 @@ import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { getAllEmployees } from '../../../api';
+import { editEmployee, getAllEmployees } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TextInput from '../../../components/TextInput/TextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
@@ -12,7 +12,7 @@ import { validateAlphabets } from '../../../utils/validateFunction';
 import CreateEmployeeModal from '../../../components/Modals/AdminModals/CreateEmployeeModal';
 import TableHeader from '../../../components/Table/TableHeader';
 import { imageComponet } from '../../../helper/Helper';
-
+import Switch from 'react-js-switch';
 
 const Employees = () => {
     const initialFilterState = {
@@ -58,6 +58,31 @@ const Employees = () => {
         <CreateEmployeeModal edit={true} title='Edit Employee Details' userData={row} setRefreshTrigger={setRefreshTrigger} />
     </div>
 
+    const handleActiveChange = async (id, isActive) => {
+        try {
+            const updatedData = {
+                isActive: !isActive
+            }
+            await editEmployee(id, updatedData);
+            setRefreshTrigger(prev => prev + 1);
+            toast.success('Status updated');
+        }
+        catch (error) {
+            console.log('error', error)
+            toast.error('Update failed');
+        }
+    }
+
+    const activeBody = (row) => (
+        <Switch
+            value={row?.isActive}
+            onChange={() => handleActiveChange(row?._id, row?.isActive)}
+            size={50}
+            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+        />
+    )
+
 
     const columns = [
         { field: "profile", header: "Profile", body: imageComponet, style: true },
@@ -69,6 +94,7 @@ const Employees = () => {
                 }} /></span>
             </div>, style: true
         },
+        { field: 'employeeType', header: 'Employee Type', body: (row) => <span className='capitalize'>{row?.profile?.employeeType || "---- -----"}</span>, style: true },
         { field: 'firstName', header: 'First Name', body: (row) => <span className='capitalize'>{row?.profile?.firstName || "---- -----"}</span>, style: true },
         { field: 'lastName', header: 'Last Name', body: (row) => <span className='capitalize'>{row?.profile?.lastName || "---- -----"}</span>, style: true },
         { field: 'email', header: 'Email', body: (row) => <span className='capitalize'>{row?.email || "---- -----"}</span> },
@@ -79,6 +105,7 @@ const Employees = () => {
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY (hh:mm)') || "---- -----"}</>,
             style: true
         },
+        { field: "isactive", header: "Active", body: activeBody, sortable: true, style: true },
         { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true },
     ];
 

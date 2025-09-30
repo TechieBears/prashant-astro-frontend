@@ -52,10 +52,10 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
         switch (status) {
             case 'blocked':
                 return {
-                    bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
-                    text: 'text-red-600',
-                    title: 'Blocked',
-                    border: 'border-red-300/80'
+                    bg: 'bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100',
+                    text: 'text-gray-600',
+                    title: 'Unavailable',
+                    border: 'border-gray-300/80'
                 };
             case 'booked':
                 return {
@@ -86,10 +86,10 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 py-5 ${config.bg} ${config.text}
                 rounded-md
                 flex flex-col items-center justify-center
-                font-semibold text-sm
+                font-semibold text-sm capitalize
                 transition-all duration-300 ease-in-out
                 ${isClickable ? 'cursor-pointer transform ' : 'cursor-default'}
-                border ${config.border}
+                border-[1.2px] border-dashed ${config.border}
             `}
         >
             <div className="text-center leading-tight">
@@ -198,16 +198,18 @@ const VenueCalendar = () => {
                     {isLoading ? (
                         <Preloaders />
                     ) : (
-                        <table className="table-fixed w-full border-separate border border-slate-100 rounded-lg ">
+                        // ⬇️ min-w-max ensures table can grow beyond viewport width
+                        <table className="min-w-max  table-fixed w-full border-separate border border-slate-100 rounded-lg">
                             <colgroup>
-                                <col style={{ width: '200px' }} />
+                                <col style={{ width: "200px" }} />
                                 {slots?.astrologers.map((_, idx) => (
-                                    <col key={`col-${idx}`} />
+                                    <col key={`col-${idx}`} style={{ width: "200px" }} />
                                 ))}
                             </colgroup>
-                            <thead className="bg-slate-100 py-4">
+
+                            <thead className="bg-slate-100">
                                 <tr>
-                                    <th className="sticky left-0 z-30 bg-slate-100 w-[200px]  px-3 py-4 text-center font-medium font-tbLex">
+                                    <th className="sticky left-0 z-30 bg-slate-100 w-[200px] px-3 py-4 text-center font-medium font-tbLex">
                                         Time Slots
                                     </th>
 
@@ -225,6 +227,7 @@ const VenueCalendar = () => {
                             <tbody>
                                 {fullDaySlots.map((timeSlot) => (
                                     <tr key={timeSlot.slots_start_time} className="hover:bg-slate-50">
+                                        {/* Sticky first column */}
                                         <td className="sticky left-0 z-20 bg-white w-[200px] px-3 py-2 text-center">
                                             <div className="font-semibold text-sm text-slate-700">
                                                 {slotTimeFormatter(
@@ -247,7 +250,8 @@ const VenueCalendar = () => {
                                                 const slotEnd = toMinutes(timeSlot.slots_end_time);
 
                                                 return (
-                                                    (booking.astrologer === astrologer.astrologer_id || booking.astrologer === astrologer._id) &&
+                                                    (booking.astrologer === astrologer.astrologer_id ||
+                                                        booking.astrologer === astrologer._id) &&
                                                     (booking.blocked
                                                         ? booking.startTime === timeSlot.slots_start_time
                                                         : bookingStart < slotEnd && bookingEnd > slotStart)
@@ -258,7 +262,7 @@ const VenueCalendar = () => {
                                             else if (booking?.paymentStatus) status = "booked";
 
                                             return (
-                                                <td key={astrologer.id} className="px-2 py-2">
+                                                <td key={astrologer.id} className="w-[200px] px-2 py-2">
                                                     <div className="w-full">
                                                         <SlotCard
                                                             status={status}
@@ -279,6 +283,7 @@ const VenueCalendar = () => {
                     )}
                 </div>
             </div>
+
 
 
             <BookingDetailsModal

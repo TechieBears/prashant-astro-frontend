@@ -128,7 +128,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
             className={`
         py-5 ${config.bg} ${config.text}
         rounded-md flex flex-col items-center justify-center
-        font-semibold text-sm transition-all duration-300 ease-in-out
+        font-semibold capitalize text-sm transition-all duration-300 ease-in-out
         ${isClickable ? "cursor-pointer transform" : "cursor-default"}
         border ${config.border}
       `}
@@ -152,6 +152,7 @@ const BookingCalendar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    console.log("⚡️🤯 ~ BookingCalender.jsx:155 ~ BookingCalendar ~ selectedBooking:", selectedBooking)
     const [slots, setSlots] = useState({
         bookings: [],
         date: {},
@@ -284,7 +285,7 @@ const BookingCalendar = () => {
                                             const bookingEnd = toMinutes(b.endTime);
                                             const slotStart = toMinutes(timeSlot.slots_start_time);
                                             const slotEnd = toMinutes(timeSlot.slots_end_time);
-                                         
+
                                             return ((moment(b.date).isSame(day.fullDate, "day")) &&
                                                 (b.blocked
                                                     ? b.startTime === timeSlot.slots_start_time
@@ -317,8 +318,9 @@ const BookingCalendar = () => {
 
             <BookingDetailsModal
                 open={showBookingModal}
+                refetch={getSlots}
                 toggle={() => setShowBookingModal(false)}
-                bookingData={selectedBooking}
+                bookingDatas={selectedBooking}
             />
         </div>
     );

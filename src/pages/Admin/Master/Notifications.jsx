@@ -5,25 +5,26 @@ import TableHeader from '../../../components/Table/TableHeader'
 import { useEffect, useMemo, useState } from 'react';
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
-import { getProductSubCategories } from '../../../api';
+import { getAllBanners, getProductSubCategories } from '../../../api';
 import moment from 'moment';
 
 
 export default function Notifications() {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
-
-    const emptyFilters = useMemo(() => ({}), []);
+    const emptyFilters = useMemo(() => ({
+        refresh: refreshTrigger
+    }), [refreshTrigger]);
 
     const {
-        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
+        filterData,
         error
-    } = usePagination(1, 10, getProductSubCategories, emptyFilters);
+    } = usePagination(1, 10, getAllBanners, emptyFilters);
 
     useEffect(() => {
         if (error) toast.error('Failed to fetch users');
@@ -36,23 +37,16 @@ export default function Notifications() {
         <SendNotificationModal edit={true} title='Edit Product Sub Category' data={row} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />
     </div>
 
+    const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
+        {console.log(row)}
+        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
+    </div>
 
-    const imageBodyTemp = (row) => (
-        <div className="h-24 rounded bg-slate1">
-            <img
-                loading="lazy"
-                src={row?.image}
-                alt="image"
-                className="object-cover w-full h-full rounded bg-slate1"
-            />
-        </div>
-    );
 
-    // ================= columns of the table ===============
     const columns = [
         { field: "image", header: "Image", body: imageBodyTemp, style: true },
-        { field: 'title', header: 'Notification title', sortable: true, style: true },
-        { field: 'description', header: 'Notification description', sortable: true, style: true },
+        { field: 'title', header: 'Notification title', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.title}</h5>, sortable: true, style: true },
+        { field: 'description', header: 'Notification description', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.description}</h5>, sortable: true, style: true },
         { field: 'type', header: 'Notification For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
         { field: "action", header: "Action", body: actionBodyTemplate, sortable: true, style: true },
     ];
