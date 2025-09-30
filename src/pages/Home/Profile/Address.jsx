@@ -126,12 +126,6 @@ export default function Address() {
                                 </svg>
                             </div>
                             <p className="text-gray-600 mb-4">{error}</p>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-                            >
-                                Try Again
-                            </button>
                         </div>
                     ) : mappedAddresses.length === 0 ? (
                         <div className="text-center py-12">
