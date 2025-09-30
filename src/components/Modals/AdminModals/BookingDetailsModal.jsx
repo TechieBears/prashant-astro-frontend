@@ -5,12 +5,11 @@ import { Video, TickCircle, CloseCircle } from 'iconsax-reactjs';
 import moment from 'moment';
 import { checkAvailabilityById, updateServiceOrderStatus } from '../../../api';
 import toast from 'react-hot-toast';
+import { formBtn1 } from '../../../utils/CustomClass';
 
 function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
-    console.log("⚡️🤯 ~ BookingDetailsModal.jsx:9 ~ BookingDetailsModal ~ bookingDatas:", bookingDatas)
 
     const [bookingData, setBookingData] = useState(null);
-    console.log("⚡️🤯 ~ BookingDetailsModal.jsx:12 ~ BookingDetailsModal ~ bookingData:", bookingData)
     const [isLoading, setIsLoading] = useState(false);
 
     const formatTime = (time) => {
@@ -48,11 +47,10 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
     };
 
     const handleAccept = async () => {
-
+        setIsLoading(true);
         try {
-
             const payload = {
-                serviceItemId: bookingData?.item?._id,
+                serviceItemId: bookingData?.item?.serviceItemId,
                 astrologerStatus: "accepted",
                 rejectReason: ""
             }
@@ -64,15 +62,17 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                 toast.error(response.message);
             }
         } catch (error) {
-            console.log("⚡️🤯 ~ BookingDetailsModal.jsx:53 ~ handleAccept ~ error:", error)
             toast.error("Failed to accept booking");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleReject = async () => {
+        setIsLoading(true);
         try {
             const payload = {
-                serviceItemId: bookingData?.item?._id,
+                serviceItemId: bookingData?.item?.serviceItemId,
                 astrologerStatus: "rejected",
                 rejectReason: ""
             }
@@ -84,16 +84,16 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                 toast.error(response.message);
             }
         } catch (error) {
-            console.log("⚡️🤯 ~ BookingDetailsModal.jsx:60 ~ handleReject ~ error:", error)
             toast.error("Failed to reject booking");
+        } finally {
+            setIsLoading(false);
         }
     };
 
 
     useEffect(() => {
         const getBookingData = async () => {
-            const response = await checkAvailabilityById("68d6aecb2c511b0f37e43d77");
-            console.log("⚡️🤯 ~ BookingDetailsModal.jsx:65 ~ getBookingData ~ response:", response)
+            const response = await checkAvailabilityById(bookingDatas?._id);
             setBookingData({ item: response?.item, itemData: response?.itemData });
         };
         getBookingData();
@@ -388,25 +388,23 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
 
                                         {/* Action Buttons */}
                                         <div className="bg-slate-50 px-4 py-3 border-t flex flex-col sm:flex-row gap-2 justify-end items-center">
-
-
                                             <div className="flex gap-3">
                                                 {bookingData?.item?.astrologerStatus === 'pending' && (
                                                     <>
                                                         <button
                                                             type="button"
                                                             onClick={handleReject}
-                                                            className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 rounded-md hover:from-red-600 hover:to-red-700 transform  transition-all duration-200  font-tbPop"
+                                                            disabled={isLoading}
+                                                            className={`${formBtn1}  !bg-red-500`}
                                                         >
-                                                            <CloseCircle size={18} />
                                                             Reject Booking
                                                         </button>
                                                         <button
                                                             type="button"
                                                             onClick={handleAccept}
-                                                            className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-green-600 rounded-md hover:from-green-600 hover:to-green-700 transform  transition-all duration-200  font-tbPop"
+                                                            disabled={isLoading}
+                                                            className={`${formBtn1}  !bg-green-500`}
                                                         >
-                                                            <TickCircle size={18} />
                                                             Accept Booking
                                                         </button>
                                                     </>

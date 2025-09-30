@@ -288,8 +288,9 @@ const VenueCalendar = () => {
 
             <BookingDetailsModal
                 open={showBookingModal}
+                refetch={getSlots}
                 toggle={() => setShowBookingModal(false)}
-                bookingData={selectedBooking}
+                bookingDatas={selectedBooking}
             />
         </div>
     );

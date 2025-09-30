@@ -64,7 +64,6 @@ export default function ForgetPasswordModal({ open, setOpen }) {
         setIsLoading(true);
         try {
             await forgetUser(data).then((res) => {
-                console.log("⚡️🤯 ~ ForgetPasswordModal.jsx:64 ~ awaitforgetUser ~ res:", res)
                 if (res?.message === "OTP sent to your email") {
                     toast.success("OTP sent successfully ✅");
                     setEmail(data.email);
@@ -128,7 +127,6 @@ export default function ForgetPasswordModal({ open, setOpen }) {
                 email,
                 updatedPassword: data.newPassword,
             }).then((res) => {
-                console.log("⚡️🤯 ~ ForgetPasswordModal.jsx:128 ~ submitNewPassword ~ res:", res)
                 if (res?.message == "Password updated successfully") {
                     toast.success("Password updated successfully");
                     setOpen(false);

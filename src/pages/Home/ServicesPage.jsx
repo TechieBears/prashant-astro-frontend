@@ -23,7 +23,6 @@ const ServicesPage = () => {
 
         const fetchServices = async () => {
             const response = await getServicesList();
-            console.log('services', response?.data)
             if (response?.success) {
                 setServices(response?.data);
             }
@@ -31,7 +30,6 @@ const ServicesPage = () => {
         };
         const fetchCategories = async () => {
             const response = await getCategoriesList();
-            console.log('categories', response)
             if (response?.success) {
                 setCategories(response?.data);
                 setSelectedCategory(response?.data[0]);

@@ -223,7 +223,6 @@ export const registerUser = async (data) => {
 
 export const loginUser = async (data) => {
     const url = `${environment.baseUrl}user/login`;
-    console.log('urlurlurl', url)
     try {
         const response = await axios.post(url, data)
         return response.data
@@ -688,7 +687,6 @@ export const getFilterProduction = async (data, page) => {
     try {
         const url = `${environment.baseUrl}user/production-pagination?subRole=${data?.subRole || ""}&page=${page || 1}`
         const response = await axios.get(url)
-        console.log("⚡️🤯 ~ index.jsx:384 ~ getFilterProduction ~ response:", response)
         return response.data
     } catch (err) {
         console.log('error in get Filtered production api file', err)
@@ -706,11 +704,9 @@ export const getDubbingProductionActors = async (data, page) => {
     }
 }
 export const getAllActors = async (data, page) => {
-    console.log("⚡️🤯 ~ index.jsx:413 ~ getAllActors ~ data:", data)
     const url = `${environment.baseUrl}user/actors-pagination?role=${data?.role || ""}&actorType=${data?.actorType || ""}&page=${page || 1}`;
     try {
         const response = await axios.get(url)
-        console.log("⚡️🤯 ~ index.jsx:416 ~ getAllActors ~ response:", response)
         return response?.data
     }
     catch (err) {
@@ -730,7 +726,6 @@ export const paymentOrderId = async (id, data) => {
         return response.data
     }
     catch (err) {
-        console.log("⚡️🤯 ~ index.jsx:415 ~ paymentOrderId ~ err:", err)
         return err?.response?.data
     }
 };
@@ -1067,7 +1062,6 @@ export const editService = async (id, data) => {
 
 // ======================= Products Api ======================
 export const getProducts = async (data) => {
-    console.log('data', data)
     try {
         const url = `${environment.baseUrl}product/get-all?name=${data?.name}&categoryName=${data?.categoryName}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
@@ -1754,7 +1748,6 @@ export const deleteFeedback = async (id) => {
 // =========================== admin product order api ====================
 
 export const getAllProductOrders = async (data) => {
-    console.log('data', data)
     try {
         const url = `${environment.baseUrl}product-order/get-all?orderId=${data?.orderId || ""}&date=${data?.date || ""}&status=${data?.status || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
@@ -1769,7 +1762,6 @@ export const getAllProductOrders = async (data) => {
 export const updateProductOrder = async (data) => {
     try {
         const url = `${environment.baseUrl}product-order/update-order-status`;
-        console.log("⚡️🤯 ~ index.jsx:1230 ~ getPublicServicesSingle ~ url:", url)
         const response = await axios.post(url, data);
         return response.data;
     }
@@ -1805,9 +1797,9 @@ export const checkAvailabilityById = async (id) => {
 
 
 export const updateServiceOrderStatus = async (data) => {
-    const url = `${environment.baseUrl}service-order/update-order-status`;
+    const url = `${environment.baseUrl}service-order/astrologer/update-order-status`;
     try {
-        const response = await axios.put(url, data)
+        const response = await axios.post(url, data)
         return response.data
     }
     catch (err) {

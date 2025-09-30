@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { formBtn1 } from '../../utils/CustomClass';
@@ -9,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 import SelectTextInput from '../../components/TextInput/SelectTextInput';
 import { registerUser } from '../../api';
 import toast from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setLoggedUserDetails } from '../../redux/Slices/loginSlice';
 import { validateEmail, validatePassword, validatePhoneNumber } from '../../utils/validateFunction';
 import { useGSAP } from '@gsap/react';
@@ -24,9 +22,6 @@ const registerNamePage = () => {
         watch,
         formState: { errors },
     } = useForm();
-    const [registerNamess, setregisterNames] = React.useState(true);
-    const loginDetails = useSelector((state) => state.user.loggedUserDetails)
-    const formFillCheck = useSelector((state) => state.user.registerNameFormDetails)
     const dispatch = useDispatch();
 
     // ================ Data submit form ==================
@@ -34,7 +29,6 @@ const registerNamePage = () => {
         try {
             setLoader(true)
             await registerUser(data).then((res) => {
-                console.log("⚡️🤯 ~ registerNamePage.jsx:40 ~ awaitregisterUser ~ res:", res)
                 if (res?.message == "User created successfully") {
                     document.title = `Hamax : Talent Dashbaord | ${res?.user?.baseRole || ""}`
                     localStorage.removeItem('persist:root');

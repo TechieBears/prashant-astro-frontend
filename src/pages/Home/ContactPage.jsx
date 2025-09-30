@@ -18,7 +18,6 @@ const ContactPage = () => {
 
         try {
             const response = await postContactUs(data);
-            console.log('response contact us', response)
             if (response.success) {
                 toast.success(response?.message, {
                     autoClose: 3000,
