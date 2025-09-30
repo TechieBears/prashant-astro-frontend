@@ -1844,17 +1844,17 @@ export const adminSlots = async (date) => {
 
 // =========================== admin product order api ====================
 
-export const getAllTestimonials = async (data) => {
-    try {
-        const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
-        const response = await axios.get(url)
-        return response.data
-    }
-    catch (err) {
-        console.log("==========error in getAllTestimonials api file", err);
-        return err?.response?.data
-    }
-}
+// export const getAllTestimonials = async (data) => {
+//     try {
+//         const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+//         const response = await axios.get(url)
+//         return response.data
+//     }
+//     catch (err) {
+//         console.log("==========error in getAllTestimonials api file", err);
+//         return err?.response?.data
+//     }
+// }
 export const editTestimonials = async (id, data) => {
     const url = `${environment.baseUrl}testimonials/update?id=${id}`;
     try {
