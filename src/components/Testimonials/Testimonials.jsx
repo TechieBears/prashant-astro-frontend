@@ -84,18 +84,18 @@ const Testimonials = () => {
 
                 {/* Testimonials Carousel */}
                 <div className="relative">
-                    {/* Navigation Arrows */}
+                    {/* Navigation Arrows - Hidden on mobile, visible on md+ */}
                     {testimonialsData.length > 1 && (
                         <>
                             <button
                                 onClick={handlePrev}
-                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200 shadow-md"
+                                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gray-100 rounded-full items-center justify-center transition-colors duration-200 shadow-md"
                             >
                                 <ArrowLeft02Icon className="w-6 h-6 text-gray-600" />
                             </button>
                             <button
                                 onClick={handleNext}
-                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200 shadow-md"
+                                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white hover:bg-gray-100 rounded-full items-center justify-center transition-colors duration-200 shadow-md"
                             >
                                 <ArrowRight02Icon className="w-6 h-6 text-gray-600" />
                             </button>
@@ -103,15 +103,14 @@ const Testimonials = () => {
                     )}
 
                     {/* Testimonials Cards */}
-                    <div className="flex items-center justify-center gap-6 px-16">
+                    <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 px-4 sm:px-8 md:px-16">
                         {testimonialsData.length > 0 ? (
-                            // If we have 3 or more testimonials, show 3 cards
-                            // If we have 2 testimonials, show 2 cards
-                            // If we have 1 testimonial, show 1 card centered
+                            // Mobile: Show only center card
+                            // Desktop: Show 3 cards (left, center, right)
                             [
-                                ...(testimonialsData.length > 1 ? [{ 
-                                    index: (currentIndex - 1 + testimonialsData.length) % testimonialsData.length, 
-                                    isCenter: false 
+                                ...(testimonialsData.length > 1 ? [{
+                                    index: (currentIndex - 1 + testimonialsData.length) % testimonialsData.length,
+                                    isCenter: false
                                 }] : []),
                                 { index: currentIndex, isCenter: true },
                                 ...(testimonialsData.length > 2 ? [{
@@ -121,47 +120,44 @@ const Testimonials = () => {
                             ].map(({ index, isCenter }) => {
                                 const testimonial = testimonialsData[index];
                                 if (!testimonial) return null;
-                                
+
                                 return (
                                     <div
                                         key={index}
-                                        className={`relative transition-all duration-500 ease-in-out ${
-                                            isCenter 
-                                                ? 'scale-100 opacity-100 z-20' 
-                                                : 'scale-90 opacity-70 z-10'
-                                        }`}
+                                        className={`relative transition-all duration-500 ease-in-out ${isCenter
+                                            ? 'scale-100 opacity-100 z-20'
+                                            : 'scale-90 opacity-70 z-10 hidden md:block'
+                                            }`}
                                     >
-                                        <img 
-                                            src={Comment} 
-                                            alt="Comment" 
-                                            className="absolute -top-4 -left-4 w-16 h-16 z-20 scale-x-[-1]" 
+                                        <img
+                                            src={Comment}
+                                            alt="Comment"
+                                            className="absolute -top-2 -left-2 sm:-top-4 sm:-left-4 w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 z-20 scale-x-[-1]"
                                         />
-                                        <div className={`w-80 h-auto min-h-[24rem] rounded-2xl p-8 flex flex-col ${
-                                            isCenter 
-                                                ? 'bg-button-gradient-orange text-white shadow-2xl' 
-                                                : 'bg-white text-base-font shadow-lg'
-                                        }`}>
-                                            <div className="flex justify-center mb-6">
+                                        <div className={`w-72 sm:w-80 md:w-80 h-auto min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col ${isCenter
+                                            ? 'bg-button-gradient-orange text-white shadow-2xl'
+                                            : 'bg-white text-base-font shadow-lg'
+                                            }`}>
+                                            <div className="flex justify-center mb-4 sm:mb-6">
                                                 <div className="flex">
                                                     {renderStars(testimonial.rating)}
                                                 </div>
                                             </div>
-                                            <p className={`flex-grow italic mb-6 ${
-                                                isCenter ? 'text-white' : 'text-gray-600'
-                                            }`}>
+                                            <p className={`flex-grow italic mb-4 sm:mb-6 text-sm sm:text-base ${isCenter ? 'text-white' : 'text-gray-600'
+                                                }`}>
                                                 "{testimonial.review}"
                                             </p>
                                             <div className="flex items-center">
-                                                <img 
-                                                    src={testimonial.image} 
+                                                <img
+                                                    src={testimonial.image}
                                                     alt={testimonial.name}
-                                                    className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white"
+                                                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mr-3 sm:mr-4 border-2 border-white"
                                                     onError={(e) => {
                                                         e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(testimonial.name)}&background=8833FF&color=fff&size=96`;
                                                     }}
                                                 />
                                                 <div>
-                                                    <h4 className={`font-semibold ${isCenter ? 'text-white' : 'text-gray-800'}`}>
+                                                    <h4 className={`font-semibold text-sm sm:text-base ${isCenter ? 'text-white' : 'text-gray-800'}`}>
                                                         {testimonial.name}
                                                     </h4>
                                                 </div>
@@ -176,6 +172,24 @@ const Testimonials = () => {
                             </div>
                         )}
                     </div>
+
+                    {/* Mobile Navigation - Only visible on mobile, positioned below cards */}
+                    {testimonialsData.length > 1 && (
+                        <div className="md:hidden flex justify-center gap-4 mt-6">
+                            <button
+                                onClick={handlePrev}
+                                className="w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200 shadow-md"
+                            >
+                                <ArrowLeft02Icon className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <button
+                                onClick={handleNext}
+                                className="w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center transition-colors duration-200 shadow-md"
+                            >
+                                <ArrowRight02Icon className="w-5 h-5 text-gray-600" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
