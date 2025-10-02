@@ -104,7 +104,7 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                                     alt="Home Banner"
                                     className="w-full h-full absolute inset-0 z-0 object-cover sm:mt-16 mt-16 lg:mt-0"
                                     style={{
-                                        objectPosition: 'center',
+                                        objectPosition: '6% center',
                                         objectFit: 'cover',
                                     }}
                                     onError={(e) => {
@@ -137,25 +137,24 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                                     {/* Left Half - Only visible on Desktop and Laptop */}
                                     <div className="hidden md:block md:w-1/2" />
 
-                                    {/* Right Half - Content */}
-                                    <div className="w-full md:w-1/2 flex items-center justify-center px-1 sm:px-6 md:px-12 lg:px-20 py-1 sm:py-12 md:py-16 mt-10 md:mt-0">
-                                        <div className="text-center md:text-left flex flex-col space-y-4 sm:space-y-6 max-w-2xl">
-                                            <h1 className="split text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl mb-4 sm:mb-6 font-procSans font-bold bg-text-gradient-orange bg-clip-text text-transparent overflow-hidden leading-tight">
+                                    {/* Right Half - Content - Hidden on mobile, visible on md and up */}
+                                    <div className="hidden md:flex md:w-1/2 items-center justify-center px-6 md:px-12 lg:px-20 py-12 md:py-16">
+                                        <div className="text-left flex flex-col space-y-6 max-w-2xl">
+                                            <h1 className="split text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl mb-6 font-procSans font-bold bg-text-gradient-orange bg-clip-text text-transparent overflow-hidden leading-tight">
                                                 {slide.title}
                                             </h1>
-                                            <p className="discrption text-sm sm:text-base md:text-lg lg:text-xl font-tbPop font-normal text-white md:text-black max-w-4xl !mb-4 sm:!mb-5 overflow-hidden leading-relaxed">
+                                            <p className="discrption text-lg lg:text-xl font-tbPop font-normal text-black max-w-4xl !mb-5 overflow-hidden leading-relaxed">
                                                 {slide.description}
                                             </p>
-                                            <div className="flex flex-row md:flex-row w-full justify-between gap-3 md:gap-6">
+                                            <div className="flex flex-row w-full justify-between gap-6">
                                                 <NavLink
                                                     to="/services"
-                                                    className="hidden md:flex bg-gradient-orange w-full flex-row items-center justify-center gap-2 
+                                                    className="bg-gradient-orange w-full flex flex-row items-center justify-center gap-2 
              text-white font-medium px-6 py-2 text-base rounded shadow hover:opacity-90 transition"
                                                 >
                                                     <Calendar03Icon size={18} color="#fff" />
                                                     <span className="text-lg">Book Consultation</span>
                                                 </NavLink>
-
 
                                                 <button
                                                     onClick={() => {
@@ -164,19 +163,16 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                                                             element.scrollIntoView({ behavior: 'smooth' });
                                                         }
                                                     }}
-                                                    className="bg-white w-[60%] m-auto md:w-full xl:w-full lg:w-full  flex flex-row items-center justify-center gap-1 md:gap-2 
-               text-black font-medium px-3 py-1.5 md:px-6 md:py-2 
-               text-sm md:text-base rounded shadow hover:opacity-90 transition"
+                                                    className="bg-white w-full flex flex-row items-center justify-center gap-2 
+               text-black font-medium px-6 py-2 
+               text-base rounded shadow hover:opacity-90 transition"
                                                 >
-                                                    <PlayListIcon size={14} className="md:hidden" color="orange" />
-                                                    <PlayListIcon size={18} className="hidden md:block" color="orange" />
-                                                    <span className="bg-text-gradient-orange bg-clip-text text-transparent text-sm sm:text-base md:text-lg">
+                                                    <PlayListIcon size={18} color="orange" />
+                                                    <span className="bg-text-gradient-orange bg-clip-text text-transparent text-lg">
                                                         Watch Introduction
                                                     </span>
                                                 </button>
                                             </div>
-
-
                                         </div>
                                     </div>
                                 </div>
