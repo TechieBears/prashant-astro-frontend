@@ -26,7 +26,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             phoneNumber: '',
             address: '',
             addressType: 'home',
-            country: '',
+            country: 'India',
             state: '',
             city: '',
             postalCode: '',
@@ -45,7 +45,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                 phoneNumber: addressData.phoneNumber || '',
                 address: addressData.address || '',
                 addressType: addressData.addressType || 'home',
-                country: addressData.country || '',
+                country: 'India',
                 state: addressData.state || '',
                 city: addressData.city || '',
                 postalCode: addressData.postalCode || '',
@@ -235,13 +235,13 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             >
                                 <option value="">Select state</option>
                                 <option value="Maharashtra">Maharashtra</option>
-                                <option value="Gujarat">Gujarat</option>
+                                {/* <option value="Gujarat">Gujarat</option>
                                 <option value="Karnataka">Karnataka</option>
                                 <option value="Tamil Nadu">Tamil Nadu</option>
                                 <option value="Western Australia">Western Australia</option>
                                 <option value="New South Wales">New South Wales</option>
                                 <option value="California">California</option>
-                                <option value="Texas">Texas</option>
+                                <option value="Texas">Texas</option> */}
                             </select>
                             {errors.state && (
                                 <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
@@ -324,7 +324,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         </div>
 
                         {/* Country */}
-                        <div>
+                        {/* <div>
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Country
                             </label>
@@ -344,7 +344,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             {errors.country && (
                                 <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
                             )}
-                        </div>
+                        </div>  */}
 
                         {/* City */}
                         <div>
@@ -360,13 +360,13 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             >
                                 <option value="">Select city</option>
                                 <option value="Mumbai">Mumbai</option>
-                                <option value="Delhi">Delhi</option>
+                                {/* <option value="Delhi">Delhi</option>
                                 <option value="Bangalore">Bangalore</option>
-                                <option value="Chennai">Chennai</option>
-                                <option value="Perth">Perth</option>
+                                <option value="Chennai">Chennai</option> */}
+                                {/* <option value="Perth">Perth</option>
                                 <option value="Sydney">Sydney</option>
                                 <option value="Los Angeles">Los Angeles</option>
-                                <option value="New York">New York</option>
+                                <option value="New York">New York</option> */}
                             </select>
                             {errors.city && (
                                 <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
