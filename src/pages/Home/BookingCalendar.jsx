@@ -39,9 +39,11 @@ const BookingCalendar = () => {
             serviceType: '',
             serviceMode: 'online',
             astrologer: '',
-            fullName: '',
-            mobileNumber: '',
-            emailAddress: '',
+            bookingType: 'self', // 'self' or 'others'
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
             timeSlot: '',
             selectedDate: null
         }
@@ -51,15 +53,36 @@ const BookingCalendar = () => {
     const watchedAstrologer = watch('astrologer');
     const watchedDate = watch('selectedDate');
     const watchedServiceType = watch('serviceType');
+    const watchedBookingType = watch('bookingType');
 
     // User details population
     useEffect(() => {
         if (loggedUserDetails && Object.keys(loggedUserDetails).length > 0) {
-            setValue('fullName', `${loggedUserDetails.firstName || ''} ${loggedUserDetails.lastName || ''}`.trim());
-            setValue('mobileNumber', loggedUserDetails.mobileNo || '');
-            setValue('emailAddress', loggedUserDetails.email || '');
+            setValue('firstName', loggedUserDetails.firstName || '');
+            setValue('lastName', loggedUserDetails.lastName || '');
+            setValue('phone', loggedUserDetails.mobileNo || '');
+            setValue('email', loggedUserDetails.email || '');
         }
     }, [loggedUserDetails, setValue]);
+
+    // Handle booking type change
+    useEffect(() => {
+        if (watchedBookingType === 'others') {
+            // Clear fields when "For Others" tab is selected
+            setValue('firstName', '');
+            setValue('lastName', '');
+            setValue('phone', '');
+            setValue('email', '');
+        } else if (watchedBookingType === 'self') {
+            // Restore user details when "For Self" tab is selected
+            if (loggedUserDetails && Object.keys(loggedUserDetails).length > 0) {
+                setValue('firstName', loggedUserDetails.firstName || '');
+                setValue('lastName', loggedUserDetails.lastName || '');
+                setValue('phone', loggedUserDetails.mobileNo || '');
+                setValue('email', loggedUserDetails.email || '');
+            }
+        }
+    }, [watchedBookingType, loggedUserDetails, setValue]);
 
     const [selectedDate, setSelectedDate] = useState(null);
 
@@ -302,6 +325,26 @@ const BookingCalendar = () => {
                 return;
             }
 
+            // Validate personal details when booking for others
+            if (data.bookingType === 'others') {
+                if (!data.firstName || !data.firstName.trim()) {
+                    toast.error('Please enter first name');
+                    return;
+                }
+                if (!data.lastName || !data.lastName.trim()) {
+                    toast.error('Please enter last name');
+                    return;
+                }
+                if (!data.email || !data.email.trim()) {
+                    toast.error('Please enter email address');
+                    return;
+                }
+                if (!data.phone || !data.phone.trim()) {
+                    toast.error('Please enter phone number');
+                    return;
+                }
+            }
+
             // Format date for API (YYYY-MM-DD format)
             const formattedDate = data.selectedDate.toLocaleDateString('en-CA');
 
@@ -324,7 +367,11 @@ const BookingCalendar = () => {
                 astrologer: data.astrologer,
                 startTime: startTime,
                 endTime: endTime,
-                date: formattedDate
+                date: formattedDate,
+                firstName: data.firstName || '',
+                lastName: data.lastName || '',
+                email: data.email || '',
+                phone: data.phone || ''
             };
 
             // Call the API to add service to cart
@@ -484,56 +531,141 @@ const BookingCalendar = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.astrologer.message}</p>
                                 )}
 
-                                {/* Full Name and Mobile Number in one row */}
+                                {/* Booking Type Tabs */}
+                                <Controller
+                                    name="bookingType"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <div className="flex justify-center">
+                                            <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm w-full max-w-md">
+                                                <button
+                                                    type="button"
+                                                    className={`px-6 py-2 rounded-full transition-colors text-sm flex-1 ${field.value === 'self'
+                                                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                                        : 'text-gray-600 hover:bg-gray-50'
+                                                        }`}
+                                                    onClick={() => field.onChange('self')}
+                                                >
+                                                    For Self
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`px-6 py-2 rounded-full transition-colors text-sm flex-1 ${field.value === 'others'
+                                                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
+                                                        : 'text-gray-600 hover:bg-gray-50'
+                                                        }`}
+                                                    onClick={() => field.onChange('others')}
+                                                >
+                                                    For Others
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                />
+
+                                {/* First Name and Last Name in one row */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Full Name */}
+                                    {/* First Name */}
                                     <Controller
-                                        name="fullName"
+                                        name="firstName"
                                         control={control}
+                                        rules={{
+                                            required: watchedBookingType === 'others' ? 'First name is required' : false
+                                        }}
                                         render={({ field }) => (
                                             <Input
-                                                id="fullName"
-                                                label="Full Name"
+                                                id="firstName"
+                                                label="First Name"
                                                 type="text"
                                                 value={field.value}
-                                                readOnly
-                                                className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                                onChange={field.onChange}
+                                                readOnly={watchedBookingType === 'self'}
+                                                className={watchedBookingType === 'others' ? "" : "bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"}
                                             />
                                         )}
                                     />
 
-                                    {/* Mobile Number */}
+                                    {/* Last Name */}
                                     <Controller
-                                        name="mobileNumber"
+                                        name="lastName"
                                         control={control}
+                                        rules={{
+                                            required: watchedBookingType === 'others' ? 'Last name is required' : false
+                                        }}
                                         render={({ field }) => (
                                             <Input
-                                                id="mobileNumber"
-                                                label="Mobile Number"
-                                                type="tel"
+                                                id="lastName"
+                                                label="Last Name"
+                                                type="text"
                                                 value={field.value}
-                                                readOnly
-                                                className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
+                                                onChange={field.onChange}
+                                                readOnly={watchedBookingType === 'self'}
+                                                className={watchedBookingType === 'others' ? "" : "bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"}
                                             />
                                         )}
                                     />
                                 </div>
 
-                                {/* Email Address */}
-                                <Controller
-                                    name="emailAddress"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input
-                                            id="emailAddress"
-                                            label="Email Address"
-                                            type="email"
-                                            value={field.value}
-                                            readOnly
-                                            className="bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"
-                                        />
-                                    )}
-                                />
+                                {/* Phone and Email in one row */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Phone Number */}
+                                    <Controller
+                                        name="phone"
+                                        control={control}
+                                        rules={{
+                                            required: watchedBookingType === 'others' ? 'Phone number is required' : false
+                                        }}
+                                        render={({ field }) => (
+                                            <Input
+                                                id="phone"
+                                                label="Phone Number"
+                                                type="tel"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                readOnly={watchedBookingType === 'self'}
+                                                className={watchedBookingType === 'others' ? "" : "bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"}
+                                            />
+                                        )}
+                                    />
+
+                                    {/* Email Address */}
+                                    <Controller
+                                        name="email"
+                                        control={control}
+                                        rules={{
+                                            required: watchedBookingType === 'others' ? 'Email address is required' : false,
+                                            pattern: watchedBookingType === 'others' ? {
+                                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                message: 'Invalid email address'
+                                            } : undefined
+                                        }}
+                                        render={({ field }) => (
+                                            <Input
+                                                id="email"
+                                                label="Email Address"
+                                                type="email"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                readOnly={watchedBookingType === 'self'}
+                                                className={watchedBookingType === 'others' ? "" : "bg-gray-50 border-gray-200 text-gray-600 cursor-not-allowed"}
+                                            />
+                                        )}
+                                    />
+                                </div>
+
+                                {/* Display validation errors */}
+                                {errors.firstName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                                )}
+                                {errors.lastName && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                                )}
+                                {errors.phone && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                                )}
+                                {errors.email && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                                )}
                             </div>
 
                             {/* Right Column - Time and Date Selection */}
