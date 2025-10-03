@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { environment } from "../../../env";
 
 const initialState = {
     isLogged: false,
@@ -16,7 +17,7 @@ export const loginUser = createAsyncThunk(
     async ({ email, password }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/auth/login`,
+                `${environment.baseUrl}auth/login`,
                 { email, password },
                 { headers: { "Content-Type": "application/json" } }
             );
@@ -33,7 +34,7 @@ export const logoutUser = createAsyncThunk(
         try {
             const token = localStorage.getItem("token");
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/auth/logout`,
+                `${environment.baseUrl}auth/logout`,
                 {},
                 {
                     headers: {
@@ -53,7 +54,7 @@ export const registerUser = createAsyncThunk(
     async ({ title, firstName, lastName, email, password, phone, registerType = "normal" }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/customer-users/register`,
+                `${environment.baseUrl}customer-users/register`,
                 { title, firstName, lastName, email, password, phone, registerType },
                 { headers: { "Content-type": "application/json" } }
             );
@@ -69,7 +70,7 @@ export const forgetUserPassword = createAsyncThunk(
     async ({ email }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/customer-users/forgot-password`,
+                `${environment.baseUrl}customer-users/forgot-password`,
                 { email },
                 { headers: { "Content-Type": "application/json" } }
             );
@@ -84,7 +85,7 @@ export const resetUserPassword = createAsyncThunk(
     async ({ token, password }, { rejectWithValue }) => {
         try {
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/api/customer-users/reset-password`,
+                `${environment.baseUrl}customer-users/reset-password`,
                 { token, password },
                 { headers: { "Content-Type": "application/json" } }
             );
@@ -101,7 +102,7 @@ export const deleteUser = createAsyncThunk(
         try {
             const token = localStorage.getItem("token");
             const response = await axios.delete(
-                `${import.meta.env.VITE_BASE_URL}/api/customer-users/delete`,
+                `${environment.baseUrl}customer-users/delete`,
                 {
                     headers: {
                         "Content-Type": "application/json",
