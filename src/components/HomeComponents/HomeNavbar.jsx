@@ -7,7 +7,8 @@ import { List, X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoginCurve, Profile } from "iconsax-reactjs";
 import { formatRole } from "../../helper/Helper";
-import { fetchNavDropdowns } from "../../redux/Slices/navSlice";
+import { fetchNavDropdownsSuccess, setLoading as setNavLoading, setError as setNavError } from "../../redux/Slices/navSlice";
+import { getNavDropdowns } from "../../api";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
@@ -171,9 +172,24 @@ const HomeNavbar = () => {
 
     // Fetch navigation data when component mounts
     useEffect(() => {
-        if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
-            dispatch(fetchNavDropdowns());
-        }
+        const fetchNavData = async () => {
+            if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
+                try {
+                    dispatch(setNavLoading(true));
+                    const response = await getNavDropdowns();
+
+                    if (response.success) {
+                        dispatch(fetchNavDropdownsSuccess(response.data));
+                    } else {
+                        dispatch(setNavError(response.message || 'Failed to fetch navigation data'));
+                    }
+                } catch (error) {
+                    dispatch(setNavError(error.message || 'Failed to fetch navigation data'));
+                }
+            }
+        };
+
+        fetchNavData();
     }, [dispatch, servicesDropdown, productsDropdown]);
 
     // Cleanup timeout on unmount

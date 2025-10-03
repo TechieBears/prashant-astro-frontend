@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
-import { fetchCartData } from "../redux/Slices/cartSlice";
+import { useCart } from "../hooks/useCart";
 import { loginUser } from "../api";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -14,6 +14,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.user);
+  const { fetchCartData } = useCart();
 
   const {
     register,
@@ -35,7 +36,11 @@ const Login = () => {
         }));
 
         // Fetch user's cart data after successful login
-        dispatch(fetchCartData());
+        try {
+          await fetchCartData();
+        } catch (error) {
+          console.error('Failed to fetch cart data:', error);
+        }
         toast.success("Login successful!");
         navigate("/");
       } else {
@@ -128,3 +133,4 @@ const Login = () => {
 };
 
 export default Login;
+

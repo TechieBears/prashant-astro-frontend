@@ -2029,3 +2029,63 @@ export const getSingleProductOrder = async (orderId) => {
         return err?.response?.data || { success: false, message: 'Failed to fetch product order details' };
     }
 };
+
+// ==================== Navigation APIs ====================
+export const getServiceCategoriesDropdownPublic = async () => {
+    const url = `${environment.baseUrl}service-categories/public/dropdown`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching service categories dropdown:', err);
+        if (err.response?.data?.message) {
+            return { success: false, message: err.response.data.message };
+        } else if (err.message) {
+            return { success: false, message: err.message };
+        } else {
+            return { success: false, message: 'Failed to fetch service categories' };
+        }
+    }
+};
+
+export const getProductCategoriesWithProductsPublic = async () => {
+    const url = `${environment.baseUrl}product-categories/astroguid/public/categories-with-products`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching product categories with products:', err);
+        if (err.response?.data?.message) {
+            return { success: false, message: err.response.data.message };
+        } else if (err.message) {
+            return { success: false, message: err.message };
+        } else {
+            return { success: false, message: 'Failed to fetch product categories' };
+        }
+    }
+};
+
+export const getNavDropdowns = async () => {
+    try {
+        const [serviceCatRes, productCatRes] = await Promise.all([
+            getServiceCategoriesDropdownPublic(),
+            getProductCategoriesWithProductsPublic()
+        ]);
+
+        return {
+            success: true,
+            data: {
+                servicesDropdown: serviceCatRes.success ? serviceCatRes.data : [],
+                productsDropdown: productCatRes.success ? productCatRes.data : [],
+                servicesError: serviceCatRes.success ? null : serviceCatRes.message,
+                productsError: productCatRes.success ? null : productCatRes.message
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching navigation dropdowns:', error);
+        return {
+            success: false,
+            message: error.message || 'Failed to fetch navigation data'
+        };
+    }
+};

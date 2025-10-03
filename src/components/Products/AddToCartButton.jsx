@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../../api';
-import { updateProductQuantity, fetchCartData } from '../../redux/Slices/cartSlice';
+import { updateProductQuantitySuccess, optimisticUpdateQuantity } from '../../redux/Slices/cartSlice';
+import { updateCartItem } from '../../api';
+import { useCart } from '../../hooks/useCart';
 import toast from 'react-hot-toast';
 
 const AddToCartButton = ({
@@ -18,6 +20,7 @@ const AddToCartButton = ({
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const { fetchCartData } = useCart();
 
     const handleAddToCart = async () => {
         if (!productId) return toast.error('Product ID is missing');
@@ -35,13 +38,14 @@ const AddToCartButton = ({
         try {
             if (isInCart && cartItemId) {
                 // For existing cart items, we'll update the quantity by +1
-                const resultAction = await dispatch(updateProductQuantity({
-                    id: cartItemId,
-                    quantity: 1, // Always add 1 more
-                    increment: true // Indicate this is an increment operation
-                }));
+                dispatch(optimisticUpdateQuantity({ id: cartItemId, increment: true }));
 
-                if (updateProductQuantity.fulfilled.match(resultAction)) {
+                const response = await updateCartItem(cartItemId, 1);
+
+                if (response.success) {
+                    dispatch(updateProductQuantitySuccess({
+                        products: response.data.items || []
+                    }));
                     toast.success('Added one more to cart', { id: toastId });
                     // Wait a moment for the state to update
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -50,7 +54,7 @@ const AddToCartButton = ({
                         navigate('/cart', { state: { activeTab: 'products' } });
                     }
                 } else {
-                    throw new Error(resultAction.payload || 'Failed to update cart');
+                    throw new Error(response.message || 'Failed to update cart');
                 }
             } else {
                 // For new items, add with quantity 1
@@ -59,7 +63,11 @@ const AddToCartButton = ({
 
                 if (response?.success) {
                     // Refresh cart data after adding
-                    await dispatch(fetchCartData());
+                    try {
+                        await fetchCartData();
+                    } catch (fetchError) {
+                        console.error('Failed to refresh cart data:', fetchError);
+                    }
 
                     toast.success(message, { id: toastId });
                     // Navigate to cart page only if redirectToCart is true

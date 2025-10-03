@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { registerSuccess, loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
 import { registerUser, loginUser } from "../api";
-import { fetchCartData } from "../redux/Slices/cartSlice";
+import { useCart } from "../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import google from "../assets/google-icon.png";
@@ -13,6 +13,7 @@ import TextInput from "../components/TextInput/TextInput";
 const Register = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { fetchCartData } = useCart();
 
     const {
         register,
@@ -54,7 +55,11 @@ const Register = () => {
                     }));
 
                     // Fetch user's cart data after successful login
-                    dispatch(fetchCartData());
+                    try {
+                        await fetchCartData();
+                    } catch (error) {
+                        console.error('Failed to fetch cart data:', error);
+                    }
                     toast.success("Registration and login successful!");
                     navigate("/");
                 } else {
