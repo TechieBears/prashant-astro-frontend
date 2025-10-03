@@ -7,6 +7,7 @@ const initialState = {
     productsError: null,
     loading: false,
     error: null,
+    hasAttemptedFetch: false,
 };
 
 const navSlice = createSlice({
@@ -29,10 +30,12 @@ const navSlice = createSlice({
             state.servicesError = action.payload.servicesError;
             state.productsError = action.payload.productsError;
             state.error = null;
+            state.hasAttemptedFetch = true;
         },
         fetchNavDropdownsFailure: (state, action) => {
             state.loading = false;
             state.error = action.payload;
+            state.hasAttemptedFetch = true;
         },
         clearNavData: (state) => {
             state.servicesDropdown = [];
@@ -40,6 +43,7 @@ const navSlice = createSlice({
             state.servicesError = null;
             state.productsError = null;
             state.error = null;
+            state.hasAttemptedFetch = false;
         }
     }
 });
