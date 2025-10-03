@@ -11,7 +11,8 @@ import { fetchNavDropdowns } from "../../redux/Slices/navSlice";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
-import { logoutUser } from "../../redux/Slices/loginSlice";
+import { logoutSuccess, setLoading, setError } from "../../redux/Slices/loginSlice";
+import { logoutUser } from "../../api";
 import { clearCart } from "../../redux/Slices/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
@@ -186,19 +187,24 @@ const HomeNavbar = () => {
 
     const handleLogout = async () => {
         try {
-            const res = await dispatch(logoutUser()).unwrap();
+            dispatch(setLoading(true));
 
-            if (res?.success) {
+            const response = await logoutUser();
+
+            if (response.success) {
+                dispatch(logoutSuccess());
                 dispatch(clearCart());
-                toast.success(res.message || "Logged out successfully");
+                toast.success(response.message || "Logged out successfully");
                 navigate("/");
                 setCard(true);
             } else {
-                toast.error(res?.message || "Something went wrong");
+                dispatch(setError(response.message || "Something went wrong"));
+                toast.error(response.message || "Something went wrong");
             }
-        } catch (err) {
-            toast.error(err || "Logout failed");
-            console.error("Logout Failed:", err);
+        } catch (error) {
+            dispatch(setError(error.message || "Logout failed"));
+            toast.error(error.message || "Logout failed");
+            console.error("Logout Failed:", error);
         }
     };
 
