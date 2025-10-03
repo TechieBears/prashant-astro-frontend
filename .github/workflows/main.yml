@@ -1,0 +1,30 @@
+name: Deploy Node.js Project to AWS VPS
+
+on:
+  push:
+    branches:
+      - pre-prod
+
+jobs:
+  deploy-production:
+    if: github.ref == 'refs/heads/pre-prod'
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+
+    steps:
+    - name: Run Deployment on Production
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          echo "Navigating to project directory..."
+          cd ${{ secrets.PROJECT_PATH }}
+          echo "Resetting and pulling latest code..."
+          git fetch --all
+          git reset --hard origin/${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
+          yarn install
+          yarn build
+          
