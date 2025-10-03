@@ -7,14 +7,14 @@ export const environment = {
     // baseUrl: 'https://c938f75e4997.ngrok-free.app/api/',
     // production: false
 
-    // -------------------- Devlopment Server Api URL --------------------
+    // // -------------------- Devlopment Server Api URL --------------------
     // baseUrl: 'https://soulplan-astro-backend.vercel.app/api/',
     // production: false,
 
 
     // -------------------- Live Server Api URL --------------------
 
-    // baseUrl: 'http://72.60.103.79/api/',
+    // baseUrl: 'https://api.astroguid.com/api/',
     // production: true,
 
 }
