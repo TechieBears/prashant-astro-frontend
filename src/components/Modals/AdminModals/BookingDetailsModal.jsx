@@ -6,11 +6,15 @@ import moment from 'moment';
 import { checkAvailabilityById, updateServiceOrderStatus } from '../../../api';
 import toast from 'react-hot-toast';
 import { formBtn1 } from '../../../utils/CustomClass';
+import Preloaders from '../../Loader/Preloaders';
 
 function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
 
     const [bookingData, setBookingData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [Loading, setLoading] = useState(true);
+    const [showRejectInput, setShowRejectInput] = useState(false);
+    const [rejectReason, setRejectReason] = useState('');
 
     const formatTime = (time) => {
         return moment(time, "HH:mm").format("hh:mm A");
@@ -68,17 +72,28 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
         }
     };
 
+    const handleRejectClick = () => {
+        setShowRejectInput(true);
+    };
+
     const handleReject = async () => {
+        if (!rejectReason.trim()) {
+            toast.error("Please provide a reason for rejection");
+            return;
+        }
+
         setIsLoading(true);
         try {
             const payload = {
                 serviceItemId: bookingData?.item?.serviceItemId,
                 astrologerStatus: "rejected",
-                rejectReason: ""
+                rejectReason: rejectReason.trim()
             }
             const response = await updateServiceOrderStatus(payload);
             if (response.success) {
                 toast.success("Booking rejected successfully");
+                setShowRejectInput(false);
+                setRejectReason('');
                 refetch();
             } else {
                 toast.error(response.message);
@@ -90,13 +105,30 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
         }
     };
 
+    const handleCancelReject = () => {
+        setShowRejectInput(false);
+        setRejectReason('');
+    };
+
 
     useEffect(() => {
         const getBookingData = async () => {
-            const response = await checkAvailabilityById(bookingDatas?._id);
-            setBookingData({ item: response?.item, itemData: response?.itemData });
+            try {
+                const response = await checkAvailabilityById(bookingDatas?._id);
+                setBookingData({ item: response?.item, itemData: response?.itemData });
+            } catch (error) {
+                toast.error("Failed to fetch booking details");
+                setLoading(false);
+            } finally {
+                setLoading(false);
+            }
         };
-        getBookingData();
+
+        if (open && bookingDatas?._id) {
+            getBookingData();
+            setShowRejectInput(false);
+            setRejectReason('');
+        }
     }, [open, bookingDatas]);
 
     return (
@@ -131,7 +163,7 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                                     toggle={toggle}
                                 />
 
-                                {bookingData ? (
+                                {!Loading ? (
                                     <div className="bg-white">
                                         {/* Status Overview */}
                                         <div className="bg-white p-4">
@@ -387,40 +419,73 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="bg-slate-50 px-4 py-3 border-t flex flex-col sm:flex-row gap-2 justify-end items-center">
-                                            <div className="flex gap-3">
-                                                {bookingData?.item?.astrologerStatus === 'pending' && (
-                                                    <>
-                                                        <button
-                                                            type="button"
-                                                            onClick={handleReject}
+                                        {bookingData?.item?.astrologerStatus === 'pending' && (
+                                            <div className="bg-slate-50 px-4 py-3 border-t">
+                                                {/* Reject Reason Input */}
+                                                {showRejectInput && (
+                                                    <div className="mb-4 p-4 bg-white rounded-lg">
+                                                        <h4 className="text-sm font-semibold text-gray-900 mb-2 font-tbPop">
+                                                            Reason for Rejection
+                                                        </h4>
+                                                        <textarea
+                                                            value={rejectReason}
+                                                            onChange={(e) => setRejectReason(e.target.value)}
+                                                            placeholder="Please provide a reason for rejecting this booking..."
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none resize-none font-tbLex"
+                                                            rows={3}
                                                             disabled={isLoading}
-                                                            className={`${formBtn1}  !bg-red-500`}
-                                                        >
-                                                            Reject Booking
-                                                        </button>
+                                                        />
+                                                        <div className="flex gap-2 mt-3 justify-end">
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleCancelReject}
+                                                                disabled={isLoading}
+                                                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 font-tbPop"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleReject}
+                                                                disabled={isLoading || !rejectReason.trim()}
+                                                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 font-tbPop"
+                                                            >
+                                                                {isLoading ? 'Rejecting...' : 'Confirm Rejection'}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Action Buttons */}
+                                                <div className="flex flex-col sm:flex-row gap-2 justify-end items-center">
+                                                    <div className="flex gap-3">
+                                                        {!showRejectInput && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleRejectClick}
+                                                                disabled={isLoading}
+                                                                className={`${formBtn1} !bg-red-500 hover:!bg-red-600 flex items-center justify-center`}
+                                                            >
+                                                                <CloseCircle size={16} className="mr-1" />
+                                                                Reject Booking
+                                                            </button>
+                                                        )}
                                                         <button
                                                             type="button"
                                                             onClick={handleAccept}
                                                             disabled={isLoading}
-                                                            className={`${formBtn1}  !bg-green-500`}
+                                                            className={`${formBtn1} !bg-green-500 hover:!bg-green-600 flex items-center justify-center`}
                                                         >
+                                                            <TickCircle size={16} className="mr-1" />
                                                             Accept Booking
                                                         </button>
-                                                    </>
-                                                )}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 ) : (
-                                    <div className="p-6 text-center">
-                                        <div className="animate-pulse space-y-4">
-                                            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                                            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
-                                            <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
-                                        </div>
-                                        <p className="text-gray-500 mt-4 font-tbLex">Loading booking details...</p>
-                                    </div>
+                                    <Preloaders />
                                 )}
                             </Dialog.Panel>
                         </Transition.Child>

@@ -75,7 +75,6 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     icon: '/src/assets/user/orders/delivered.svg'
                 };
             case 'cancelled':
-            case 'cancelled':
                 return {
                     text: 'Order Cancelled',
                     shortText: 'Cancelled',

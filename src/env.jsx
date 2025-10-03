@@ -14,7 +14,7 @@ export const environment = {
 
     // -------------------- Live Server Api URL --------------------
 
-    // baseUrl: 'https://api.hamax.in/api/',
+    // baseUrl: 'http://72.60.103.79/api/',
     // production: true,
 
 }
