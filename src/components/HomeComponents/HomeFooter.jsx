@@ -22,8 +22,8 @@ const footerData = {
         { label: "Contact", path: "/contact" }
     ],
     contactInfo: {
-        phone: "+91 98765 43210",
-        email: "pandit.prashant@example.com",
+        phone: "+91 86930 00900",
+        email: "services@astroguid.com",
         location: "Online Consultations Available"
     },
     ctaButton: {

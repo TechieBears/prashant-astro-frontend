@@ -36,12 +36,12 @@ const ContactPage = () => {
     const contactData = [
         {
             name: "Email.ID",
-            value: "Panditprashant@gmail.com",
+            value: "services@astroguid.com",
             icon: <Mail01Icon size={20} className="text-white" />
         },
         {
             name: "WhatsApp",
-            value: "+91 89453 24796",
+            value: "+91 86930 00900",
             icon: <WhatsappIcon size={20} className="text-white" />
         },
         {

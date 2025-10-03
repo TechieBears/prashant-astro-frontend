@@ -1836,17 +1836,17 @@ export const adminSlots = async (date) => {
 
 // =========================== admin product order api ====================
 
-// export const getAllTestimonials = async (data) => {
-//     try {
-//         const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
-//         const response = await axios.get(url)
-//         return response.data
-//     }
-//     catch (err) {
-//         console.log("==========error in getAllTestimonials api file", err);
-//         return err?.response?.data
-//     }
-// }
+export const getAdminAllTestimonials = async (data) => {
+    try {
+        const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAdminAllTestimonials api file", err);
+        return err?.response?.data
+    }
+}
 export const editTestimonials = async (id, data) => {
     const url = `${environment.baseUrl}testimonials/update?id=${id}`;
     try {
@@ -1883,7 +1883,7 @@ export const getSingleServiceOrder = async (orderId) => {
 };
 
 export const getAllTestimonials = async (page = 1, limit = 10, isActive = true) => {
-    const url = `${environment.baseUrl}testimonials/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
+    const url = `${environment.baseUrl}testimonials/public/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
     try {
         const response = await axios.get(url);
         return response.data;
