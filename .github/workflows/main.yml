@@ -3,11 +3,11 @@ name: Deploy Node.js Project to AWS VPS
 on:
   push:
     branches:
-      - main
+      - pre-prod
 
 jobs:
   deploy-production:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/pre-prod'
     runs-on: ubuntu-latest
     name: Deploy to Production
 
