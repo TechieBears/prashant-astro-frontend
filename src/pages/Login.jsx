@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../redux/Slices/loginSlice";
-import { fetchCartData } from "../redux/Slices/cartSlice";
+import { loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
+import { useCart } from "../hooks/useCart";
+import { loginUser } from "../api";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import google from "../assets/google-icon.png";
@@ -13,6 +14,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.user);
+  const { fetchCartData } = useCart();
 
   const {
     register,
@@ -20,15 +22,35 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    dispatch(loginUser(data))
-      .unwrap()
-      .then(() => {
+  const onSubmit = async (data) => {
+    try {
+      dispatch(setLoading(true));
+
+      const response = await loginUser(data);
+
+      if (response.success) {
+        dispatch(loginSuccess({
+          user: response.data.user,
+          token: response.data.token,
+          role: response.data.user.role
+        }));
+
         // Fetch user's cart data after successful login
-        dispatch(fetchCartData());
+        try {
+          await fetchCartData();
+        } catch (error) {
+          console.error('Failed to fetch cart data:', error);
+        }
+        toast.success("Login successful!");
         navigate("/");
-      })
-      .catch((err) => toast.error(err || "Login failed"));
+      } else {
+        dispatch(setError(response.message || "Login failed"));
+        toast.error(response.message || "Login failed");
+      }
+    } catch (error) {
+      dispatch(setError(error.message || "Login failed"));
+      toast.error(error.message || "Login failed");
+    }
   };
 
   return (
@@ -111,3 +133,4 @@ const Login = () => {
 };
 
 export default Login;
+

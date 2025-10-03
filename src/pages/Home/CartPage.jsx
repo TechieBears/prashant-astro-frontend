@@ -12,17 +12,22 @@ import { createOrder, createServiceOrderThunk, clearError as clearOrderError, cl
 import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
-    fetchCartData,
-    updateProductQuantity,
-    removeProductItem,
-    removeServiceItem as removeServiceItemAction,
-    updateServiceItem,
+    updateProductQuantitySuccess,
+    removeProductItemSuccess,
+    removeServiceItemSuccess,
+    updateServiceItemSuccess,
     clearError as clearCartError,
-    selectProductCalculations,
-    selectServiceCalculations,
-    selectCartLoadingStates,
-    selectCartErrors
+    optimisticUpdateQuantity,
+    optimisticRemoveItem
 } from '../../redux/Slices/cartSlice';
+import {
+    getCartItems,
+    updateCartItem,
+    removeCartItem,
+    removeServiceCartItem,
+    updateServiceCartItem
+} from '../../api';
+import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
 
 const CartPage = () => {
@@ -30,14 +35,27 @@ const CartPage = () => {
     const location = useLocation();
     const dispatch = useDispatch();
     const { defaultAddress } = useAddress();
+    const { fetchCartData } = useCart();
 
     // Redux selectors
     const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
     const { productItems: cartItems, serviceItems: serviceCartItems } = useSelector(state => state.cart);
-    const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
-    const { error: cartError } = useSelector(selectCartErrors);
-    const productCalculations = useSelector(selectProductCalculations);
-    const serviceCalculations = useSelector(selectServiceCalculations);
+    const { isLoading, isUpdatingQuantity, isRemovingItem, error: cartError } = useSelector(state => state.cart);
+
+    // Calculate totals manually since we removed the complex selectors
+    const productCalculations = useMemo(() => {
+        const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const tax = subtotal * 0.18; // 18% tax
+        const total = subtotal + tax;
+        return { subtotal, tax, total };
+    }, [cartItems]);
+
+    const serviceCalculations = useMemo(() => {
+        const subtotal = serviceCartItems.reduce((sum, item) => sum + item.price, 0);
+        const tax = subtotal * 0.18; // 18% tax
+        const total = subtotal + tax;
+        return { subtotal, tax, total };
+    }, [serviceCartItems]);
 
     // Local state
     const [activeTab, setActiveTab] = useState('products');
@@ -58,8 +76,16 @@ const CartPage = () => {
 
     // Fetch cart data on mount
     useEffect(() => {
-        dispatch(fetchCartData());
-    }, [dispatch]);
+        const loadCart = async () => {
+            try {
+                await fetchCartData();
+            } catch (error) {
+                toast.error('Failed to load cart data');
+            }
+        };
+
+        loadCart();
+    }, [fetchCartData]);
 
     // Error handling effects
     useEffect(() => {
@@ -142,12 +168,26 @@ const CartPage = () => {
 
         debounceTimeouts.current[id] = setTimeout(async () => {
             try {
-                await dispatch(updateProductQuantity({ id, quantity })).unwrap();
-                setPendingUpdates(prev => {
-                    const newPending = { ...prev };
-                    delete newPending[id];
-                    return newPending;
-                });
+                dispatch(optimisticUpdateQuantity({ id, quantity }));
+
+                const response = await updateCartItem(id, quantity);
+
+                if (response.success) {
+                    dispatch(updateProductQuantitySuccess({
+                        products: response.data.items || cartItems
+                    }));
+                    setPendingUpdates(prev => {
+                        const newPending = { ...prev };
+                        delete newPending[id];
+                        return newPending;
+                    });
+                } else {
+                    toast.error('Failed to update quantity');
+                    const originalItem = cartItems.find(item => item._id === id);
+                    if (originalItem) {
+                        setLocalQuantities(prev => ({ ...prev, [id]: originalItem.quantity }));
+                    }
+                }
             } catch (err) {
                 toast.dismiss();
                 toast.error('Failed to update quantity');
@@ -166,20 +206,40 @@ const CartPage = () => {
 
     const removeItem = useCallback(async (id) => {
         try {
-            await dispatch(removeProductItem(id)).unwrap();
-            toast.dismiss();
-            toast.success('Item removed from cart');
+            dispatch(optimisticRemoveItem(id));
+
+            const response = await removeCartItem(id);
+
+            if (response.success) {
+                dispatch(removeProductItemSuccess(id));
+                toast.dismiss();
+                toast.success('Item removed from cart');
+            } else {
+                toast.error('Failed to remove item');
+                // Revert optimistic update by refetching cart
+                try {
+                    await fetchCartData();
+                } catch (fetchError) {
+                    console.error('Failed to refetch cart data:', fetchError);
+                }
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to remove item');
         }
-    }, [dispatch]);
+    }, [dispatch, fetchCartData]);
 
     const removeServiceItem = useCallback(async (id) => {
         try {
-            await dispatch(removeServiceItemAction(id)).unwrap();
-            toast.dismiss();
-            toast.success('Service removed from cart');
+            const response = await removeServiceCartItem(id);
+
+            if (response.success) {
+                dispatch(removeServiceItemSuccess(id));
+                toast.dismiss();
+                toast.success('Service removed from cart');
+            } else {
+                toast.error('Failed to remove service');
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to remove service');
@@ -193,14 +253,20 @@ const CartPage = () => {
 
     const handleUpdateService = useCallback(async (updatedServiceData) => {
         try {
-            await dispatch(updateServiceItem({
-                id: selectedServiceForEdit.id,
-                updateData: updatedServiceData
-            })).unwrap();
-            toast.dismiss();
-            toast.success('Service updated successfully');
-            setIsEditModalOpen(false);
-            setSelectedServiceForEdit(null);
+            const response = await updateServiceCartItem(selectedServiceForEdit.id, updatedServiceData);
+
+            if (response.success) {
+                dispatch(updateServiceItemSuccess({
+                    id: selectedServiceForEdit.id,
+                    updateData: updatedServiceData
+                }));
+                toast.dismiss();
+                toast.success('Service updated successfully');
+                setIsEditModalOpen(false);
+                setSelectedServiceForEdit(null);
+            } else {
+                toast.error('Failed to update service');
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to update service');

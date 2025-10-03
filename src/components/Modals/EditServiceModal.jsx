@@ -66,11 +66,13 @@ const EditServiceModal = ({
 
     // Track if we need to reset the form
     const shouldResetForm = useRef(true);
+    const isFetchingData = useRef(false);
 
     // Consolidated data fetching
     const fetchData = useCallback(async () => {
-        if (!isOpen) return;
+        if (!isOpen || isFetchingData.current) return;
 
+        isFetchingData.current = true;
         setIsLoading(true);
         hasProcessedInitialData.current = false;
 
@@ -197,6 +199,7 @@ const EditServiceModal = ({
             toast.error('Failed to load data. Please try again.');
         } finally {
             setIsLoading(false);
+            isFetchingData.current = false;
         }
     }, [isOpen, serviceData, setValue, reset]);
 
@@ -285,7 +288,7 @@ const EditServiceModal = ({
         if (isOpen) {
             fetchData();
         }
-    }, [isOpen, fetchData]);
+    }, [isOpen]);
 
     useEffect(() => {
         if (!watchedDate || !watchedAstrologer || !watchedServiceType) return;

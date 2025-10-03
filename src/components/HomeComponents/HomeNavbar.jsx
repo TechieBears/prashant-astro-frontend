@@ -7,18 +7,20 @@ import { List, X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoginCurve, Profile } from "iconsax-reactjs";
 import { formatRole } from "../../helper/Helper";
-import { fetchNavDropdowns } from "../../redux/Slices/navSlice";
+import { fetchNavDropdownsSuccess, setLoading as setNavLoading, setError as setNavError } from "../../redux/Slices/navSlice";
+import { getNavDropdowns } from "../../api";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
-import { logoutUser } from "../../redux/Slices/loginSlice";
+import { logoutSuccess, setLoading, setError } from "../../redux/Slices/loginSlice";
+import { logoutUser } from "../../api";
 import { clearCart } from "../../redux/Slices/cartSlice";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
 import { ChevronDown, ChevronUp, User } from 'lucide-react';
 
 const HomeNavbar = () => {
-    const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
+    const { servicesDropdown, productsDropdown, hasAttemptedFetch } = useSelector(state => state.nav);
     const [expandedItems, setExpandedItems] = useState({});
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -170,10 +172,26 @@ const HomeNavbar = () => {
 
     // Fetch navigation data when component mounts
     useEffect(() => {
-        if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
-            dispatch(fetchNavDropdowns());
-        }
-    }, [dispatch, servicesDropdown, productsDropdown]);
+        const fetchNavData = async () => {
+            // Only fetch if we haven't attempted to fetch yet
+            if (!hasAttemptedFetch) {
+                try {
+                    dispatch(setNavLoading(true));
+                    const response = await getNavDropdowns();
+
+                    if (response.success) {
+                        dispatch(fetchNavDropdownsSuccess(response.data));
+                    } else {
+                        dispatch(setNavError(response.message || 'Failed to fetch navigation data'));
+                    }
+                } catch (error) {
+                    dispatch(setNavError(error.message || 'Failed to fetch navigation data'));
+                }
+            }
+        };
+
+        fetchNavData();
+    }, [dispatch, hasAttemptedFetch]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -186,19 +204,24 @@ const HomeNavbar = () => {
 
     const handleLogout = async () => {
         try {
-            const res = await dispatch(logoutUser()).unwrap();
+            dispatch(setLoading(true));
 
-            if (res?.success) {
+            const response = await logoutUser();
+
+            if (response.success) {
+                dispatch(logoutSuccess());
                 dispatch(clearCart());
-                toast.success(res.message || "Logged out successfully");
+                toast.success(response.message || "Logged out successfully");
                 navigate("/");
                 setCard(true);
             } else {
-                toast.error(res?.message || "Something went wrong");
+                dispatch(setError(response.message || "Something went wrong"));
+                toast.error(response.message || "Something went wrong");
             }
-        } catch (err) {
-            toast.error(err || "Logout failed");
-            console.error("Logout Failed:", err);
+        } catch (error) {
+            dispatch(setError(error.message || "Logout failed"));
+            toast.error(error.message || "Logout failed");
+            console.error("Logout Failed:", error);
         }
     };
 

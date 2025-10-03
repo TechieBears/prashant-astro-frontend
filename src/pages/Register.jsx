@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { registerUser, loginUser } from "../redux/Slices/loginSlice";
-import { fetchCartData } from "../redux/Slices/cartSlice";
+import { registerSuccess, loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
+import { registerUser, loginUser } from "../api";
+import { useCart } from "../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import google from "../assets/google-icon.png";
@@ -12,6 +13,7 @@ import TextInput from "../components/TextInput/TextInput";
 const Register = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { fetchCartData } = useCart();
 
     const {
         register,
@@ -22,35 +24,56 @@ const Register = () => {
 
     const password = watch("password");
 
-    const onSubmit = (data) => {
-        const { title, firstName, lastName, email, password, mobileNo } = data;
+    const onSubmit = async (data) => {
+        try {
+            const { title, firstName, lastName, email, password, mobileNo } = data;
 
-        dispatch(registerUser({
-            title,
-            firstName,
-            lastName,
-            email,
-            password,
-            phone: mobileNo,
-            registerType: "normal"
-        }))
-            .unwrap()
-            .then(() => {
-                dispatch(loginUser({ email, password }))
-                    .unwrap()
-                    .then((res) => {
-                        if (res.success) {
-                            // Fetch user's cart data after successful login
-                            dispatch(fetchCartData());
-                            toast.success(res.message);
-                            navigate("/");
-                        } else {
-                            toast.error(res.message || "Something went wrong");
-                        }
-                    })
-                    .catch((err) => toast.error(err || "Login after Registration failed"));
-            })
-            .catch((err) => toast.error(err || "Registration failed"));
+            dispatch(setLoading(true));
+
+            // Register user
+            const registerResponse = await registerUser({
+                title,
+                firstName,
+                lastName,
+                email,
+                password,
+                phone: mobileNo,
+                registerType: "normal"
+            });
+
+            if (registerResponse.success) {
+                dispatch(registerSuccess(registerResponse));
+
+                // Auto-login after successful registration
+                const loginResponse = await loginUser({ email, password });
+
+                if (loginResponse.success) {
+                    dispatch(loginSuccess({
+                        user: loginResponse.data.user,
+                        token: loginResponse.data.token,
+                        role: loginResponse.data.user.role
+                    }));
+
+                    // Fetch user's cart data after successful login
+                    try {
+                        await fetchCartData();
+                    } catch (error) {
+                        console.error('Failed to fetch cart data:', error);
+                    }
+                    toast.success("Registration and login successful!");
+                    navigate("/");
+                } else {
+                    dispatch(setError(loginResponse.message || "Login after registration failed"));
+                    toast.error(loginResponse.message || "Login after registration failed");
+                }
+            } else {
+                dispatch(setError(registerResponse.message || "Registration failed"));
+                toast.error(registerResponse.message || "Registration failed");
+            }
+        } catch (error) {
+            dispatch(setError(error.message || "Registration failed"));
+            toast.error(error.message || "Registration failed");
+        }
     };
 
     return (

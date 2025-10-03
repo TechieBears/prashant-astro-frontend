@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { forgetUserPassword } from "../redux/Slices/loginSlice";
+import { forgotPasswordSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
+import { forgetUserPassword } from "../api";
 import toast, { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import TextInput from "../components/TextInput/TextInput";
@@ -14,19 +15,23 @@ const ForgotPassword = () => {
         formState: { errors, isSubmitting },
     } = useForm();
 
-    const onSubmit = (data) => {
-        dispatch(forgetUserPassword({ email: data.email }))
-            .unwrap()
-            .then((res) => {
-                if (res.success) {
-                    toast.success(res.message || "Password reset email sent!");
-                } else {
-                    toast.error(res.message || "Something went wrong");
-                }
-            })
-            .catch((err) => {
-                toast.error(err || "Forget password failed");
-            });
+    const onSubmit = async (data) => {
+        try {
+            dispatch(setLoading(true));
+
+            const response = await forgetUserPassword({ email: data.email });
+
+            if (response.success) {
+                dispatch(forgotPasswordSuccess(response));
+                toast.success(response.message || "Password reset email sent!");
+            } else {
+                dispatch(setError(response.message || "Something went wrong"));
+                toast.error(response.message || "Something went wrong");
+            }
+        } catch (error) {
+            dispatch(setError(error.message || "Forget password failed"));
+            toast.error(error.message || "Forget password failed");
+        }
     };
 
     return (
