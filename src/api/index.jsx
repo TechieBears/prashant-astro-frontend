@@ -209,7 +209,7 @@ axios.interceptors.request.use(
 );
 // ==================== Regiter Api===================
 
-export const registerUser = async (data) => {
+export const registerUserOld = async (data) => {
     const url = `${environment.baseUrl}user/add-user `;
     try {
         const response = await axios.post(url, data)
@@ -221,7 +221,7 @@ export const registerUser = async (data) => {
     }
 };
 
-export const loginUser = async (data) => {
+export const loginUserOld = async (data) => {
     const url = `${environment.baseUrl}user/login`;
     try {
         const response = await axios.post(url, data)
@@ -831,7 +831,7 @@ export const addAdminUser = async (data) => {
     }
 }
 
-export const deleteUser = async (id) => {
+export const deleteUserOld = async (id) => {
     try {
         const url = `${environment.baseUrl}admin/delete-user?id=${id}`
         const response = await axios.delete(url)
@@ -1633,6 +1633,121 @@ export const postContactUs = async (data) => {
         return error?.response?.data || { success: false, message: 'Failed to post contact us' };
     }
 };
+// ==================== Authentication APIs ====================
+
+export const loginUser = async ({ email, password }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}auth/login`,
+            { email, password },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Login error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Login failed"
+        };
+    }
+};
+
+export const logoutUser = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+            `${environment.baseUrl}auth/logout`,
+            {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Logout error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Logout failed"
+        };
+    }
+};
+
+export const registerUser = async ({ title, firstName, lastName, email, password, phone, registerType = "normal" }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/register`,
+            { title, firstName, lastName, email, password, phone, registerType },
+            { headers: { "Content-type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Registration error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Registration failed"
+        };
+    }
+};
+
+export const forgetUserPassword = async ({ email }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/forgot-password`,
+            { email },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Forgot password failed"
+        };
+    }
+};
+
+export const resetUserPassword = async ({ token, password }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/reset-password`,
+            { token, password },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Reset password error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Reset password failed"
+        };
+    }
+};
+
+export const deleteUser = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+            `${environment.baseUrl}customer-users/delete`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Delete user error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Account deletion failed"
+        };
+    }
+};
+
 // ==================== Create Product Order Api ====================
 export const createProductOrder = async (orderData) => {
     const url = `${environment.baseUrl}product-order/public/create`;
@@ -1810,7 +1925,7 @@ export const updateServiceOrderStatus = async (data) => {
 
 
 
-export const logoutUser = async (data) => {
+export const logoutUserOld = async (data) => {
     const url = `${environment.baseUrl}auth/logout`;
     try {
         const response = await axios.post(url, data)

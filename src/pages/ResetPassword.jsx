@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { resetUserPassword } from "../redux/Slices/loginSlice";
+import { resetPasswordSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
+import { resetUserPassword } from "../api";
 import toast, { Toaster } from "react-hot-toast";
 
 const ResetPassword = () => {
@@ -13,7 +14,7 @@ const ResetPassword = () => {
     const { token } = useParams();
     const navigate = useNavigate();
 
-    const handleResetPassword = (e) => {
+    const handleResetPassword = async (e) => {
         e.preventDefault();
         setMessage("");
         setError("");
@@ -24,21 +25,21 @@ const ResetPassword = () => {
         }
 
         try {
-            dispatch(resetUserPassword({ token, password }))
-                .unwrap()
-                .then((res) => {
-                    if (res.success) {
-                        toast.success(res.message);
-                        navigate("/login");
-                    } else {
-                        toast.error(res.message || "Something went wrong");
-                    }
-                })
-                .catch((err) => {
-                    toast.error(err || "Password reset failed");
-                });
-        } catch (err) {
-            console.error("Logout Failed:", err);
+            dispatch(setLoading(true));
+
+            const response = await resetUserPassword({ token, password });
+
+            if (response.success) {
+                dispatch(resetPasswordSuccess(response));
+                toast.success(response.message || "Password reset successfully!");
+                navigate("/login");
+            } else {
+                dispatch(setError(response.message || "Something went wrong"));
+                toast.error(response.message || "Something went wrong");
+            }
+        } catch (error) {
+            dispatch(setError(error.message || "Password reset failed"));
+            toast.error(error.message || "Password reset failed");
         }
     };
 

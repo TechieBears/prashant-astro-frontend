@@ -12,9 +12,11 @@ import LoadBox from '../../../components/Loader/LoadBox';
 import { editEmployee, getServiceDropdown } from '../../../api';
 import { validateAlphabets, validateEmail, validatePhoneNumber, validateCommision } from '../../../utils/validateFunction';
 import { formBtn1, formBtn2 } from '../../../utils/CustomClass';
+import { setUserDetails } from '../../../redux/Slices/loginSlice';
 
 const AdminProfile = () => {
     const user = useSelector(state => state?.user?.userDetails);
+    console.log("⚡️🤯 ~ UserProfile.jsx:18 ~ AdminProfile ~ user:", user)
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serviceSkills, setServiceSkills] = useState([]);
@@ -33,20 +35,19 @@ const AdminProfile = () => {
 
     useEffect(() => {
         if (user?.user) {
-            // Pre-populate form with user data
             reset({
-                employeeType: user.user.employeeType || '',
-                firstName: user.user.firstName || '',
-                lastName: user.user.lastName || '',
-                email: user.user.email || '',
-                mobileNo: user.user.mobileNo || '',
-                skills: user.user.skills || [],
-                languages: user.user.languages || [],
-                experience: user.user.experience || '',
-                days: user.user.days || [],
-                startTime: user.user.startTime || '',
-                endTime: user.user.endTime || '',
-                profileImage: user.user.profileImage || ''
+                employeeType: user?.user?.role || '',
+                firstName: user?.user?.firstName || '',
+                lastName: user?.user?.lastName || '',
+                email: user?.user?.email || '',
+                mobileNo: user?.user?.mobileNo || '',
+                skills: user?.user?.skills || [],
+                languages: user?.user?.languages || [],
+                experience: user?.user?.experience || '',
+                days: user?.user?.days || [],
+                startTime: user?.user?.startTime || '',
+                endTime: user?.user?.endTime || '',
+                profileImage: user?.user?.profileImage || ''
             });
         }
     }, [user, reset]);
@@ -60,8 +61,8 @@ const AdminProfile = () => {
             const response = await getServiceDropdown();
             if (response?.success && response?.data) {
                 const skills = response.data.map(service => ({
-                    value: service._id,
-                    label: service.serviceName
+                    value: service.name,
+                    label: service.name
                 }));
                 setServiceSkills(skills);
             }
@@ -73,20 +74,19 @@ const AdminProfile = () => {
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         if (isEditing) {
-            // Reset form to original values when canceling edit
             reset({
-                employeeType: user.user.employeeType || '',
-                firstName: user.user.firstName || '',
-                lastName: user.user.lastName || '',
-                email: user.user.email || '',
-                mobileNo: user.user.mobileNo || '',
-                skills: user.user.skills || [],
-                languages: user.user.languages || [],
-                experience: user.user.experience || '',
-                days: user.user.days || [],
-                startTime: user.user.startTime || '',
-                endTime: user.user.endTime || '',
-                profileImage: user.user.profileImage || ''
+                employeeType: user?.user?.role || '',
+                firstName: user?.user?.firstName || '',
+                lastName: user?.user?.lastName || '',
+                email: user?.user?.email || '',
+                mobileNo: user?.user?.mobileNo || '',
+                skills: user?.user?.skills || [],
+                languages: user?.user?.languages || [],
+                experience: user?.user?.experience || '',
+                days: user?.user?.days || [],
+                startTime: user?.user?.startTime || '',
+                endTime: user?.user?.endTime || '',
+                profileImage: user?.user?.profileImage || ''
             });
         }
     };
@@ -94,41 +94,20 @@ const AdminProfile = () => {
     const onSubmit = async (data) => {
         try {
             setLoading(true);
-
-            // Create FormData for file upload
-            const formData = new FormData();
-
-            // Append all form fields
-            Object.keys(data).forEach(key => {
-                if (key === 'skills' || key === 'languages' || key === 'days') {
-                    // Handle arrays
-                    if (Array.isArray(data[key])) {
-                        data[key].forEach(item => {
-                            formData.append(key, typeof item === 'object' ? item.value : item);
-                        });
-                    }
-                } else if (key === 'profileImage') {
-                    // Handle file upload
-                    if (data[key] && data[key][0]) {
-                        formData.append(key, data[key][0]);
-                    }
-                } else {
-                    formData.append(key, data[key] || '');
-                }
-            });
-
-            const response = await editEmployee(user.user._id, formData);
-
+            const response = await editEmployee(user?.user?._id, data);
             if (response?.success) {
                 toast.success('Profile updated successfully!');
                 setIsEditing(false);
-                // You might want to refresh user data here
+                dispatch(setUserDetails(response?.data));
+                setLoading(false);
             } else {
                 toast.error(response?.message || 'Failed to update profile');
+                setLoading(false);
             }
         } catch (error) {
             console.error('Error updating profile:', error);
             toast.error('Failed to update profile');
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -238,11 +217,13 @@ const AdminProfile = () => {
                             </h4>
                             {isEditing ? (
                                 <SelectTextInput
+                                    disabled={true}
                                     label="Select Employee Type"
                                     registerName="employeeType"
                                     options={[
                                         { value: 'astrologer', label: 'Astrologer' },
                                         { value: 'employee', label: 'Employee' },
+                                        { value: 'admin', label: 'Admin' },
                                     ]}
                                     placeholder="Select Employee Type"
                                     props={{
@@ -253,7 +234,7 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.employeeType || 'Not specified'}
+                                    {user?.user?.role || 'Not specified'}
                                 </div>
                             )}
                         </div>
@@ -386,11 +367,11 @@ const AdminProfile = () => {
                                             )}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
+                                        <div className="p-3 bg-slate-100 rounded-md">
                                             {user?.user?.skills?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user.user.skills.map((skill, index) => (
-                                                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                                    {user?.user?.skills.map((skill, index) => (
+                                                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof skill === 'object' ? skill.label : skill}
                                                         </span>
                                                     ))}
@@ -422,11 +403,11 @@ const AdminProfile = () => {
                                             )}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
+                                        <div className="p-3 bg-slate-100 rounded-md">
                                             {user?.user?.languages?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user.user.languages.map((language, index) => (
-                                                        <span key={index} className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm capitalize">
+                                                    {user?.user?.languages.map((language, index) => (
+                                                        <span key={index} className="px-2 py-1 bg-red-100 text-red-600 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof language === 'object' ? language.label : language}
                                                         </span>
                                                     ))}
@@ -455,8 +436,8 @@ const AdminProfile = () => {
                                             errors={errors.experience}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
-                                            {user?.user?.experience ? `${user.user.experience} years` : 'Not specified'}
+                                        <div className="p-3 bg-slate-100 rounded-md">
+                                            {user?.user?.experience ? `${user?.user?.experience} years` : 'Not specified'}
                                         </div>
                                     )}
                                 </div>
@@ -481,11 +462,11 @@ const AdminProfile = () => {
                                             )}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
+                                        <div className="p-3 bg-slate-100 rounded-md">
                                             {user?.user?.days?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user.user.days.map((day, index) => (
-                                                        <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                                                    {user?.user?.days?.map((day, index) => (
+                                                        <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof day === 'object' ? day.label : day}
                                                         </span>
                                                     ))}
@@ -512,7 +493,7 @@ const AdminProfile = () => {
                                             errors={errors.startTime}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
+                                        <div className="p-3 bg-slate-100 rounded-md">
                                             {user?.user?.startTime || 'Not specified'}
                                         </div>
                                     )}
@@ -533,7 +514,7 @@ const AdminProfile = () => {
                                             errors={errors.endTime}
                                         />
                                     ) : (
-                                        <div className="p-3 bg-gray-50 rounded-lg border">
+                                        <div className="p-3 bg-slate-100 rounded-md">
                                             {user?.user?.endTime || 'Not specified'}
                                         </div>
                                     )}

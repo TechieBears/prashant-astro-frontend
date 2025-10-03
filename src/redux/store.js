@@ -3,7 +3,6 @@ import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
 import loginSlice from "./Slices/loginSlice";
-import actorsSlice from "./Slices/actorsSlice";
 import navSlice from "./Slices/navSlice";
 import rootSlice from "./Slices/rootSlice";
 import orderSlice from "./Slices/orderSlice";
@@ -13,7 +12,6 @@ const reducers = combineReducers({
     user: loginSlice,
     appRoot: rootSlice,
     nav: navSlice,
-    actors: actorsSlice,
     order: orderSlice,
     cart: cartSlice
 });
