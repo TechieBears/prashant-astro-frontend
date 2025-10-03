@@ -9,13 +9,14 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
 import { getActiveProduct } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
-import { fetchCartData, updateProductQuantity } from '../../redux/Slices/cartSlice';
+import { useCart } from '../../hooks/useCart';
 import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { fetchCartData } = useCart();
 
     // Redux state
     const { productItems: cartItems } = useSelector(state => state.cart);
@@ -116,8 +117,16 @@ const ProductDetail = () => {
 
     // Fetch cart data on component mount
     useEffect(() => {
-        dispatch(fetchCartData());
-    }, [dispatch]);
+        const loadCart = async () => {
+            try {
+                await fetchCartData();
+            } catch (error) {
+                console.error('Failed to fetch cart data:', error);
+            }
+        };
+
+        loadCart();
+    }, [fetchCartData]);
 
     // Check if product is in cart when product or cart data changes
     useEffect(() => {

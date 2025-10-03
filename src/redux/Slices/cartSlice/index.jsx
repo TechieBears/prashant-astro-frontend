@@ -1,160 +1,14 @@
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
-import {
-    getCartItems,
-    updateCartItem,
-    removeCartItem,
-    getServiceCartItems,
-    removeServiceCartItem,
-    updateServiceCartItem
-} from "../../../api";
-
-// Async thunks for cart operations
-export const fetchCartData = createAsyncThunk(
-    'cart/fetchCartData',
-    async (_, { rejectWithValue }) => {
-        try {
-            const [productsResponse, servicesResponse] = await Promise.all([
-                getCartItems(),
-                getServiceCartItems()
-            ]);
-
-            return {
-                products: productsResponse.success ? (productsResponse.data.items || []) : [],
-                services: servicesResponse.success ? (servicesResponse.data.items || []) : [],
-                productsError: productsResponse.success ? null : productsResponse.message,
-                servicesError: servicesResponse.success ? null : servicesResponse.message
-            };
-        } catch (error) {
-            return rejectWithValue(error.message || 'Failed to fetch cart data');
-        }
-    }
-);
-
-export const updateProductQuantity = createAsyncThunk(
-    'cart/updateProductQuantity',
-    async ({ id, quantity, increment = false }, { rejectWithValue, getState, dispatch }) => {
-        try {
-            const state = getState();
-            const currentItems = state.cart.productItems;
-            const item = currentItems.find(item => item._id === id);
-
-            if (!item) {
-                return rejectWithValue('Item not found in cart');
-            }
-
-            // Calculate the new quantity
-            const newQuantity = increment ? (item.quantity + 1) : quantity;
-            
-            // Optimistic update with the new quantity
-            dispatch(cartSlice.actions.optimisticUpdateQuantity({ 
-                id, 
-                quantity: newQuantity 
-            }));
-
-            // Call the API with the new quantity
-            const response = await updateCartItem(id, newQuantity);
-
-            if (response.success) {
-                // Refresh the entire cart data to ensure consistency
-                const [productsResponse] = await Promise.all([
-                    getCartItems()
-                ]);
-
-                if (productsResponse.success) {
-                    return {
-                        products: productsResponse.data.items || [],
-                        updatedItem: response.data.item
-                    };
-                } else {
-                    throw new Error('Failed to refresh cart data');
-                }
-            } else {
-                // Revert optimistic update on failure
-                dispatch(cartSlice.actions.revertOptimisticUpdate({
-                    id,
-                    previousQuantity: item.quantity
-                }));
-                return rejectWithValue(response.message || 'Failed to update quantity');
-            }
-        } catch (error) {
-            // Revert optimistic update on error
-            const state = getState();
-            const currentItem = state.cart.productItems.find(item => item._id === id);
-            if (currentItem) {
-                dispatch(cartSlice.actions.revertOptimisticUpdate({
-                    id,
-                    previousQuantity: currentItem.quantity
-                }));
-            }
-            return rejectWithValue(error.message || 'Network error occurred');
-        }
-    }
-);
-
-export const removeProductItem = createAsyncThunk(
-    'cart/removeProductItem',
-    async (id, { rejectWithValue }) => {
-        try {
-            const response = await removeCartItem(id);
-
-            if (response.success) {
-                return response.data.items;
-            } else {
-                return rejectWithValue(response.message || 'Failed to remove item');
-            }
-        } catch (error) {
-            return rejectWithValue(error.message || 'Network error occurred');
-        }
-    }
-);
-
-export const removeServiceItem = createAsyncThunk(
-    'cart/removeServiceItem',
-    async (id, { rejectWithValue }) => {
-        try {
-            const response = await removeServiceCartItem(id);
-
-            if (response.success) {
-                // Refetch service cart items to ensure sync
-                const servicesResponse = await getServiceCartItems();
-                return servicesResponse.success ? (servicesResponse.data.items || []) : [];
-            } else {
-                return rejectWithValue(response.message || 'Failed to remove service item');
-            }
-        } catch (error) {
-            return rejectWithValue(error.message || 'Network error occurred');
-        }
-    }
-);
-
-export const updateServiceItem = createAsyncThunk(
-    'cart/updateServiceItem',
-    async ({ id, updateData }, { rejectWithValue }) => {
-        try {
-            const response = await updateServiceCartItem(id, updateData);
-
-            if (response.success) {
-                // Refetch service cart items to ensure sync
-                const servicesResponse = await getServiceCartItems();
-                return servicesResponse.success ? (servicesResponse.data.items || []) : [];
-            } else {
-                return rejectWithValue(response.message || 'Failed to update service item');
-            }
-        } catch (error) {
-            return rejectWithValue(error.message || 'Network error occurred');
-        }
-    }
-);
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    // Cart items
+    // Cart data
     productItems: [],
     serviceItems: [],
 
     // Loading states
     isLoading: false,
     isUpdatingQuantity: false,
-    isRemovingItem: null, // ID of item being removed
+    isRemovingItem: false,
 
     // Error states
     error: null,
@@ -169,14 +23,35 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
-        // Clear all cart data
-        clearCart: (state) => {
-            state.productItems = [];
-            state.serviceItems = [];
-            state.error = null;
-            state.productsError = null;
-            state.servicesError = null;
-            state.lastUpdated = null;
+        // Set loading state
+        setLoading: (state, action) => {
+            state.isLoading = action.payload;
+        },
+
+        // Set updating quantity state
+        setUpdatingQuantity: (state, action) => {
+            state.isUpdatingQuantity = action.payload;
+        },
+
+        // Set removing item state
+        setRemovingItem: (state, action) => {
+            state.isRemovingItem = action.payload;
+        },
+
+        // Set error state
+        setError: (state, action) => {
+            state.error = action.payload;
+            state.isLoading = false;
+        },
+
+        // Set products error
+        setProductsError: (state, action) => {
+            state.productsError = action.payload;
+        },
+
+        // Set services error
+        setServicesError: (state, action) => {
+            state.servicesError = action.payload;
         },
 
         // Clear errors
@@ -186,12 +61,53 @@ const cartSlice = createSlice({
             state.servicesError = null;
         },
 
+        // Fetch cart data success
+        fetchCartDataSuccess: (state, action) => {
+            state.isLoading = false;
+            state.productItems = action.payload.products || [];
+            state.serviceItems = action.payload.services || [];
+            state.productsError = action.payload.productsError;
+            state.servicesError = action.payload.servicesError;
+            state.lastUpdated = Date.now();
+        },
+
+        // Update product quantity success
+        updateProductQuantitySuccess: (state, action) => {
+            state.isUpdatingQuantity = false;
+            state.productItems = action.payload.products || state.productItems;
+            state.lastUpdated = Date.now();
+        },
+
+        // Remove product item success
+        removeProductItemSuccess: (state, action) => {
+            state.isRemovingItem = false;
+            state.productItems = state.productItems.filter(item => item._id !== action.payload);
+            state.lastUpdated = Date.now();
+        },
+
+        // Remove service item success
+        removeServiceItemSuccess: (state, action) => {
+            state.isRemovingItem = false;
+            state.serviceItems = state.serviceItems.filter(item => item._id !== action.payload);
+            state.lastUpdated = Date.now();
+        },
+
+        // Update service item success
+        updateServiceItemSuccess: (state, action) => {
+            state.isUpdatingQuantity = false;
+            state.serviceItems = state.serviceItems.map(item =>
+                item._id === action.payload.id
+                    ? { ...item, ...action.payload.updateData }
+                    : item
+            );
+            state.lastUpdated = Date.now();
+        },
+
         // Optimistic update for quantity (for immediate UI feedback)
         optimisticUpdateQuantity: (state, action) => {
             const { id, quantity } = action.payload;
             const item = state.productItems.find(item => item._id === id);
             if (item) {
-                // If quantity is a number, use it directly, otherwise increment by 1
                 const newQuantity = typeof quantity === 'number' ? quantity : (item.quantity + 1);
                 item.quantity = newQuantity;
                 item.totalPrice = item.price * newQuantity;
@@ -203,8 +119,8 @@ const cartSlice = createSlice({
             const { id, previousQuantity } = action.payload;
             const item = state.productItems.find(item => item._id === id);
             if (item) {
-                item.quantity = originalQuantity;
-                item.totalPrice = (item.totalPrice / item.quantity) * originalQuantity;
+                item.quantity = previousQuantity;
+                item.totalPrice = (item.totalPrice / item.quantity) * previousQuantity;
             }
         },
 
@@ -218,156 +134,79 @@ const cartSlice = createSlice({
         revertOptimisticRemove: (state, action) => {
             const item = action.payload;
             state.productItems.push(item);
-        }
-    },
-    extraReducers: (builder) => {
-        builder
-            // Fetch cart data
-            .addCase(fetchCartData.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchCartData.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.productItems = action.payload.products;
-                state.serviceItems = action.payload.services;
-                state.productsError = action.payload.productsError;
-                state.servicesError = action.payload.servicesError;
-                state.lastUpdated = Date.now();
-            })
-            .addCase(fetchCartData.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
-            })
+        },
 
-            // Update product quantity
-            .addCase(updateProductQuantity.pending, (state) => {
-                state.isUpdatingQuantity = true;
-                state.error = null;
-            })
-            .addCase(updateProductQuantity.fulfilled, (state, action) => {
-                state.isUpdatingQuantity = false;
-                state.productItems = action.payload.products;
-                state.lastUpdated = Date.now();
-            })
-            .addCase(updateProductQuantity.rejected, (state, action) => {
-                state.isUpdatingQuantity = false;
-                state.error = action.payload;
-            })
+        // Clear all cart data
+        clearCart: (state) => {
+            state.productItems = [];
+            state.serviceItems = [];
+            state.error = null;
+            state.productsError = null;
+            state.servicesError = null;
+            state.lastUpdated = null;
+        },
 
-            // Remove product item
-            .addCase(removeProductItem.pending, (state, action) => {
-                state.isRemovingItem = action.meta.arg;
-                state.error = null;
-            })
-            .addCase(removeProductItem.fulfilled, (state, action) => {
-                state.isRemovingItem = null;
-                state.productItems = action.payload;
-                state.lastUpdated = Date.now();
-            })
-            .addCase(removeProductItem.rejected, (state, action) => {
-                state.isRemovingItem = null;
-                state.error = action.payload;
-            })
+        // Add item to cart (for immediate UI feedback)
+        addToCart: (state, action) => {
+            const newItem = action.payload;
+            const existingItem = state.productItems.find(item =>
+                item.productId === newItem.productId ||
+                item.product?._id === newItem.productId
+            );
 
-            // Remove service item
-            .addCase(removeServiceItem.pending, (state, action) => {
-                state.isRemovingItem = action.meta.arg;
-                state.error = null;
-            })
-            .addCase(removeServiceItem.fulfilled, (state, action) => {
-                state.isRemovingItem = null;
-                state.serviceItems = action.payload;
-                state.lastUpdated = Date.now();
-            })
-            .addCase(removeServiceItem.rejected, (state, action) => {
-                state.isRemovingItem = null;
-                state.error = action.payload;
-            })
+            if (existingItem) {
+                existingItem.quantity += newItem.quantity || 1;
+                existingItem.totalPrice = existingItem.price * existingItem.quantity;
+            } else {
+                state.productItems.push({
+                    ...newItem,
+                    _id: `temp-${Date.now()}`,
+                    totalPrice: newItem.price * (newItem.quantity || 1)
+                });
+            }
+            state.lastUpdated = Date.now();
+        },
 
-            // Update service item
-            .addCase(updateServiceItem.pending, (state) => {
-                state.isUpdatingQuantity = true;
-                state.error = null;
-            })
-            .addCase(updateServiceItem.fulfilled, (state, action) => {
-                state.isUpdatingQuantity = false;
-                state.serviceItems = action.payload;
-                state.lastUpdated = Date.now();
-            })
-            .addCase(updateServiceItem.rejected, (state, action) => {
-                state.isUpdatingQuantity = false;
-                state.error = action.payload;
+        // Add service to cart
+        addServiceToCart: (state, action) => {
+            const newService = action.payload;
+            state.serviceItems.push({
+                ...newService,
+                _id: `temp-service-${Date.now()}`
             });
+            state.lastUpdated = Date.now();
+        }
     }
 });
 
-// Base selectors
-const selectProductItems = (state) => state.cart.productItems;
-const selectServiceItems = (state) => state.cart.serviceItems;
-const selectCartLastUpdated = (state) => state.cart.lastUpdated;
-
-// Memoized selectors for calculated values
-export const selectProductCalculations = createSelector(
-    [selectProductItems],
-    (items) => {
-        const subtotal = items.reduce((total, item) => total + (item.totalPrice || 0), 0);
-        const gstAmount = subtotal * 0.18;
-        const total = subtotal + gstAmount;
-        const itemCount = items.reduce((total, item) => total + (item.quantity || 0), 0);
-
-        return { subtotal, gstAmount, total, itemCount };
-    }
-);
-
-export const selectServiceCalculations = createSelector(
-    [selectServiceItems],
-    (items) => {
-        const subtotal = items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-        const gstAmount = subtotal * 0.18;
-        const total = subtotal + gstAmount;
-        const itemCount = items.reduce((total, item) => total + (item.quantity || 0), 0);
-
-        return { subtotal, gstAmount, total, itemCount };
-    }
-);
-
-// Additional useful selectors
-export const selectCartSummary = createSelector(
-    [selectProductItems, selectServiceItems, selectCartLastUpdated],
-    (productItems, serviceItems, lastUpdated) => ({
-        totalProductItems: productItems.length,
-        totalServiceItems: serviceItems.length,
-        hasItems: productItems.length > 0 || serviceItems.length > 0,
-        lastUpdated
-    })
-);
-
-export const selectCartLoadingStates = createSelector(
-    [(state) => state.cart.isLoading, (state) => state.cart.isUpdatingQuantity, (state) => state.cart.isRemovingItem],
-    (isLoading, isUpdatingQuantity, isRemovingItem) => ({
-        isLoading,
-        isUpdatingQuantity,
-        isRemovingItem
-    })
-);
-
-export const selectCartErrors = createSelector(
-    [(state) => state.cart.error, (state) => state.cart.productsError, (state) => state.cart.servicesError],
-    (error, productsError, servicesError) => ({
-        error,
-        productsError,
-        servicesError
-    })
-);
-
 export const {
-    clearCart,
+    setLoading,
+    setUpdatingQuantity,
+    setRemovingItem,
+    setError,
+    setProductsError,
+    setServicesError,
     clearError,
+    fetchCartDataSuccess,
+    updateProductQuantitySuccess,
+    removeProductItemSuccess,
+    removeServiceItemSuccess,
+    updateServiceItemSuccess,
     optimisticUpdateQuantity,
     revertOptimisticUpdate,
     optimisticRemoveItem,
-    revertOptimisticRemove
+    revertOptimisticRemove,
+    clearCart,
+    addToCart,
+    addServiceToCart
 } = cartSlice.actions;
+
+// Selectors for efficient data access
+export const selectCartItems = (state) => state.cart.productItems;
+export const selectServiceCartItems = (state) => state.cart.serviceItems;
+export const selectCartLoading = (state) => state.cart.isLoading;
+export const selectCartError = (state) => state.cart.error;
+export const selectCartItemCount = (state) => state.cart.productItems.length;
+export const selectServiceCartItemCount = (state) => state.cart.serviceItems.length;
 
 export default cartSlice.reducer;
