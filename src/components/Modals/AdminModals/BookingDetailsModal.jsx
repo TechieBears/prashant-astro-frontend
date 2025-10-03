@@ -62,11 +62,18 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
             if (response.success) {
                 toast.success("Booking accepted successfully");
                 refetch();
+                setLoading(false);
+                setIsLoading(false);
+                toggle();
             } else {
                 toast.error(response.message);
+                setIsLoading(false);
+                toggle();
             }
         } catch (error) {
             toast.error("Failed to accept booking");
+            setIsLoading(false);
+            toggle();
         } finally {
             setIsLoading(false);
         }
@@ -95,11 +102,15 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                 setShowRejectInput(false);
                 setRejectReason('');
                 refetch();
+                setIsLoading(false);
+                toggle();
             } else {
                 toast.error(response.message);
             }
         } catch (error) {
             toast.error("Failed to reject booking");
+            setIsLoading(false);
+            toggle();
         } finally {
             setIsLoading(false);
         }
@@ -108,6 +119,8 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
     const handleCancelReject = () => {
         setShowRejectInput(false);
         setRejectReason('');
+        setIsLoading(false);
+        toggle();
     };
 
 
@@ -116,6 +129,7 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
             try {
                 const response = await checkAvailabilityById(bookingDatas?._id);
                 setBookingData({ item: response?.item, itemData: response?.itemData });
+                setLoading(false);
             } catch (error) {
                 toast.error("Failed to fetch booking details");
                 setLoading(false);
@@ -485,7 +499,9 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                                         )}
                                     </div>
                                 ) : (
-                                    <Preloaders />
+                                    <div className="h-[70vh] flex bg-slate1 justify-center items-center">
+                                        <Preloaders />
+                                    </div>
                                 )}
                             </Dialog.Panel>
                         </Transition.Child>

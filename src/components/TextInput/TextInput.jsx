@@ -2,7 +2,7 @@ import Error from "../Errors/Error";
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
-const TextInput = ({ label, type, props, errors, registerName, style, placeholder }) => {
+const TextInput = ({ label, type, props, errors, registerName, style, placeholder, disabled }) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPasswordField = type === 'password';
 
@@ -15,6 +15,7 @@ const TextInput = ({ label, type, props, errors, registerName, style, placeholde
                     className={`h-[55px] w-full  outline-none px-4 text-base font-tbLex text-black rounded-md !bg-slate-100 border-[1.5px] ${errors ? 'border-red-500' : 'border-transparent '} ${style}`}
                     placeholder={placeholder}
                     {...props}
+                    disabled={disabled}
                 />
 
                 {isPasswordField && (
