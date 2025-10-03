@@ -146,7 +146,7 @@ const BookingCalendar = () => {
         } finally {
             setIsServicesLoading(false);
         }
-    }, [services.length, isServicesLoading]);
+    }, [isServicesLoading]); // Removed services.length dependency
 
     // Fetch astrologers
     const fetchAstrologers = useCallback(async () => {
@@ -166,7 +166,7 @@ const BookingCalendar = () => {
         } finally {
             setIsAstrologersLoading(false);
         }
-    }, [astrologers.length, isAstrologersLoading]);
+    }, [isAstrologersLoading]); // Removed astrologers.length dependency
 
     useEffect(() => {
         if (authLoading) return;

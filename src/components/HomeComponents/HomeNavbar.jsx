@@ -20,7 +20,7 @@ import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
 import { ChevronDown, ChevronUp, User } from 'lucide-react';
 
 const HomeNavbar = () => {
-    const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
+    const { servicesDropdown, productsDropdown, hasAttemptedFetch } = useSelector(state => state.nav);
     const [expandedItems, setExpandedItems] = useState({});
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -173,7 +173,8 @@ const HomeNavbar = () => {
     // Fetch navigation data when component mounts
     useEffect(() => {
         const fetchNavData = async () => {
-            if (!servicesDropdown || servicesDropdown.length === 0 || !productsDropdown || productsDropdown.length === 0) {
+            // Only fetch if we haven't attempted to fetch yet
+            if (!hasAttemptedFetch) {
                 try {
                     dispatch(setNavLoading(true));
                     const response = await getNavDropdowns();
@@ -190,7 +191,7 @@ const HomeNavbar = () => {
         };
 
         fetchNavData();
-    }, [dispatch, servicesDropdown, productsDropdown]);
+    }, [dispatch, hasAttemptedFetch]);
 
     // Cleanup timeout on unmount
     useEffect(() => {
