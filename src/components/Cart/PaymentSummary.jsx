@@ -3,10 +3,10 @@ import AddressSelector from '../Address/AddressSelector';
 import { useAddress } from '../../context/AddressContext';
 
 const PaymentSummary = ({
-    itemCount,
-    subtotal,
-    gstAmount,
-    total,
+    itemCount = 0,
+    subtotal = 0,
+    gstAmount = 0,
+    total = 0,
     buttonText = 'Continue to pay',
     onCheckout = () => { },
     isCreatingOrder = false
@@ -26,7 +26,7 @@ const PaymentSummary = ({
                             Product {itemCount}x (inclu. GST)
                         </span>
                         <span className="font-medium text-sm md:text-base">
-                            ₹ {subtotal.toLocaleString()}
+                            ₹ {(subtotal || 0).toLocaleString()}
                         </span>
                     </div>
 
@@ -35,7 +35,7 @@ const PaymentSummary = ({
                             GST (18%)
                         </span>
                         <span className="font-medium text-sm md:text-base">
-                            ₹ {gstAmount.toFixed(2)}
+                            ₹ {(gstAmount || 0).toFixed(2)}
                         </span>
                     </div>
 
@@ -46,7 +46,7 @@ const PaymentSummary = ({
                             Total
                         </span>
                         <span className="font-bold text-gray-900 text-base md:text-lg">
-                            ₹ {total.toFixed(2)}
+                            ₹ {(total || 0).toFixed(2)}
                         </span>
                     </div>
                 </div>

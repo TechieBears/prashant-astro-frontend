@@ -1,27 +1,27 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProductSuccessSection from '../../components/Success/ProductSuccessSection';
 import ServiceSuccessSection from '../../components/Success/ServiceSuccessSection';
 import { transformProductOrderData, transformServiceOrderData } from '../../utils/orderUtils';
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Redux state
-  const { currentOrder, orderType, error } = useSelector(state => state.order);
+  // Get order data from navigation state (passed from checkout pages)
+  const { orderData, orderType } = location.state || {};
 
   // Transform data based on order type
   const getProductData = () => {
-    if (orderType === 'products' && currentOrder) {
-      return transformProductOrderData(currentOrder);
+    if (orderType === 'products' && orderData) {
+      return transformProductOrderData(orderData);
     }
     return null;
   };
 
   const getServiceData = () => {
-    if (orderType === 'services' && currentOrder) {
-      const transformed = transformServiceOrderData(currentOrder);
+    if (orderType === 'services' && orderData) {
+      const transformed = transformServiceOrderData(orderData);
       return transformed;
     }
     return null;
@@ -45,7 +45,7 @@ const PaymentSuccess = () => {
         <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 w-full max-w-xl text-center">
           <h1 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">No Order Data Found</h1>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-            {error ? error : 'Unable to display order details. Please try again.'}
+            Unable to display order details. Please try again.
           </p>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-center">
             <button

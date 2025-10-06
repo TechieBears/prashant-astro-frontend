@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
 import { formBtn1 } from '../../utils/CustomClass'
 import { Calendar03Icon, PlayListIcon } from 'hugeicons-react';
 import { NavLink } from 'react-router-dom';
+import Preloaders from '../Loader/Preloaders';
 // import { useGSAP } from '@gsap/react';
 // import { gsap } from 'gsap';
 // import { SplitText } from 'gsap/all';
@@ -71,11 +72,7 @@ const HomeBanner = ({ slidesData, isLoading }) => {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex h-64 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     if (!slidesData || slidesData.length === 0) {

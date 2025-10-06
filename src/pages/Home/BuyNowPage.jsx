@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,9 +6,10 @@ import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import BuyNowSection from '../../components/Cart/BuyNowSection';
-import { createOrder, clearError as clearOrderError } from '../../redux/Slices/orderSlice';
 import { createOrderData } from '../../utils/orderUtils';
 import { useAddress } from '../../context/AddressContext';
+import { createProductOrder, clearProductCart } from '../../api';
+import { clearCart } from '../../redux/Slices/cartSlice';
 
 const BuyNowPage = () => {
     const navigate = useNavigate();
@@ -18,8 +19,9 @@ const BuyNowPage = () => {
     // Get product data from navigation state
     const { product, quantity = 1 } = location.state || {};
 
-    // Redux state
-    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
+    // Local state for order creation (replacing Redux)
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [orderError, setOrderError] = useState(null);
     const { defaultAddress } = useAddress();
 
     // Redirect if no product data
@@ -34,7 +36,7 @@ const BuyNowPage = () => {
         if (!product || !defaultAddress) return;
 
         try {
-            dispatch(clearOrderError());
+            setOrderError(null);
 
             const orderData = createOrderData({
                 productId: product._id,
@@ -45,13 +47,36 @@ const BuyNowPage = () => {
                     paidAt: new Date().toISOString()
                 }
             });
+            setIsCreatingOrder(true);
+            const response = await createProductOrder(orderData);
 
-            await dispatch(createOrder(orderData)).unwrap();
-            navigate('/payment-success');
+            if (response.success) {
+                try {
+                    await clearProductCart();
+                    dispatch(clearCart());
+                    console.log('Product cart cleared successfully');
+                } catch (clearError) {
+                    console.error('Error clearing product cart:', clearError);
+                }
+
+                navigate('/payment-success', {
+                    state: {
+                        orderData: response.data,
+                        orderType: 'products'
+                    }
+                });
+            } else {
+                setOrderError(response.message || 'Failed to create order');
+                toast.error(response.message || 'Failed to create order');
+            }
         } catch (err) {
             console.error('Error during buy now checkout:', err);
+            setOrderError(err?.message || 'Network error occurred');
+            toast.error('Failed to create order');
+        } finally {
+            setIsCreatingOrder(false);
         }
-    }, [dispatch, product, quantity, defaultAddress, navigate]);
+    }, [product, quantity, defaultAddress, navigate]);
 
     // Early returns for error states
     if (!product) {
