@@ -213,16 +213,24 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     >
                                                         Employee Image
                                                     </h4>
-                                                    <ImageUploadInput
-                                                        label="Upload Employee Image"
-                                                        multiple={false}
-                                                        registerName="profileImage"
-                                                        errors={errors.profileImage}
-                                                        {...register("profileImage", { required: "Employee Image is required" })}
-                                                        register={register}
-                                                        setValue={setValue}
+                                                    <Controller
+                                                        name="profileImage"
                                                         control={control}
-                                                        defaultValue={userData?.profileImage}
+                                                        rules={{ required: "Employee Image is required" }}
+                                                        render={({ field }) => (
+                                                            <ImageUploadInput
+                                                                label="Upload Employee Image"
+                                                                multiple={false}
+                                                                registerName="profileImage"
+                                                                errors={errors.profileImage}
+                                                                register={register}
+                                                                setValue={setValue}
+                                                                control={control}
+                                                                defaultValue={userData?.profileImage}
+                                                                value={field.value}
+                                                                onChange={field.onChange}
+                                                            />
+                                                        )}
                                                     />
                                                 </div>
                                                 <div className="">
@@ -237,7 +245,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         type="text"
                                                         disabled={edit}
                                                         registerName="email"
-                                                        props={{ ...register('email'), valdate: validateEmail, required: "Email is required" }}
+                                                        props={{ ...register('email'), validate: validateEmail, required: "Email is required" }}
                                                         errors={errors.email}
                                                     />
                                                 </div>
