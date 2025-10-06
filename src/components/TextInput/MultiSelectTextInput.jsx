@@ -22,8 +22,9 @@ export default function MultiSelectTextInput({ label, options, value, onChange, 
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option?.value === value?.value}
                 renderOption={(props, option, { selected }) => {
+                    const { key, ...otherProps } = props;
                     return (
-                        <li {...props} className={`px-2 bg-white text-sm font-tbLex text-slate-500 transition-all duration-150 tracking-tight`}>
+                        <li key={key} {...otherProps} className={`px-2 bg-white text-sm font-tbLex text-slate-500 transition-all duration-150 tracking-tight`}>
                             <Checkbox
                                 checked={selected}
                             />

@@ -44,29 +44,51 @@ const ImageUploadInput = ({
     const handleFileChange = async (e) => {
         if (e?.target?.files?.length > 0) {
             setIsUploading(true);
-            const newFiles = Array.from(e.target.files);
+            const newFiles = Array.from(e.target.files).filter(file => file && file.name); // Filter out undefined files
+
+            if (newFiles.length === 0) {
+                console.warn('No valid files selected');
+                setIsUploading(false);
+                return;
+            }
 
             try {
                 const uploadPromises = newFiles.map(file => uploadToCloudinary(file));
                 const urls = await Promise.all(uploadPromises);
 
-                console.log('Uploaded URLs:', urls);
-                if (onChange) {
+                // Filter out any undefined or null URLs
+                const validUrls = urls.filter(url => url && typeof url === 'string');
+
+                if (validUrls.length === 0) {
+                    throw new Error('No valid URLs returned from upload');
+                }
+
+                console.log('Uploaded URLs:', validUrls);
+                if (onChange && typeof onChange === 'function') {
                     console.log('Using onChange for image upload');
-                    onChange(multiple ? urls : urls[0]);
+                    try {
+                        onChange(multiple ? validUrls : validUrls[0]);
+                    } catch (onChangeError) {
+                        console.error('Error in onChange callback:', onChangeError);
+                        throw onChangeError;
+                    }
                 } else {
                     console.log('Using setValue for image upload');
-                    if (multiple) {
-                        setValue(registerName, urls);
+                    if (setValue && registerName) {
+                        if (multiple) {
+                            setValue(registerName, validUrls);
+                        } else {
+                            setValue(registerName, validUrls[0]);
+                        }
                     } else {
-                        setValue(registerName, urls[0]);
+                        console.warn('setValue or registerName not provided');
                     }
                 }
 
                 const previewFiles = newFiles.map((file, idx) => ({
                     file,
                     name: file.name,
-                    url: urls[idx]
+                    url: validUrls[idx] || urls[idx] // Fallback to original urls if validUrls is shorter
                 }));
 
                 setFiles(previewFiles);

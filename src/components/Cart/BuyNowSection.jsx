@@ -23,6 +23,7 @@ const BuyNowSection = ({
     const gstAmount = subtotal * 0.18;
     const total = subtotal + gstAmount;
 
+
     return (
         <div className="bg-white p-4 md:p-6 rounded-lg">
             <div className="lg:grid lg:grid-cols-12 lg:gap-8">

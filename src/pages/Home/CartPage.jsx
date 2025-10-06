@@ -56,11 +56,13 @@ const CartPage = () => {
     }, [cartItems]);
 
     const serviceCalculations = useMemo(() => {
-        const subtotal = serviceCartItems.reduce((sum, item) => sum + item.price, 0);
+        const subtotal = serviceCartItems.reduce((sum, item) => sum + item.originalPrice, 0);
         const gstAmount = subtotal * 0.18; // 18% GST
         const total = subtotal + gstAmount;
         return { subtotal, gstAmount, total };
     }, [serviceCartItems]);
+
+ 
 
     // Local state
     const [activeTab, setActiveTab] = useState('products');
@@ -500,6 +502,7 @@ const CartPage = () => {
                             total={serviceCalculations.total}
                             isRemoving={isRemovingItem}
                             isCreatingOrder={isCreatingOrder}
+                            activeTab={activeTab}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -520,6 +523,7 @@ const CartPage = () => {
                         isUpdating={isUpdatingQuantity}
                         isRemoving={isRemovingItem}
                         isCreatingOrder={isCreatingOrder}
+                        activeTab={activeTab}
                     />
                 )}
             </div>

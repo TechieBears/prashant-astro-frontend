@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Switch from "react-js-switch";
-import { editProduct } from '../../../api';
+import { productStatusUpdate } from '../../../api';
 import { getProducts } from '../../../api';
 import Table from '../../../components/Table/Table';
 import SelectTextInput from '../../../components/TextInput/SelectTextInput';
@@ -60,17 +60,15 @@ function AllUserProfiles() {
     };
 
     const handleActiveChange = async (id, isActive) => {
+        console.log('Toggle clicked for product:', id, 'Current status:', isActive);
         try {
-            const updatedData = {
-                isActive: !isActive
+            const res = await productStatusUpdate(id);
+            console.log('API response:', res);
+            if (res?.success || res?.message?.includes('success') || res?.message?.includes('updated')) {
+                toast.success('Status updated successfully');
+            } else {
+                toast.error(res?.message || 'Update failed');
             }
-            await editProduct(id, updatedData).then(res => {
-                if (res?.message == "Product updated successfully") {
-                    toast.success('Status updated');
-                } else {
-                    toast.error(res?.message);
-                }
-            });
             setRefreshTrigger(prev => prev + 1);
         } catch (error) {
             console.log('error', error)
@@ -81,7 +79,7 @@ function AllUserProfiles() {
     const activeBody = (row) => {
         return <Switch
             value={row?.isActive}
-            disabled={row?.isActive == false ? true : false}
+            disabled={false}
             onChange={() => handleActiveChange(row?._id, row?.isActive)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
