@@ -4,6 +4,7 @@ import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import AddressForm from "../../../components/Modals/AddressForm";
 import { useAddress } from "../../../context/AddressContext";
 import toast from "react-hot-toast";
+import Preloaders from "../../../components/Loader/Preloaders";
 
 export default function Address() {
     const [showForm, setShowForm] = useState(false);
@@ -115,9 +116,7 @@ export default function Address() {
 
 
                     {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : error ? (
                         <div className="text-center py-12">
                             <div className="text-red-500 mb-4">

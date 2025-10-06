@@ -4,6 +4,7 @@ import { PulseLoader } from 'react-spinners';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getCategoriesList, getServicesList } from '../../api';
+import Preloaders from '../../components/Loader/Preloaders';
 
 const ServicesPage = () => {
     const navigate = useNavigate();
@@ -129,12 +130,7 @@ const ServicesPage = () => {
             <div className="container mx-auto px-4 md:px-8 max-w-7xl pb-8">
                 {/* Loading State */}
                 {isLoading ? (
-                    <div className="flex justify-center items-center py-20">
-                        <div className="text-center">
-                            <PulseLoader color="#F97316" size={15} />
-                            <p className="text-gray-500 mt-4">Loading services...</p>
-                        </div>
-                    </div>
+                    <Preloaders />
                 ) : (
                     <>
                         {/* Category Filter Card */}

@@ -7,6 +7,7 @@ import { BsArrowLeft } from 'react-icons/bs';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
+import Preloaders from '../../components/Loader/Preloaders';
 import { getActiveProduct } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
 import { useCart } from '../../hooks/useCart';
@@ -135,14 +136,7 @@ const ProductDetail = () => {
 
     // Show loading state
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading product details...</p>
-                </div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     // Show error state

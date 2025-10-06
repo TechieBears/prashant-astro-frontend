@@ -11,6 +11,7 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import { getServiceModeOptions, getServiceType } from '../../utils/serviceConfig';
 import { Input, Select } from '../../components/Form';
 import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart } from '../../api';
+import Preloaders from '../../components/Loader/Preloaders';
 
 const BookingCalendar = () => {
     const navigate = useNavigate();
@@ -228,16 +229,7 @@ const BookingCalendar = () => {
     }, [watchedServiceType, allServicesData, setValue]);
 
     if (authLoading || !isLogged || !serviceData || Object.keys(serviceData).length === 0) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-                    <p className="text-gray-600">
-                        {authLoading ? 'Checking authentication...' : 'Loading booking information...'}
-                    </p>
-                </div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType) => {
@@ -398,14 +390,7 @@ const BookingCalendar = () => {
 
     // Show loading state
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-[#F5F5F5] py-8 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading service details...</p>
-                </div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     return (

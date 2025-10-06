@@ -7,6 +7,7 @@ import SectionHeader from '../../components/Titles/SectionHeader';
 import { FavouriteIcon, StarIcon, Calendar03Icon } from 'hugeicons-react';
 import Testimonials from '../../components/Testimonials/Testimonials';
 import { getAllAstrologer, getServicesList } from '../../api';
+import Preloaders from '../../components/Loader/Preloaders';
 
 
 // Static icons for services (keeping as requested)
@@ -265,9 +266,7 @@ const AboutPage = () => {
 
                     {/* Services Cards */}
                     {servicesLoading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : services.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                             {services.map((service) => (

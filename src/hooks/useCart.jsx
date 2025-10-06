@@ -1,11 +1,12 @@
 import { useDispatch } from 'react-redux';
+import { useCallback } from 'react';
 import { fetchCartDataSuccess, setLoading, setError } from '../redux/Slices/cartSlice';
 import { getCartItems, getServiceCartItems } from '../api';
 
 export const useCart = () => {
     const dispatch = useDispatch();
 
-    const fetchCartData = async () => {
+    const fetchCartData = useCallback(async () => {
         try {
             dispatch(setLoading(true));
 
@@ -27,7 +28,7 @@ export const useCart = () => {
             dispatch(setError(error.message || 'Failed to fetch cart data'));
             throw error;
         }
-    };
+    }, [dispatch]);
 
     return {
         fetchCartData

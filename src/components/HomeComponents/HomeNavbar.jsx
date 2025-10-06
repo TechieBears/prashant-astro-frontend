@@ -447,8 +447,8 @@ const HomeNavbar = () => {
 
                         {/* Cart & Profile */}
                         <div className="hidden lg:flex items-center gap-5 text-white py-2.5">
-                            <div className="relative">
-                                <ShoppingCart size={20} className="cursor-pointer" onClick={() => navigate("/cart")} />
+                            <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
+                                <ShoppingCart size={20} />
                                 {totalCartItems > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium border border-red-200">
                                         {totalCartItems > 99 ? '99+' : totalCartItems}
