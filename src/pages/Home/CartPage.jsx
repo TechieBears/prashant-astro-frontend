@@ -8,7 +8,7 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
 import EditServiceModal from '../../components/Modals/EditServiceModal';
-import { createOrder, createServiceOrderThunk, clearError as clearOrderError, clearCurrentOrder } from '../../redux/Slices/orderSlice';
+import Preloaders from '../../components/Loader/Preloaders';
 import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
@@ -18,14 +18,18 @@ import {
     updateServiceItemSuccess,
     clearError as clearCartError,
     optimisticUpdateQuantity,
-    optimisticRemoveItem
+    optimisticRemoveItem,
+    clearCart
 } from '../../redux/Slices/cartSlice';
 import {
     getCartItems,
     updateCartItem,
     removeCartItem,
     removeServiceCartItem,
-    updateServiceCartItem
+    updateServiceCartItem,
+    createProductOrder,
+    createServiceOrder,
+    clearProductCart
 } from '../../api';
 import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
@@ -37,24 +41,25 @@ const CartPage = () => {
     const { defaultAddress } = useAddress();
     const { fetchCartData } = useCart();
 
-    // Redux selectors
-    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
+    // Local state for order creation (replacing Redux)
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [orderError, setOrderError] = useState(null);
     const { productItems: cartItems, serviceItems: serviceCartItems } = useSelector(state => state.cart);
     const { isLoading, isUpdatingQuantity, isRemovingItem, error: cartError } = useSelector(state => state.cart);
 
     // Calculate totals manually since we removed the complex selectors
     const productCalculations = useMemo(() => {
         const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const tax = subtotal * 0.18; // 18% tax
-        const total = subtotal + tax;
-        return { subtotal, tax, total };
+        const gstAmount = subtotal * 0.18; // 18% GST
+        const total = subtotal + gstAmount;
+        return { subtotal, gstAmount, total };
     }, [cartItems]);
 
     const serviceCalculations = useMemo(() => {
         const subtotal = serviceCartItems.reduce((sum, item) => sum + item.price, 0);
-        const tax = subtotal * 0.18; // 18% tax
-        const total = subtotal + tax;
-        return { subtotal, tax, total };
+        const gstAmount = subtotal * 0.18; // 18% GST
+        const total = subtotal + gstAmount;
+        return { subtotal, gstAmount, total };
     }, [serviceCartItems]);
 
     // Local state
@@ -92,9 +97,9 @@ const CartPage = () => {
         if (orderError) {
             toast.dismiss();
             toast.error(orderError);
-            dispatch(clearOrderError());
+            setOrderError(null); // Clear error after showing toast
         }
-    }, [orderError, dispatch]);
+    }, [orderError]);
 
     useEffect(() => {
         if (cartError) {
@@ -297,30 +302,46 @@ const CartPage = () => {
                 requiresAddress ? defaultAddress._id : null
             );
 
-            await dispatch(createServiceOrderThunk(serviceOrderData)).unwrap();
+            // Set loading state
+            setIsCreatingOrder(true);
+            setOrderError(null);
 
-            toast.dismiss();
-            toast.success('Service order created successfully!');
+            // Call API directly
+            const response = await createServiceOrder(serviceOrderData);
 
-            // Clear only error state, keep currentOrder for PaymentSuccess page
-            dispatch(clearOrderError());
+            if (response.success) {
+                toast.dismiss();
+                toast.success('Service order created successfully!');
 
-            // Navigate immediately without delay
-            try {
-                navigate('/payment-success');
-            } catch (navError) {
-                console.error('Navigation failed:', navError);
-                // Fallback: force navigation
-                window.location.href = '/payment-success';
+                // Navigate immediately without delay
+                try {
+                    navigate('/payment-success', {
+                        state: {
+                            orderData: response.order,
+                            orderType: 'services'
+                        }
+                    });
+                } catch (navError) {
+                    console.error('Navigation failed:', navError);
+                    // Fallback: force navigation
+                    window.location.href = '/payment-success';
+                }
+            } else {
+                setOrderError(response.message || 'Failed to create service order');
+                toast.dismiss();
+                toast.error(response.message || 'Failed to create service order');
             }
 
         } catch (err) {
             console.error('Service checkout error:', err);
+            setOrderError(err?.message || 'Network error occurred');
             toast.dismiss();
             const errorMessage = err?.message || err?.error || 'Failed to create service order';
             toast.error(errorMessage);
+        } finally {
+            setIsCreatingOrder(false);
         }
-    }, [serviceCartItems, defaultAddress, dispatch, navigate]);
+    }, [serviceCartItems, defaultAddress, navigate]);
 
     const handleProductsCheckout = useCallback(async () => {
         try {
@@ -345,21 +366,48 @@ const CartPage = () => {
                 }
             });
 
-            await dispatch(createOrder(orderData)).unwrap();
+            // Set loading state
+            setIsCreatingOrder(true);
+            setOrderError(null);
 
-            toast.dismiss();
-            toast.success('Product order created successfully!');
+            // Call API directly
+            const response = await createProductOrder(orderData);
 
-            // Navigate after a short delay to ensure toast is visible
-            setTimeout(() => {
-                navigate('/payment-success');
-            }, 100);
+            if (response.success) {
+                toast.dismiss();
+                toast.success('Product order created successfully!');
+
+                // Clear product cart
+                try {
+                    await clearProductCart();
+                    dispatch(clearCart());
+                    console.log('Product cart cleared successfully');
+                } catch (clearError) {
+                    console.error('Error clearing product cart:', clearError);
+                }
+
+                setTimeout(() => {
+                    navigate('/payment-success', {
+                        state: {
+                            orderData: response.data,
+                            orderType: 'products'
+                        }
+                    });
+                }, 100);
+            } else {
+                setOrderError(response.message || 'Failed to create order');
+                toast.dismiss();
+                toast.error(response.message || 'Failed to create order');
+            }
         } catch (err) {
             console.error('Error during checkout:', err);
+            setOrderError(err?.message || 'Network error occurred');
             toast.dismiss();
             toast.error('Failed to create order');
+        } finally {
+            setIsCreatingOrder(false);
         }
-    }, [cartItems, defaultAddress, dispatch, navigate]);
+    }, [cartItems, defaultAddress, navigate]);
 
     // Memoized tab component
     const TabComponent = useMemo(() => {
@@ -398,14 +446,7 @@ const CartPage = () => {
 
     // Loading state
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-slate1 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading your cart...</p>
-                </div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     return (
