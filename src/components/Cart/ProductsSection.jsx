@@ -15,7 +15,8 @@ const ProductsSection = ({
     total = 0,
     isUpdating = false,
     isRemoving = null,
-    isCreatingOrder = false
+    isCreatingOrder = false,
+    activeTab
 }) => {
     const navigate = useNavigate();
 
@@ -106,6 +107,7 @@ const ProductsSection = ({
                             buttonText="Proceed to Checkout"
                             onCheckout={onCheckout}
                             isCreatingOrder={isCreatingOrder}
+                            activeTab={activeTab}
                         />
                     </div>
                 </div>

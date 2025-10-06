@@ -2107,4 +2107,16 @@ export const clearProductCart = async () => {
         console.error('Error clearing product cart:', err);
         return err?.response?.data || { success: false, message: 'Failed to clear product cart' };
     }
+}
+
+// get all coupons list for user
+export const getUserCoupons = async (type) => {
+    const url = `${environment.baseUrl}coupon/public/get-all?couponType=${type}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching user coupons:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch user coupons' };
+    }
 };

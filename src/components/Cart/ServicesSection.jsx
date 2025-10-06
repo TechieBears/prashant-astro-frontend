@@ -10,8 +10,10 @@ const ServicesSection = ({
     subtotal,
     gstAmount,
     total,
-    isRemoving = null
+    isRemoving = null,
+    activeTab
 }) => {
+
     return (
         <div className="bg-[#FFF9F2] min-h-screen py-4 sm:py-6 md:py-8">
             <div className="container mx-auto max-w-7xl px-0">
@@ -92,6 +94,7 @@ const ServicesSection = ({
                                     gstAmount={gstAmount}
                                     total={total}
                                     onCheckout={onCheckout}
+                                    activeTab={activeTab}
                                 />
                             </div>
                         </div>
