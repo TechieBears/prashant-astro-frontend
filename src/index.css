@@ -68,7 +68,22 @@ body::-webkit-scrollbar-thumb {
 }
 
 .p-datatable-wrapper::-webkit-scrollbar {
-    width: 0em;
+    width: 0.5em;
+    height: 0.5em;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-track {
+    background-color: rgb(241 245 249);
+    border-radius: 0.5rem;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-thumb {
+    background-color: var(--primaryColor);
+    border-radius: 0.5rem;
+}
+
+.p-datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: #e55a00;
 }
 
 .scrollbars::-webkit-scrollbar-track {
@@ -737,4 +752,3 @@ input[type="range"]::-webkit-slider-track {
 input[type="range"]::-moz-range-track {
     background: transparent;
 }
-
