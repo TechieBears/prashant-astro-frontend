@@ -13,6 +13,7 @@ import GooglePlay from '../../assets/user/home/googleplay.png';
 import Mobile from '../../assets/user/home/mobile.png';
 import Group from '../../assets/user/home/Group.png';
 import Service1 from '../../assets/user/home/services/service-homepage (1).png';
+import Preloaders from '../../components/Loader/Preloaders';
 import Service2 from '../../assets/user/home/services/service-homepage (2).png';
 import Service3 from '../../assets/user/home/services/service-homepage (3).png';
 import Service4 from '../../assets/user/home/services/service-homepage (4).png';
@@ -439,9 +440,7 @@ const HomePage = () => {
 
                     {/* Loading State */}
                     {servicesLoading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : servicesData.length > 0 ? (
                         <>
                             {/* Services Cards */}
@@ -507,9 +506,7 @@ const HomePage = () => {
 
                 {/* Loading State */}
                 {productsLoading ? (
-                    <div className="flex justify-center items-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                    </div>
+                    <Preloaders />
                 ) : productsData.length > 0 ? (
                     <>
                         {/* Products Grid - Responsive Layout */}

@@ -4,6 +4,7 @@ import { ArrowLeft02Icon, ArrowRight02Icon } from 'hugeicons-react';
 import SectionHeader from '../Titles/SectionHeader';
 import { getAllTestimonials } from '../../api';
 import Comment from '../../assets/user/home/comment.png';
+import Preloaders from '../Loader/Preloaders';
 
 const Testimonials = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -46,25 +47,8 @@ const Testimonials = () => {
         return testimonialsData[index % testimonialsData.length];
     };
 
-    if (loading || testimonialsData.length === 0) {
-        return (
-            <div className="relative bg-light-orange py-16 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-12">
-                        <SectionHeader prefix="Our" highlight="Testimonials" />
-                        <div className="mt-4 flex items-center gap-2 justify-center">
-                            <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
-                        </div>
-                        <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
-                            Read the testimonials by our clients and find more about our services.
-                        </p>
-                    </div>
-                    <div className="flex justify-center items-center h-96">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                    </div>
-                </div>
-            </div>
-        );
+    if (loading) {
+        return <Preloaders />;
     }
 
     return (

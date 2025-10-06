@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaTimes, FaStar, FaShare, FaDownload } from 'react-icons/fa';
 import ReviewForm from '../Common/ReviewForm';
 import { getSingleProductOrder } from '../../api';
+import Preloaders from '../Loader/Preloaders';
 
 const ProductDetailModal = ({ isOpen, onClose, product }) => {
     const [orderData, setOrderData] = useState(null);
@@ -143,9 +144,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                 {/* Content */}
                 <div className="px-4 sm:px-8 lg:px-20 py-4 sm:py-6">
                     {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : error ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                             <p className="text-red-600">{error}</p>

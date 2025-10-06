@@ -9,6 +9,7 @@ import { environment } from '../../../env';
 import { getServiceModeLabel } from '../../../utils/serviceConfig';
 import ServiceDetailModal from '../../../components/Modals/ServiceDetailModal';
 import ProductDetailModal from '../../../components/Modals/ProductDetailModal';
+import Preloaders from '../../../components/Loader/Preloaders';
 
 const Orders = () => {
   const location = useLocation();
@@ -203,11 +204,7 @@ const Orders = () => {
   };
 
   // Loading component
-  const LoadingSpinner = () => (
-    <div className="flex justify-center items-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-    </div>
-  );
+  const LoadingSpinner = () => <Preloaders />;
 
   // Error component
   const ErrorMessage = ({ message }) => (

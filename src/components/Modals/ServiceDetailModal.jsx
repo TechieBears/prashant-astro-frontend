@@ -3,6 +3,7 @@ import { FaClock, FaCalendarAlt, FaDesktop, FaVideo, FaTimes, FaStar } from 'rea
 import { getSingleServiceOrder } from '../../api';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import ReviewForm from '../Common/ReviewForm';
+import Preloaders from '../Loader/Preloaders';
 
 const ServiceDetailModal = ({ isOpen, onClose, service }) => {
     const [orderData, setOrderData] = useState(null);
@@ -142,9 +143,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
 
                 <div className="px-4 sm:px-8 lg:px-20 py-4 sm:py-6">
                     {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : error ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                             <p className="text-red-600">{error}</p>
