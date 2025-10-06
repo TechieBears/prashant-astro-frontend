@@ -523,7 +523,6 @@ const CartPage = () => {
                     />
                 )}
             </div>
-
             <EditServiceModal
                 isOpen={isEditModalOpen}
                 onClose={() => {

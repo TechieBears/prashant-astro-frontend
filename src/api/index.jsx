@@ -2089,3 +2089,22 @@ export const getNavDropdowns = async () => {
         };
     }
 };
+
+export const clearProductCart = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+            `${environment.baseUrl}product-cart/public/clear`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error clearing product cart:', err);
+        return err?.response?.data || { success: false, message: 'Failed to clear product cart' };
+    }
+};
