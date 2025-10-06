@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, Controller } from 'react-hook-form';
 import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
@@ -82,7 +82,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 additionalInfo: userData?.additionalInfo,
                 stock: userData?.stock,
                 sellingPrice: userData?.sellingPrice,
-                image: userData?.image,
+                images: userData?.images,
                 mrpPrice: userData?.mrpPrice,
                 specification: userData?.specification || []
             });
@@ -105,7 +105,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 stock: '',
                 sellingPrice: '',
                 mrpPrice: '',
-                image: '',
+                images: [],
                 specification: []
             });
         }
@@ -248,16 +248,24 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         >
                                                             Product Image (multiple)
                                                         </h4>
-                                                        <ImageUploadInput
-                                                            label="Upload Product Image"
-                                                            multiple={true}
-                                                            registerName="image"
-                                                            errors={errors.image}
-                                                            {...register("image", { required: "Product Image is required" })}
-                                                            register={register}
-                                                            setValue={setValue}
+                                                        <Controller
+                                                            name="images"
                                                             control={control}
-                                                            defaultValue={userData?.images}
+                                                            rules={{ required: "Product Image is required" }}
+                                                            render={({ field }) => (
+                                                                <ImageUploadInput
+                                                                    label="Upload Product Image"
+                                                                    multiple={true}
+                                                                    registerName="images"
+                                                                    errors={errors.images}
+                                                                    register={register}
+                                                                    setValue={setValue}
+                                                                    control={control}
+                                                                    defaultValue={userData?.images}
+                                                                    value={field.value}
+                                                                    onChange={field.onChange}
+                                                                />
+                                                            )}
                                                         />
 
                                                     </div>

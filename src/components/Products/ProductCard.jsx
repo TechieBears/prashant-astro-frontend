@@ -29,6 +29,11 @@ const ProductCard = ({ product }) => {
   // Use first image if available, otherwise use a placeholder
   const image = images && images.length > 0 ? images[0] : '/placeholder-product.png';
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Available';
+  };
+
   return (
     <div className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden">
       <div className="relative pt-[100%] ">
@@ -37,6 +42,7 @@ const ProductCard = ({ product }) => {
           alt={title}
           className="absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2"
           loading="lazy"
+          onError={handleImageError}
         />
       </div>
       <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow">

@@ -103,4 +103,32 @@ export const configTextEditor = {
         right: ['bold', 'italic', 'underline', '|', 'ul', 'ol', '|', 'font', 'fontsize', 'paragraph', '|', 'table', 'link', 'image', 'video', '|', 'align', 'undo', 'redo',],
     },
     buttons: ['bold', 'italic', 'underline', '|', 'ul', 'ol', '|', 'font', 'fontsize', 'paragraph', '|', 'table', 'link', 'image', 'video', '|', 'align', 'undo', 'redo',],
+    disablePlugins: ['mobile', 'speech-recognize'],
+    showCharsCounter: false,
+    showWordsCounter: false,
+    showXPathInStatusbar: false,
+    askBeforePasteHTML: false,
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: 'insert_clear_html',
+    enter: 'P',
+    enterBlock: 'div',
+    useAceEditor: false,
+    events: {
+        beforeCommand: function (command) {
+            if (command === 'submit') {
+                return false;
+            }
+        },
+        afterInit: function (editor) {
+            const toolbar = editor.toolbar.container;
+            if (toolbar) {
+                toolbar.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
+                toolbar.addEventListener('mousedown', function (e) {
+                    e.stopPropagation();
+                });
+            }
+        }
+    }
 }

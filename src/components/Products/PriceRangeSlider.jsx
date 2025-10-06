@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 const PriceRangeSlider = ({ min, max, value, onChange }) => {
-  const range = max - min;
+  const maxValueRef = useRef(null);
+
+  const currentMax = Math.max(max, value[1]);
+  if (maxValueRef.current === null || currentMax > maxValueRef.current) {
+    maxValueRef.current = currentMax;
+  }
+
+  const effectiveMax = maxValueRef.current;
+  const range = effectiveMax - min;
+
   const minP = ((value[0] - min) / range) * 100;
   const maxP = ((value[1] - min) / range) * 100;
 
-  // Handle minimum price change
   const handleMinChange = (e) => {
     e.preventDefault();
     const newMin = Math.min(Number(e.target.value), value[1] - 1);
     onChange([newMin, value[1]]);
   };
 
-  // Handle maximum price change
   const handleMaxChange = (e) => {
     e.preventDefault();
     const newMax = Math.max(Number(e.target.value), value[0] + 1);
@@ -21,22 +28,22 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
 
   return (
     <div className="relative py-1">
-      {/* Background track */}
       <div className="h-2 bg-slate-200 rounded-full absolute left-0 right-0 top-1/2 -translate-y-1/2" />
 
-      {/* Active range track */}
       <div
         className="absolute top-1/2 -translate-y-1/2 h-2 bg-orange-500 rounded-full"
-        style={{ left: `${minP}%`, width: `${maxP - minP}%` }}
+        style={{
+          left: `${minP}%`,
+          width: `${Math.min(maxP - minP, 100 - minP)}%`
+        }}
       />
 
-      {/* Slider inputs */}
       <div className="relative h-8 flex items-center">
         <div className="absolute w-full h-1">
           <input
             type="range"
             min={min}
-            max={max}
+            max={effectiveMax}
             step={1}
             value={value[0]}
             onChange={handleMinChange}
@@ -52,7 +59,7 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
           <input
             type="range"
             min={min}
-            max={max}
+            max={effectiveMax}
             step={1}
             value={value[1]}
             onChange={handleMaxChange}
@@ -66,23 +73,6 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
             aria-label="Maximum price"
           />
 
-          {/* Interactive track */}
-          <div
-            className="absolute h-2 bg-slate-200 rounded-full w-full top-1/2 -translate-y-1/2"
-            style={{
-              pointerEvents: 'none',
-            }}
-          >
-            <div
-              className="absolute h-full bg-orange-500 rounded-full"
-              style={{
-                left: `${minP}%`,
-                width: `${maxP - minP}%`,
-              }}
-            />
-          </div>
-
-          {/* Thumb for min value */}
           <div
             className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer"
             style={{
@@ -94,7 +84,7 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
               e.preventDefault();
               const startX = e.clientX;
               const startValue = value[0];
-              const range = max - min;
+              const range = effectiveMax - min;
               const sliderWidth = e.currentTarget.parentElement.offsetWidth;
 
               const handleMouseMove = (moveEvent) => {
@@ -117,29 +107,37 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
             }}
           />
 
-          {/* Thumb for max value */}
           <div
             className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer"
             style={{
-              left: `${maxP}%`,
+              left: `${Math.min(maxP, 100)}%`,
               top: '50%',
               boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
             }}
             onMouseDown={(e) => {
               e.preventDefault();
-              const startX = e.clientX;
-              const startValue = value[1];
-              const range = max - min;
-              const sliderWidth = e.currentTarget.parentElement.offsetWidth;
+              const range = effectiveMax - min;
+              const sliderElement = e.currentTarget.parentElement;
+              const sliderWidth = sliderElement.offsetWidth;
 
               const handleMouseMove = (moveEvent) => {
-                const deltaX = moveEvent.clientX - startX;
-                const deltaValue = (deltaX / sliderWidth) * range;
-                const newValue = Math.max(
-                  Math.min(max, startValue + deltaValue),
+                const sliderRect = sliderElement.getBoundingClientRect();
+                const relativeX = moveEvent.clientX - sliderRect.left;
+                const percentage = Math.max(0, Math.min(100, (relativeX / sliderWidth) * 100));
+
+                let newValue;
+                if (percentage >= 99.5) {
+                  newValue = effectiveMax;
+                } else {
+                  newValue = Math.round(min + (percentage / 100) * range);
+                }
+
+                const clampedValue = Math.max(
+                  Math.min(effectiveMax, newValue),
                   value[0] + 1
                 );
-                onChange([value[0], Math.round(newValue)]);
+
+                onChange([value[0], clampedValue]);
               };
 
               const handleMouseUp = () => {
@@ -154,13 +152,10 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
         </div>
       </div>
 
-      {/* Value labels */}
-      <div className="absolute -bottom-3" style={{ left: `max(0px, calc(${minP}% - 18px))` }}>
+      <div className="absolute -bottom-3 flex justify-between w-full">
         <div className="px-2 py-0.5 rounded-md text-white text-xs bg-orange-500 shadow">
           {value[0].toLocaleString()}
         </div>
-      </div>
-      <div className="absolute -bottom-3" style={{ left: `min(calc(100% - 36px), calc(${maxP}% - 18px))` }}>
         <div className="px-2 py-0.5 rounded-md text-white text-xs bg-orange-500 shadow">
           {value[1].toLocaleString()}
         </div>
