@@ -80,7 +80,7 @@ export const transformProductOrderData = (apiData) => {
         title: item.snapshot?.name || 'Product',
         price: item.snapshot?.sellingPrice || item.subtotal / item.quantity,
         oldPrice: item.snapshot?.mrpPrice || item.snapshot?.sellingPrice || item.subtotal / item.quantity,
-        image: item.snapshot?.images || 'https://via.placeholder.com/150',
+        image: item.snapshot?.images?.[0] || null,
         quantity: item.quantity
     }));
 
