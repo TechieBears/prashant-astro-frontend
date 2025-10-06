@@ -12,6 +12,8 @@ const ImageUploadInput = ({
     multiple,
     setValue,
     defaultValue,
+    value,
+    onChange,
     style,
     disabled,
 }) => {
@@ -22,17 +24,22 @@ const ImageUploadInput = ({
 
     // Load existing image on edit
     useEffect(() => {
-        if (defaultValue) {
-            const urls = multiple ? defaultValue : [defaultValue];
+        const dataToUse = value || defaultValue;
+        if (dataToUse) {
+            const urls = multiple ? dataToUse : [dataToUse];
             const dummyFiles = urls.map(url => ({
                 name: url.split("/").pop(),
                 url
             }));
             setFiles(dummyFiles);
             setFileName(dummyFiles.length === 1 ? dummyFiles[0].name : `${dummyFiles.length} files selected`);
-            setValue(registerName, multiple ? urls : urls[0]);
+            if (onChange) {
+                onChange(multiple ? urls : urls[0]);
+            } else {
+                setValue(registerName, multiple ? urls : urls[0]);
+            }
         }
-    }, [defaultValue, multiple, registerName, setValue]);
+    }, [defaultValue, value, multiple, registerName, setValue, onChange]);
 
     const handleFileChange = async (e) => {
         if (e?.target?.files?.length > 0) {
@@ -43,10 +50,17 @@ const ImageUploadInput = ({
                 const uploadPromises = newFiles.map(file => uploadToCloudinary(file));
                 const urls = await Promise.all(uploadPromises);
 
-                if (multiple) {
-                    setValue(registerName, urls);
+                console.log('Uploaded URLs:', urls);
+                if (onChange) {
+                    console.log('Using onChange for image upload');
+                    onChange(multiple ? urls : urls[0]);
                 } else {
-                    setValue(registerName, urls[0]);
+                    console.log('Using setValue for image upload');
+                    if (multiple) {
+                        setValue(registerName, urls);
+                    } else {
+                        setValue(registerName, urls[0]);
+                    }
                 }
 
                 const previewFiles = newFiles.map((file, idx) => ({
@@ -65,7 +79,11 @@ const ImageUploadInput = ({
         } else {
             setFiles([]);
             setFileName("");
-            setValue(registerName, multiple ? [] : null);
+            if (onChange) {
+                onChange(multiple ? [] : null);
+            } else {
+                setValue(registerName, multiple ? [] : null);
+            }
         }
     };
 
