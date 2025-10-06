@@ -1097,6 +1097,18 @@ export const editProduct = async (id, data) => {
     }
 }
 
+export const productStatusUpdate = async (id) => {
+    const url = `${environment.baseUrl}product/id/status?id=${id}`;
+    try {
+        const response = await axios.put(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in productStatusUpdate api file", err);
+        return err?.response?.data
+    }
+}
+
 export const deleteProduct = async (id) => {
     const url = `${environment.baseUrl}product/delete?id=${id}`;
     try {
