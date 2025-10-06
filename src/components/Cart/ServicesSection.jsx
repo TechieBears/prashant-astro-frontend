@@ -59,13 +59,13 @@ const ServicesSection = ({
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2 self-end sm:self-start mt-1 sm:mt-0">
-                                                    <button
+                                                    {/* <button
                                                         className="text-blue-500 hover:text-blue-600 transition-colors"
                                                         onClick={() => onEditService(service)}
                                                         aria-label="Edit service"
                                                     >
                                                         <FaEdit className="w-4 h-4 sm:w-5 sm:h-5" />
-                                                    </button>
+                                                    </button> */}
                                                     <button
                                                         className={`text-red-500 hover:text-red-600 transition-colors ${isRemoving === service.id ? 'opacity-50 cursor-not-allowed' : ''
                                                             }`}

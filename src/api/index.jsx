@@ -1479,7 +1479,7 @@ export const getCategoriesList = async (data) => {
     }
 }
 // ==================== Our Products Api ====================
-export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") => {
+export const getOurProducts = async (categoryId = "68df7cf7622616dbf28af256") => {
     try {
         const url = `${environment.baseUrl}product/public/our-products?categoryId=${categoryId}`;
         const response = await axios.get(url);

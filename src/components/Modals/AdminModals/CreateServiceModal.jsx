@@ -19,6 +19,8 @@ import { setServiceCategories } from '../../../redux/Slices/rootSlice';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+    const watchedImage = watch('image');
+    console.log('Watched image value:', watchedImage);
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
@@ -32,6 +34,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
 
     const formSubmit = async (data) => {
         try {
+            console.log('Service form data being submitted:', data);
             setLoader(true);
             if (edit) {
                 await editService(userData?._id, data).then(res => {
@@ -339,16 +342,24 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     >
                                                         Service Image
                                                     </h4>
-                                                    <ImageUploadInput
-                                                        label="Upload Service Image"
-                                                        multiple={false}
-                                                        registerName="image"
-                                                        errors={errors.image}
-                                                        {...register("image", { required: "Service Image is required", minLength: { value: 10, message: "Image must be at least 10 characters" } })}
-                                                        register={register}
-                                                        setValue={setValue}
+                                                    <Controller
+                                                        name="image"
                                                         control={control}
-                                                        defaultValue={userData?.image}
+                                                        rules={{ required: "Service Image is required" }}
+                                                        render={({ field }) => (
+                                                            <ImageUploadInput
+                                                                label="Upload Service Image"
+                                                                multiple={false}
+                                                                registerName="image"
+                                                                errors={errors.image}
+                                                                register={register}
+                                                                setValue={setValue}
+                                                                control={control}
+                                                                defaultValue={userData?.image}
+                                                                value={field.value}
+                                                                onChange={field.onChange}
+                                                            />
+                                                        )}
                                                     />
 
                                                 </div>
@@ -415,18 +426,23 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             "Description must be at least 10 characters (excluding HTML)"
                                                     }}
                                                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                                                        <>
+                                                        <div
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            onMouseDown={(e) => e.stopPropagation()}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                        >
                                                             <JoditEditor
                                                                 ref={editorRef}
                                                                 value={value || ''}
                                                                 config={configTextEditor}
                                                                 tabIndex={1}
                                                                 onBlur={(newContent) => onChange(newContent)}
+                                                                onChange={(newContent) => onChange(newContent)}
                                                             />
                                                             {error && (
                                                                 <p className="text-red-500 text-sm mt-1">{error.message}</p>
                                                             )}
-                                                        </>
+                                                        </div>
                                                     )}
                                                 />
                                             </div>

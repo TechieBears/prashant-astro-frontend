@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { FaTimes, FaStar, FaShare, FaDownload } from 'react-icons/fa';
 import ReviewForm from '../Common/ReviewForm';
 import { getSingleProductOrder } from '../../api';
 import Preloaders from '../Loader/Preloaders';
+// Import assets
+import deliveredIcon from '../../assets/user/orders/delivered.svg';
+import downloadIcon from '../../assets/user/orders/download.svg';
+import shareIcon from '../../assets/user/orders/share.svg';
 
 const ProductDetailModal = ({ isOpen, onClose, product }) => {
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showReviewForm, setShowReviewForm] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+    const [imageErrorHandled, setImageErrorHandled] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -17,16 +23,12 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         return () => document.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
 
-    useEffect(() => {
-        if (isOpen && product?.orderId) {
-            fetchOrderDetails();
-        }
-    }, [isOpen, product?.orderId]);
-
-    const fetchOrderDetails = async () => {
+    const fetchOrderDetails = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
+            setImageLoading(true);
+            setImageErrorHandled(false);
             const response = await getSingleProductOrder(product.orderId);
             if (response.success) {
                 setOrderData(response.data);
@@ -39,7 +41,13 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [product?.orderId]);
+
+    useEffect(() => {
+        if (isOpen && product?.orderId) {
+            fetchOrderDetails();
+        }
+    }, [isOpen, product?.orderId, fetchOrderDetails]);
 
     const handleReviewSuccess = () => {
         setShowReviewForm(false);
@@ -49,11 +57,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
 
     // Get product data from order
     const productData = orderData?.items?.[0]?.product;
-    const thumbnails = productData?.images || [
-        '/src/assets/user/products/amber-crystal.png',
-        '/src/assets/user/products/amber-crystal-2.png',
-        '/src/assets/user/products/amber-crystal-3.png'
-    ];
+    const thumbnails = productData?.images || [];
 
     // Get status info for the badge
     const getStatusInfo = (status) => {
@@ -65,7 +69,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Delivered',
                     textColor: 'text-green-800',
                     bgColor: '#00A63E1A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
             case 'pending':
                 return {
@@ -73,7 +77,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Pending',
                     textColor: 'text-yellow-800',
                     bgColor: '#F59E0B1A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
             case 'cancelled':
                 return {
@@ -81,7 +85,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Cancelled',
                     textColor: 'text-red-800',
                     bgColor: '#EF44441A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
             case 'shipped':
             case 'dispatched':
@@ -90,7 +94,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Shipped',
                     textColor: 'text-blue-800',
                     bgColor: '#3B82F61A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
             case 'processing':
                 return {
@@ -98,7 +102,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Processing',
                     textColor: 'text-purple-800',
                     bgColor: '#8B5CF61A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
             default:
                 return {
@@ -106,7 +110,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     shortText: 'Status',
                     textColor: 'text-gray-800',
                     bgColor: '#6B72801A',
-                    icon: '/src/assets/user/orders/delivered.svg'
+                    icon: deliveredIcon
                 };
         }
     };
@@ -133,7 +137,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                 <span className="sm:hidden">{statusInfo.shortText}</span>
                             </div>
                             <button className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium" style={{ backgroundColor: '#4200981A' }}>
-                                <img src="/src/assets/user/orders/download.svg" alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" />
                                 <span className="hidden sm:inline">Download Invoice</span>
                                 <span className="sm:hidden">Invoice</span>
                             </button>
@@ -169,7 +173,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                                     alt={`Thumbnail ${i + 1}`}
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => {
-                                                        e.target.src = '/src/assets/user/products/amber-crystal.png';
+                                                        e.target.style.display = 'none';
                                                     }}
                                                 />
                                             </div>
@@ -177,13 +181,32 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                     </div>
 
                                     {/* Main Image */}
-                                    <div className="flex-1 order-1 sm:order-2">
+                                    <div className="flex-1 order-1 sm:order-2 relative">
+                                        {imageLoading && !imageErrorHandled && (
+                                            <div className="absolute inset-0 bg-gray-200 rounded-lg animate-pulse flex items-center justify-center">
+                                                <div className="w-8 h-8 border-4 border-gray-300 border-t-orange-500 rounded-full animate-spin"></div>
+                                            </div>
+                                        )}
+                                        {imageErrorHandled && (
+                                            <div className="w-full h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <div className="text-center text-gray-500">
+                                                    <div className="w-16 h-16 mx-auto mb-2 bg-gray-300 rounded-lg flex items-center justify-center">
+                                                        <span className="text-2xl">📷</span>
+                                                    </div>
+                                                    <p className="text-sm">Image not available</p>
+                                                </div>
+                                            </div>
+                                        )}
                                         <img
-                                            src={productData.images?.[0] || '/src/assets/user/products/amber-crystal.png'}
+                                            src={productData.images?.[0]}
                                             alt={productData.name || 'Product'}
-                                            className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover rounded-lg shadow-lg"
+                                            className={`w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover rounded-lg shadow-lg transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'} ${imageErrorHandled ? 'hidden' : ''}`}
+                                            onLoad={() => setImageLoading(false)}
                                             onError={(e) => {
-                                                e.target.src = '/src/assets/user/products/amber-crystal.png';
+                                                if (!imageErrorHandled) {
+                                                    setImageErrorHandled(true);
+                                                    setImageLoading(false);
+                                                }
                                             }}
                                         />
                                     </div>
@@ -198,7 +221,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                     </h3>
                                     <button className="text-gray-500 hover:text-gray-700 transition-colors p-1 sm:p-2 flex-shrink-0">
                                         <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 border border-gray-400 rounded-full flex items-center justify-center">
-                                            <img src="/src/assets/user/orders/share.svg" alt="Share" className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                                            <img src={shareIcon} alt="Share" className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                                         </div>
                                     </button>
                                 </div>
