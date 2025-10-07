@@ -20,7 +20,6 @@ import { setServiceCategories } from '../../../redux/Slices/rootSlice';
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
     const watchedImage = watch('image');
-    console.log('Watched image value:', watchedImage);
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
