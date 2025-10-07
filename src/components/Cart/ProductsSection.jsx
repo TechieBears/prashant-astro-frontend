@@ -1,8 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import PaymentSummary from './PaymentSummary';
 import QuantityCounter from '../Common/QuantityCounter';
+
+/**
+ * ProductImage component with error handling and fallback
+ */
+const ProductImage = ({ images, name }) => {
+    const [imageError, setImageError] = useState(false);
+    const imageUrl = Array.isArray(images) && images.length > 0 ? images[0] : images;
+    const hasValidImage = imageUrl && !imageError;
+
+    return (
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
+            {hasValidImage ? (
+                <img
+                    src={imageUrl}
+                    alt={name || 'Product'}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                    loading="lazy"
+                />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <span className="text-gray-400 text-xs">No Image</span>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const ProductsSection = ({
     cartItems,
@@ -44,11 +71,7 @@ const ProductsSection = ({
                         {cartItems.map((item) => (
                             <div key={item._id} className="bg-light-pg rounded-lg p-3 md:p-4 flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 relative">
                                 {/* Product Image */}
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                        <span className="text-gray-400">No Image</span>
-                                    </div>
-                                </div>
+                                <ProductImage images={item.images} name={item.name} />
 
                                 {/* Product Details */}
                                 <div className="flex-1 text-center sm:text-left">
