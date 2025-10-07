@@ -94,7 +94,7 @@ const HomeBanner = ({ slidesData, isLoading }) => {
                 >
                     {slidesData.map((slide) => (
                         <div key={slide.id} className="w-full flex-shrink-0">
-                            <section className="relative h-[140vh] sm:h-[70vh] md:h-[80vh] lg:h-screen w-full overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-0">
+                            <section className="relative h-[58vh] sm:h-[70vh] md:h-[80vh] lg:h-screen w-full overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-0">
                                 {/* Background Image */}
                                 <img
                                     src={slide.image}
