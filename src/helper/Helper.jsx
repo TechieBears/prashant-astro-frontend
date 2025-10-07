@@ -103,4 +103,8 @@ export const configTextEditor = {
         right: ['bold', 'italic', 'underline', '|', 'ul', 'ol', '|', 'font', 'fontsize', 'paragraph', '|', 'table', 'link', 'image', 'video', '|', 'align', 'undo', 'redo',],
     },
     buttons: ['bold', 'italic', 'underline', '|', 'ul', 'ol', '|', 'font', 'fontsize', 'paragraph', '|', 'table', 'link', 'image', 'video', '|', 'align', 'undo', 'redo',],
+    askBeforePasteHTML: false,
+    askBeforePasteFromWord: false,
+    processPasteHTML: false,
+    processPasteFromWord: false,
 }

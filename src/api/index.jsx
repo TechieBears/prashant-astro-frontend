@@ -1772,6 +1772,17 @@ export const updateProductOrder = async (data) => {
 }
 // ======================= calendar api =======================
 
+export const adminBlockSlots = async (data) => {
+    const url = `${environment.baseUrl}calender/admin-block-slots`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in adminBlockSlots api file", err);
+        return err?.response?.data;
+    }
+};
+
 export const checkAvailability = async (data) => {
     try {
         const url = `${environment.baseUrl}calender/check-availability`;

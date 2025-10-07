@@ -422,6 +422,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                                 config={configTextEditor}
                                                                 tabIndex={1}
                                                                 onBlur={(newContent) => onChange(newContent)}
+                                                                onChange={(newContent) => onChange(newContent)}
                                                             />
                                                             {error && (
                                                                 <p className="text-red-500 text-sm mt-1">{error.message}</p>

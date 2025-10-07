@@ -82,7 +82,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 additionalInfo: userData?.additionalInfo,
                 stock: userData?.stock,
                 sellingPrice: userData?.sellingPrice,
-                image: userData?.image,
+                images: userData?.images,
                 mrpPrice: userData?.mrpPrice,
                 specification: userData?.specification || []
             });
@@ -105,7 +105,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 stock: '',
                 sellingPrice: '',
                 mrpPrice: '',
-                image: '',
+                images: '',
                 specification: []
             });
         }
@@ -219,9 +219,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 props={{
                                                                     ...register('subcategory', { required: true }),
                                                                     value: watch('subcategory') || '',
-                                                                    onChange: (e) => {
-                                                                        setValue('subcategory', e.target.value);
-                                                                    }
                                                                 }}
                                                                 errors={errors.subcategory}
                                                             />
@@ -251,9 +248,9 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <ImageUploadInput
                                                             label="Upload Product Image"
                                                             multiple={true}
-                                                            registerName="image"
-                                                            errors={errors.image}
-                                                            {...register("image", { required: "Product Image is required" })}
+                                                            registerName="images"
+                                                            errors={errors.images}
+                                                            {...register("images", { required: "Product Image is required" })}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}

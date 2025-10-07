@@ -3,7 +3,7 @@ import Switch from "react-js-switch";
 import Table from '../../../components/Table/Table';
 import TableHeader from '../../../components/Table/TableHeader';
 import CreateBannersModal from '../../../components/Modals/AdminModals/MasterModals/CreateBannersModal';
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Copy } from 'iconsax-reactjs';
 import usePagination from '../../../utils/customHooks/usePagination';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -38,7 +38,7 @@ const Banner = () => {
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
-        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
+        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded bg-slate-100' />
     </div>
 
     const handleActiveChange = async (id, isActive) => {
@@ -56,25 +56,188 @@ const Banner = () => {
         }
     }
 
-    const activeBody = (row) => (
-        <Switch
-            value={row?.isActive}
-            onChange={() => handleActiveChange(row?._id, row?.isActive)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+    const bannerIdBody = (row) => (
+        <div className="flex items-center gap-2">
+            <span className="capitalize font-medium">{row?._id?.slice(-8) || "---- -----"}</span>
+            <span>
+                <Copy
+                    className="cursor-pointer text-primary hover:text-primary-dark"
+                    size={16}
+                    onClick={() => {
+                        navigator.clipboard.writeText(row?._id);
+                        toast.success('Banner ID Copied!');
+                    }}
+                />
+            </span>
+        </div>
+    );
 
+    const bannerTitleBody = (row) => (
+        <div className="space-y-1">
+            <div className="font-medium text-sm capitalize text-wrap w-[12rem]">
+                {row?.title || "---- -----"}
+            </div>
+            <div className="text-xs text-gray-500">
+                Position: {row?.position || "Not set"}
+            </div>
+        </div>
+    );
+
+    const bannerDescriptionBody = (row) => (
+        <div className="text-sm text-wrap w-[14rem]">
+            <div className="text-gray-700 line-clamp-2">
+                {row?.description || "No description available"}
+            </div>
+        </div>
+    );
+
+    const bannerTypeBody = (row) => {
+        const typeColors = {
+            'website': 'bg-blue-100 text-blue-800',
+            'mobile': 'bg-green-100 text-green-800',
+            'app': 'bg-purple-100 text-purple-800'
+        };
+        const bannerType = row?.type || "---- -----";
+        const colorClass = typeColors[bannerType] || 'bg-gray-100 text-gray-800';
+
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${colorClass}`}>
+                {bannerType}
+            </span>
+        );
+    };
+
+    const featuredTimeBody = (row) => {
+        const startDate = row?.startDate;
+        const endDate = row?.endDate;
+
+        if (!startDate || !endDate) {
+            return <span className="text-xs text-gray-400">Not configured</span>;
+        }
+
+        const now = moment();
+        const start = moment(startDate);
+        const end = moment(endDate);
+
+        let statusColor = 'text-gray-500';
+        let statusText = 'Scheduled';
+
+        if (now.isBefore(start)) {
+            statusColor = 'text-blue-600';
+            statusText = 'Upcoming';
+        } else if (now.isBetween(start, end)) {
+            statusColor = 'text-green-600';
+            statusText = 'Active';
+        } else if (now.isAfter(end)) {
+            statusColor = 'text-red-600';
+            statusText = 'Expired';
+        }
+
+        return (
+            <div className="space-y-1">
+                <div className="text-xs font-medium">
+                    <div>{moment(startDate).format('DD-MM-YYYY, HH:mm')}</div>
+                    <div className="text-gray-400">to</div>
+                    <div>{moment(endDate).format('DD-MM-YYYY, HH:mm')}</div>
+                </div>
+                <div className={`text-xs font-medium ${statusColor}`}>
+                    {statusText}
+                </div>
+            </div>
+        );
+    };
+
+    const createdDateBody = (row) => (
+        <div className="text-sm">
+            <div className="font-medium">
+                {moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}
+            </div>
+            <div className="text-xs text-gray-500">
+                {moment(row?.createdAt).format('hh:mm A') || ""}
+            </div>
+        </div>
+    );
+
+    const statusBody = (row) => {
+        return (
+            <div className="space-y-2">
+                <div className="flex items-center">
+                    <Switch
+                        value={row?.isActive}
+                        onChange={() => handleActiveChange(row?._id, row?.isActive)}
+                        size={50}
+                        backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+                        borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+                    />
+                </div>
+            </div>
+        );
+    };
 
     const columns = [
-        { field: "image", header: "Image", body: imageBodyTemp, style: true },
-        { field: 'title', header: 'Banner title', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.title}</h5>, sortable: true, style: true },
-        { field: 'description', header: 'Banner description', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.description}</h5>, sortable: true, style: true },
-        { field: 'type', header: 'Banner For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
-        { field: 'Featured Time', header: 'Featured Time (Start -> End)', body: (row) => <h6>{(moment(row?.startDate).format('YYYY-MM-DD ,HH:mm') + " -> " + moment(row?.endDate).format('YYYY-MM-DD ,HH:mm')) || '-----'}</h6>, sortable: true, style: true },
-        { field: "isactive", header: "Active", body: activeBody, sortable: true, style: true },
-        { field: "action", header: "Action", body: actionBodyTemplate, sortable: true, style: true },
+        {
+            field: "image",
+            header: "Banner Image",
+            body: imageBodyTemp,
+            style: true,
+            sortable: false
+        },
+        {
+            field: '_id',
+            header: 'Banner ID',
+            body: bannerIdBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'title',
+            header: 'Banner Title',
+            body: bannerTitleBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'description',
+            header: 'Description',
+            body: bannerDescriptionBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'type',
+            header: 'Banner Type',
+            body: bannerTypeBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'featuredTime',
+            header: 'Featured Duration',
+            body: featuredTimeBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'createdAt',
+            header: 'Created Date',
+            body: createdDateBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: "status",
+            header: "Status",
+            body: statusBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: "action",
+            header: "Action",
+            body: actionBodyTemplate,
+            style: true,
+            sortable: true
+        }
     ];
 
     return (
