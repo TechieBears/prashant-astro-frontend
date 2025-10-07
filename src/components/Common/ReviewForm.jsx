@@ -82,22 +82,24 @@ const ReviewForm = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                     Rating
                 </label>
-                <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                            key={star}
-                            type="button"
-                            onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
-                            className="focus:outline-none"
-                        >
-                            <FaStar
-                                className={`w-5 h-5 ${star <= reviewForm.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                            />
-                        </button>
-                    ))}
-                    <span className="ml-2 text-sm text-gray-600">
-                        {reviewForm.rating === 0 ? 'No rating selected' : `${reviewForm.rating} star${reviewForm.rating !== 1 ? 's' : ''}`}
-                    </span>
+                <div className="border border-gray-300 rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                                key={star}
+                                type="button"
+                                onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                                className="focus:outline-none"
+                            >
+                                <FaStar
+                                    className={`w-5 h-5 ${star <= reviewForm.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                />
+                            </button>
+                        ))}
+                        <span className="ml-2 text-sm text-gray-600">
+                            {reviewForm.rating === 0 ? 'No rating selected' : `${reviewForm.rating} star${reviewForm.rating !== 1 ? 's' : ''}`}
+                        </span>
+                    </div>
                 </div>
             </div>
 
