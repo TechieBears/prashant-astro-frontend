@@ -18,11 +18,15 @@ import {
     initializePushNotifications,
     requestNotificationPermission,
 } from './utils/pushNotifications';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from 'react-router-dom';
+import ComingSoonModal from './components/Modals/ComingSoonModal';
+import { getHomeModalStatus } from './api';
 
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
+
+    const [homeModalStatus, setHomeModalStatus] = useState(false);
 
     useEffect(() => {
         async function initializeNotifications() {
@@ -49,12 +53,25 @@ const App = () => {
             behavior: 'instant',
         });
     }, [pathname]);
+
+    useEffect(() => {
+        const fetchHomeModalStatus = async () => {
+            const response = await getHomeModalStatus();
+            if (response.success) {
+                setHomeModalStatus(response?.data?.data?.coming_soon ? true : false);
+            }
+        };
+        fetchHomeModalStatus();
+    }, []);
+
     return (
         <>
             <Provider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
                     <PrimeReactProvider>
-                        <ProjectRoutes />
+                        <div className={homeModalStatus ? 'blur-sm pointer-events-none' : ''}>
+                            <ProjectRoutes />
+                        </div>
                         <Toaster
                             position="top-right"
                             reverseOrder={false}
@@ -85,6 +102,7 @@ const App = () => {
                                 },
                             }}
                         />
+                        <ComingSoonModal isVisible={homeModalStatus} />
                     </PrimeReactProvider>
                 </PersistGate>
             </Provider>
