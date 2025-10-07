@@ -58,9 +58,13 @@ function AllUserProfiles() {
             const updatedData = {
                 isActive: !isActive
             }
-            await editCustomer(id, updatedData);
-            setRefreshTrigger(prev => prev + 1);
-            toast.success('Status updated');
+            const res = await editCustomer(id, updatedData);
+            if(res.success){
+                setRefreshTrigger(prev => prev + 1);
+                toast.success(res.message || 'Update successful');
+            }else{
+                toast.error(res.message || 'Update failed');
+            }
         } catch (error) {
             console.log('error', error)
             toast.error('Update failed');
@@ -71,7 +75,7 @@ function AllUserProfiles() {
         <Switch
             value={row?.isActive}
             disabled={row?.isActive == false ? true : false}
-            onChange={() => handleActiveChange(row?._id, row?.isActive)}
+            onChange={() => handleActiveChange(row?.profile?._id, row?.isActive)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
             borderColor={{ on: "#86d993", off: "#c6c6c6" }}
