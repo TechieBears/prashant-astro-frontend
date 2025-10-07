@@ -2132,3 +2132,14 @@ export const getUserCoupons = async (type) => {
         return err?.response?.data || { success: false, message: 'Failed to fetch user coupons' };
     }
 };
+
+export const getHomeModalStatus = async () => {
+    const url = `${environment.baseUrl}config/public/get?key=homepage_settings`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching HomepageModal Status:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch HomepageModal Status' };
+    }
+};
