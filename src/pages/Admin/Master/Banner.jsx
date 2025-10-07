@@ -72,7 +72,7 @@ const Banner = () => {
         { field: 'title', header: 'Banner title', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.title}</h5>, sortable: true, style: true },
         { field: 'description', header: 'Banner description', body: (row) => <h5 className='capitalize text-wrap w-[12rem]'>{row?.description}</h5>, sortable: true, style: true },
         { field: 'type', header: 'Banner For', body: (row) => <h5>{row?.type}</h5>, sortable: true, style: true },
-        { field: 'Featured Time', header: 'Featured Time (Start -> End)', body: (row) => <h6>{(moment(row?.startDate).format('YYYY-MM-DD ,HH:mm') + " -> " + moment(row?.endDate).format('YYYY-MM-DD ,HH:mm')) || '-----'}</h6>, sortable: true, style: true },
+        { field: 'Featured Date', header: 'Featured Date (Start - End)', body: (row) => <h6>{(moment(row?.startDate).format('YYYY-MM-DD') + " - " + moment(row?.endDate).format('YYYY-MM-DD')) || '-----'}</h6>, sortable: true, style: true },
         { field: "isactive", header: "Active", body: activeBody, sortable: true, style: true },
         { field: "action", header: "Action", body: actionBodyTemplate, sortable: true, style: true },
     ];

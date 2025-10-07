@@ -216,14 +216,14 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Start Date Time
+                                                            Start Date
                                                         </h4>
                                                         <TextInput
-                                                            label="Start Date Time"
-                                                            placeholder="Start Date Time"
+                                                            label="Start Date"
+                                                            placeholder="Start Date"
                                                             type="date"
                                                             registerName="startDate"
-                                                            props={{ ...register('startDate', { required: "Start Date Time is required" }) }}
+                                                            props={{ ...register('startDate', { required: "Start Date is required" }) }}
                                                             errors={errors.startDate}
                                                         />
                                                     </div>
@@ -231,14 +231,14 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            End Date Time
+                                                            End Date
                                                         </h4>
                                                         <TextInput
-                                                            label="End Date Time"
-                                                            placeholder="End Date Time"
+                                                            label="End Date"
+                                                            placeholder="End Date"
                                                             type="date"
                                                             registerName="endDate"
-                                                            props={{ ...register('endDate', { required: "End Date Time is required" }) }}
+                                                            props={{ ...register('endDate', { required: "End Date is required" }) }}
                                                             errors={errors.endDate}
                                                         />
                                                     </div>

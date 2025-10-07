@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import moment from "moment";
 import BookingDetailsModal from "../../../components/Modals/AdminModals/BookingDetailsModal";
 import { ArrowLeft2, ArrowRight2 } from "iconsax-reactjs";
@@ -149,6 +150,9 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
 };
 
 const BookingCalendar = () => {
+    const loggedUserDetails = useSelector(state => state.user.loggedUserDetails);
+    const userId = loggedUserDetails?._id;
+
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
@@ -164,9 +168,14 @@ const BookingCalendar = () => {
     const daysRange = useMemo(() => generateDaysRange(startDate, 6), [startDate]);
 
     const getSlots = async () => {
+        if (!userId) {
+            console.warn("User ID not available");
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(5, 'days').format("YYYY-MM-DD"), "68d3df7c6de359385735d513");
+            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(5, 'days').format("YYYY-MM-DD"), userId);
             setSlots(response?.data || { bookings: [], astrologers: [], time: { start: "09:00", end: "21:00" } });
         } finally {
             setIsLoading(false);
@@ -175,7 +184,7 @@ const BookingCalendar = () => {
 
     useEffect(() => {
         getSlots();
-    }, [startDate]);
+    }, [startDate, userId]);
 
     const handleSlotClick = (day, timeSlot, booking, status) => {
         if (status === "booked" && booking) {
