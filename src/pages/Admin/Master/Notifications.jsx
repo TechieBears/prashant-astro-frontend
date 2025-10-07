@@ -38,7 +38,7 @@ export default function Notifications() {
     </div>
 
     const imageBodyTemp = (row) => <div className='w-52 h-24 rounded'>
-        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded' />
+        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded bg-slate-100' />
     </div>
 
 

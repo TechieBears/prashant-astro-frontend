@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, CallCalling, Profile2User, SmsNotification, Edit2, Save2, CloseCircle } from 'iconsax-reactjs';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ const AdminProfile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serviceSkills, setServiceSkills] = useState([]);
+    const dispatch = useDispatch();
 
     const {
         register,
@@ -95,6 +96,7 @@ const AdminProfile = () => {
         try {
             setLoading(true);
             const response = await editEmployee(user?.user?._id, data);
+            console.log("⚡️🤯 ~ UserProfile.jsx:98 ~ onSubmit ~ response:", response)
             if (response?.success) {
                 toast.success('Profile updated successfully!');
                 setIsEditing(false);

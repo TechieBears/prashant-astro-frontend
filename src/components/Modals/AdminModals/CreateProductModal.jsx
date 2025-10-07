@@ -105,7 +105,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 stock: '',
                 sellingPrice: '',
                 mrpPrice: '',
-                images: [],
+                images: '',
                 specification: []
             });
         }
@@ -219,9 +219,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 props={{
                                                                     ...register('subcategory', { required: true }),
                                                                     value: watch('subcategory') || '',
-                                                                    onChange: (e) => {
-                                                                        setValue('subcategory', e.target.value);
-                                                                    }
                                                                 }}
                                                                 errors={errors.subcategory}
                                                             />
@@ -248,8 +245,14 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         >
                                                             Product Image (multiple)
                                                         </h4>
-                                                        <Controller
-                                                            name="images"
+                                                        <ImageUploadInput
+                                                            label="Upload Product Image"
+                                                            multiple={true}
+                                                            registerName="images"
+                                                            errors={errors.images}
+                                                            {...register("images", { required: "Product Image is required" })}
+                                                            register={register}
+                                                            setValue={setValue}
                                                             control={control}
                                                             rules={{ required: "Product Image is required" }}
                                                             render={({ field }) => (

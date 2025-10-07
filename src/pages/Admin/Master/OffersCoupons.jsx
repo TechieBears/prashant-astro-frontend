@@ -90,26 +90,34 @@ function OffersCoupons() {
             </h6>
         );
     };
+    const couponType = (row) => {
+        return (
+            <h6 className={`${row?.couponType == "both" ? "bg-orange-100 text-orange-500" : row?.couponType === "products" ? "bg-blue-100 text-blue-500" : "bg-purple-100 text-purple-500"} py-2 px-5 text-center capitalize rounded-full`}>
+                {row?.couponType}
+            </h6>
+        );
+    };
+
 
     // ================= Columns =================
     const columns = [
-        { field: 'couponName', header: 'Coupon Name', sortable: true },
-        { field: 'couponCode', header: 'Coupon Code', sortable: true },
-        { field: 'discount', header: 'Discount', sortable: true },
-        { field: 'discountIn', header: 'Discount Type', sortable: true },
+        { field: 'couponName', header: 'Coupon Title', body: (row) => <span className='capitalize'>{row?.couponName}</span>, sortable: true },
+        { field: 'couponCode', header: 'Coupon Code', body: (row) => <span className='capitalize'>{row?.couponCode}</span>, sortable: true },
+        { field: 'discount', header: 'Discount', body: (row) => <span className='capitalize'>{row?.discount}</span>, sortable: true },
+        { field: 'discountIn', header: 'Discount Type', body: (row) => <span className='capitalize'>{row?.discountIn}</span>, sortable: true },
         {
             field: 'activationDate',
             header: 'Activation Date',
             sortable: true,
-            body: (row) => moment(row.activationDate).format('YYYY-MM-DD')
+            body: (row) => <span className='capitalize'>{moment(row.activationDate).format('YYYY-MM-DD')}</span>
         },
         {
             field: 'expiryDate',
             header: 'Expiry Date',
             sortable: true,
-            body: (row) => moment(row.expiryDate).format('YYYY-MM-DD')
+            body: (row) => <span className='capitalize'>{moment(row.expiryDate).format('YYYY-MM-DD')}</span>
         },
-        { field: 'couponType', header: 'Coupon Type', sortable: true },
+        { field: 'couponType', header: 'Coupon Type', body: couponType, sortable: true },
         { field: 'status', header: 'Status', body: expiryStatus },
         { field: 'isActive', header: 'Active', body: activeBody, sortable: true },
         { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true }
