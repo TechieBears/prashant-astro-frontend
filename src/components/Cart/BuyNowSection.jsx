@@ -1,5 +1,6 @@
 import React from 'react';
 import PaymentSummary from './PaymentSummary';
+import ProductImage from '../Common/ProductImage';
 
 const BuyNowSection = ({
     product,
@@ -23,6 +24,7 @@ const BuyNowSection = ({
     const gstAmount = subtotal * 0.18;
     const total = subtotal + gstAmount;
 
+
     return (
         <div className="bg-white p-4 md:p-6 rounded-lg">
             <div className="lg:grid lg:grid-cols-12 lg:gap-8">
@@ -33,17 +35,18 @@ const BuyNowSection = ({
                     <div className="space-y-4">
                         <div className="flex items-center bg-light-pg rounded-lg p-4">
                             {/* Product Image */}
-                            <div className="flex-shrink-0">
-                                <img
-                                    src={product.images?.[0] || 'https://via.placeholder.com/100x100?text=No+Image'}
-                                    alt={product.name}
-                                    className="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
-                                    onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = 'https://via.placeholder.com/100x100?text=No+Image';
-                                    }}
-                                />
-                            </div>
+                            <ProductImage
+                                images={product.images}
+                                name={product.name}
+                                containerClassName="flex-shrink-0"
+                                imgClassName="w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover"
+                                fallbackClassName="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gray-200 flex items-center justify-center"
+                                fallbackContent={
+                                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                }
+                            />
 
                             {/* Product Details */}
                             <div className="ml-4 flex-1">

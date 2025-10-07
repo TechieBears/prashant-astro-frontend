@@ -7,7 +7,7 @@ const TextInput = ({ label, type, props, errors, registerName, style, placeholde
     const isPasswordField = type === 'password';
 
     return (
-        <>
+        <div>
             <div className="relative">
                 <input
                     type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
@@ -40,7 +40,7 @@ const TextInput = ({ label, type, props, errors, registerName, style, placeholde
                     }
                 />
             )}
-        </>
+        </div>
     );
 };
 

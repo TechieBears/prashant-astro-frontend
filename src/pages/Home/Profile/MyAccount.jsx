@@ -5,6 +5,7 @@ import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import { updateCustomerProfile, uploadToCloudinary } from "../../../api";
 import { setUserDetails, setLoggedUserDetails } from "../../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
+import Preloaders from "../../../components/Loader/Preloaders";
 
 const MyAccount = () => {
     const dispatch = useDispatch();
@@ -104,9 +105,7 @@ const MyAccount = () => {
         return (
             <div className="rounded-lg bg-white p-4 sm:p-6 h-[100%]">
                 <h2 className="font-semibold text-lg mb-6">My Account</h2>
-                <div className="flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                </div>
+                <Preloaders />
             </div>
         );
     }

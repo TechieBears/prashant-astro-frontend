@@ -209,7 +209,7 @@ axios.interceptors.request.use(
 );
 // ==================== Regiter Api===================
 
-export const registerUser = async (data) => {
+export const registerUserOld = async (data) => {
     const url = `${environment.baseUrl}user/add-user `;
     try {
         const response = await axios.post(url, data)
@@ -221,7 +221,7 @@ export const registerUser = async (data) => {
     }
 };
 
-export const loginUser = async (data) => {
+export const loginUserOld = async (data) => {
     const url = `${environment.baseUrl}user/login`;
     try {
         const response = await axios.post(url, data)
@@ -831,7 +831,7 @@ export const addAdminUser = async (data) => {
     }
 }
 
-export const deleteUser = async (id) => {
+export const deleteUserOld = async (id) => {
     try {
         const url = `${environment.baseUrl}admin/delete-user?id=${id}`
         const response = await axios.delete(url)
@@ -1093,6 +1093,18 @@ export const editProduct = async (id, data) => {
     }
     catch (err) {
         console.log("==========error in editProduct api file", err);
+        return err?.response?.data
+    }
+}
+
+export const productStatusUpdate = async (id) => {
+    const url = `${environment.baseUrl}product/id/status?id=${id}`;
+    try {
+        const response = await axios.put(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in productStatusUpdate api file", err);
         return err?.response?.data
     }
 }
@@ -1479,9 +1491,9 @@ export const getCategoriesList = async (data) => {
     }
 }
 // ==================== Our Products Api ====================
-export const getOurProducts = async (categoryId = "68c930ffd155766186f7f03c") => {
+export const getOurProducts = async () => {
     try {
-        const url = `${environment.baseUrl}product/public/our-products?categoryId=${categoryId}`;
+        const url = `${environment.baseUrl}product/public/our-products/v2`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
@@ -1633,6 +1645,121 @@ export const postContactUs = async (data) => {
         return error?.response?.data || { success: false, message: 'Failed to post contact us' };
     }
 };
+// ==================== Authentication APIs ====================
+
+export const loginUser = async ({ email, password }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}auth/login`,
+            { email, password },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Login error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Login failed"
+        };
+    }
+};
+
+export const logoutUser = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+            `${environment.baseUrl}auth/logout`,
+            {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Logout error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Logout failed"
+        };
+    }
+};
+
+export const registerUser = async ({ title, firstName, lastName, email, password, phone, registerType = "normal" }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/register`,
+            { title, firstName, lastName, email, password, phone, registerType },
+            { headers: { "Content-type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Registration error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Registration failed"
+        };
+    }
+};
+
+export const forgetUserPassword = async ({ email }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/forgot-password`,
+            { email },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Forgot password failed"
+        };
+    }
+};
+
+export const resetUserPassword = async ({ token, password }) => {
+    try {
+        const response = await axios.post(
+            `${environment.baseUrl}customer-users/reset-password`,
+            { token, password },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Reset password error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Reset password failed"
+        };
+    }
+};
+
+export const deleteUser = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+            `${environment.baseUrl}customer-users/delete`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Delete user error:', err);
+        return {
+            success: false,
+            message: err.response?.data?.message || "Account deletion failed"
+        };
+    }
+};
+
 // ==================== Create Product Order Api ====================
 export const createProductOrder = async (orderData) => {
     const url = `${environment.baseUrl}product-order/public/create`;
@@ -1821,7 +1948,7 @@ export const updateServiceOrderStatus = async (data) => {
 
 
 
-export const logoutUser = async (data) => {
+export const logoutUserOld = async (data) => {
     const url = `${environment.baseUrl}auth/logout`;
     try {
         const response = await axios.post(url, data)
@@ -1923,5 +2050,107 @@ export const getSingleProductOrder = async (orderId) => {
     } catch (err) {
         console.error('Error fetching single product order:', err);
         return err?.response?.data || { success: false, message: 'Failed to fetch product order details' };
+    }
+};
+
+// ==================== Navigation APIs ====================
+export const getServiceCategoriesDropdownPublic = async () => {
+    const url = `${environment.baseUrl}service-categories/public/dropdown`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching service categories dropdown:', err);
+        if (err.response?.data?.message) {
+            return { success: false, message: err.response.data.message };
+        } else if (err.message) {
+            return { success: false, message: err.message };
+        } else {
+            return { success: false, message: 'Failed to fetch service categories' };
+        }
+    }
+};
+
+export const getProductCategoriesWithProductsPublic = async () => {
+    const url = `${environment.baseUrl}product-categories/astroguid/public/categories-with-products`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching product categories with products:', err);
+        if (err.response?.data?.message) {
+            return { success: false, message: err.response.data.message };
+        } else if (err.message) {
+            return { success: false, message: err.message };
+        } else {
+            return { success: false, message: 'Failed to fetch product categories' };
+        }
+    }
+};
+
+export const getNavDropdowns = async () => {
+    try {
+        const [serviceCatRes, productCatRes] = await Promise.all([
+            getServiceCategoriesDropdownPublic(),
+            getProductCategoriesWithProductsPublic()
+        ]);
+
+        return {
+            success: true,
+            data: {
+                servicesDropdown: serviceCatRes.success ? serviceCatRes.data : [],
+                productsDropdown: productCatRes.success ? productCatRes.data : [],
+                servicesError: serviceCatRes.success ? null : serviceCatRes.message,
+                productsError: productCatRes.success ? null : productCatRes.message
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching navigation dropdowns:', error);
+        return {
+            success: false,
+            message: error.message || 'Failed to fetch navigation data'
+        };
+    }
+};
+
+export const clearProductCart = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+            `${environment.baseUrl}product-cart/public/clear`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error clearing product cart:', err);
+        return err?.response?.data || { success: false, message: 'Failed to clear product cart' };
+    }
+}
+
+// get all coupons list for user
+export const getUserCoupons = async (type) => {
+    const url = `${environment.baseUrl}coupon/public/get-all?couponType=${type}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching user coupons:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch user coupons' };
+    }
+};
+
+export const getHomeModalStatus = async () => {
+    const url = `${environment.baseUrl}config/public/get?key=homepage_settings`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching HomepageModal Status:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch HomepageModal Status' };
     }
 };

@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { Power } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser, deleteUser } from "../../redux/Slices/loginSlice";
+import { logoutSuccess, deleteUserSuccess, setLoading, setError } from "../../redux/Slices/loginSlice";
+import { logoutUser, deleteUser } from "../../api";
 import { clearCart } from "../../redux/Slices/cartSlice";
 import toast from "react-hot-toast";
 import { useState } from "react";
@@ -24,13 +25,23 @@ const ProfileSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await dispatch(logoutUser()).unwrap();
-      dispatch(clearCart());
-      toast.success(res.message || "Logged out successfully!");
-      navigate("/");
+      dispatch(setLoading(true));
+
+      const response = await logoutUser();
+
+      if (response.success) {
+        dispatch(logoutSuccess());
+        dispatch(clearCart());
+        toast.success(response.message || "Logged out successfully!");
+        navigate("/");
+      } else {
+        dispatch(setError(response.message || "Logout failed"));
+        toast.error(response.message || "Logout failed");
+      }
     } catch (error) {
-      console.error("Logout failed:", error);
-      toast.error(error || "Logout failed");
+      dispatch(setError(error.message || "Logout failed"));
+      toast.error(error.message || "Logout failed");
+      // Fallback: clear local storage and navigate
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       navigate("/");
@@ -39,13 +50,23 @@ const ProfileSidebar = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      const res = await dispatch(deleteUser()).unwrap();
-      toast.success(res.message || "Account deleted successfully!");
-      setShowDeleteModal(false);
-      navigate("/");
+      dispatch(setLoading(true));
+
+      const response = await deleteUser();
+
+      if (response.success) {
+        dispatch(deleteUserSuccess());
+        toast.success(response.message || "Account deleted successfully!");
+        setShowDeleteModal(false);
+        navigate("/");
+      } else {
+        dispatch(setError(response.message || "Account deletion failed"));
+        toast.error(response.message || "Account deletion failed");
+        setShowDeleteModal(false);
+      }
     } catch (error) {
-      console.error("Account deletion failed:", error);
-      toast.error(error || "Account deletion failed");
+      dispatch(setError(error.message || "Account deletion failed"));
+      toast.error(error.message || "Account deletion failed");
       setShowDeleteModal(false);
     }
   };

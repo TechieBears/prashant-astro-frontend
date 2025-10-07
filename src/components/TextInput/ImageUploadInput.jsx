@@ -12,6 +12,8 @@ const ImageUploadInput = ({
     multiple,
     setValue,
     defaultValue,
+    value,
+    onChange,
     style,
     disabled,
 }) => {
@@ -22,37 +24,71 @@ const ImageUploadInput = ({
 
     // Load existing image on edit
     useEffect(() => {
-        if (defaultValue) {
-            const urls = multiple ? defaultValue : [defaultValue];
+        const dataToUse = value || defaultValue;
+        if (dataToUse) {
+            const urls = multiple ? dataToUse : [dataToUse];
             const dummyFiles = urls.map(url => ({
                 name: url.split("/").pop(),
                 url
             }));
             setFiles(dummyFiles);
             setFileName(dummyFiles.length === 1 ? dummyFiles[0].name : `${dummyFiles.length} files selected`);
-            setValue(registerName, multiple ? urls : urls[0]);
+            if (onChange) {
+                onChange(multiple ? urls : urls[0]);
+            } else {
+                setValue(registerName, multiple ? urls : urls[0]);
+            }
         }
-    }, [defaultValue, multiple, registerName, setValue]);
+    }, [defaultValue, value, multiple, registerName, setValue, onChange]);
 
     const handleFileChange = async (e) => {
         if (e?.target?.files?.length > 0) {
             setIsUploading(true);
-            const newFiles = Array.from(e.target.files);
+            const newFiles = Array.from(e.target.files).filter(file => file && file.name); // Filter out undefined files
+
+            if (newFiles.length === 0) {
+                console.warn('No valid files selected');
+                setIsUploading(false);
+                return;
+            }
 
             try {
                 const uploadPromises = newFiles.map(file => uploadToCloudinary(file));
                 const urls = await Promise.all(uploadPromises);
 
-                if (multiple) {
-                    setValue(registerName, urls);
+                // Filter out any undefined or null URLs
+                const validUrls = urls.filter(url => url && typeof url === 'string');
+
+                if (validUrls.length === 0) {
+                    throw new Error('No valid URLs returned from upload');
+                }
+
+                console.log('Uploaded URLs:', validUrls);
+                if (onChange && typeof onChange === 'function') {
+                    console.log('Using onChange for image upload');
+                    try {
+                        onChange(multiple ? validUrls : validUrls[0]);
+                    } catch (onChangeError) {
+                        console.error('Error in onChange callback:', onChangeError);
+                        throw onChangeError;
+                    }
                 } else {
-                    setValue(registerName, urls[0]);
+                    console.log('Using setValue for image upload');
+                    if (setValue && registerName) {
+                        if (multiple) {
+                            setValue(registerName, validUrls);
+                        } else {
+                            setValue(registerName, validUrls[0]);
+                        }
+                    } else {
+                        console.warn('setValue or registerName not provided');
+                    }
                 }
 
                 const previewFiles = newFiles.map((file, idx) => ({
                     file,
                     name: file.name,
-                    url: urls[idx]
+                    url: validUrls[idx] || urls[idx] // Fallback to original urls if validUrls is shorter
                 }));
 
                 setFiles(previewFiles);
@@ -65,7 +101,11 @@ const ImageUploadInput = ({
         } else {
             setFiles([]);
             setFileName("");
-            setValue(registerName, multiple ? [] : null);
+            if (onChange) {
+                onChange(multiple ? [] : null);
+            } else {
+                setValue(registerName, multiple ? [] : null);
+            }
         }
     };
 

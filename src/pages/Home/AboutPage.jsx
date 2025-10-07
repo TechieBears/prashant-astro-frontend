@@ -7,6 +7,7 @@ import SectionHeader from '../../components/Titles/SectionHeader';
 import { FavouriteIcon, StarIcon, Calendar03Icon } from 'hugeicons-react';
 import Testimonials from '../../components/Testimonials/Testimonials';
 import { getAllAstrologer, getServicesList } from '../../api';
+import Preloaders from '../../components/Loader/Preloaders';
 
 
 // Static icons for services (keeping as requested)
@@ -46,23 +47,33 @@ const AboutPage = () => {
     const [astrologers, setAstrologers] = useState([]);
     const [services, setServices] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
+    const [astrologersLoading, setAstrologersLoading] = useState(false);
+    const [astrologersFetched, setAstrologersFetched] = useState(false);
 
     useEffect(() => {
+        // Prevent multiple calls with loading and fetched guards
+        if (astrologersLoading || astrologersFetched) return;
+
         const fetchData = async () => {
+            setAstrologersLoading(true);
             try {
                 const response = await getAllAstrologer()
                 if (response?.success) {
-                    setAstrologers(response?.data)
+                    setAstrologers(response?.data || [])
                 } else {
                     setAstrologers([])
                     console.log('error', response)
                 }
             } catch (error) {
                 console.log('error', error)
+                setAstrologers([])
+            } finally {
+                setAstrologersLoading(false);
+                setAstrologersFetched(true);
             }
         }
         fetchData()
-    }, [])
+    }, [astrologersLoading, astrologersFetched])
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -265,9 +276,7 @@ const AboutPage = () => {
 
                     {/* Services Cards */}
                     {servicesLoading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : services.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                             {services.map((service) => (

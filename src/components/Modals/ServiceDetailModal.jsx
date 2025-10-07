@@ -1,29 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { FaClock, FaCalendarAlt, FaDesktop, FaVideo, FaTimes, FaStar } from 'react-icons/fa';
+import React, { useEffect, useState, useCallback } from 'react';
+import { FaClock, FaCalendarAlt, FaDesktop, FaVideo, FaTimes } from 'react-icons/fa';
 import { getSingleServiceOrder } from '../../api';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import ReviewForm from '../Common/ReviewForm';
+import Preloaders from '../Loader/Preloaders';
+import downloadIcon from '../../assets/user/orders/download.svg';
+
+const formatDate = (dateString) => {
+    if (!dateString) return 'Date will be confirmed';
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    const suffix = day === 1 || day === 21 || day === 31 ? 'st' :
+        day === 2 || day === 22 ? 'nd' :
+            day === 3 || day === 23 ? 'rd' : 'th';
+    return `${day}${suffix} ${month}, ${year}`;
+};
+
+const formatTime = (timeString) => {
+    if (!timeString) return 'Time will be confirmed';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minutes}${ampm}`;
+};
+
+const getStatusInfo = (status) => {
+    const statusMap = {
+        completed: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-green-800', bgColor: '#00A63E1A' },
+        delivered: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-green-800', bgColor: '#00A63E1A' },
+        pending: { text: 'Session Pending', shortText: 'Pending', textColor: 'text-yellow-800', bgColor: '#F59E0B1A' },
+        cancelled: { text: 'Session Cancelled', shortText: 'Cancelled', textColor: 'text-red-800', bgColor: '#EF44441A' },
+        in_progress: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-blue-800', bgColor: '#3B82F61A' },
+        ongoing: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-blue-800', bgColor: '#3B82F61A' }
+    };
+    return statusMap[status?.toLowerCase()] || { text: 'Session Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: '#6B72801A' };
+};
+
+const ServiceItem = ({ serviceData, index, showReviewForm, setShowReviewForm, handleReviewSuccess }) => {
+    const details = [
+        { icon: FaClock, text: 'Duration:', value: `${serviceData.durationInMinutes || 30} min` },
+        { icon: FaCalendarAlt, text: 'Date:', value: formatDate(serviceData.bookingDate) },
+        { icon: FaDesktop, text: 'Mode:', value: getServiceModeLabel(serviceData.serviceType) }
+    ];
+    const statusInfo = getStatusInfo(serviceData?.bookingStatus);
+
+    return (
+        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+            {/* Service Image - Small */}
+            <div className="relative h-32 bg-gray-100">
+                <img
+                    src={serviceData.serviceImage || "/src/assets/user/services/palmistry.png"}
+                    alt={serviceData.serviceName || "Service"}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                        e.target.src = "/src/assets/user/services/palmistry.png";
+                    }}
+                />
+                <div className={`absolute top-2 right-2 ${statusInfo.textColor} px-2 py-1 rounded-md text-xs font-medium`} style={{ backgroundColor: statusInfo.bgColor }}>
+                    {statusInfo.shortText}
+                </div>
+            </div>
+
+            {/* Service Details */}
+            <div className="p-3 space-y-2">
+                <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 min-h-[2.5rem]">
+                    {serviceData.serviceName || 'Service'}
+                </h4>
+
+                <div className="text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
+                    ₹{serviceData.total || serviceData.servicePrice}
+                </div>
+
+                {/* Service Info */}
+                <div className="space-y-1.5 text-xs">
+                    {details.map(({ icon: Icon, text, value }, i) => (
+                        <div key={i} className="flex items-start gap-1.5">
+                            <Icon className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700">
+                                <span className="text-gray-600">{text} </span>
+                                <span className="font-medium text-gray-900">{value}</span>
+                            </span>
+                        </div>
+                    ))}
+                    {serviceData.zoomLink && (
+                        <div className="flex items-start gap-1.5">
+                            <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700 break-all text-xs">
+                                {serviceData.zoomLink}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Review Button */}
+                <div className="pt-2 border-t border-gray-200">
+                    {!showReviewForm[serviceData.serviceId] ? (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowReviewForm(prev => ({ ...prev, [serviceData.serviceId]: true }));
+                            }}
+                            className="bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full"
+                        >
+                            Write Review
+                        </button>
+                    ) : (
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <ReviewForm
+                                isOpen={showReviewForm[serviceData.serviceId]}
+                                onClose={() => setShowReviewForm(prev => ({ ...prev, [serviceData.serviceId]: false }))}
+                                onSubmitSuccess={() => handleReviewSuccess(serviceData.serviceId)}
+                                serviceId={serviceData?.serviceId || null}
+                                productId={null}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const ServiceDetailModal = ({ isOpen, onClose, service }) => {
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [showReviewForm, setShowReviewForm] = useState({});
 
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleEsc = (e) => e.key === 'Escape' && onClose();
-        document.addEventListener('keydown', handleEsc);
-        return () => document.removeEventListener('keydown', handleEsc);
-    }, [isOpen, onClose]);
-
-    useEffect(() => {
-        if (isOpen && service?.orderId) {
-            fetchOrderDetails();
-        }
-    }, [isOpen, service?.orderId]);
-
-    const fetchOrderDetails = async () => {
+    const fetchOrderDetails = useCallback(async () => {
+        if (!service?.orderId) return;
         try {
             setLoading(true);
             setError(null);
@@ -39,112 +147,57 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [service?.orderId]);
 
-    const handleReviewSuccess = () => {
-        setShowReviewForm(false);
-    };
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e) => e.key === 'Escape' && onClose();
+        document.addEventListener('keydown', handleEsc);
+        return () => document.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (isOpen && service?.orderId) {
+            fetchOrderDetails();
+        }
+    }, [isOpen, service?.orderId, fetchOrderDetails]);
+
+    const handleReviewSuccess = useCallback((serviceId) => {
+        setShowReviewForm(prev => ({ ...prev, [serviceId]: false }));
+    }, []);
+
+    const handleDownloadInvoice = useCallback(() => {
+        console.log('Downloading invoice for order:', orderData?.orderId);
+    }, [orderData?.orderId]);
 
     if (!isOpen) return null;
 
-    // Format date and time
-    const formatDate = (dateString) => {
-        if (!dateString) return 'Date will be confirmed';
-        const date = new Date(dateString);
-        const day = date.getDate();
-        const month = date.toLocaleString('default', { month: 'short' });
-        const year = date.getFullYear();
-        const suffix = day === 1 || day === 21 || day === 31 ? 'st' :
-            day === 2 || day === 22 ? 'nd' :
-                day === 3 || day === 23 ? 'rd' : 'th';
-        return `${day}${suffix} ${month}, ${year}`;
-    };
-
-    const formatTime = (timeString) => {
-        if (!timeString) return 'Time will be confirmed';
-        const [hours, minutes] = timeString.split(':');
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-        return `${displayHour}:${minutes}${ampm}`;
-    };
-
-
-    // Get service data from order
-    const serviceData = orderData?.services?.[0];
-    const details = serviceData ? [
-        { icon: FaClock, text: 'Session Duration:', value: `${serviceData.durationInMinutes || 30} minutes` },
-        { icon: FaCalendarAlt, text: 'Date:', value: `${formatDate(serviceData.bookingDate)} / ${formatTime(serviceData.startTime)} - ${formatTime(serviceData.endTime)}` },
-        { icon: FaDesktop, text: 'Mode:', value: getServiceModeLabel(serviceData.serviceType) },
-        { icon: FaVideo, text: '', value: serviceData.zoomLink || 'Meeting link will be provided', breakAll: true }
-    ] : [];
-
-    // Get status info for the badge
-    const getStatusInfo = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'completed':
-            case 'delivered':
-                return {
-                    text: 'Session Completed',
-                    shortText: 'Completed',
-                    textColor: 'text-green-800',
-                    bgColor: '#00A63E1A'
-                };
-            case 'pending':
-                return {
-                    text: 'Session Pending',
-                    shortText: 'Pending',
-                    textColor: 'text-yellow-800',
-                    bgColor: '#F59E0B1A'
-                };
-            case 'cancelled':
-                return {
-                    text: 'Session Cancelled',
-                    shortText: 'Cancelled',
-                    textColor: 'text-red-800',
-                    bgColor: '#EF44441A'
-                };
-            case 'in_progress':
-            case 'ongoing':
-                return {
-                    text: 'Session Ongoing',
-                    textColor: 'text-blue-800',
-                    bgColor: '#3B82F61A'
-                };
-            default:
-                return {
-                    text: 'Session Status',
-                    shortText: 'Status',
-                    textColor: 'text-gray-800',
-                    bgColor: '#6B72801A'
-                };
-        }
-    };
-
-    const statusInfo = getStatusInfo(serviceData?.bookingStatus || orderData?.orderStatus);
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4" style={{ paddingTop: '6rem' }}>
-            <div className="bg-white rounded-lg max-w-5xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-0">
-                <div className="flex justify-between items-center px-4 sm:px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg sm:text-xl font-bold text-gray-800">Order Details</h2>
-                    <div className="flex items-center gap-2 sm:gap-4">
-                        <div className={`${statusInfo.textColor} px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium`} style={{ backgroundColor: statusInfo.bgColor }}>
-                            <img src="/src/assets/user/orders/badge.svg" alt="Badge" className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline">{statusInfo.text}</span>
-                            <span className="sm:hidden">{statusInfo.shortText}</span>
-                        </div>
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors p-1">
-                            <FaTimes className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 sm:p-6 pt-20 sm:pt-24" style={{ zIndex: 9999 }}>
+            <div className="bg-white rounded-lg max-w-5xl w-full max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto mx-2 sm:mx-0">
+                <div className="px-4 sm:px-6 py-4 border-b border-gray-200 relative">
+                    <button onClick={onClose} className="absolute top-4 right-4 sm:right-6 text-gray-500 hover:text-gray-700 transition-colors p-1">
+                        <FaTimes className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0 pr-8 sm:pr-12">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-800">Order Details</h2>
+                        {orderData && (
+                            <button
+                                onClick={handleDownloadInvoice}
+                                className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium"
+                                style={{ backgroundColor: '#4200981A' }}
+                            >
+                                <img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <span className="hidden sm:inline">Download Invoice</span>
+                                <span className="sm:hidden">Invoice</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 <div className="px-4 sm:px-8 lg:px-20 py-4 sm:py-6">
                     {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-                        </div>
+                        <Preloaders />
                     ) : error ? (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
                             <p className="text-red-600">{error}</p>
@@ -155,62 +208,95 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
                                 Retry
                             </button>
                         </div>
-                    ) : orderData && serviceData ? (
-                        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-                            <div className="lg:w-1/2">
-                                <img
-                                    src={serviceData.serviceImage || "/src/assets/user/services/palmistry.png"}
-                                    alt={serviceData.serviceName || "Service"}
-                                    className="w-full h-64 sm:h-80 lg:h-96 object-cover rounded-lg shadow-lg"
-                                    onError={(e) => {
-                                        e.target.src = "/src/assets/user/services/palmistry.png";
-                                    }}
-                                />
+                    ) : orderData && orderData.services?.length > 0 ? (
+                        <div className="space-y-6">
+                            <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="bg-button-gradient-orange px-4 py-2.5">
+                                    <h3 className="text-base sm:text-lg font-semibold text-white">Order Summary</h3>
+                                </div>
+                                <div className="bg-white p-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3">
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Order ID</p>
+                                            <p className="text-sm font-medium text-gray-800 truncate" title={orderData.orderId}>
+                                                #{orderData.orderId?.slice(-8)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Order Date</p>
+                                            <p className="text-sm font-medium text-gray-800">
+                                                {formatDate(orderData.createdAt)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Total Services</p>
+                                            <p className="text-sm font-medium text-gray-800">
+                                                {orderData.services.length} {orderData.services.length === 1 ? 'Service' : 'Services'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Subtotal</p>
+                                            <p className="text-sm font-medium text-gray-800">
+                                                ₹{orderData.totalAmount || 0}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Payment Status</p>
+                                            <p className={`text-sm font-semibold ${orderData.paymentStatus === 'completed' || orderData.paymentStatus === 'paid'
+                                                ? 'text-green-600'
+                                                : orderData.paymentStatus === 'pending'
+                                                    ? 'text-yellow-600'
+                                                    : 'text-red-600'
+                                                }`}>
+                                                {orderData.paymentStatus?.toUpperCase() || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-500 mb-0.5">Total Amount</p>
+                                            <p className="text-base font-bold text-gray-900">
+                                                ₹{orderData.finalAmount || orderData.totalAmount || 0}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {(orderData.paymentId || orderData.address) && (
+                                        <div className="border-t border-gray-100 mt-3 pt-3 space-y-2">
+                                            {orderData.paymentId && (
+                                                <div>
+                                                    <p className="text-xs text-gray-500 mb-0.5">Payment ID</p>
+                                                    <p className="text-sm font-medium text-gray-800 break-all">
+                                                        {orderData.paymentId}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {orderData.address && (
+                                                <div>
+                                                    <p className="text-xs text-gray-500 mb-0.5">Address</p>
+                                                    <p className="text-sm font-medium text-gray-800">
+                                                        {orderData.address}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="lg:w-1/2 space-y-3 sm:space-y-4">
-                                <div>
-                                    <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">
-                                        {serviceData.serviceName || 'Service'}
-                                    </h3>
-                                    <div className="flex items-center gap-2 mb-4 sm:mb-6">
-                                        {[...Array(5)].map((_, i) => <FaStar key={i} className="w-3 h-3 sm:w-4 sm:h-4 text-primary-orange" />)}
-                                        <span className="text-xs sm:text-sm text-gray-600">(150 Reviews)</span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 sm:space-y-3">
-                                    {details.map(({ icon: Icon, text, value, breakAll }, i) => (
-                                        <div key={i} className="flex items-start gap-2 sm:gap-3">
-                                            <Icon className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mt-1 flex-shrink-0" />
-                                            <span className={`text-xs sm:text-sm text-gray-600 ${breakAll ? 'break-all' : ''}`}>
-                                                {text && <span>{text} </span>}
-                                                {text && <span className="font-medium text-gray-800">{value}</span>}
-                                                {!text && value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="border-t border-gray-200 pt-4 sm:pt-6 mt-4 sm:mt-6">
-                                    <h4 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Reviews</h4>
-
-                                    {!showReviewForm ? (
-                                        <button
-                                            onClick={() => setShowReviewForm(true)}
-                                            className="bg-gray-800 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
-                                        >
-                                            Write a Review
-                                        </button>
-                                    ) : (
-                                        <ReviewForm
-                                            isOpen={showReviewForm}
-                                            onClose={() => setShowReviewForm(false)}
-                                            onSubmitSuccess={handleReviewSuccess}
-                                            serviceId={serviceData?.serviceId || null}
-                                            productId={null}
+                            {/* Services Section */}
+                            <div>
+                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3">
+                                    Services ({orderData.services.length})
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {orderData.services.map((serviceData, index) => (
+                                        <ServiceItem
+                                            key={serviceData.serviceId || index}
+                                            serviceData={serviceData}
+                                            index={index}
+                                            showReviewForm={showReviewForm}
+                                            setShowReviewForm={setShowReviewForm}
+                                            handleReviewSuccess={handleReviewSuccess}
                                         />
-                                    )}
+                                    ))}
                                 </div>
                             </div>
                         </div>

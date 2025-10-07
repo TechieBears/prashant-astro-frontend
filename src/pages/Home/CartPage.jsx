@@ -8,21 +8,30 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
 import EditServiceModal from '../../components/Modals/EditServiceModal';
-import { createOrder, createServiceOrderThunk, clearError as clearOrderError, clearCurrentOrder } from '../../redux/Slices/orderSlice';
+import Preloaders from '../../components/Loader/Preloaders';
 import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
-    fetchCartData,
-    updateProductQuantity,
-    removeProductItem,
-    removeServiceItem as removeServiceItemAction,
-    updateServiceItem,
+    updateProductQuantitySuccess,
+    removeProductItemSuccess,
+    removeServiceItemSuccess,
+    updateServiceItemSuccess,
     clearError as clearCartError,
-    selectProductCalculations,
-    selectServiceCalculations,
-    selectCartLoadingStates,
-    selectCartErrors
+    optimisticUpdateQuantity,
+    optimisticRemoveItem,
+    clearCart
 } from '../../redux/Slices/cartSlice';
+import {
+    getCartItems,
+    updateCartItem,
+    removeCartItem,
+    removeServiceCartItem,
+    updateServiceCartItem,
+    createProductOrder,
+    createServiceOrder,
+    clearProductCart
+} from '../../api';
+import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
 
 const CartPage = () => {
@@ -30,14 +39,30 @@ const CartPage = () => {
     const location = useLocation();
     const dispatch = useDispatch();
     const { defaultAddress } = useAddress();
+    const { fetchCartData } = useCart();
 
-    // Redux selectors
-    const { isCreatingOrder, error: orderError } = useSelector(state => state.order);
+    // Local state for order creation (replacing Redux)
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [orderError, setOrderError] = useState(null);
     const { productItems: cartItems, serviceItems: serviceCartItems } = useSelector(state => state.cart);
-    const { isLoading, isUpdatingQuantity, isRemovingItem } = useSelector(selectCartLoadingStates);
-    const { error: cartError } = useSelector(selectCartErrors);
-    const productCalculations = useSelector(selectProductCalculations);
-    const serviceCalculations = useSelector(selectServiceCalculations);
+    const { isLoading, isUpdatingQuantity, isRemovingItem, error: cartError } = useSelector(state => state.cart);
+
+    // Calculate totals manually since we removed the complex selectors
+    const productCalculations = useMemo(() => {
+        const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const gstAmount = subtotal * 0.18; // 18% GST
+        const total = subtotal + gstAmount;
+        return { subtotal, gstAmount, total };
+    }, [cartItems]);
+
+    const serviceCalculations = useMemo(() => {
+        const subtotal = serviceCartItems.reduce((sum, item) => sum + item.originalPrice, 0);
+        const gstAmount = subtotal * 0.18; // 18% GST
+        const total = subtotal + gstAmount;
+        return { subtotal, gstAmount, total };
+    }, [serviceCartItems]);
+
+ 
 
     // Local state
     const [activeTab, setActiveTab] = useState('products');
@@ -58,17 +83,25 @@ const CartPage = () => {
 
     // Fetch cart data on mount
     useEffect(() => {
-        dispatch(fetchCartData());
-    }, [dispatch]);
+        const loadCart = async () => {
+            try {
+                await fetchCartData();
+            } catch (error) {
+                toast.error('Failed to load cart data');
+            }
+        };
+
+        loadCart();
+    }, [fetchCartData]);
 
     // Error handling effects
     useEffect(() => {
         if (orderError) {
             toast.dismiss();
             toast.error(orderError);
-            dispatch(clearOrderError());
+            setOrderError(null); // Clear error after showing toast
         }
-    }, [orderError, dispatch]);
+    }, [orderError]);
 
     useEffect(() => {
         if (cartError) {
@@ -142,12 +175,26 @@ const CartPage = () => {
 
         debounceTimeouts.current[id] = setTimeout(async () => {
             try {
-                await dispatch(updateProductQuantity({ id, quantity })).unwrap();
-                setPendingUpdates(prev => {
-                    const newPending = { ...prev };
-                    delete newPending[id];
-                    return newPending;
-                });
+                dispatch(optimisticUpdateQuantity({ id, quantity }));
+
+                const response = await updateCartItem(id, quantity);
+
+                if (response.success) {
+                    dispatch(updateProductQuantitySuccess({
+                        products: response.data.items || cartItems
+                    }));
+                    setPendingUpdates(prev => {
+                        const newPending = { ...prev };
+                        delete newPending[id];
+                        return newPending;
+                    });
+                } else {
+                    toast.error('Failed to update quantity');
+                    const originalItem = cartItems.find(item => item._id === id);
+                    if (originalItem) {
+                        setLocalQuantities(prev => ({ ...prev, [id]: originalItem.quantity }));
+                    }
+                }
             } catch (err) {
                 toast.dismiss();
                 toast.error('Failed to update quantity');
@@ -166,20 +213,40 @@ const CartPage = () => {
 
     const removeItem = useCallback(async (id) => {
         try {
-            await dispatch(removeProductItem(id)).unwrap();
-            toast.dismiss();
-            toast.success('Item removed from cart');
+            dispatch(optimisticRemoveItem(id));
+
+            const response = await removeCartItem(id);
+
+            if (response.success) {
+                dispatch(removeProductItemSuccess(id));
+                toast.dismiss();
+                toast.success('Item removed from cart');
+            } else {
+                toast.error('Failed to remove item');
+                // Revert optimistic update by refetching cart
+                try {
+                    await fetchCartData();
+                } catch (fetchError) {
+                    console.error('Failed to refetch cart data:', fetchError);
+                }
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to remove item');
         }
-    }, [dispatch]);
+    }, [dispatch, fetchCartData]);
 
     const removeServiceItem = useCallback(async (id) => {
         try {
-            await dispatch(removeServiceItemAction(id)).unwrap();
-            toast.dismiss();
-            toast.success('Service removed from cart');
+            const response = await removeServiceCartItem(id);
+
+            if (response.success) {
+                dispatch(removeServiceItemSuccess(id));
+                toast.dismiss();
+                toast.success('Service removed from cart');
+            } else {
+                toast.error('Failed to remove service');
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to remove service');
@@ -193,14 +260,20 @@ const CartPage = () => {
 
     const handleUpdateService = useCallback(async (updatedServiceData) => {
         try {
-            await dispatch(updateServiceItem({
-                id: selectedServiceForEdit.id,
-                updateData: updatedServiceData
-            })).unwrap();
-            toast.dismiss();
-            toast.success('Service updated successfully');
-            setIsEditModalOpen(false);
-            setSelectedServiceForEdit(null);
+            const response = await updateServiceCartItem(selectedServiceForEdit.id, updatedServiceData);
+
+            if (response.success) {
+                dispatch(updateServiceItemSuccess({
+                    id: selectedServiceForEdit.id,
+                    updateData: updatedServiceData
+                }));
+                toast.dismiss();
+                toast.success('Service updated successfully');
+                setIsEditModalOpen(false);
+                setSelectedServiceForEdit(null);
+            } else {
+                toast.error('Failed to update service');
+            }
         } catch (err) {
             toast.dismiss();
             toast.error('Failed to update service');
@@ -231,30 +304,46 @@ const CartPage = () => {
                 requiresAddress ? defaultAddress._id : null
             );
 
-            await dispatch(createServiceOrderThunk(serviceOrderData)).unwrap();
+            // Set loading state
+            setIsCreatingOrder(true);
+            setOrderError(null);
 
-            toast.dismiss();
-            toast.success('Service order created successfully!');
+            // Call API directly
+            const response = await createServiceOrder(serviceOrderData);
 
-            // Clear only error state, keep currentOrder for PaymentSuccess page
-            dispatch(clearOrderError());
+            if (response.success) {
+                toast.dismiss();
+                toast.success('Service order created successfully!');
 
-            // Navigate immediately without delay
-            try {
-                navigate('/payment-success');
-            } catch (navError) {
-                console.error('Navigation failed:', navError);
-                // Fallback: force navigation
-                window.location.href = '/payment-success';
+                // Navigate immediately without delay
+                try {
+                    navigate('/payment-success', {
+                        state: {
+                            orderData: response.order,
+                            orderType: 'services'
+                        }
+                    });
+                } catch (navError) {
+                    console.error('Navigation failed:', navError);
+                    // Fallback: force navigation
+                    window.location.href = '/payment-success';
+                }
+            } else {
+                setOrderError(response.message || 'Failed to create service order');
+                toast.dismiss();
+                toast.error(response.message || 'Failed to create service order');
             }
 
         } catch (err) {
             console.error('Service checkout error:', err);
+            setOrderError(err?.message || 'Network error occurred');
             toast.dismiss();
             const errorMessage = err?.message || err?.error || 'Failed to create service order';
             toast.error(errorMessage);
+        } finally {
+            setIsCreatingOrder(false);
         }
-    }, [serviceCartItems, defaultAddress, dispatch, navigate]);
+    }, [serviceCartItems, defaultAddress, navigate]);
 
     const handleProductsCheckout = useCallback(async () => {
         try {
@@ -279,21 +368,48 @@ const CartPage = () => {
                 }
             });
 
-            await dispatch(createOrder(orderData)).unwrap();
+            // Set loading state
+            setIsCreatingOrder(true);
+            setOrderError(null);
 
-            toast.dismiss();
-            toast.success('Product order created successfully!');
+            // Call API directly
+            const response = await createProductOrder(orderData);
 
-            // Navigate after a short delay to ensure toast is visible
-            setTimeout(() => {
-                navigate('/payment-success');
-            }, 100);
+            if (response.success) {
+                toast.dismiss();
+                toast.success('Product order created successfully!');
+
+                // Clear product cart
+                try {
+                    await clearProductCart();
+                    dispatch(clearCart());
+                    console.log('Product cart cleared successfully');
+                } catch (clearError) {
+                    console.error('Error clearing product cart:', clearError);
+                }
+
+                setTimeout(() => {
+                    navigate('/payment-success', {
+                        state: {
+                            orderData: response.data,
+                            orderType: 'products'
+                        }
+                    });
+                }, 100);
+            } else {
+                setOrderError(response.message || 'Failed to create order');
+                toast.dismiss();
+                toast.error(response.message || 'Failed to create order');
+            }
         } catch (err) {
             console.error('Error during checkout:', err);
+            setOrderError(err?.message || 'Network error occurred');
             toast.dismiss();
             toast.error('Failed to create order');
+        } finally {
+            setIsCreatingOrder(false);
         }
-    }, [cartItems, defaultAddress, dispatch, navigate]);
+    }, [cartItems, defaultAddress, navigate]);
 
     // Memoized tab component
     const TabComponent = useMemo(() => {
@@ -332,14 +448,7 @@ const CartPage = () => {
 
     // Loading state
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-slate1 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading your cart...</p>
-                </div>
-            </div>
-        );
+        return <Preloaders />;
     }
 
     return (
@@ -393,6 +502,7 @@ const CartPage = () => {
                             total={serviceCalculations.total}
                             isRemoving={isRemovingItem}
                             isCreatingOrder={isCreatingOrder}
+                            activeTab={activeTab}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -413,10 +523,10 @@ const CartPage = () => {
                         isUpdating={isUpdatingQuantity}
                         isRemoving={isRemovingItem}
                         isCreatingOrder={isCreatingOrder}
+                        activeTab={activeTab}
                     />
                 )}
             </div>
-
             <EditServiceModal
                 isOpen={isEditModalOpen}
                 onClose={() => {

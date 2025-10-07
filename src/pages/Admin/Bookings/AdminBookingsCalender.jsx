@@ -85,13 +85,13 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 border-[1.2px] border-dashed ${config.border}
             `}
         >
-            <div className="text-center leading-tight">
+            <div className="w-full px-3 text-center leading-tight">
                 {status === 'booked' ? (
-                    <h4 className="text-sm text-center font-tbPop font-semibold line-clamp-1 px-5 text-nowrap">
+                    <h4 className="text-sm text-center font-tbPop font-semibold truncate overflow-hidden" title={config.title}>
                         {config.title}
                     </h4>
                 ) : (
-                    <div className="text-sm font-bold text-center px-5 line-clamp-1 text-nowrap">
+                    <div className="text-sm font-bold text-center truncate overflow-hidden" title={config.title}>
                         {config.title}
                     </div>
                 )}

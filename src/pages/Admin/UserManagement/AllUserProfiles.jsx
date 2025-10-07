@@ -58,9 +58,13 @@ function AllUserProfiles() {
             const updatedData = {
                 isActive: !isActive
             }
-            await editCustomer(id, updatedData);
-            setRefreshTrigger(prev => prev + 1);
-            toast.success('Status updated');
+            const res = await editCustomer(id, updatedData);
+            if (res.success) {
+                setRefreshTrigger(prev => prev + 1);
+                toast.success(res.message || 'Update successful');
+            } else {
+                toast.error(res.message || 'Update failed');
+            }
         } catch (error) {
             console.log('error', error)
             toast.error('Update failed');

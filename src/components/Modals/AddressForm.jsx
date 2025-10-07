@@ -141,11 +141,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             )}
 
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Left Column */}
-                    <div className="space-y-4">
+                <div className="flex flex-row w-full flex-wrap gap-4">
+                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4 ">
+
                         {/* First Name */}
-                        <div>
+                        <div className="w-full md:w-1/2">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 First Name
                             </label>
@@ -171,8 +171,37 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             )}
                         </div>
 
+                        {/* Last Name */}
+                        <div className="w-full md:w-1/2">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                Last Name
+                            </label>
+                            <input
+                                type="text"
+                                {...register("lastName", {
+                                    required: "Last name is required",
+                                    minLength: {
+                                        value: 2,
+                                        message: "Last name must be at least 2 characters"
+                                    },
+                                    pattern: {
+                                        value: /^[a-zA-Z\s]+$/,
+                                        message: "Last name can only contain letters and spaces"
+                                    }
+                                })}
+                                placeholder="Enter last name"
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.lastName ? 'border-red-500' : ''
+                                    }`}
+                            />
+                            {errors.lastName && (
+                                <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
                         {/* Phone Number */}
-                        <div>
+                        <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Phone Number
                             </label>
@@ -199,7 +228,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         </div>
 
                         {/* Address */}
-                        <div>
+                        <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 Address
                             </label>
@@ -221,133 +250,11 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                             )}
                         </div>
 
-                        {/* State */}
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                State
-                            </label>
-                            <select
-                                {...register("state", {
-                                    required: "Please select a state"
-                                })}
-                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.state ? 'border-red-500' : ''
-                                    }`}
-                            >
-                                <option value="">Select state</option>
-                                <option value="Maharashtra">Maharashtra</option>
-                                {/* <option value="Gujarat">Gujarat</option>
-                                <option value="Karnataka">Karnataka</option>
-                                <option value="Tamil Nadu">Tamil Nadu</option>
-                                <option value="Western Australia">Western Australia</option>
-                                <option value="New South Wales">New South Wales</option>
-                                <option value="California">California</option>
-                                <option value="Texas">Texas</option> */}
-                            </select>
-                            {errors.state && (
-                                <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
-                            )}
-                        </div>
-
-                        {/* Zip Code */}
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Zip code / Postal Code
-                            </label>
-                            <input
-                                type="text"
-                                {...register("postalCode", {
-                                    required: "Postal code is required",
-                                    pattern: {
-                                        value: /^[0-9]{4,6}$/,
-                                        message: "Please enter a valid postal code (4-6 digits)"
-                                    }
-                                })}
-                                placeholder="Enter zip code"
-                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.postalCode ? 'border-red-500' : ''
-                                    }`}
-                            />
-                            {errors.postalCode && (
-                                <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
-                            )}
-                        </div>
                     </div>
 
-                    {/* Right Column */}
-                    <div className="space-y-4">
-                        {/* Last Name */}
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Last Name
-                            </label>
-                            <input
-                                type="text"
-                                {...register("lastName", {
-                                    required: "Last name is required",
-                                    minLength: {
-                                        value: 2,
-                                        message: "Last name must be at least 2 characters"
-                                    },
-                                    pattern: {
-                                        value: /^[a-zA-Z\s]+$/,
-                                        message: "Last name can only contain letters and spaces"
-                                    }
-                                })}
-                                placeholder="Enter last name"
-                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.lastName ? 'border-red-500' : ''
-                                    }`}
-                            />
-                            {errors.lastName && (
-                                <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
-                            )}
-                        </div>
+                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
 
-                        {/* Address Type */}
-                        <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Address Type
-                            </label>
-                            <div className="flex gap-1 flex-wrap">
-                                {['home', 'office', 'friend', 'other'].map((type) => (
-                                    <button
-                                        key={type}
-                                        type="button"
-                                        onClick={() => setValue("addressType", type, { shouldValidate: true })}
-                                        className={`px-2 py-1 rounded-md font-medium transition-colors text-xs ${watchedAddressType === type
-                                            ? 'bg-button-vertical-gradient-orange text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Country */}
-                        {/* <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Country
-                            </label>
-                            <select
-                                {...register("country", {
-                                    required: "Please select a country"
-                                })}
-                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.country ? 'border-red-500' : ''
-                                    }`}
-                            >
-                                <option value="">Select country</option>
-                                <option value="India">India</option>
-                                <option value="Australia">Australia</option>
-                                <option value="United States">United States</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                            </select>
-                            {errors.country && (
-                                <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
-                            )}
-                        </div>  */}
-
-                        {/* City */}
-                        <div>
+                        <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
                                 City
                             </label>
@@ -372,7 +279,108 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
                             )}
                         </div>
+                        {/* State */}
+                        <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                State
+                            </label>
+                            <select
+                                {...register("state", {
+                                    required: "Please select a state"
+                                })}
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.state ? 'border-red-500' : ''
+                                    }`}
+                            >
+                                <option value="">Select state</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                {/* <option value="Gujarat">Gujarat</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Western Australia">Western Australia</option>
+                                <option value="New South Wales">New South Wales</option>
+                                <option value="California">California</option>
+                                <option value="Texas">Texas</option> */}
+                            </select>
+                            {errors.state && (
+                                <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+                            )}
+                        </div>
                     </div>
+
+                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
+                        {/* Zip Code */}
+                        <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                Zip code / Postal Code
+                            </label>
+                            <input
+                                type="text"
+                                {...register("postalCode", {
+                                    required: "Postal code is required",
+                                    pattern: {
+                                        value: /^[0-9]{4,6}$/,
+                                        message: "Please enter a valid postal code (4-6 digits)"
+                                    }
+                                })}
+                                placeholder="Enter zip code"
+                                className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.postalCode ? 'border-red-500' : ''
+                                    }`}
+                            />
+                            {errors.postalCode && (
+                                <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
+                            )}
+                        </div>
+                        {/* Address Type */}
+                        <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                Address Type
+                            </label>
+                            <div className="flex gap-1 flex-wrap">
+                                {['home', 'office', 'friend', 'other'].map((type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => setValue("addressType", type, { shouldValidate: true })}
+                                        className={`px-2 py-1 rounded-md font-medium transition-colors text-xs ${watchedAddressType === type
+                                            ? 'bg-button-vertical-gradient-orange text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                    {/* Country */}
+                    {/* <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                Country
+                            </label>
+                            <select
+                                {...register("country", {
+                                    required: "Please select a country"
+                                })}
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.country ? 'border-red-500' : ''
+                                    }`}
+                            >
+                                <option value="">Select country</option>
+                                <option value="India">India</option>
+                                <option value="Australia">Australia</option>
+                                <option value="United States">United States</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                            </select>
+                            {errors.country && (
+                                <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
+                            )}
+                        </div>  */}
+
+                    {/* City */}
+
                 </div>
 
                 {/* Default Address Checkbox */}
