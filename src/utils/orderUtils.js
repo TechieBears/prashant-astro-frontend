@@ -7,6 +7,34 @@
  */
 
 /**
+ * Extract image URL from various possible data structures
+ * @param {Object} item - Item object with potential image data
+ * @returns {string} Image URL or placeholder
+ */
+const getImageUrl = (item) => {
+    const imageSources = [
+        item.snapshot?.images,
+        item.images,
+        item.product?.images,
+        item.snapshot?.image,
+        item.image
+    ];
+
+    for (const source of imageSources) {
+        if (!source) continue;
+
+        if (typeof source === 'string') {
+            return source;
+        }
+        if (Array.isArray(source) && source[0]) {
+            return source[0];
+        }
+    }
+
+    return 'https://via.placeholder.com/150';
+};
+
+/**
  * Create order data object with consistent structure
  * @param {Object} options - Order creation options
  * @param {string} [options.productId] - ID of a single product (use either this or cartItems)
@@ -77,10 +105,10 @@ export const transformProductOrderData = (apiData) => {
 
     const orderItems = apiData.order.items.map((item, index) => ({
         id: item._id || `item-${index}`,
-        title: item.snapshot?.name || 'Product',
-        price: item.snapshot?.sellingPrice || item.subtotal / item.quantity,
-        oldPrice: item.snapshot?.mrpPrice || item.snapshot?.sellingPrice || item.subtotal / item.quantity,
-        image: item.snapshot?.images?.[0] || null,
+        title: item.snapshot?.name || item.name || 'Product',
+        price: item.snapshot?.sellingPrice || item.price || item.subtotal / item.quantity,
+        oldPrice: item.snapshot?.mrpPrice || item.snapshot?.sellingPrice || item.price || item.subtotal / item.quantity,
+        image: getImageUrl(item),
         quantity: item.quantity
     }));
 
@@ -335,7 +363,6 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
         // Ensure we have a valid service object with serviceId
         const serviceId = service.serviceId || service._id;
         if (!serviceId) {
-            console.error('Invalid service item - missing serviceId:', service);
             throw new Error('Invalid service item in cart');
         }
 

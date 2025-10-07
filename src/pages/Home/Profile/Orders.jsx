@@ -10,6 +10,7 @@ import { getServiceModeLabel } from '../../../utils/serviceConfig';
 import ServiceDetailModal from '../../../components/Modals/ServiceDetailModal';
 import ProductDetailModal from '../../../components/Modals/ProductDetailModal';
 import Preloaders from '../../../components/Loader/Preloaders';
+import ProductImage from '../../../components/Common/ProductImage';
 
 const Orders = () => {
   const location = useLocation();
@@ -234,20 +235,14 @@ const Orders = () => {
     >
       <div className="flex gap-4">
         <div className="flex-shrink-0">
-          <div className="w-24 h-24 bg-white flex items-center justify-center shadow-md">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-20 h-20 object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="w-20 h-20 bg-gray-200 flex items-center justify-center text-gray-500 text-xs" style={{ display: 'none' }}>
-              Image
-            </div>
-          </div>
+          <ProductImage
+            images={product.image}
+            name={product.name}
+            containerClassName="w-24 h-24 bg-white flex items-center justify-center shadow-md"
+            imgClassName="w-20 h-20 object-cover"
+            fallbackClassName="w-20 h-20 bg-gray-200 flex items-center justify-center text-gray-500 text-xs"
+            fallbackContent="Image"
+          />
         </div>
         <div className="flex-1 flex flex-col justify-between">
           <div className="leading-tight">

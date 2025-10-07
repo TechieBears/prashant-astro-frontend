@@ -1,5 +1,6 @@
 import React from "react";
 import { FaCheckCircle } from "react-icons/fa";
+import ProductImage from "../Common/ProductImage";
 
 const ProductSuccessSection = ({ orderItems, subtotal, totalDiscount, total, onViewDetails }) => {
     return (
@@ -16,10 +17,13 @@ const ProductSuccessSection = ({ orderItems, subtotal, totalDiscount, total, onV
             <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                 {orderItems.map((item) => (
                     <div key={item.id} className="flex items-center bg-light-pg rounded-lg p-3 sm:p-4">
-                        <img
-                            src={item.image}
-                            alt={item.title}
-                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
+                        <ProductImage
+                            images={item.image}
+                            name={item.title}
+                            containerClassName="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center"
+                            imgClassName="w-full h-full object-cover"
+                            fallbackClassName="w-full h-full flex items-center justify-center"
+                            fallbackContent={<span className="text-gray-400 text-xs">No Image</span>}
                         />
                         <div className="ml-3 sm:ml-4 flex-1 min-w-0">
                             <h2 className="text-xs sm:text-sm font-semibold text-gray-800 truncate">
