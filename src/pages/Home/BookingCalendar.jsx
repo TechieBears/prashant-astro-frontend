@@ -156,18 +156,23 @@ const BookingCalendar = () => {
         try {
             setIsAstrologersLoading(true);
             const response = await getAllAstrologer();
-            if (response?.success && response?.data) {
-                setAstrologers(response.data);
+            if (response?.success) {
+                // Set astrologers even if data is empty array to prevent re-fetching
+                setAstrologers(response.data || []);
             } else {
+                // Set empty array to prevent continuous retries
+                setAstrologers([]);
                 toast.error('Failed to load astrologers. Please try again.');
             }
         } catch (error) {
             console.error('Error fetching astrologers:', error);
+            // Set empty array to prevent continuous retries
+            setAstrologers([]);
             toast.error('Failed to load astrologers. Please try again.');
         } finally {
             setIsAstrologersLoading(false);
         }
-    }, [isAstrologersLoading]); // Removed astrologers.length dependency
+    }, [astrologers.length, isAstrologersLoading]);
 
     useEffect(() => {
         if (authLoading) return;
