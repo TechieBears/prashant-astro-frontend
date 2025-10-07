@@ -3,6 +3,7 @@ import { FaRegTrashAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import PaymentSummary from './PaymentSummary';
 import QuantityCounter from '../Common/QuantityCounter';
+import ProductImage from '../Common/ProductImage';
 
 const ProductsSection = ({
     cartItems,
@@ -44,11 +45,7 @@ const ProductsSection = ({
                         {cartItems.map((item) => (
                             <div key={item._id} className="bg-light-pg rounded-lg p-3 md:p-4 flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 relative">
                                 {/* Product Image */}
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                                        <span className="text-gray-400">No Image</span>
-                                    </div>
-                                </div>
+                                <ProductImage images={item.images} name={item.name} />
 
                                 {/* Product Details */}
                                 <div className="flex-1 text-center sm:text-left">

@@ -10,6 +10,7 @@ import { getServiceModeLabel } from '../../../utils/serviceConfig';
 import ServiceDetailModal from '../../../components/Modals/ServiceDetailModal';
 import ProductDetailModal from '../../../components/Modals/ProductDetailModal';
 import Preloaders from '../../../components/Loader/Preloaders';
+import ProductImage from '../../../components/Common/ProductImage';
 
 const Orders = () => {
   const location = useLocation();
@@ -107,32 +108,29 @@ const Orders = () => {
 
   const getServiceMode = (serviceType) => getServiceModeLabel(serviceType);
 
-  // Data transformations
+  // Data transformations - Keep orders grouped
   const productOrders = useMemo(() => {
     if (!Array.isArray(orders)) return [];
 
-    const transformedOrders = [];
-    orders.forEach(order => {
-      if (order.items?.length) {
-        order.items.forEach(item => {
-          transformedOrders.push({
-            id: item._id || `item-${Date.now()}`,
-            orderId: order._id || `order-${Date.now()}`,
-            name: item.product?.name || 'Unknown Product',
-            currentPrice: item.product?.sellingPrice || 0,
-            mrp: item.product?.mrpPrice || 0,
-            quantity: item.product?.quantity || 1,
-            image: item.product?.images?.[0] || '/src/assets/user/products/amber-crystal.png',
-            orderStatus: order.orderStatus || 'PENDING',
-            paymentStatus: order.paymentStatus || 'PENDING',
-            createdAt: order.createdAt || new Date().toISOString(),
-            totalAmount: order.totalAmount || 0,
-            finalAmount: order.finalAmount || 0
-          });
-        });
-      }
-    });
-    return transformedOrders;
+    return orders.map(order => ({
+      id: order._id || `order-${Date.now()}`,
+      orderId: order._id || `order-${Date.now()}`,
+      items: order.items?.map(item => ({
+        _id: item._id,
+        name: item.product?.name || 'Unknown Product',
+        currentPrice: item.product?.sellingPrice || 0,
+        mrp: item.product?.mrpPrice || 0,
+        quantity: item.product?.quantity || 1,
+        image: item.product?.images?.[0] || '/src/assets/user/products/amber-crystal.png',
+        subtotal: item.product?.subtotal || 0
+      })) || [],
+      orderStatus: order.orderStatus || 'PENDING',
+      paymentStatus: order.paymentStatus || 'PENDING',
+      createdAt: order.createdAt || new Date().toISOString(),
+      totalAmount: order.totalAmount || 0,
+      finalAmount: order.finalAmount || 0,
+      itemCount: order.items?.length || 0
+    }));
   }, [orders]);
 
   const transformedServiceOrders = useMemo(() => {
@@ -193,8 +191,9 @@ const Orders = () => {
     setSelectedService(null);
   };
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
+  const handleProductClick = (order) => {
+    // Pass the first item with orderId for modal
+    setSelectedProduct({ ...order.items[0], orderId: order.orderId });
     setIsProductModalOpen(true);
   };
 
@@ -227,38 +226,73 @@ const Orders = () => {
   );
 
   // Product card component
-  const ProductCard = ({ product }) => (
+  const ProductCard = ({ order }) => (
     <div
-      className="bg-form-bg rounded-lg p-4 shadow-sm border border-gray-300 cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => handleProductClick(product)}
+      className="bg-form-bg rounded-lg shadow-sm border border-gray-300 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+      onClick={() => handleProductClick(order)}
     >
-      <div className="flex gap-4">
-        <div className="flex-shrink-0">
-          <div className="w-24 h-24 bg-white flex items-center justify-center shadow-md">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-20 h-20 object-cover"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="w-20 h-20 bg-gray-200 flex items-center justify-center text-gray-500 text-xs" style={{ display: 'none' }}>
-              Image
+      {/* Order Header */}
+      <div className="bg-button-gradient-orange px-4 py-2 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <h3 className="text-white font-semibold text-sm">Order #{order.orderId?.slice(-8)}</h3>
+          {order.itemCount > 1 && (
+            <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
+              {order.itemCount} Items
+            </span>
+          )}
+        </div>
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' :
+          order.paymentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+          }`}>
+          {order.paymentStatus}
+        </span>
+      </div>
+
+      {/* Products List */}
+      <div className="p-4 space-y-3">
+        {order.items.map((item, index) => (
+          <div key={item._id} className={`flex gap-4 ${index > 0 ? 'pt-3 border-t border-gray-200' : ''}`}>
+            <div className="flex-shrink-0">
+              <ProductImage
+                images={item.image}
+                name={item.name}
+                containerClassName="w-20 h-20 bg-white flex items-center justify-center shadow-sm rounded"
+                imgClassName="w-16 h-16 object-cover rounded"
+                fallbackClassName="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded"
+                fallbackContent="Image"
+              />
+            </div>
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="leading-tight">
+                <h4 className="font-semibold text-gray-800 text-base mb-1 leading-tight">{item.name}</h4>
+                <p className="text-base font-bold text-gray-800 mb-1 leading-tight">₹{item.currentPrice}</p>
+                <p className="text-xs text-gray-600 mb-1 leading-tight">
+                  MRP <span className="line-through">₹{item.mrp}</span>
+                </p>
+                <div className="flex items-center gap-3 text-xs text-gray-600">
+                  <span>QTY: {item.quantity}</span>
+                  {item.subtotal > 0 && <span className="font-medium">Subtotal: ₹{item.subtotal}</span>}
+                </div>
+              </div>
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Order Footer */}
+      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+        <div className="text-sm">
+          <span className="text-gray-600">Total Amount: </span>
+          <span className="font-bold text-gray-900">₹{order.finalAmount || order.totalAmount}</span>
         </div>
-        <div className="flex-1 flex flex-col justify-between">
-          <div className="leading-tight">
-            <h3 className="font-bold text-gray-800 text-lg mb-1 leading-tight">{product.name}</h3>
-            <p className="text-lg font-bold text-gray-800 mb-1 leading-tight">₹{product.currentPrice}</p>
-            <p className="text-sm text-gray-600 mb-1 leading-tight">
-              MRP <span className="line-through">₹{product.mrp}</span> (incl. of all taxes)
-            </p>
-            <p className="text-sm text-gray-600 leading-tight">QTY : {product.quantity}</p>
-          </div>
-        </div>
+        <span className={`px-2 py-1 rounded text-xs font-medium ${order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+          order.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+            order.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+              order.orderStatus === 'SHIPPED' || order.orderStatus === 'DISPATCHED' ? 'bg-blue-100 text-blue-800' :
+                'bg-gray-100 text-gray-800'
+          }`}>
+          {order.orderStatus}
+        </span>
       </div>
     </div>
   );
@@ -363,7 +397,7 @@ const Orders = () => {
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {currentOrders.map((product) => <ProductCard key={product.id} product={product} />)}
+                    {currentOrders.map((order) => <ProductCard key={order.id} order={order} />)}
                   </div>
                   {totalPages > 1 && (
                     <div className="mt-8">
