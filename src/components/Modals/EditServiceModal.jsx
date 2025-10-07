@@ -100,9 +100,11 @@ const EditServiceModal = ({
                 setAllServicesData(completeServicesData);
             }
 
-            // Set astrologers
-            if (astrologersRes?.success && astrologersRes?.data) {
-                setAstrologers(astrologersRes.data);
+            // Set astrologers - always set the array even if empty to prevent re-fetching
+            if (astrologersRes?.success) {
+                setAstrologers(astrologersRes.data || []);
+            } else {
+                setAstrologers([]);
             }
 
             // Initialize form with latest data

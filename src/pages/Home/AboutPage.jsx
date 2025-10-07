@@ -47,23 +47,33 @@ const AboutPage = () => {
     const [astrologers, setAstrologers] = useState([]);
     const [services, setServices] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
+    const [astrologersLoading, setAstrologersLoading] = useState(false);
+    const [astrologersFetched, setAstrologersFetched] = useState(false);
 
     useEffect(() => {
+        // Prevent multiple calls with loading and fetched guards
+        if (astrologersLoading || astrologersFetched) return;
+
         const fetchData = async () => {
+            setAstrologersLoading(true);
             try {
                 const response = await getAllAstrologer()
                 if (response?.success) {
-                    setAstrologers(response?.data)
+                    setAstrologers(response?.data || [])
                 } else {
                     setAstrologers([])
                     console.log('error', response)
                 }
             } catch (error) {
                 console.log('error', error)
+                setAstrologers([])
+            } finally {
+                setAstrologersLoading(false);
+                setAstrologersFetched(true);
             }
         }
         fetchData()
-    }, [])
+    }, [astrologersLoading, astrologersFetched])
 
     useEffect(() => {
         const fetchServices = async () => {
