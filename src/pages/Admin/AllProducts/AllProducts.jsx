@@ -60,7 +60,6 @@ function AllUserProfiles() {
     };
 
     const handleActiveChange = async (id, isActive) => {
-        console.log('Toggle clicked for product:', id, 'Current status:', isActive);
         try {
             const res = await productStatusUpdate(id);
             console.log('API response:', res);
@@ -142,18 +141,18 @@ function AllUserProfiles() {
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
                     <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-2">
                         <TextInput
-                            label="Enter Service Name*"
-                            placeholder="Enter Service Name"
+                            label="Enter Product Name*"
+                            placeholder="Enter Product Name"
                             type="text"
                             registerName="name"
                             props={{ ...register('name') }}
                         />
                         <div className="">
                             <SelectTextInput
-                                label="Select Service Category*"
+                                label="Select Product Category*"
                                 registerName="categoryId"
                                 options={productCategories}
-                                placeholder="Select Service Category"
+                                placeholder="Select Product Category"
                                 props={{
                                     ...register('categoryId'),
                                     value: watch('categoryId') || ''
