@@ -3,8 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import SidebarLink from './SidebarLink';
 import Navbar from './Navbar';
-import { SidebarSuperAdminApi, SidebarEmployeeApi, SidebarAstrologerApi, SidebarAdminApi } from './SidebarApi';
-import logo from '../../assets/logo.png';
+import { SidebarSuperAdminApi, SidebarEmployeeApi, SidebarAstrologerApi } from './SidebarApi';
 import { Trade } from 'iconsax-reactjs';
 
 const Sidebar = ({ children }) => {
@@ -12,7 +11,7 @@ const Sidebar = ({ children }) => {
     const [mobileSidebar, setMobileSidebar] = useState(false);
 
     const userDetails = useSelector(state => state.user.userDetails);
-    const userRole = userDetails?.user?.role;
+    const userRole = userDetails?.role;
 
     const getSidebarApi = () => {
         switch (userRole) {

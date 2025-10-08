@@ -48,6 +48,7 @@ const UserTransactios = () => {
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
         pageChangeHandler(1); // Reset to first page when filters change
+        toast.success('Filters applied');
     };
 
     // Clear filters
