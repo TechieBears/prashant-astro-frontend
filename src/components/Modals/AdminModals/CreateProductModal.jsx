@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
-import { useFieldArray, useForm, Controller } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
@@ -254,23 +254,8 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
-                                                            rules={{ required: "Product Image is required" }}
-                                                            render={({ field }) => (
-                                                                <ImageUploadInput
-                                                                    label="Upload Product Image"
-                                                                    multiple={true}
-                                                                    registerName="images"
-                                                                    errors={errors.images}
-                                                                    register={register}
-                                                                    setValue={setValue}
-                                                                    control={control}
-                                                                    defaultValue={userData?.images}
-                                                                    value={field.value}
-                                                                    onChange={field.onChange}
-                                                                />
-                                                            )}
+                                                            defaultValue={userData?.images}
                                                         />
-
                                                     </div>
 
                                                     <div className="">
