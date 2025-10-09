@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { FaStar, FaEdit } from 'react-icons/fa';
-import { editTestimonials } from '../../api';
+import { FaStar, FaEdit, FaTrash } from 'react-icons/fa';
+import { editTestimonials, deleteTestimonial } from '../../api';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import ReviewForm from './ReviewForm';
+import DeleteModal from '../Modals/DeleteModal/DeleteModal';
 
 // Style configurations
 const VARIANT_STYLES = {
@@ -90,6 +91,8 @@ const UserReviews = ({
     const [editForm, setEditForm] = useState({ message: '', rating: 0 });
     const [submitting, setSubmitting] = useState(false);
     const [showReviewForm, setShowReviewForm] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [reviewToDelete, setReviewToDelete] = useState(null);
 
     // Memoized values
     const isCompact = variant === 'compact';
@@ -98,9 +101,9 @@ const UserReviews = ({
     const hasReviews = reviews.length > 0;
 
     const canEditReview = useMemo(() => (review) => {
-        if (isCompact) return true; // In modals, all reviews are user's own
+        if (isCompact) return true;
         if (!currentUserId) {
-            return false; // Not logged in
+            return false;
         }
 
         // Check multiple possible ID fields
@@ -162,6 +165,44 @@ const UserReviews = ({
     const handleReviewSuccess = () => {
         setShowReviewForm(false);
         onReviewUpdate?.();
+    };
+
+    const handleDeleteClick = (reviewId) => {
+        setReviewToDelete(reviewId);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!reviewToDelete) return;
+
+        const loadingToast = toast.loading('Deleting your review...', { position: 'top-right' });
+
+        try {
+            setSubmitting(true);
+            setShowDeleteModal(false);
+            const response = await deleteTestimonial(reviewToDelete);
+
+            toast.dismiss(loadingToast);
+
+            if (response.success) {
+                showToast('success', 'Review deleted successfully!', 3000, { background: '#10B981', color: '#fff' });
+                onReviewUpdate?.();
+            } else {
+                showToast('error', response.message || 'Failed to delete review', 4000);
+            }
+        } catch (err) {
+            console.error('Error deleting review:', err);
+            toast.dismiss(loadingToast);
+            showToast('error', 'Failed to delete review. Please try again.', 4000);
+        } finally {
+            setSubmitting(false);
+            setReviewToDelete(null);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
+        setReviewToDelete(null);
     };
 
     // Render helpers
@@ -266,13 +307,23 @@ const UserReviews = ({
                         </div>
                     </div>
                     {isOwnReview && (
-                        <button
-                            onClick={() => handleEditClick(review)}
-                            className={`text-gray-400 hover:text-orange-500 transition-all duration-200 ${styles.editButton} flex-shrink-0 hover:bg-orange-50 rounded-lg`}
-                            title="Edit review"
-                        >
-                            <FaEdit className={styles.editIcon} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleEditClick(review)}
+                                className={`text-gray-400 hover:text-orange-500 transition-all duration-200 ${styles.editButton} flex-shrink-0 hover:bg-orange-50 rounded-lg`}
+                                title="Edit review"
+                            >
+                                <FaEdit className={styles.editIcon} />
+                            </button>
+                            <button
+                                onClick={() => handleDeleteClick(review._id)}
+                                className={`text-gray-400 hover:text-red-500 transition-all duration-200 ${styles.editButton} flex-shrink-0 hover:bg-red-50 rounded-lg`}
+                                title="Delete review"
+                                disabled={submitting}
+                            >
+                                <FaTrash className={styles.editIcon} />
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -534,6 +585,15 @@ const UserReviews = ({
                     ))}
                 </div>
             )}
+
+            {/* Delete Confirmation Modal */}
+            <DeleteModal
+                open={showDeleteModal}
+                toggleModalBtn={handleDeleteCancel}
+                deleteBtn={handleDeleteConfirm}
+                title="Delete Review"
+                description="Are you sure you want to delete this review? This action cannot be undone."
+            />
         </>
     );
 };
