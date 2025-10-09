@@ -123,7 +123,7 @@ const FilterSidebar = ({
                     <button
                         onClick={() => setIsMobileFiltersOpen(false)}
                         disabled={isLoading}
-                        className="flex-1 rounded-[0.2rem] bg-gray-800 text-white py-2 px-4 text-sm sm:text-base font-medium hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                        className="flex-1 rounded-[0.2rem] bg-button-gradient-orange text-white py-2 px-4 text-sm sm:text-base font-medium hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                     >
                         Filter
                     </button>

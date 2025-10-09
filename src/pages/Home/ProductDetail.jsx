@@ -8,11 +8,12 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
 import Preloaders from '../../components/Loader/Preloaders';
-import { getActiveProduct } from '../../api';
+import { getActiveProduct, getFilteredTestimonials } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
 import { useCart } from '../../hooks/useCart';
 import toast from 'react-hot-toast';
 import ProductImage from '../../components/Common/ProductImage';
+import UserReviews from '../../components/Common/UserReviews';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -22,7 +23,8 @@ const ProductDetail = () => {
 
     // Redux state
     const { productItems: cartItems } = useSelector(state => state.cart);
-    const { isLogged } = useSelector(state => state.user);
+    const { isLogged, loggedUserDetails } = useSelector(state => state.user);
+    const userId = loggedUserDetails?._id;
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,6 +36,12 @@ const ProductDetail = () => {
     const [activeTab, setActiveTab] = useState('description');
     const [isProductInCart, setIsProductInCart] = useState(false);
     const [cartItemId, setCartItemId] = useState(null);
+
+    // Reviews state
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
+    const [totalReviews, setTotalReviews] = useState(0);
+    const [editingReviewId, setEditingReviewId] = useState(null);
 
     // Simple quantity update handler
     const updateQuantity = useCallback((newQuantity) => {
@@ -134,6 +142,32 @@ const ProductDetail = () => {
     useEffect(() => {
         checkProductInCart();
     }, [checkProductInCart]);
+
+    // Fetch reviews for the product
+    const fetchProductReviews = useCallback(async () => {
+        if (!id) return;
+        try {
+            setLoadingReviews(true);
+            const response = await getFilteredTestimonials({
+                productId: id
+            });
+            if (response.success) {
+                setReviews(response.data || []);
+                setTotalReviews(response.data?.length || 0);
+            }
+        } catch (err) {
+            console.error('Error fetching product reviews:', err);
+        } finally {
+            setLoadingReviews(false);
+        }
+    }, [id]);
+
+    // Fetch reviews when product is loaded or tab changes to reviews
+    useEffect(() => {
+        if (product && activeTab === 'reviews') {
+            fetchProductReviews();
+        }
+    }, [product, activeTab, fetchProductReviews]);
 
     // Show loading state
     if (loading) {
@@ -423,7 +457,7 @@ const ProductDetail = () => {
                                     : 'text-gray-500 hover:text-gray-700'
                                     }`}
                             >
-                                Reviews (24)
+                                Reviews ({totalReviews})
                                 {activeTab === 'reviews' && (
                                     <span className="absolute left-0 bottom-[1px] h-[2px] w-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full"></span>
                                 )}
@@ -469,9 +503,21 @@ const ProductDetail = () => {
                         )}
 
                         {activeTab === 'reviews' && (
-                            <div className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                                <p>Reviews will be available soon.</p>
-                            </div>
+                            <UserReviews
+                                reviews={reviews}
+                                loadingReviews={loadingReviews}
+                                onReviewUpdate={fetchProductReviews}
+                                editingReviewId={editingReviewId}
+                                setEditingReviewId={setEditingReviewId}
+                                variant="detailed"
+                                currentUserId={userId}
+                                showEmptyState={true}
+                                showWriteReview={true}
+                                productId={id}
+                                serviceId={null}
+                                isLogged={isLogged}
+                                onLoginClick={() => navigate('/login')}
+                            />
                         )}
                     </div>
                 </div>

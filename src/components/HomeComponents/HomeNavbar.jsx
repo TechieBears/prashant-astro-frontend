@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/astroguid logo.png";
 import logoText from "../../assets/astroguid logo text.png";
 import { formBtn1 } from "../../utils/CustomClass";
@@ -54,14 +54,6 @@ const HomeNavbar = () => {
             [index]: !prev[index]
         }));
     };
-
-
-
-    // const transformedServicess = servicesDropdown.map(category => ({
-    //    category: category.name,
-    //    services: category.services
-    //  }));
-
 
     const navLinks = useMemo(() => {
         const transformedServices = (servicesDropdown || []).map(category => ({
@@ -149,6 +141,20 @@ const HomeNavbar = () => {
             setActiveCategory(null);
         }, 150);
         setHoverTimeout(timeout);
+    };
+
+    const handleCategoryClick = (categoryId, categoryName) => {
+        // Close dropdowns
+        setActiveDropdown(null);
+        setActiveCategory(null);
+
+        // Navigate to products page with category pre-selected
+        navigate('/products', {
+            state: {
+                selectedCategoryId: categoryId,
+                selectedCategoryName: categoryName
+            }
+        });
     };
 
     // Ensure component is mounted
@@ -390,40 +396,55 @@ const HomeNavbar = () => {
                                                         }}
                                                         onMouseLeave={handleMouseLeave}
                                                     >
-                                                        {link.dropdown.map((category, idx) => (
-                                                            <div
-                                                                key={idx}
-                                                                className="relative px-2"
-                                                                onMouseEnter={() => handleCategoryMouseEnter(category.category)}
-                                                            >
-                                                                <p className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 rounded-md cursor-pointer">
-                                                                    <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
-                                                                        {category.category}
-                                                                    </span>
-                                                                </p>
+                                                        {link.dropdown.map((category, idx) => {
+                                                            // Get category ID - for products it's from the original productsDropdown
+                                                            const originalCategory = link.name === 'Products'
+                                                                ? productsDropdown?.find(cat => cat.name === category.category)
+                                                                : servicesDropdown?.find(cat => cat.name === category.category);
+                                                            const categoryId = originalCategory?._id;
 
-                                                                {activeCategory === category.category && (category.services?.length > 0 || category.products?.length > 0) && (
-                                                                    <div
-                                                                        className="absolute left-full top-0 ml-0 bg-primary shadow-lg rounded-md w-max z-50 py-3 min-w-[200px] border-l-2 border-white/20"
+                                                            return (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="relative px-2"
+                                                                    onMouseEnter={() => handleCategoryMouseEnter(category.category)}
+                                                                >
+                                                                    <p
+                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 rounded-md cursor-pointer"
+                                                                        onClick={() => {
+                                                                            if (link.name === 'Products' && categoryId) {
+                                                                                handleCategoryClick(categoryId, category.category);
+                                                                            }
+                                                                        }}
                                                                     >
-                                                                        <ul className="space-y-1">
-                                                                            {(category.services || category.products || []).map((item, j) => (
-                                                                                <li key={j}>
-                                                                                    <NavLink
-                                                                                        to={item.path}
-                                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
-                                                                                    >
-                                                                                        <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
-                                                                                            {item.name}
-                                                                                        </span>
-                                                                                    </NavLink>
-                                                                                </li>
-                                                                            ))}
-                                                                        </ul>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        ))}
+                                                                        <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                            {category.category}
+                                                                        </span>
+                                                                    </p>
+
+                                                                    {activeCategory === category.category && (category.services?.length > 0 || category.products?.length > 0) && (
+                                                                        <div
+                                                                            className="absolute left-full top-0 ml-0 bg-primary shadow-lg rounded-md w-max z-50 py-3 min-w-[200px] border-l-2 border-white/20"
+                                                                        >
+                                                                            <ul className="space-y-1">
+                                                                                {(category.services || category.products || []).map((item, j) => (
+                                                                                    <li key={j}>
+                                                                                        <NavLink
+                                                                                            to={item.path}
+                                                                                            className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
+                                                                                        >
+                                                                                            <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
+                                                                                                {item.name}
+                                                                                            </span>
+                                                                                        </NavLink>
+                                                                                    </li>
+                                                                                ))}
+                                                                            </ul>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 )}
                                             </div>
@@ -563,11 +584,26 @@ const HomeNavbar = () => {
                                         {Array.isArray(link.dropdown) && (link.dropdown[0]?.services || link.dropdown[0]?.products) ? (
                                             link.dropdown.map((category, categoryIndex) => {
                                                 const items = category.services || category.products || [];
+                                                // Get category ID for products
+                                                const originalCategory = link.name === 'Products'
+                                                    ? productsDropdown?.find(cat => cat.name === category.category)
+                                                    : servicesDropdown?.find(cat => cat.name === category.category);
+                                                const categoryId = originalCategory?._id;
+
                                                 return (
                                                     <div key={categoryIndex} className="mb-4">
                                                         {items.length > 0 && (
                                                             <>
-                                                                <h4 className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4">
+                                                                <h4
+                                                                    className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4 cursor-pointer hover:text-primary transition-colors"
+                                                                    onClick={() => {
+                                                                        if (link.name === 'Products' && categoryId) {
+                                                                            handleCategoryClick(categoryId, category.category);
+                                                                            setIsMenuOpen(false);
+                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                        }
+                                                                    }}
+                                                                >
                                                                     {category.category}
                                                                 </h4>
                                                                 {items.map((item, itemIndex) => (
