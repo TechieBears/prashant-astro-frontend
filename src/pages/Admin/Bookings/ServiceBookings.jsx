@@ -19,7 +19,7 @@ const ServiceBookings = () => {
         orderId: '',
         date: '',
         status: '',
-        astrologerId: user?.user?.role === 'astrologer' ? user?.user?._id : '',
+        astrologerId: user?.role === 'astrologer' ? user?._id : '',
     };
 
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
