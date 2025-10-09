@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaMapMarkerAlt, FaArrowRight, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
-import { getSelectedService } from '../../api';
+import { getSelectedService, getFilteredTestimonials } from '../../api';
 import { Clock05Icon, ShareKnowledgeIcon } from 'hugeicons-react';
 import { useSelector } from 'react-redux';
+import UserReviews from '../../components/Common/UserReviews';
 
 const ServiceDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { servicesDropdown } = useSelector(state => state.nav);
+    const { servicesDropdown, isLogged, loggedUserDetails } = useSelector(state => ({
+        servicesDropdown: state.nav.servicesDropdown,
+        isLogged: state.user.isLogged,
+        loggedUserDetails: state.user.loggedUserDetails
+    }));
+    const userId = loggedUserDetails?._id;
 
     const [selectedService, setSelectedService] = useState({});
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
+    const [totalReviews, setTotalReviews] = useState(0);
+    const [editingReviewId, setEditingReviewId] = useState(null);
 
     const transformedServices = servicesDropdown.map(category => ({
         category: category.name,
@@ -57,6 +67,32 @@ const ServiceDetail = () => {
     const handleServiceClick = (path) => {
         navigate(path);
     };
+
+    // Fetch reviews for the service
+    const fetchServiceReviews = useCallback(async () => {
+        if (!id) return;
+        try {
+            setLoadingReviews(true);
+            const response = await getFilteredTestimonials({
+                serviceId: id
+            });
+            if (response.success) {
+                setReviews(response.data || []);
+                setTotalReviews(response.data?.length || 0);
+            }
+        } catch (err) {
+            console.error('Error fetching service reviews:', err);
+        } finally {
+            setLoadingReviews(false);
+        }
+    }, [id]);
+
+    // Fetch reviews when service is loaded
+    useEffect(() => {
+        if (selectedService && id) {
+            fetchServiceReviews();
+        }
+    }, [selectedService, id, fetchServiceReviews]);
 
     return (
         <div className="min-h-screen bg-slate1">
@@ -177,6 +213,25 @@ const ServiceDetail = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* Reviews Section */}
+                        <div className="mt-8 sm:mt-10">
+                            <UserReviews
+                                reviews={reviews}
+                                loadingReviews={loadingReviews}
+                                onReviewUpdate={fetchServiceReviews}
+                                editingReviewId={editingReviewId}
+                                setEditingReviewId={setEditingReviewId}
+                                variant="detailed"
+                                currentUserId={userId}
+                                showEmptyState={true}
+                                showWriteReview={true}
+                                productId={null}
+                                serviceId={id}
+                                isLogged={isLogged}
+                                onLoginClick={() => navigate('/login')}
+                            />
+                        </div>
                     </div>
 
                     {/* Right Column - Related Services */}
