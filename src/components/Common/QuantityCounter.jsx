@@ -9,19 +9,24 @@ const QuantityCounter = ({
     disabled = false,
     size = 'default'
 }) => {
-    const handleIncrement = () => {
+    const handleIncrement = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (disabled) return;
         const newValue = Math.min(max, value + 1);
         onChange(newValue);
     };
 
-    const handleDecrement = () => {
+    const handleDecrement = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (disabled) return;
         const newValue = Math.max(min, value - 1);
         onChange(newValue);
     };
 
     const handleInputChange = (e) => {
+        e.stopPropagation();
         if (disabled) return;
         const inputValue = parseInt(e.target.value) || min;
         const clampedValue = Math.min(max, Math.max(min, inputValue));
@@ -29,6 +34,7 @@ const QuantityCounter = ({
     };
 
     const handleInputBlur = (e) => {
+        e.stopPropagation();
         if (disabled) return;
         const inputValue = parseInt(e.target.value) || min;
         const clampedValue = Math.min(max, Math.max(min, inputValue));

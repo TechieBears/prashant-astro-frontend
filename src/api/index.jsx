@@ -2042,6 +2042,22 @@ export const createTestimonial = async (testimonialData) => {
     }
 };
 
+export const getFilteredTestimonials = async ({ userId, productId = null, serviceId = null }) => {
+    const params = new URLSearchParams();
+    if (userId) params.append('user', userId);
+    if (productId) params.append('product', productId);
+    if (serviceId) params.append('service', serviceId);
+
+    const url = `${environment.baseUrl}testimonials/filter?${params.toString()}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching filtered testimonials:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch testimonials' };
+    }
+};
+
 export const getSingleProductOrder = async (orderId) => {
     const url = `${environment.baseUrl}product-order/public/get-single?id=${orderId}`;
     try {

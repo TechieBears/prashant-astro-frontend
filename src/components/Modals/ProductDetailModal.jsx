@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
-import ReviewForm from '../Common/ReviewForm';
-import { getSingleProductOrder } from '../../api';
+import UserReviews from '../Common/UserReviews';
+import { getSingleProductOrder, getFilteredTestimonials } from '../../api';
 import Preloaders from '../Loader/Preloaders';
 // Import assets
 import deliveredIcon from '../../assets/user/orders/delivered.svg';
@@ -50,8 +51,11 @@ const getPaymentStatusColor = (status) => {
     return 'text-red-600';
 };
 
-const ProductItem = ({ item, index, showReviewForm, setShowReviewForm, imageLoadingStates, setImageLoadingStates, imageErrorStates, setImageErrorStates, handleReviewSuccess }) => {
+const ProductItem = ({ item, index, handleReviewSuccess, reviews, loadingReviews }) => {
     const productData = item.product;
+    const [editingReviewId, setEditingReviewId] = useState(null);
+    const [imageLoadingStates, setImageLoadingStates] = useState({});
+    const [imageErrorStates, setImageErrorStates] = useState({});
 
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -85,66 +89,58 @@ const ProductItem = ({ item, index, showReviewForm, setShowReviewForm, imageLoad
             </div>
 
             {/* Product Details */}
-            <div className="p-3 space-y-2">
-                <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 min-h-[2.5rem]">
-                    {productData?.name || 'Product'}
-                </h4>
+            <div className="p-3">
+                <div className="space-y-2">
+                    <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 min-h-[2.5rem]">
+                        {productData?.name || 'Product'}
+                    </h4>
 
-                <div className="space-y-1">
-                    <div className="flex items-baseline gap-1.5">
-                        <span className="text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
-                            ₹{productData?.sellingPrice || 0}
-                        </span>
+                    <div className="space-y-1">
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
+                                ₹{productData?.sellingPrice || 0}
+                            </span>
+                            {item.quantity > 1 && (
+                                <span className="text-xs text-gray-600">× {item.quantity}</span>
+                            )}
+                        </div>
+                        <p className="text-xs text-gray-600">
+                            MRP <span className="line-through">₹{productData?.mrpPrice || 0}</span>
+                        </p>
                         {item.quantity > 1 && (
-                            <span className="text-xs text-gray-600">× {item.quantity}</span>
+                            <p className="text-xs text-gray-700 font-medium">
+                                Subtotal: ₹{(productData?.sellingPrice || 0) * item.quantity}
+                            </p>
                         )}
                     </div>
-                    <p className="text-xs text-gray-600">
-                        MRP <span className="line-through">₹{productData?.mrpPrice || 0}</span>
-                    </p>
-                    {item.quantity > 1 && (
-                        <p className="text-xs text-gray-700 font-medium">
-                            Subtotal: ₹{(productData?.sellingPrice || 0) * item.quantity}
-                        </p>
-                    )}
                 </div>
 
-                {/* Review Button */}
-                <div className="pt-2 border-t border-gray-200">
-                    {!showReviewForm || showReviewForm !== productData?._id ? (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowReviewForm(productData?._id);
-                            }}
-                            className="bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full"
-                        >
-                            Write Review
-                        </button>
-                    ) : (
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <ReviewForm
-                                isOpen={showReviewForm === productData?._id}
-                                onClose={() => setShowReviewForm(false)}
-                                onSubmitSuccess={handleReviewSuccess}
-                                serviceId={null}
-                                productId={productData?._id || null}
-                            />
-                        </div>
-                    )}
-                </div>
+                {/* Consolidated Review Section */}
+                <UserReviews
+                    reviews={reviews}
+                    loadingReviews={loadingReviews}
+                    onReviewUpdate={() => handleReviewSuccess(productData?._id)}
+                    editingReviewId={editingReviewId}
+                    setEditingReviewId={setEditingReviewId}
+                    variant="compact"
+                    showWriteReview={true}
+                    productId={productData?._id || null}
+                    serviceId={null}
+                />
             </div>
         </div>
     );
 };
 
 const ProductDetailModal = ({ isOpen, onClose, product }) => {
+    const loggedUserDetails = useSelector(state => state.user.loggedUserDetails);
+    const userId = loggedUserDetails?._id;
+
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showReviewForm, setShowReviewForm] = useState(false);
-    const [imageLoadingStates, setImageLoadingStates] = useState({});
-    const [imageErrorStates, setImageErrorStates] = useState({});
+    const [productReviews, setProductReviews] = useState({});
+    const [loadingReviews, setLoadingReviews] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -153,15 +149,42 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         return () => document.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
 
+    const fetchProductReviews = useCallback(async (productId) => {
+        if (!userId || !productId) return;
+        try {
+            setLoadingReviews(true);
+            const response = await getFilteredTestimonials({
+                userId,
+                productId
+            });
+            if (response.success) {
+                setProductReviews(prev => ({
+                    ...prev,
+                    [productId]: response.data || []
+                }));
+            }
+        } catch (err) {
+            console.error('Error fetching product reviews:', err);
+        } finally {
+            setLoadingReviews(false);
+        }
+    }, [userId]);
+
     const fetchOrderDetails = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            setImageLoadingStates({});
-            setImageErrorStates({});
             const response = await getSingleProductOrder(product.orderId);
             if (response.success) {
                 setOrderData(response.data);
+                // Fetch reviews for all products in the order
+                if (response.data?.items && userId) {
+                    response.data.items.forEach(item => {
+                        if (item.product?._id) {
+                            fetchProductReviews(item.product._id);
+                        }
+                    });
+                }
             } else {
                 setError(response.message || 'Failed to fetch order details');
             }
@@ -171,7 +194,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         } finally {
             setLoading(false);
         }
-    }, [product?.orderId]);
+    }, [product?.orderId, userId, fetchProductReviews]);
 
     useEffect(() => {
         if (isOpen && product?.orderId) {
@@ -179,9 +202,6 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         }
     }, [isOpen, product?.orderId, fetchOrderDetails]);
 
-    const handleReviewSuccess = () => {
-        setShowReviewForm(false);
-    };
 
     // Memoized calculations
     const orderItems = useMemo(() => orderData?.items || [], [orderData?.items]);
@@ -325,13 +345,9 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                             key={item._id || index}
                                             item={item}
                                             index={index}
-                                            showReviewForm={showReviewForm}
-                                            setShowReviewForm={setShowReviewForm}
-                                            imageLoadingStates={imageLoadingStates}
-                                            setImageLoadingStates={setImageLoadingStates}
-                                            imageErrorStates={imageErrorStates}
-                                            setImageErrorStates={setImageErrorStates}
-                                            handleReviewSuccess={handleReviewSuccess}
+                                            handleReviewSuccess={fetchProductReviews}
+                                            reviews={productReviews[item.product?._id] || []}
+                                            loadingReviews={loadingReviews}
                                         />
                                     ))}
                                 </div>

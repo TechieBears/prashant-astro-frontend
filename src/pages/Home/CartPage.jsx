@@ -62,7 +62,7 @@ const CartPage = () => {
         return { subtotal, gstAmount, total };
     }, [serviceCartItems]);
 
- 
+
 
     // Local state
     const [activeTab, setActiveTab] = useState('products');
@@ -175,14 +175,40 @@ const CartPage = () => {
 
         debounceTimeouts.current[id] = setTimeout(async () => {
             try {
-                dispatch(optimisticUpdateQuantity({ id, quantity }));
-
                 const response = await updateCartItem(id, quantity);
 
                 if (response.success) {
+                    console.log('API Response:', response);
+                    console.log('Current cartItems:', cartItems);
+
+                    // Always use local cart items and update only the changed item
+                    // This preserves all fields including images
+                    const updatedItems = cartItems.map(item => {
+                        if (item._id === id) {
+                            const itemPrice = item.price || item.product?.price || 0;
+                            // Preserve ALL existing fields and only update quantity/totalPrice
+                            console.log('Updating item:', {
+                                id: item._id,
+                                name: item.name,
+                                images: item.images,
+                                price: itemPrice,
+                                quantity: quantity
+                            });
+                            return {
+                                ...item,
+                                quantity: quantity,
+                                totalPrice: itemPrice * quantity
+                            };
+                        }
+                        return item;
+                    });
+
+                    console.log('Updated items:', updatedItems);
+
                     dispatch(updateProductQuantitySuccess({
-                        products: response.data.items || cartItems
+                        products: updatedItems
                     }));
+
                     setPendingUpdates(prev => {
                         const newPending = { ...prev };
                         delete newPending[id];

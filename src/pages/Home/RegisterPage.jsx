@@ -118,9 +118,9 @@ const registerNamePage = () => {
                                     label="Enter Your Phone Number"
                                     placeholder="Enter Your Phone Number"
                                     type="tel"
-                                    registerName="phoneNumber"
-                                    props={{ ...registerName('phoneNumber', { validate: validatePhoneNumber, required: true }), maxLength: 10, minLength: 10 }}
-                                    errors={errors.phoneNumber}
+                                    registerName="mobileNo"
+                                    props={{ ...registerName('mobileNo', { validate: validatePhoneNumber, required: true }), maxLength: 10, minLength: 10 }}
+                                    errors={errors.mobileNo}
                                 />
                             </div>
                             <div className="">

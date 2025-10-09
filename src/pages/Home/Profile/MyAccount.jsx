@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
-import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import { updateCustomerProfile, uploadToCloudinary } from "../../../api";
 import { setUserDetails, setLoggedUserDetails } from "../../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";

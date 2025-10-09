@@ -95,7 +95,7 @@ const BookingCalendar = () => {
             .filter(slot => slot.status === 'available')
             .map(slot => ({
                 value: slot.time,
-                label: `${slot.display_time} - ${slot.display_end_time}`
+                label: `${slot.time}`
             }));
         return availableSlots;
     }, [availability]);

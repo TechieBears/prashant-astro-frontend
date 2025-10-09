@@ -1,70 +1,187 @@
+import { memo } from 'react';
+
+const styles = {
+  container: "flex-1 rounded-lg overflow-y-auto p-4 sm:p-6",
+  mainHeading: "font-semibold text-xl mb-6 text-primary",
+  mainHeadingWithMargin: "font-semibold text-xl mb-6 mt-8 text-primary",
+  subHeading: "text-lg font-semibold mt-6 mb-2 text-gray-800",
+  subSubHeading: "text-base font-semibold mt-4 mb-2 text-gray-800",
+  paragraph: "text-gray-700 mb-4 text-base",
+  list: "list-disc pl-6 space-y-2 mb-4 text-gray-700 text-base",
+  listSpaced: "list-disc pl-6 space-y-3 text-gray-700"
+};
 
 const Policy = () => {
   return (
-    <div className="flex-1 rounded-lg  overflow-y-auto  p-4 sm:p-6  ">
-      <h2 className="font-semibold text-xl mb-6">Privacy Policy</h2>
+    <div className={styles.container}>
+      <h2 className={styles.mainHeading}>Privacy Policy</h2>
 
-      <p className="text-gray-700 mb-4 text-base">
-        At [Your Company Name], we are committed to protecting your personal
-        information and your right to privacy. If you have any questions or
-        concerns about this privacy notice or our practices regarding your
-        personal information, please contact us.
+      <p className={styles.paragraph}>
+        This Privacy Policy describes our policies and procedures on the collection, use, and disclosure of your information when you use the Service and informs you about your privacy rights and how the law protects you. We use your personal data to provide and improve the Service. By using the Service, you agree to the collection and use of information in accordance with this Privacy Policy.
       </p>
 
-      <h3 className="text-lg font-semibold mt-6 mb-2">1. Information We Collect</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        We collect personal information that you voluntarily provide to us when
-        you register on the website, express an interest in obtaining
-        information about us or our products and services, or otherwise
-        contacting us.
+      <h2 className={styles.mainHeading}>Interpretation and Definitions</h2>
+
+      <h3 className={styles.subHeading}>Interpretation</h3>
+      <p className={styles.paragraph}>
+        Words with initial capital letters have meanings defined under the following conditions. The following definitions shall have the same meaning whether they appear in singular or plural.
       </p>
 
-      <h3 className="text-lg font-semibold mt-6 mb-2">2. How We Use Your Information</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        We use your personal information to provide, improve, and administer our
-        services, communicate with you, for security and fraud prevention, and
-        to comply with legal obligations.
-      </p>
-
-      <h3 className="text-lg font-semibold mt-6 mb-2">3. Sharing of Your Information</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        We do not share your personal information with third parties except to
-        comply with the law, to protect your rights, or to fulfill business
-        obligations.
-      </p>
-
-      <h3 className="text-lg font-semibold mt-6 mb-2">4. Cookies and Tracking</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        We may use cookies and similar tracking technologies to access or store
-        information. Specific information about how we use such technologies and
-        how you can refuse certain cookies is set out in our Cookie Policy.
-      </p>
-
-      <h3 className="text-lg font-semibold mt-6 mb-2">5. Data Retention</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        We keep your information for as long as necessary to fulfill the
-        purposes outlined in this privacy policy unless otherwise required by
-        law.
-      </p>
-
-      <h3 className="text-lg font-semibold mt-6 mb-2">6. Your Privacy Rights</h3>
-      <p className="text-gray-700 mb-4 text-base">
-        You may review, change, or terminate your account at any time. If you
-        are a resident of certain regions, you may also have specific data
-        protection rights.
-      </p>
-
-      <h3 className="text-lg font-semibold mt-6 mb-2">7. Contact Us</h3>
-      <div className="flex gap-4 items-center mt-4">
-
-        <div>
-          <p className="text-gray-800 font-medium text-base">Customer Support</p>
-          <p className="text-gray-600 text-base">Email: panditprashant@gmail.com</p>
-          <p className="text-gray-600 text-base">Phone: +91-9619793852</p>
-        </div>
+      <h3 className={styles.subHeading}>Definitions</h3>
+      <div className={styles.paragraph}>
+        <p className="mb-3">For the purposes of this Privacy Policy:</p>
+        <ul className={styles.listSpaced}>
+          <li>
+            <strong>Account</strong> means a unique account created for you to access our Service or parts of our Service.
+          </li>
+          <li>
+            <strong>Company</strong> (referred to as either "the Company", "We", "Us", or "Our" in this Agreement) refers to Puja.
+          </li>
+          <li>
+            <strong>Cookies</strong> are small files placed on your computer, mobile device, or any other device by a website, containing details of your browsing history among its various uses.
+          </li>
+          <li>
+            <strong>Country</strong> refers to India.
+          </li>
+          <li>
+            <strong>Device</strong> means any device that can access the Service, such as a computer, cellphone, or digital tablet.
+          </li>
+          <li>
+            <strong>Personal Data</strong> means any information that relates to an identified or identifiable individual.
+          </li>
+          <li>
+            <strong>Service</strong> refers to the Website.
+          </li>
+          <li>
+            <strong>Service Provider</strong> means any natural or legal person who processes data on behalf of the Company. It refers to third-party companies or individuals employed by the Company to facilitate the Service, provide the Service on behalf of the Company, perform services related to the Service, or assist the Company in analyzing how the Service is used.
+          </li>
+          <li>
+            <strong>Usage Data</strong> refers to data collected automatically, either generated by the use of the Service or from the Service infrastructure itself (for example, the duration of a page visit).
+          </li>
+          <li>
+            <strong>Website</strong> refers to Puja, accessible from https://www.astroguid.com
+          </li>
+          <li>
+            <strong>You</strong> means the individual accessing or using the Service, or the company or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.
+          </li>
+        </ul>
       </div>
+
+      <h2 className={styles.mainHeadingWithMargin}>Collecting and Using Your Personal Data</h2>
+
+      <h3 className={styles.subHeading}>Types of Data Collected</h3>
+
+      <h4 className={styles.subSubHeading}>Personal Data</h4>
+      <p className={styles.paragraph}>
+        While using our Service, we may ask you to provide certain personally identifiable information that can be used to contact or identify you. Personally identifiable information may include, but is not limited to:
+      </p>
+      <ul className={styles.list}>
+        <li>Email address</li>
+        <li>First name and last name</li>
+        <li>Phone number</li>
+        <li>Address, State, Province, ZIP/Postal code, City</li>
+      </ul>
+
+      <h4 className={styles.subSubHeading}>Usage Data</h4>
+      <p className={styles.paragraph}>
+        Usage Data is collected automatically when using the Service. It may include information such as your device's Internet Protocol (IP) address, browser type and version, the pages you visit on our Service, the time and date of your visit, the time spent on those pages, unique device identifiers, and other diagnostic data.
+      </p>
+      <p className={styles.paragraph}>
+        When you access the Service through a mobile device, we may collect information such as your mobile device type, unique ID, IP address, operating system, browser type, and other diagnostic data.
+      </p>
+      <p className={styles.paragraph}>
+        We may also collect information your browser sends whenever you visit our Service.
+      </p>
+
+      <h3 className={styles.subHeading}>Tracking Technologies and Cookies</h3>
+      <p className={styles.paragraph}>
+        We use cookies and similar tracking technologies to track activity on our Service and store certain information. Tracking technologies such as beacons, tags, and scripts are used to collect and analyze data to improve our Service.
+      </p>
+
+      <h4 className={styles.subSubHeading}>Types of Cookies</h4>
+      <ul className={styles.list}>
+        <li><strong>Necessary / Essential Cookies</strong> – These cookies are essential for providing services available through the Website and enabling its features.</li>
+        <li><strong>Cookies Policy / Notice Acceptance Cookies</strong> – Identify if users have accepted the use of cookies.</li>
+        <li><strong>Functionality Cookies</strong> – Remember your preferences such as login details or language.</li>
+      </ul>
+      <p className={styles.paragraph}>
+        For more information about the cookies we use and your choices, please refer to our Cookies Policy.
+      </p>
+
+      <h3 className={styles.subHeading}>Use of Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        The Company may use Personal Data for the following purposes:
+      </p>
+      <ul className={styles.list}>
+        <li>To provide and maintain our Service.</li>
+        <li>To manage your Account and registration.</li>
+        <li>To perform a contract for purchased products or services.</li>
+        <li>To contact you via email, calls, SMS, or push notifications.</li>
+        <li>To provide you with news, offers, and updates about similar goods or services (unless you opt out).</li>
+        <li>To manage your requests.</li>
+        <li>For business transfers or mergers.</li>
+        <li>For analysis and improvement of our services, marketing, and user experience.</li>
+      </ul>
+
+      <h3 className={styles.subHeading}>Sharing Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        We may share your data:
+      </p>
+      <ul className={styles.list}>
+        <li>With Service Providers</li>
+        <li>For business transfers</li>
+        <li>With affiliates and business partners to make our services better.</li>
+      </ul>
+
+      <h3 className={styles.subHeading}>Retention of Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        We will retain your Personal Data only for as long as necessary for the purposes set out in this Privacy Policy or as required by law.
+      </p>
+
+      <h3 className={styles.subHeading}>Delete Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        You may request deletion of your data by contacting us. We may retain certain data where required by law.
+      </p>
+
+      <h3 className={styles.subHeading}>Disclosure of Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        We may disclose your data:
+      </p>
+      <ul className={styles.list}>
+        <li>During mergers or acquisitions</li>
+        <li>To comply with legal obligations</li>
+        <li>To protect rights, property, or safety</li>
+      </ul>
+
+      <h3 className={styles.subHeading}>Security of Your Personal Data</h3>
+      <p className={styles.paragraph}>
+        We use commercially acceptable means to protect your Personal Data, but no method of transmission or storage is 100% secure.
+      </p>
+
+      <h3 className={styles.subHeading}>Children's Privacy</h3>
+      <p className={styles.paragraph}>
+        Our Service does not address anyone under the age of 18. If we learn that we have collected data from a child without parental consent, we will delete it promptly.
+      </p>
+
+      <h3 className={styles.subHeading}>Links to Other Websites</h3>
+      <p className={styles.paragraph}>
+        Our Service may contain links to third-party websites. We are not responsible for their content or privacy practices.
+      </p>
+
+      <h3 className={styles.subHeading}>Changes to this Privacy Policy</h3>
+      <p className={styles.paragraph}>
+        We may update this Privacy Policy periodically and will notify you of changes via email or a prominent notice on our website. You are advised to review this page regularly for updates.
+      </p>
+
+      <h3 className={styles.subHeading}>Contact Us</h3>
+      <p className={styles.paragraph}>
+        If you have any questions about this Privacy Policy, you can contact us:
+      </p>
+      <p className={styles.paragraph}>
+        📧 Email: services@astroguid.com
+      </p>
+
     </div>
   );
 };
-
-export default Policy;
+export default memo(Policy);

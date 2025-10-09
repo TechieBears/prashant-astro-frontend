@@ -37,7 +37,7 @@ const Register = () => {
                 lastName,
                 email,
                 password,
-                phone: mobileNo,
+                mobileNo,
                 registerType: "normal"
             });
 
@@ -205,4 +205,3 @@ const Register = () => {
 };
 
 export default Register;
-
