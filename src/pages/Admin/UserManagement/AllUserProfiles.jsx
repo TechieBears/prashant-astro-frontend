@@ -183,7 +183,7 @@ function AllUserProfiles() {
                 <div className="flex items-center">
                     <Switch
                         value={row?.isActive}
-                        onChange={() => handleActiveChange(row?._id, row?.isActive)}
+                        onChange={() => handleActiveChange(row?.profile?._id, row?.isActive)}
                         size={50}
                         backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
                         borderColor={{ on: "#86d993", off: "#c6c6c6" }}

@@ -85,9 +85,11 @@ export default function Testimonials() {
                             e.target.src = `https://ui-avatars.com/api/?name=${row?.user?.firstName}+${row?.user?.lastName}&background=8833FF&color=fff&size=32`;
                         }}
                     />
-                    <div>
+                    <div className=''>
                         <p className="font-medium capitalize text-sm">{row?.user?.firstName} {row?.user?.lastName}</p>
-                        <p className="text-xs text-gray-500">{row?.user?.email}</p>
+                        <p className="text-xs text-gray-500 truncate max-w-[130px]" title={row?.user?.email}>
+                            {row?.user?.email}
+                        </p>
                     </div>
                 </div>
             ),

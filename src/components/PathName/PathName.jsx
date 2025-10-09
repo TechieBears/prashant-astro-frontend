@@ -62,7 +62,7 @@ const PathName = () => {
                                 className={`font-medium font-tbPop text-[9px] md:text-base tracking-wide truncate ${isLast ? "text-slate-500 cursor-default" : "text-primary"
                                     } no-underline`}
                             >
-                                {name}
+                                {name == 'Admin Profile' ? 'Profile' : name}
                             </div>
                         </div>
                     );
