@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaRegTrashAlt, FaClock, FaCalendarAlt, FaLink, FaEdit } from 'react-icons/fa';
+import { FaRegTrashAlt, FaClock, FaCalendarAlt, FaLink, FaEdit, FaUser } from 'react-icons/fa';
 import PaymentSummary from './PaymentSummary';
 
 const ServicesSection = ({
@@ -55,6 +55,10 @@ const ServicesSection = ({
                                                         <div className="flex items-start sm:items-center gap-2">
                                                             <FaLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 mt-0.5 sm:mt-0 flex-shrink-0" />
                                                             <span className="break-words">{service.mode}</span>
+                                                        </div>
+                                                        <div className="flex items-start sm:items-center gap-2">
+                                                            <FaUser className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 mt-0.5 sm:mt-0 flex-shrink-0" />
+                                                            <span className="break-words">{service?.astrologer?.fullName} (Astrologer)</span>
                                                         </div>
                                                     </div>
                                                 </div>
