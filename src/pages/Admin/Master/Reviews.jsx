@@ -24,7 +24,7 @@ const StarRating = ({ rating, maxStars = 5 }) => {
     );
 };
 
-export default function Testimonials() {
+export default function Reviews() {
     const [refreshTrigger, setRefreshTrigger] = useState(0)
 
     const emptyFilters = useMemo(() => ({
@@ -43,7 +43,7 @@ export default function Testimonials() {
     } = usePagination(1, 10, getAdminAllReviews, emptyFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch testimonials');
+        if (error) toast.error('Failed to fetch Reviews');
     }, [error]);
 
     const handleActiveChange = async (id, isActive) => {
@@ -97,10 +97,10 @@ export default function Testimonials() {
         },
         {
             field: 'service',
-            header: 'Service',
+            header: 'Service/Product',
             body: (row) => (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {row?.service?.name || row?.service?.title || "N/A"}
+                    {row?.service?.name || row?.service?.title || row?.product?.name || "N/A"}
                 </span>
             ),
             style: true
@@ -122,14 +122,14 @@ export default function Testimonials() {
             ),
             style: true
         },
-        { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true },
+        { field: 'message', header: 'Message', body: (row) => <textarea className='capitalize overflow-y-auto w-[20rem] h-[5rem] text-wrap rounded-md px-2 py-1 resize-none cursor-default' value={row?.message || "---- -----"} readOnly />, style: true },
         { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
     ];
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
-                <TableHeader title="All Testimonials" subtitle="Recently added testimonials will appear here" />
+                <TableHeader title="All Reviews" subtitle="Recently added Reviews will appear here" />
                 <Table data={filterData} columns={columns} />
 
                 {/* Pagination */}

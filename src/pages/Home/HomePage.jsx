@@ -595,6 +595,24 @@ const HomePage = () => {
             {/* Testimonials Section */}
             <Testimonials />
 
+            {/* Share Experience Section */}
+            <div className="px-4 sm:px-6 lg:px-16 py-8 sm:py-12 md:py-16 w-full max-w-[1280px] mx-auto">
+                <div className="text-center">
+                    <SectionHeader
+                        prefix="Share your experience"
+                        highlight="with us"
+                    />
+                    <div className="mt-8 sm:mt-6">
+                        <button
+                            onClick={() => navigate('/reviews')}
+                            className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90"
+                        >
+                            Share Your Experience
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <section className="relative" id='social-media'>
                 <img
                     src={Flower}

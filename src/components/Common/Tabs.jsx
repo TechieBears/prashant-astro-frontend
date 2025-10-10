@@ -6,7 +6,7 @@ const Tabs = ({ activeTab, onTabChange, tabs, className = '', buttonClassName = 
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === tab.id
+          className={`px-4 sm:px-6 py-2 rounded-full transition-colors text-xs sm:text-sm font-medium whitespace-nowrap ${activeTab === tab.id
             ? 'bg-button-gradient-orange text-white hover:opacity-90'
             : 'text-gray-600 hover:bg-gray-50'
             } ${buttonClassName}`}

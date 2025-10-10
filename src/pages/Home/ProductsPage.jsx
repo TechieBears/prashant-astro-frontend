@@ -1,42 +1,44 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
+import Pagination from '../../components/Common/Pagination';
 import { PulseLoader } from 'react-spinners';
 import { getActiveProducts, getProductFilters } from '../../api';
 
 const ProductsPage = () => {
     const navigate = useNavigate();
-    const [products, setProducts] = React.useState([])
-    const [filterData, setFilterData] = React.useState({
+    const location = useLocation();
+    const [products, setProducts] = useState([])
+    const [filterData, setFilterData] = useState({
         categories: [],
         subcategories: []
     })
-    const [loading, setLoading] = React.useState(true)
-    const [filtersLoading, setFiltersLoading] = React.useState(true)
-    const [error, setError] = React.useState(null)
-    const [search, setSearch] = React.useState('')
-    const [selectedCategories, setSelectedCategories] = React.useState([])
-    const [selectedSubcategories, setSelectedSubcategories] = React.useState([])
-    const [price, setPrice] = React.useState([200, 6800])
+    const [loading, setLoading] = useState(true)
+    const [filtersLoading, setFiltersLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [search, setSearch] = useState('')
+    const [selectedCategories, setSelectedCategories] = useState([])
+    const [selectedSubcategories, setSelectedSubcategories] = useState([])
+    const [price, setPrice] = useState([200, 6800])
+    const [currentPage, setCurrentPage] = useState(1)
     const PRICE_MIN = 0
     const PRICE_MAX = 10000
+    const ITEMS_PER_PAGE = 24
 
     // Fetch filter data
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchFilters = async () => {
             try {
                 setFiltersLoading(true)
                 const response = await getProductFilters()
 
                 if (response.success) {
-                    // Process categories and subcategories from the API response
                     const categories = response.data?.category || []
                     const subcategories = []
 
-                    // Flatten subcategories from all categories
                     categories.forEach(category => {
                         if (category.subcategories && category.subcategories.length > 0) {
                             subcategories.push(...category.subcategories.map(sub => ({
@@ -54,10 +56,7 @@ const ProductsPage = () => {
                             image: cat.image,
                             count: subcategories.filter(sub => sub.categoryId === cat._id).length
                         })),
-                        subcategories: subcategories.map(sub => ({
-                            ...sub,
-                            color: getCategoryColor(sub._id)
-                        }))
+                        subcategories: subcategories
                     })
                 }
             } catch (err) {
@@ -71,8 +70,21 @@ const ProductsPage = () => {
         fetchFilters()
     }, [])
 
+    // Handle pre-selected category from navigation
+    useEffect(() => {
+        if (location.state?.selectedCategoryId && filterData.categories.length > 0) {
+            const categoryId = location.state.selectedCategoryId;
+
+            if (!selectedCategories.includes(categoryId)) {
+                setSelectedCategories([categoryId]);
+            }
+
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state, filterData.categories]);
+
     // Fetch products
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setLoading(true)
@@ -82,7 +94,6 @@ const ProductsPage = () => {
                 if (response.success) {
                     setProducts(response.data || [])
 
-                    // Update price range based on actual product prices
                     if (response.data.length > 0) {
                         const prices = response.data.map(p => p.sellingPrice).filter(Boolean)
                         if (prices.length > 0) {
@@ -105,35 +116,23 @@ const ProductsPage = () => {
         fetchProducts()
     }, [])
 
-    // Helper function to assign colors to categories
-    const getCategoryColor = (categoryKey) => {
-        const colors = [
-            'bg-orange-500', 'bg-teal-500', 'bg-blue-500', 'bg-amber-500',
-            'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-red-500',
-            'bg-indigo-500', 'bg-yellow-500'
-        ]
-        return colors[categoryKey.length % colors.length] || 'bg-gray-500'
-    }
-
     const toggleCategory = (categoryId) => {
+        const isDeselecting = selectedCategories.includes(categoryId)
+
         setSelectedCategories(prev =>
             prev.includes(categoryId)
                 ? prev.filter(id => id !== categoryId)
                 : [...prev, categoryId]
         )
 
-        // If deselecting a category, also deselect its subcategories
-        if (selectedCategories.includes(categoryId)) {
-            const category = filterData.categories.find(cat => cat._id === categoryId)
-            if (category) {
-                const subIds = filterData.subcategories
-                    .filter(sub => sub.categoryId === categoryId)
-                    .map(sub => sub._id)
+        if (isDeselecting) {
+            const subIds = filterData.subcategories
+                .filter(sub => sub.categoryId === categoryId)
+                .map(sub => sub._id)
 
-                setSelectedSubcategories(prev =>
-                    prev.filter(id => !subIds.includes(id))
-                )
-            }
+            setSelectedSubcategories(prev =>
+                prev.filter(id => !subIds.includes(id))
+            )
         }
     }
 
@@ -150,7 +149,6 @@ const ProductsPage = () => {
         setSelectedCategories([])
         setSelectedSubcategories([])
 
-        // Reset to dynamic price range if available, otherwise use default
         if (products.length > 0) {
             const prices = products.map(p => p.sellingPrice).filter(Boolean)
             if (prices.length > 0) {
@@ -163,8 +161,7 @@ const ProductsPage = () => {
         setPrice([PRICE_MIN, PRICE_MAX])
     }
 
-    // Filter products based on search, selected categories, subcategories, and price range
-    const filteredProducts = React.useMemo(() => {
+    const filteredProducts = useMemo(() => {
         if (!Array.isArray(products)) return [];
 
         return products.filter((product) => {
@@ -193,6 +190,36 @@ const ProductsPage = () => {
             return matchesSearch && matchesCategory && matchesSubcategory && matchesPrice;
         });
     }, [products, search, selectedCategories, selectedSubcategories, price])
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, selectedCategories, selectedSubcategories, price]);
+
+    const totalPages = useMemo(() => {
+        return Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    }, [filteredProducts]);
+
+    const paginatedProducts = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredProducts, currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            handlePageChange(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            handlePageChange(currentPage + 1);
+        }
+    };
 
     return (
         <div className='bg-slate1'>
@@ -228,8 +255,19 @@ const ProductsPage = () => {
                             </div>
                         ) : (
                             <>
+                                {/* Results Count - Only show when there are multiple pages or many products */}
+                                {filteredProducts.length > 0 && totalPages > 1 && (
+                                    <div className="mb-4 flex justify-between items-center">
+                                        <p className="text-slate-600 text-sm sm:text-base">
+                                            Showing <span className="font-semibold">{((currentPage - 1) * ITEMS_PER_PAGE) + 1}</span> to{' '}
+                                            <span className="font-semibold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{' '}
+                                            <span className="font-semibold">{filteredProducts.length}</span> products
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-                                    {filteredProducts.map((product) => (
+                                    {paginatedProducts.map((product) => (
                                         <div
                                             key={product._id || product.id}
                                             className="h-full cursor-pointer"
@@ -245,6 +283,7 @@ const ProductsPage = () => {
                                         </div>
                                     ))}
                                 </div>
+
                                 {filteredProducts.length === 0 && !loading && (
                                     <div className="text-center py-10">
                                         <p className="text-gray-500 text-lg">No products found matching your filters.</p>
@@ -254,6 +293,20 @@ const ProductsPage = () => {
                                         >
                                             Reset Filters
                                         </button>
+                                    </div>
+                                )}
+
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="mt-8">
+                                        <Pagination
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={handlePageChange}
+                                            onPreviousPage={handlePreviousPage}
+                                            onNextPage={handleNextPage}
+                                            maxVisiblePages={5}
+                                        />
                                     </div>
                                 )}
                             </>

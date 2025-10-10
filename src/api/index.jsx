@@ -1014,7 +1014,7 @@ export const editServiceCategory = async (id, data) => {
 // ======================= Service Api ======================
 export const getServices = async (data) => {
     try {
-        const url = `${environment.baseUrl}service/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}service/get-all?name=${data?.name || ''}&categoryId=${data?.categoryId || ''}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1063,7 +1063,7 @@ export const editService = async (id, data) => {
 // ======================= Products Api ======================
 export const getProducts = async (data) => {
     try {
-        const url = `${environment.baseUrl}product/get-all?name=${data?.name}&categoryName=${data?.categoryName}&page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}product/get-all?name=${data?.name || ''}&categoryId=${data?.categoryId || ''}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1158,6 +1158,20 @@ export const editEmployee = async (id, data) => {
         return err?.response?.data
     }
 }
+
+// =======================Admin User Profile Api ========================
+
+export const updateAdminUserProfile = async (id, data) => {
+    const url = `${environment.baseUrl}admin-users/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in updateAdminUserProfile api file", err);
+        return err?.response?.data;
+    }
+};
+
 
 // ==================== Customer Api ====================
 export const updateCustomerProfile = async (data) => {
@@ -1687,11 +1701,11 @@ export const logoutUser = async () => {
     }
 };
 
-export const registerUser = async ({ title, firstName, lastName, email, password, phone, registerType = "normal" }) => {
+export const registerUser = async ({ title, firstName, lastName, email, password, mobileNo, registerType = "normal" }) => {
     try {
         const response = await axios.post(
             `${environment.baseUrl}customer-users/register`,
-            { title, firstName, lastName, email, password, phone, registerType },
+            { title, firstName, lastName, email, password, mobileNo, registerType },
             { headers: { "Content-type": "application/json" } }
         );
         return response.data;
@@ -1899,6 +1913,17 @@ export const updateProductOrder = async (data) => {
 }
 // ======================= calendar api =======================
 
+export const adminBlockSlots = async (data) => {
+    const url = `${environment.baseUrl}calender/admin-block-slots`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in adminBlockSlots api file", err);
+        return err?.response?.data;
+    }
+};
+
 export const checkAvailability = async (data) => {
     try {
         const url = `${environment.baseUrl}calender/check-availability`;
@@ -1963,25 +1988,37 @@ export const adminSlots = async (date) => {
 
 // =========================== admin product order api ====================
 
-export const getAdminAllTestimonials = async (data) => {
+export const getAdminAllReviews = async (data) => {
     try {
-        const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}reviews/get-all?page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
     catch (err) {
-        console.log("==========error in getAdminAllTestimonials api file", err);
+        console.log("==========error in getAdminAllReviews api file", err);
         return err?.response?.data
     }
 }
-export const editTestimonials = async (id, data) => {
-    const url = `${environment.baseUrl}testimonials/update?id=${id}`;
+export const editReviews = async (id, data) => {
+    const url = `${environment.baseUrl}reviews/update?id=${id}`;
     try {
         const response = await axios.put(url, data)
         return response.data
     }
     catch (err) {
-        console.log("==========error in editTestimonials api file", err);
+        console.log("==========error in editReviews api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteReview = async (id) => {
+    const url = `${environment.baseUrl}reviews/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deleteReview api file", err);
         return err?.response?.data
     }
 }
@@ -2009,25 +2046,41 @@ export const getSingleServiceOrder = async (orderId) => {
     }
 };
 
-export const getAllTestimonials = async (page = 1, limit = 10, isActive = true) => {
-    const url = `${environment.baseUrl}testimonials/public/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
+export const getAllReviews = async (page = 1, limit = 10, isActive = true) => {
+    const url = `${environment.baseUrl}reviews/public/get-all?page=${page}&limit=${limit}&isActive=${isActive}`;
     try {
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
-        console.error('Error fetching testimonials:', err);
-        return err?.response?.data || { success: false, message: 'Failed to fetch testimonials' };
+        console.error('Error fetching Reviews:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch Reviews' };
     }
 };
 
-export const createTestimonial = async (testimonialData) => {
-    const url = `${environment.baseUrl}testimonials/create`;
+export const createReview = async (ReviewData) => {
+    const url = `${environment.baseUrl}reviews/create`;
     try {
-        const response = await axios.post(url, testimonialData);
+        const response = await axios.post(url, ReviewData);
         return response.data;
     } catch (err) {
-        console.error('Error creating testimonial:', err);
-        return err?.response?.data || { success: false, message: 'Failed to create testimonial' };
+        console.error('Error creating Review:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create Review' };
+    }
+};
+
+export const getFilteredReviews = async ({ userId, productId = null, serviceId = null }) => {
+    const params = new URLSearchParams();
+    if (userId) params.append('user', userId);
+    if (productId) params.append('product', productId);
+    if (serviceId) params.append('service', serviceId);
+
+    const url = `${environment.baseUrl}reviews/filter?${params.toString()}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching filtered Reviews:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch Reviews' };
     }
 };
 
@@ -2132,3 +2185,25 @@ export const getUserCoupons = async (type) => {
         return err?.response?.data || { success: false, message: 'Failed to fetch user coupons' };
     }
 };
+
+export const getHomeModalStatus = async () => {
+    const url = `${environment.baseUrl}config/public/get?key=homepage_settings`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching HomepageModal Status:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch HomepageModal Status' };
+    }
+};
+export const getPublicServicesDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}service/public/dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in get Public Services Dropdown api file", err);
+        return err?.response?.data
+    }
+}

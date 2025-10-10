@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [pinLoading, setPinLoading] = useState(false);
 
     // Use AddressContext methods
     const { addAddress, updateAddress } = useAddress();
@@ -35,6 +36,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
     });
 
     const watchedAddressType = watch("addressType");
+    const postalCode = watch("postalCode");
 
     // Populate form with existing address data for edit mode
     useEffect(() => {
@@ -53,6 +55,39 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
             });
         }
     }, [mode, addressData, reset]);
+
+    useEffect(() => {
+        const fetchPinDetails = async () => {
+            if (!postalCode || postalCode.length !== 6 || !/^[0-9]{6}$/.test(postalCode)) {
+                return;
+            }
+
+            setPinLoading(true);
+            console.log(null);
+
+            try {
+                const res = await fetch(`https://api.postalpincode.in/pincode/${postalCode}`);
+                const data = await res.json();
+
+                if (data[0]?.Status === "Success") {
+                    const postOffice = data[0].PostOffice?.[0];
+                    if (postOffice) {
+                        setValue("city", postOffice.Block, { shouldValidate: true });
+                        setValue("state", postOffice.State, { shouldValidate: true });
+                    }
+                } else {
+                    console.log("Invalid or unknown postal code.");
+                }
+            } catch (err) {
+                console.error("Postal code API error:", err);
+                console.log("Failed to fetch city/state.");
+            } finally {
+                setPinLoading(false);
+            }
+        };
+
+        fetchPinDetails();
+    }, [postalCode, setValue]);
 
     const onSubmit = useCallback(async (data) => {
         try {
@@ -254,60 +289,6 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
 
                     <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
 
-                        <div className="w-full">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                City
-                            </label>
-                            <select
-                                {...register("city", {
-                                    required: "Please select a city"
-                                })}
-                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.city ? 'border-red-500' : ''
-                                    }`}
-                            >
-                                <option value="">Select city</option>
-                                <option value="Mumbai">Mumbai</option>
-                                {/* <option value="Delhi">Delhi</option>
-                                <option value="Bangalore">Bangalore</option>
-                                <option value="Chennai">Chennai</option> */}
-                                {/* <option value="Perth">Perth</option>
-                                <option value="Sydney">Sydney</option>
-                                <option value="Los Angeles">Los Angeles</option>
-                                <option value="New York">New York</option> */}
-                            </select>
-                            {errors.city && (
-                                <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
-                            )}
-                        </div>
-                        {/* State */}
-                        <div className="w-full">
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                State
-                            </label>
-                            <select
-                                {...register("state", {
-                                    required: "Please select a state"
-                                })}
-                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none text-sm ${errors.state ? 'border-red-500' : ''
-                                    }`}
-                            >
-                                <option value="">Select state</option>
-                                <option value="Maharashtra">Maharashtra</option>
-                                {/* <option value="Gujarat">Gujarat</option>
-                                <option value="Karnataka">Karnataka</option>
-                                <option value="Tamil Nadu">Tamil Nadu</option>
-                                <option value="Western Australia">Western Australia</option>
-                                <option value="New South Wales">New South Wales</option>
-                                <option value="California">California</option>
-                                <option value="Texas">Texas</option> */}
-                            </select>
-                            {errors.state && (
-                                <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
                         {/* Zip Code */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -330,6 +311,46 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                                 <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
                             )}
                         </div>
+                        <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                City
+                            </label>
+                            <input
+                                type="text"
+                                {...register("city", {
+                                    required: "Please enter a city"
+                                })}
+                                placeholder="Enter city"
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.city ? 'border-red-500' : ''}`}
+                            />
+                            {errors.city && (
+                                <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>
+                            )}
+                        </div>
+
+
+                    </div>
+
+                    <div className="flex flex-col xl:flex-row md:flex-row lg:flex-row w-full gap-4">
+
+                        {/* State */}
+                        <div className="w-full">
+                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                State
+                            </label>
+                            <input
+                                type="text"
+                                {...register("state", {
+                                    required: "Please enter a state"
+                                })}
+                                placeholder="Enter state"
+                                className={`w-full px-3 py-2 bg-form-bg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.state ? 'border-red-500' : ''}`}
+                            />
+                            {errors.state && (
+                                <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+                            )}
+                        </div>
+
                         {/* Address Type */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">

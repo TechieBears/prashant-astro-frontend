@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, CallCalling, Profile2User, SmsNotification, Edit2, Save2, CloseCircle } from 'iconsax-reactjs';
 import toast from 'react-hot-toast';
@@ -9,18 +9,17 @@ import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import MultiSelectTextInput from '../../../components/TextInput/MultiSelectTextInput';
 import ImageUploadInput from '../../../components/TextInput/ImageUploadInput';
 import LoadBox from '../../../components/Loader/LoadBox';
-import { editEmployee, getServiceDropdown } from '../../../api';
+import { editEmployee, getPublicServicesDropdown, updateAdminUserProfile } from '../../../api';
 import { validateAlphabets, validateEmail, validatePhoneNumber, validateCommision } from '../../../utils/validateFunction';
-import { formBtn1, formBtn2 } from '../../../utils/CustomClass';
+import { formBtn1 } from '../../../utils/CustomClass';
 import { setUserDetails } from '../../../redux/Slices/loginSlice';
 
 const AdminProfile = () => {
-    const user = useSelector(state => state?.user?.userDetails);
-    console.log("⚡️🤯 ~ UserProfile.jsx:18 ~ AdminProfile ~ user:", user)
+    const user = useSelector(state => state.user.userDetails);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serviceSkills, setServiceSkills] = useState([]);
-
+    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
@@ -34,20 +33,20 @@ const AdminProfile = () => {
     const employeeType = watch('employeeType');
 
     useEffect(() => {
-        if (user?.user) {
+        if (user) {
             reset({
-                employeeType: user?.user?.role || '',
-                firstName: user?.user?.firstName || '',
-                lastName: user?.user?.lastName || '',
-                email: user?.user?.email || '',
-                mobileNo: user?.user?.mobileNo || '',
-                skills: user?.user?.skills || [],
-                languages: user?.user?.languages || [],
-                experience: user?.user?.experience || '',
-                days: user?.user?.days || [],
-                startTime: user?.user?.startTime || '',
-                endTime: user?.user?.endTime || '',
-                profileImage: user?.user?.profileImage || ''
+                employeeType: user?.role || '',
+                firstName: user?.firstName || '',
+                lastName: user?.lastName || '',
+                email: user?.email || '',
+                mobileNo: user?.mobileNo || '',
+                skills: user?.skills || [],
+                languages: user?.languages || [],
+                experience: user?.experience || '',
+                days: user?.days || [],
+                startTime: user?.startTime || '',
+                endTime: user?.endTime || '',
+                profileImage: user?.profileImage || ''
             });
         }
     }, [user, reset]);
@@ -58,7 +57,7 @@ const AdminProfile = () => {
 
     const fetchServiceSkills = async () => {
         try {
-            const response = await getServiceDropdown();
+            const response = await getPublicServicesDropdown();
             if (response?.success && response?.data) {
                 const skills = response.data.map(service => ({
                     value: service.name,
@@ -75,34 +74,48 @@ const AdminProfile = () => {
         setIsEditing(!isEditing);
         if (isEditing) {
             reset({
-                employeeType: user?.user?.role || '',
-                firstName: user?.user?.firstName || '',
-                lastName: user?.user?.lastName || '',
-                email: user?.user?.email || '',
-                mobileNo: user?.user?.mobileNo || '',
-                skills: user?.user?.skills || [],
-                languages: user?.user?.languages || [],
-                experience: user?.user?.experience || '',
-                days: user?.user?.days || [],
-                startTime: user?.user?.startTime || '',
-                endTime: user?.user?.endTime || '',
-                profileImage: user?.user?.profileImage || ''
+                employeeType: user?.role || '',
+                firstName: user?.firstName || '',
+                lastName: user?.lastName || '',
+                email: user?.email || '',
+                mobileNo: user?.mobileNo || '',
+                skills: user?.skills || [],
+                languages: user?.languages || [],
+                experience: user?.experience || '',
+                days: user?.days || [],
+                startTime: user?.startTime || '',
+                endTime: user?.endTime || '',
+                profileImage: user?.profileImage || ''
             });
         }
     };
 
     const onSubmit = async (data) => {
         try {
-            setLoading(true);
-            const response = await editEmployee(user?.user?._id, data);
-            if (response?.success) {
-                toast.success('Profile updated successfully!');
-                setIsEditing(false);
-                dispatch(setUserDetails(response?.data));
-                setLoading(false);
+            if (user.role == "admin") {
+                setLoading(true);
+                const response = await updateAdminUserProfile(user?._id, data);
+                if (response?.success) {
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    dispatch(setUserDetails(response?.data?.user))
+                    setLoading(false);
+                } else {
+                    toast.error(response?.message || 'Failed to update profile');
+                    setLoading(false);
+                }
             } else {
-                toast.error(response?.message || 'Failed to update profile');
-                setLoading(false);
+                setLoading(true);
+                const response = await editEmployee(user?._id, data);
+                if (response?.success) {
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    dispatch(setUserDetails(response?.data?.user))
+                    setLoading(false);
+                } else {
+                    toast.error(response?.message || 'Failed to update profile');
+                    setLoading(false);
+                }
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -161,26 +174,26 @@ const AdminProfile = () => {
                         <img
                             loading="lazy"
                             className="h-[120px] w-[120px] rounded-full border object-cover"
-                            src={user?.user?.profileImage || user?.user?.profilePicture || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
+                            src={user?.profileImage || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
                             alt="User_Profile"
                         />
                         <div>
                             <h2 className="text-xl font-bold font-tb leading-7 text-gray-700 sm:truncate sm:text-2xl sm:tracking-tight capitalize">
-                                {user?.user?.firstName || "-----"} {user?.user?.lastName || "-----"}
+                                {user?.firstName || "-----"} {user?.lastName || "-----"}
                             </h2>
                             <div className="flex items-center space-x-5">
                                 <div className="mt-2 flex items-center text-base text-gray-500">
                                     <SmsNotification variant='TwoTone' size="22" className='text-gray-400 mr-1.5' />
-                                    {user?.user?.email || "-------------"}
+                                    {user?.email || "-------------"}
                                 </div>
                                 <div className="mt-2 flex items-center text-base text-gray-500">
                                     <CallCalling variant='TwoTone' size="22" className='text-gray-400 mr-1.5' />
-                                    {user?.user?.mobileNo || "-------------"}
+                                    {user?.mobileNo || "-------------"}
                                 </div>
                             </div>
                             <div className="mt-2 flex items-center text-base text-gray-500 capitalize">
                                 <Profile2User variant='TwoTone' size="22" className='text-gray-400 mr-1.5' />
-                                {user?.user?.role || user?.user?.employeeType || "-------------"}
+                                {user?.role || user?.employeeType || "-------------"}
                             </div>
                         </div>
                     </div>
@@ -234,7 +247,7 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.role || 'Not specified'}
+                                    {user?.role || 'Not specified'}
                                 </div>
                             )}
                         </div>
@@ -255,7 +268,7 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.firstName || 'Not specified'}
+                                    {user?.firstName || 'Not specified'}
                                 </div>
                             )}
                         </div>
@@ -276,7 +289,7 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.lastName || 'Not specified'}
+                                    {user?.lastName || 'Not specified'}
                                 </div>
                             )}
                         </div>
@@ -296,7 +309,7 @@ const AdminProfile = () => {
                                     register={register}
                                     setValue={setValue}
                                     control={control}
-                                    defaultValue={user?.user?.profileImage}
+                                    defaultValue={user?.profileImage}
                                 />
                             </div>
                         )}
@@ -318,7 +331,7 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.email || 'Not specified'}
+                                    {user?.email || 'Not specified'}
                                 </div>
                             )}
                         </div>
@@ -339,13 +352,13 @@ const AdminProfile = () => {
                                 />
                             ) : (
                                 <div className="p-3 bg-slate-100 rounded-md capitalize">
-                                    {user?.user?.mobileNo || 'Not specified'}
+                                    {user?.mobileNo || 'Not specified'}
                                 </div>
                             )}
                         </div>
 
                         {/* Astrologer-specific fields */}
-                        {(employeeType === 'astrologer' || user?.user?.employeeType === 'astrologer') && (
+                        {(employeeType === 'astrologer' || user?.employeeType === 'astrologer') && (
                             <>
                                 {/* Skills */}
                                 <div>
@@ -368,9 +381,9 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.skills?.length > 0 ? (
+                                            {user?.skills?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user?.user?.skills.map((skill, index) => (
+                                                    {user?.skills.map((skill, index) => (
                                                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof skill === 'object' ? skill.label : skill}
                                                         </span>
@@ -404,9 +417,9 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.languages?.length > 0 ? (
+                                            {user?.languages?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user?.user?.languages.map((language, index) => (
+                                                    {user?.languages.map((language, index) => (
                                                         <span key={index} className="px-2 py-1 bg-red-100 text-red-600 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof language === 'object' ? language.label : language}
                                                         </span>
@@ -437,7 +450,7 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.experience ? `${user?.user?.experience} years` : 'Not specified'}
+                                            {user?.experience ? `${user?.experience} years` : 'Not specified'}
                                         </div>
                                     )}
                                 </div>
@@ -463,9 +476,9 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.days?.length > 0 ? (
+                                            {user?.days?.length > 0 ? (
                                                 <div className="flex flex-wrap gap-2">
-                                                    {user?.user?.days?.map((day, index) => (
+                                                    {user?.days?.map((day, index) => (
                                                         <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 font-tbLex capitalize rounded-full text-sm">
                                                             {typeof day === 'object' ? day.label : day}
                                                         </span>
@@ -494,7 +507,7 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.startTime || 'Not specified'}
+                                            {user?.startTime || 'Not specified'}
                                         </div>
                                     )}
                                 </div>
@@ -515,7 +528,7 @@ const AdminProfile = () => {
                                         />
                                     ) : (
                                         <div className="p-3 bg-slate-100 rounded-md">
-                                            {user?.user?.endTime || 'Not specified'}
+                                            {user?.endTime || 'Not specified'}
                                         </div>
                                     )}
                                 </div>

@@ -8,16 +8,16 @@ import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
-import { addProductSubCategory, editProductSubCategory } from '../../../api';
+import { addProductSubCategory, editProductSubCategory, getProductCategoriesDropdown } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
-import { useSelector } from 'react-redux';
 
 function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
-    const productCategories = useSelector(state => state.appRoot?.productCategories || []);
+    const [productCategories, setProductCategories] = useState([]);
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
+    const [categoriesLoading, setCategoriesLoading] = useState(false);
 
     const formSubmit = async (data) => {
         try {
@@ -75,6 +75,31 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
         }
     }, [edit, userData, reset, setValue, open]);
 
+    useEffect(() => {
+        if (open) {
+            const apiCall = async () => {
+                try {
+                    setCategoriesLoading(true);
+                    const response = await getProductCategoriesDropdown();
+                    if (response?.data && Array.isArray(response.data)) {
+                        setProductCategories(response.data.map(item => ({
+                            value: item?._id,
+                            label: item?.name
+                        })));
+                    } else {
+                        console.error("Invalid response format:", response);
+                        setProductCategories([]);
+                    }
+                } catch (error) {
+                    console.error("Error fetching product categories:", error);
+                    setProductCategories([]);
+                } finally {
+                    setCategoriesLoading(false);
+                }
+            }
+            apiCall();
+        }
+    }, [open]);
     return (
         <>
             {
@@ -130,10 +155,11 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                                 label="Select Category Name"
                                                                 registerName="categoryId"
                                                                 options={productCategories}
-                                                                placeholder="Select Category"
+                                                                placeholder={categoriesLoading ? "Loading categories..." : "Select Category"}
                                                                 props={{
                                                                     ...register('categoryId', { required: true }),
-                                                                    value: watch('categoryId') || ''
+                                                                    value: watch('categoryId') || '',
+                                                                    disabled: categoriesLoading
                                                                 }}
                                                                 errors={errors.categoryId}
                                                                 defaultValue={userData?.categoryId}

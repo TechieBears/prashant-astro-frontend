@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
-import ProfileSidebar from "../../../components/Sidebar/ProfileSidebar";
 import { updateCustomerProfile, uploadToCloudinary } from "../../../api";
 import { setUserDetails, setLoggedUserDetails } from "../../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
@@ -34,8 +33,8 @@ const MyAccount = () => {
     const profileImage = watch("profileImage");
 
     useEffect(() => {
-        if (userDetails?.user || loggedUserDetails) {
-            const userData = userDetails?.user || loggedUserDetails;
+        if (userDetails || loggedUserDetails) {
+            const userData = userDetails || loggedUserDetails;
 
             if (userData) {
                 setValue("title", userData.title || "");
@@ -47,7 +46,7 @@ const MyAccount = () => {
         }
     }, [userDetails, loggedUserDetails, setValue]);
 
-    const isUserDataLoaded = userDetails?.user || loggedUserDetails;
+    const isUserDataLoaded = userDetails || loggedUserDetails;
 
     const onSubmit = async (data) => {
         const toastId = toast.loading('Updating profile...');
@@ -84,12 +83,7 @@ const MyAccount = () => {
                 const updatedUserData = response.data.user;
 
                 dispatch(setLoggedUserDetails(updatedUserData));
-
-                const updatedUserDetails = {
-                    ...userDetails,
-                    user: updatedUserData
-                };
-                dispatch(setUserDetails(updatedUserDetails));
+                dispatch(setUserDetails(updatedUserData));  // ✅ Store user directly, not nested
 
                 toast.success('Profile updated successfully!', { id: toastId });
             } else {

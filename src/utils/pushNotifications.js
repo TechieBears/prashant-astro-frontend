@@ -36,7 +36,6 @@ export const requestNotificationPermission = async () => {
             const token = await getFCMToken();
             return token;
         } else if (permission === 'denied') {
-            console.log('Notification permission denied');
             return null;
         } else {
             console.log('Notification permission dismissed');

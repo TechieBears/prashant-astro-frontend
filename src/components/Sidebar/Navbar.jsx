@@ -34,7 +34,7 @@ const Navbar = ({ mobileSidebar, isActiveLink }) => {
                             </h4>
                             <div className="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6 ">
                                 <h2 className="font-tbLex font-bold text-2xl  md:text-2xl whitespace- tracking-tight capitalize text-slate-800">
-                                    {greetingTime(new Date())} 👋🏻, <span className="capitalize text-primary"> {user?.user?.firstName || "Guest"} {user?.user?.lastName || "User"}</span>
+                                    {greetingTime(new Date())} 👋🏻, <span className="capitalize text-primary"> {user?.firstName || "Guest"} {user?.lastName || "User"}</span>
                                 </h2>
                             </div>
                             <div className="flex items-center text-xs font-tbPop font-normal text-slate-500">
@@ -92,7 +92,7 @@ const ProfilePage = () => {
 
     // ============================= logout user dashbaord ================================
     const logOut = async () => {
-        await logoutUser({ userId: user?.user?._id }).then((res) => {
+        await logoutUser({ userId: user?._id }).then((res) => {
             if (res?.success) {
                 setDropdownOpen(!dropdownOpen)
                 dispatch(setLoggedUserDetails(undefined))
@@ -119,8 +119,8 @@ const ProfilePage = () => {
                         <div className="" ref={trigger}
                             onClick={() => setDropdownOpen(!dropdownOpen)}>
                             <div className="bg-white shadow-md rounded-3xl px-1.5 pr-2 py-1 w-full flex items-center space-x-2 cursor-pointer">
-                                <img loading="lazy" className="h-10 w-10 rounded-full object-cover bg-slate-100 border-2 border-primary " src={user?.user?.profilePicture || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"} alt="user" />
-                                <h5 className="text-sm font-tbPop font-medium text-black capitalize line-clamp-1">{user?.user?.firstName || "Guest"}</h5>
+                                <img loading="lazy" className="h-10 w-10 rounded-full object-cover bg-slate-100 border-2 border-primary " src={user?.profileImage || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"} alt="user" />
+                                <h5 className="text-sm font-tbPop font-medium text-black capitalize line-clamp-1">{user?.firstName || "Guest"}</h5>
                                 <span className={dropdownOpen ? "-rotate-180 duration-300 transition-all" : "rotate-0 duration-300 transition-all"}>
                                     <ArrowDown2 size="20" className='text-slate-500' variant='TwoTone' />
                                 </span>
@@ -135,7 +135,7 @@ const ProfilePage = () => {
                             <div className="flex items-center gap-3 px-4 py-3">
                                 <div className="relative aspect-square w-16 h-16 rounded-full">
                                     <img
-                                        src={user?.user?.profilePicture || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
+                                        src={user?.profileImage || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
                                         alt="account"
                                         className="w-full h-full rounded-full object-cover "
                                     />
@@ -143,10 +143,10 @@ const ProfilePage = () => {
                                 </div>
                                 <div >
                                     <h5 className="text-base font-tbLex font-semibold text-black capitalize line-clamp-1">
-                                        {user?.user?.firstName || "Guest"} {user?.user?.lastName || "User"}
+                                        {user?.firstName || "Guest"} {user?.lastName || "User"}
                                     </h5>
                                     <h5 className="text-slate-500 font-tbLex text-sm line-clamp-1 capitalize">
-                                        {user?.user?.role || "Guest Role"}
+                                        {user?.role || "Guest Role"}
                                     </h5>
                                 </div>
                             </div>

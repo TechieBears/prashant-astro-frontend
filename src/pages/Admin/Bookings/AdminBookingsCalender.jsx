@@ -2,8 +2,10 @@ import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 import BookingDetailsModal from '../../../components/Modals/AdminModals/BookingDetailsModal';
 import Preloaders from '../../../components/Loader/Preloaders';
-import HorizontalSlotCalendar from "../../../components/Calendar/HorizontalSlotCalendar";
 import { adminSlots } from "../../../api";
+import BlockCalenderSlotsModal from "../../../components/Modals/AdminModals/BlockCalenderSlotsModal";
+import BlockedMessageShowModal from "../../../components/Modals/AdminModals/BlockedMessageShowModal";
+import HorizontalSlotCalendar from '../../../components/Calendar/HorizontalSlotCalendar';
 
 
 const generateFullDaySlots = (data) => {
@@ -19,11 +21,9 @@ const generateFullDaySlots = (data) => {
     return slots;
 };
 
-// Format time for display
 const slotTimeFormatter = (start, end) =>
     `${moment(start, "HH:mm").format("hh:mm A")} - ${moment(end, "HH:mm").format("hh:mm A")}`;
 
-// Skeleton Loader Components
 const SkeletonSlot = () => (
     <div className="h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl animate-pulse shadow-sm">
         <div className="h-full flex items-center justify-center">
@@ -32,22 +32,9 @@ const SkeletonSlot = () => (
     </div>
 );
 
-const SkeletonHeader = () => (
-    <div className="py-4 px-2">
-        <div className="w-20 h-4 bg-slate-300 rounded animate-pulse mx-auto"></div>
-    </div>
-);
-
-const SkeletonTimeSlot = () => (
-    <div className="py-3">
-        <div className="w-40 h-6 bg-slate-300 rounded animate-pulse mx-auto"></div>
-    </div>
-);
-
-// Slot Status Component
 const SlotCard = ({ status, booking, onClick, isLoading }) => {
     if (isLoading) return <SkeletonSlot />;
-    status = booking?.paymentStatus ? "booked" : status;
+    // status = booking?.paymentStatus ? "booked" : status;
     const getSlotConfig = () => {
         switch (status) {
             case 'blocked':
@@ -57,14 +44,20 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                     title: 'Unavailable',
                     border: 'border-gray-300/80'
                 };
+            case 'adminBlocked':
+                return {
+                    bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
+                    text: 'text-red-600',
+                    title: 'Admin Blocked',
+                    border: 'border-red-300/80'
+                };
             case 'booked':
                 return {
                     bg: 'bg-gradient-to-br from-amber-50 via-orange-50 to-orange-100',
                     text: 'text-orange-600',
-                    title: `${booking?.customer}`,
+                    title: `${booking?.customer || "---- No title ----"}`,
                     border: 'border-orange-300/80'
                 };
-
             case 'available':
             default:
                 return {
@@ -77,7 +70,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
     };
 
     const config = getSlotConfig();
-    const isClickable = status === 'available' || status === 'booked';
+    const isClickable = status === 'available' || status === 'booked' || status === 'adminBlocked';
 
     return (
         <div
@@ -113,6 +106,10 @@ const VenueCalendar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [showBlockSlotsModal, setShowBlockSlotsModal] = useState(false);
+    const [selectedSlot, setSelectedSlot] = useState(null);
+    const [showBlockedMessageModal, setShowBlockedMessageModal] = useState(false);
+    const [selectedBlockedMessage, setSelectedBlockedMessage] = useState(null);
     const [slots, setSlots] = useState({
         bookings: [],
         astrologers: [],
@@ -134,7 +131,6 @@ const VenueCalendar = () => {
         }
     }
 
-    // Load slots on date change
     useEffect(() => {
         getSlots();
     }, [selectedDate]);
@@ -144,8 +140,9 @@ const VenueCalendar = () => {
     };
 
     const handleSlotClick = (court, timeSlot, booking, status) => {
+
+
         if (status === 'booked' && booking) {
-            // Calculate end time (30 minutes after start time)
             const endTime = moment(timeSlot.slots_start_time, "HH:mm").add(30, 'minutes').format("HH:mm");
 
             const bookingData = {
@@ -159,7 +156,25 @@ const VenueCalendar = () => {
 
             setSelectedBooking(bookingData);
             setShowBookingModal(true);
-        } else {
+        } else if (status === 'adminBlocked') {
+            setShowBlockedMessageModal(true);
+            setSelectedBlockedMessage(booking?.rejectReason);
+        }
+        else if (status === 'available') {
+            const endTime = moment(timeSlot.slots_start_time, "HH:mm").add(30, 'minutes').format("HH:mm");
+
+            const slotData = {
+                astrologer_id: court._id || court.id,
+                date: selectedDate,
+                start_time: timeSlot.slots_start_time,
+                end_time: endTime
+            };
+
+            console.log('Setting slot data:', slotData);
+            setSelectedSlot(slotData);
+            setShowBlockSlotsModal(true);
+        }
+        else {
             console.log(`Clicked slot: ${court.name} at ${timeSlot.slots_start_time} - Status: ${status}`);
         }
     };
@@ -258,8 +273,13 @@ const VenueCalendar = () => {
                                                 );
                                             });
                                             let status = "available";
-                                            if (booking?.blocked) status = "blocked";
-                                            else if (booking?.paymentStatus) status = "booked";
+                                            if (booking?.blocked && booking?.status === "blocked") {
+                                                status = "adminBlocked";
+                                            } else if (booking?.blocked) {
+                                                status = "blocked";
+                                            } else if (booking?.paymentStatus) {
+                                                status = "booked";
+                                            }
 
                                             return (
                                                 <td key={astrologer.id} className="w-[200px] px-2 py-2">
@@ -292,8 +312,23 @@ const VenueCalendar = () => {
                 toggle={() => setShowBookingModal(false)}
                 bookingDatas={selectedBooking}
             />
+
+            <BlockCalenderSlotsModal
+                slotData={selectedSlot}
+                setRefreshTrigger={() => {
+                    getSlots();
+                    setShowBlockSlotsModal(false);
+                    setSelectedSlot(null);
+                }}
+            />
+
+            <BlockedMessageShowModal
+                open={showBlockedMessageModal}
+                toggle={() => setShowBlockedMessageModal(false)}
+                message={selectedBlockedMessage}
+            />
         </div>
     );
-};
+}
 
 export default VenueCalendar;

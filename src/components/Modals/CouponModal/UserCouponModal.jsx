@@ -11,6 +11,7 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
             onClose();
         }
     };
+    
     const calculateMaxSavings = () => {
         if (!selectedCoupon) return 0;
 
@@ -22,49 +23,57 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg w-full max-w-md shadow-xl max-h-[90vh] flex flex-col">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b">
-                    <button
-                        onClick={onClose}
-                        className="text-gray-600 hover:text-gray-800"
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <h2 className="text-lg font-semibold">Available Coupons</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
-                    >
-                        <X size={24} />
-                    </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1020] flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl w-full max-w-md shadow-2xl max-h-[80vh] flex flex-col overflow-hidden">
+                {/* Header with Gradient */}
+                <div className="bg-gradient-to-r from-[#FB923C] via-[#FB923C] to-[#F43F5E] p-3">
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={onClose}
+                            className="text-white hover:text-orange-100 transition-colors"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h2 className="text-sm font-semibold text-white">Available Coupons</h2>
+                        <button
+                            onClick={onClose}
+                            className="text-white hover:text-orange-100 transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Coupon Code Input */}
-                <div className="p-4 border-b">
+                <div className="p-2.5 bg-base-bg border-b border-orange-light">
                     <div className="flex gap-2">
                         <input
                             type="text"
                             placeholder="Enter coupon code"
                             value={couponCode}
                             onChange={(e) => setCouponCode(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="flex-1 px-2.5 py-1.5 border-2 border-primary-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white text-xs"
                         />
-                        <button className="px-4 py-2 text-black font-medium hover:text-primary">
+                        <button className="px-3 py-1.5 text-primary font-semibold hover:bg-primary-light rounded-lg transition-colors text-xs">
                             Check
                         </button>
                     </div>
                 </div>
 
                 {/* Coupons List */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    <div className="space-y-3">
+                <div className="flex-1 overflow-y-auto p-3 bg-slate1">
+                    <div className="space-y-2.5">
                         {coupons.length === 0 ? (
-                            <div className="text-center text-gray-500 text-sm py-8">
-                                No coupons available
+                            <div className="text-center text-base-font py-8">
+                                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-primary-light flex items-center justify-center">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2">
+                                        <rect x="3" y="7" width="18" height="12" rx="2" />
+                                        <path d="M3 11h18M7 15h.01M11 15h2" />
+                                    </svg>
+                                </div>
+                                <p className="font-medium text-xs">No coupons available</p>
                             </div>
                         ) : (
                             coupons.map((coupon) => {
@@ -76,20 +85,25 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
                                 return (
                                     <div
                                         key={coupon._id}
-                                        className="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-primary transition"
+                                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 bg-white ${
+                                            selectedCoupon?._id === coupon._id
+                                                ? 'border-primary shadow-lg scale-[1.02]'
+                                                : 'border-primary-light hover:border-primary hover:shadow-md'
+                                        }`}
                                         onClick={() => setSelectedCoupon(coupon)}
                                     >
                                         <div className="flex items-start gap-3">
                                             {/* Custom Checkbox */}
                                             <div className="mt-1">
                                                 <div
-                                                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${selectedCoupon?._id === coupon._id
-                                                            ? 'bg-blue-600 border-blue-600'
-                                                            : 'border-gray-300'
-                                                        }`}
+                                                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+                                                        selectedCoupon?._id === coupon._id
+                                                            ? 'bg-primary border-primary'
+                                                            : 'border-orange-light'
+                                                    }`}
                                                 >
                                                     {selectedCoupon?._id === coupon._id && (
-                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                                        <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
                                                             <path
                                                                 d="M2 6L5 9L10 3"
                                                                 stroke="white"
@@ -104,26 +118,34 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
 
                                             {/* Coupon Details */}
                                             <div className="flex-1">
-                                                <div className="inline-block px-2 py-1 bg-gray-100 border border-gray-300 rounded text-sm font-mono mb-2">
+                                                <div className="inline-block px-3 py-1.5 bg-primary-light border-2 border-primary rounded-lg text-sm font-semibold text-primary mb-2">
                                                     {coupon.couponCode}
                                                 </div>
-                                                <p className="text-green-600 font-semibold mb-1">
+                                                <p className="text-green-700 font-bold text-md mb-1">
                                                     Save ₹{discountAmount}
                                                 </p>
-                                                <p className="text-sm text-gray-600 mb-1">
+                                                <p className="text-sm text-base-font mb-2">
                                                     {coupon.description ||
                                                         (coupon.discountIn === 'percent'
                                                             ? `${coupon.discount}% Off (₹${discountAmount})`
                                                             : `Flat ₹${coupon.discount} Off`)}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
-                                                    Expires on:{' '}
-                                                    {new Date(coupon?.expiryDate).toLocaleDateString('en-US', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric',
-                                                    })}
-                                                </p>
+                                                <div className="flex items-center gap-1 text-xs text-base-font">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                                    </svg>
+                                                    <span>
+                                                        Expires on:{' '}
+                                                        {new Date(coupon?.expiryDate).toLocaleDateString('en-US', {
+                                                            year: 'numeric',
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                        })}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -131,29 +153,29 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
                             })
                         )}
                     </div>
-
                 </div>
 
                 {/* Footer */}
-                <div className="border-t p-4 bg-gray-50">
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm text-gray-600">Maximum Savings:</span>
-                        <span className="text-lg font-bold">₹{calculateMaxSavings()}</span>
+                <div className="border-t-2 border-primary-light p-2.5 bg-white">
+                    <div className="flex items-center justify-between mb-2.5 p-2 bg-base-bg rounded-lg">
+                        <span className="text-xs font-medium text-base-font">Maximum Savings:</span>
+                        <span className="text-sm font-bold text-primary">₹{calculateMaxSavings()}</span>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2.5">
                         <button
                             onClick={onClose}
-                            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition"
+                            className="flex-1 px-3 py-2 border-2 border-primary-light rounded-lg font-semibold text-base-font hover:bg-primary-light transition-colors text-xs"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleApply}
                             disabled={!selectedCoupon}
-                            className={`flex-1 px-4 py-3 rounded-lg font-medium transition ${selectedCoupon
-                                ? 'bg-primary text-white hover:bg-gray-800'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                }`}
+                            className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all text-xs ${
+                                selectedCoupon
+                                    ? 'bg-primary text-white hover:bg-[#ea580c] shadow-md hover:shadow-lg'
+                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
                         >
                             Apply
                         </button>

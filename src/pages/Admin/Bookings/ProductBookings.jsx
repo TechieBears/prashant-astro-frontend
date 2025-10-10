@@ -44,6 +44,7 @@ const ProductBookings = () => {
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
         pageChangeHandler(1);
+        toast.success('Filters applied');
     };
 
     const handleClearFilters = () => {

@@ -1,4 +1,4 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Copy } from 'iconsax-reactjs';
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -48,8 +48,8 @@ const AllServices = () => {
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
         pageChangeHandler(1);
+        toast.success('Filters applied');
     };
-
     const handleClearFilters = () => {
         reset(initialFilterState);
         setFilterCriteria(initialFilterState);
@@ -71,48 +71,187 @@ const AllServices = () => {
         }
     }
 
-    const activeBody = (row) => (
-        <Switch
-            value={row?.isActive}
-            onChange={() => handleActiveChange(row?._id, row?.isActive)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    )
+    // Enhanced body templates following ServiceBookings design pattern
+    const serviceIdBody = (row) => (
+        <div className="flex items-center gap-2">
+            <span className="capitalize font-medium">{row?._id?.slice(-8) || "---- -----"}</span>
+            <span>
+                <Copy
+                    className="cursor-pointer text-primary hover:text-primary-dark"
+                    size={16}
+                    onClick={() => {
+                        navigator.clipboard.writeText(row?._id);
+                        toast.success('Service ID Copied!');
+                    }}
+                />
+            </span>
+        </div>
+    );
 
-    const actionBodyTemplate = (row) => <div className="flex items-center gap-2">
-        <CreateServiceModal edit={true} title='Edit Service' userData={row} setRefreshTrigger={setRefreshTrigger} />
+    const serviceDetailsBody = (row) => (
+        <div className="space-y-2">
+            <div className="text-sm">
+                <div className="font-medium capitalize">{row?.name || "---- -----"}</div>
+                {row?.subTitle && (
+                    <div className="text-xs text-gray-400 capitalize mt-1">
+                        {row.subTitle.length > 50 ? `${row.subTitle.substring(0, 50)}...` : row.subTitle}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
+    const serviceTypeBody = (row) => {
+        const typeColors = {
+            'online': 'bg-blue-100 text-blue-800',
+            'pooja_at_home': 'bg-green-100 text-green-800',
+            'pandit_center': 'bg-purple-100 text-purple-800'
+        };
+        const displayType = row?.serviceType?.replace(/_/g, ' ') || "---- -----";
+        const colorClass = typeColors[row?.serviceType] || 'bg-gray-100 text-gray-800';
+
+        return (
+            <span className={`px-4 py-2 rounded-full text-xs font-tbLex tracking-tight font-medium capitalize ${colorClass}`}>
+                {displayType}
+            </span>
+        );
+    };
+
+    const categoryBody = (row) => (
+        <div className="text-sm capitalize">
+            <div className="font-medium">{row?.category?.name || "---- -----"}</div>
+            <div className="text-xs text-gray-500">(Category)</div>
+        </div>
+    );
+
+    const priceDetailsBody = (row) => (
+        <div className="space-y-1">
+            <div className="font-bold text-green-600">₹{row?.price ? row.price.toLocaleString('en-IN') : "----"}</div>
+            <div className="text-xs text-gray-500">
+                {row?.durationInMinutes ? `${row.durationInMinutes} minutes` : "Duration not set"}
+            </div>
+        </div>
+    );
+
+    const contentBody = (row) => {
+        const content = row?.htmlContent?.replace(/<[^>]*>/g, '') || "No description available";
+        const videoCount = row?.videoUrl?.length || 0;
+
+        return (
+            <div className="space-y-1">
+                <h4 className="text-xs text-gray-600 max-w-xs line-clamp-4">
+                    {content}
+                </h4>
+                {videoCount > 0 && (
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                            {videoCount} video{videoCount > 1 ? 's' : ''}
+                        </span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const statusBody = (row) => {
+        const statusColor = row?.isActive
+            ? 'text-green-600 bg-green-100'
+            : 'text-red-600 bg-red-100';
+
+        return (
+            <div className="space-y-2">
+                <div className="flex items-center">
+                    <Switch
+                        value={row?.isActive}
+                        onChange={() => handleActiveChange(row?._id, row?.isActive)}
+                        size={50}
+                        backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+                        borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+                    />
+                </div>
+            </div>
+        );
+    };
+
+    const imageBody = (row) => <div className='w-52 h-24 rounded'>
+        <img loading="lazy" src={row?.image} alt="image" className='w-full h-full object-cover rounded bg-slate-100' />
     </div>
 
-    const imageBodyTemp = (row) => (
-        <div className="h-24 w-[12rem] rounded bg-slate1">
-            <img
-                loading="lazy"
-                src={row?.image}
-                alt="image"
-                className="object-cover w-full h-full rounded bg-slate1"
+    const actionBody = (row) => (
+        <div className="flex items-center gap-2">
+            <CreateServiceModal
+                edit={true}
+                title='Edit Service'
+                userData={row}
+                setRefreshTrigger={setRefreshTrigger}
             />
         </div>
     );
 
     const columns = [
-        { field: "image", header: "Image", body: imageBodyTemp, style: true, sortable: true },
-        { field: 'name', header: 'Name', body: (row) => <span className='capitalize'>{row?.name || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'serviceType', header: 'Service Type', body: (row) => <span className='capitalize'>{row?.serviceType || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'title', header: 'Title', body: (row) => <span className='capitalize'>{row?.title || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'subTitle', header: 'Sub Title', body: (row) => <span className='capitalize'>{row?.subTitle || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'categoryName', header: 'Category', body: (row) => <span className='capitalize'>{row?.category?.name || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'price', header: 'Price', body: (row) => <span className='capitalize'>{row?.price || "---- -----"}</span>, style: true, sortable: true },
-        { field: 'durationInMinutes', header: 'Duration', body: (row) => <span className='capitalize'>{row?.durationInMinutes || "---- -----"}</span>, style: true, sortable: true },
         {
-            field: 'isActive',
-            header: 'Active',
-            body: activeBody,
+            field: 'image',
+            header: 'Image',
+            body: imageBody,
+            style: true,
+            sortable: false
+        },
+        {
+            field: '_id',
+            header: 'Service ID',
+            body: serviceIdBody,
             style: true,
             sortable: true
         },
-        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true, style: true }
+        {
+            field: 'serviceDetails',
+            header: 'Service Details',
+            body: serviceDetailsBody,
+            style: true,
+            sortable: false
+        },
+        {
+            field: 'serviceType',
+            header: 'Service Type',
+            body: serviceTypeBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'category',
+            header: 'Category',
+            body: categoryBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'priceDetails',
+            header: 'Price & Duration',
+            body: priceDetailsBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'content',
+            header: 'Content & Media',
+            body: contentBody,
+            style: true,
+            sortable: false
+        },
+        {
+            field: 'status',
+            header: 'Status',
+            body: statusBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'action',
+            header: 'Action',
+            body: actionBody,
+            style: true,
+            sortable: true
+        }
     ];
     return (
         <div className="space-y-5 h-screen bg-slate-100">

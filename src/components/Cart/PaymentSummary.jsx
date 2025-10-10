@@ -22,10 +22,10 @@ const PaymentSummary = ({
     useEffect(() => {
         const fetchCoupons = async () => {
             const data = await getUserCoupons(activeTab);
-            if(data?.success){
+            if (data?.success) {
                 setCoupons(data?.data);
                 console.log('Fetched Coupons:', data);
-            }else{
+            } else {
                 console.log('Fetched Coupons false:', data);
             }
         };
