@@ -2196,3 +2196,14 @@ export const getHomeModalStatus = async () => {
         return err?.response?.data || { success: false, message: 'Failed to fetch HomepageModal Status' };
     }
 };
+export const getPublicServicesDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}service/public/dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in get Public Services Dropdown api file", err);
+        return err?.response?.data
+    }
+}
