@@ -1014,7 +1014,7 @@ export const editServiceCategory = async (id, data) => {
 // ======================= Service Api ======================
 export const getServices = async (data) => {
     try {
-        const url = `${environment.baseUrl}service/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}service/get-all?name=${data?.name || ''}&categoryId=${data?.categoryId || ''}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
