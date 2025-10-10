@@ -45,7 +45,7 @@ const loginSlice = createSlice({
             const { user, token, role } = action.payload;
             state.roleIs = role;
             state.loggedUserDetails = user;
-            state.userDetails = action.payload;
+            state.userDetails = user;
 
             localStorage.setItem("token", token);
             localStorage.setItem("role", role);

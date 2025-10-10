@@ -14,6 +14,7 @@ import {
     Gallery,
     Send2,
     Star1,
+    Messages2,
 } from "iconsax-reactjs";
 
 export const SidebarSuperAdminApi = [
@@ -124,6 +125,11 @@ export const SidebarSuperAdminApi = [
                 title: 'Testimonials',
                 icon: <Star1 size="21" variant="TwoTone" />,
                 link: '/testimonials',
+            },
+            {
+                title: 'Reviews',
+                icon: <Messages2 size="21" variant="TwoTone" />,
+                link: '/reviews',
             },
             {
                 title: 'Notification',
@@ -238,6 +244,11 @@ export const SidebarEmployeeApi = [
                 title: 'Testimonials',
                 icon: <Star1 size="21" variant="TwoTone" />,
                 link: '/testimonials',
+            },
+            {
+                title: 'Reviews',
+                icon: <Messages2 size="21" variant="TwoTone" />,
+                link: '/reviews',
             },
             {
                 title: 'Notification',

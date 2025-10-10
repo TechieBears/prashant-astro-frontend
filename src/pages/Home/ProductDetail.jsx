@@ -162,19 +162,17 @@ const ProductDetail = () => {
         }
     }, [id]);
 
-    // Fetch reviews when product is loaded or tab changes to reviews
+    // Fetch reviews when product is loaded
     useEffect(() => {
-        if (product && activeTab === 'reviews') {
+        if (product) {
             fetchProductReviews();
         }
-    }, [product, activeTab, fetchProductReviews]);
+    }, [product, fetchProductReviews]);
 
-    // Show loading state
     if (loading) {
         return <Preloaders />;
     }
 
-    // Show error state
     if (error || !product) {
         return (
             <div className="min-h-screen flex items-center justify-center px-4">
