@@ -39,14 +39,14 @@ const Pagination = ({
 
     const visiblePages = getVisiblePages();
 
-    // Default button classes
-    const defaultButtonClass = `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${buttonClassName}`;
+    // Default button classes - responsive
+    const defaultButtonClass = `px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${buttonClassName}`;
     const defaultActiveClass = `bg-orange-500 text-white ${activeButtonClassName}`;
     const defaultInactiveClass = `bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 ${buttonClassName}`;
     const defaultDisabledClass = `bg-gray-100 text-gray-400 cursor-not-allowed ${disabledButtonClassName}`;
 
     return (
-        <div className={`flex justify-center items-center space-x-2 ${className}`}>
+        <div className={`flex justify-center items-center gap-1 sm:gap-2 flex-wrap ${className}`}>
             {/* Previous Button */}
             {showPreviousNext && (
                 <button
@@ -56,7 +56,8 @@ const Pagination = ({
                         }`}
                     aria-label="Go to previous page"
                 >
-                    Previous
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
                 </button>
             )}
 
@@ -71,7 +72,7 @@ const Pagination = ({
                         1
                     </button>
                     {visiblePages[0] > 2 && (
-                        <span className="px-2 text-gray-500">...</span>
+                        <span className="px-1 sm:px-2 text-gray-500 text-xs sm:text-sm">...</span>
                     )}
                 </>
             )}
@@ -94,7 +95,7 @@ const Pagination = ({
             {showPageNumbers && visiblePages[visiblePages.length - 1] < totalPages && (
                 <>
                     {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                        <span className="px-2 text-gray-500">...</span>
+                        <span className="px-1 sm:px-2 text-gray-500 text-xs sm:text-sm">...</span>
                     )}
                     <button
                         onClick={() => onPageChange(totalPages)}
