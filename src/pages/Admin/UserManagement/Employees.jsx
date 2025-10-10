@@ -13,16 +13,14 @@ import { validateAlphabets } from '../../../utils/validateFunction';
 import CreateEmployeeModal from '../../../components/Modals/AdminModals/CreateEmployeeModal';
 import TableHeader from '../../../components/Table/TableHeader';
 
+const initialFilterState = {
+    name: ''
+};
 
 const Employees = () => {
-    const initialFilterState = {
-        name: ''
-    };
-
-    const { register, handleSubmit, reset } = useForm({ defaultValues: initialFilterState });
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
-
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
     const combinedFilters = useMemo(() => ({
         ...filterCriteria,
         refresh: refreshTrigger
@@ -40,7 +38,7 @@ const Employees = () => {
     } = usePagination(1, 10, getAllEmployees, combinedFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
+        if (error) toast.error('Failed to fetch employees');
     }, [error]);
 
     const handleFilterSubmit = (data) => {
@@ -48,7 +46,6 @@ const Employees = () => {
         pageChangeHandler(1);
         toast.success('Filters applied');
     };
-
     const handleClearFilters = () => {
         reset(initialFilterState);
         setFilterCriteria(initialFilterState);

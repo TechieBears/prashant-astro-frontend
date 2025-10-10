@@ -1014,7 +1014,7 @@ export const editServiceCategory = async (id, data) => {
 // ======================= Service Api ======================
 export const getServices = async (data) => {
     try {
-        const url = `${environment.baseUrl}service/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}service/get-all?name=${data?.name || ''}&categoryId=${data?.categoryId || ''}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1063,7 +1063,7 @@ export const editService = async (id, data) => {
 // ======================= Products Api ======================
 export const getProducts = async (data) => {
     try {
-        const url = `${environment.baseUrl}product/get-all?name=${data?.name}&categoryName=${data?.categoryName}&page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}product/get-all?name=${data?.name || ''}&categoryId=${data?.categoryId || ''}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1158,6 +1158,20 @@ export const editEmployee = async (id, data) => {
         return err?.response?.data
     }
 }
+
+// =======================Admin User Profile Api ========================
+
+export const updateAdminUserProfile = async (id, data) => {
+    const url = `${environment.baseUrl}admin-users/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in updateAdminUserProfile api file", err);
+        return err?.response?.data;
+    }
+};
+
 
 // ==================== Customer Api ====================
 export const updateCustomerProfile = async (data) => {
