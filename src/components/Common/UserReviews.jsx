@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FaStar, FaEdit, FaTrash } from 'react-icons/fa';
-import { editTestimonials, deleteTestimonial } from '../../api';
+import { editReviews, deleteReview } from '../../api';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import ReviewForm from './ReviewForm';
@@ -139,7 +139,7 @@ const UserReviews = ({
 
         try {
             setSubmitting(true);
-            const response = await editTestimonials(reviewId, {
+            const response = await editReviews(reviewId, {
                 message: editForm.message.trim(),
                 rating: editForm.rating
             });
@@ -180,7 +180,7 @@ const UserReviews = ({
         try {
             setSubmitting(true);
             setShowDeleteModal(false);
-            const response = await deleteTestimonial(reviewToDelete);
+            const response = await deleteReview(reviewToDelete);
 
             toast.dismiss(loadingToast);
 

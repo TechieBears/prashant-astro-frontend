@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Tabs from '../../../components/Common/Tabs';
 import Pagination from '../../../components/Common/Pagination';
+import OrderIdCopy from '../../../components/Common/OrderIdCopy';
 import { getAllServiceOrders } from '../../../api';
 import { FaClock, FaCalendarAlt, FaDesktop, FaVideo } from 'react-icons/fa';
 import axios from 'axios';
@@ -232,16 +233,25 @@ const Orders = () => {
       onClick={() => handleProductClick(order)}
     >
       {/* Order Header */}
-      <div className="bg-button-gradient-orange px-4 py-2 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h3 className="text-white font-semibold text-sm">Order #{order.orderId?.slice(-8)}</h3>
+      <div className="bg-button-gradient-orange px-3 sm:px-4 py-2 flex justify-between items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-white font-semibold text-xs sm:text-sm">Order</span>
+            <OrderIdCopy
+              orderId={order.orderId}
+              displayLength={8}
+              showHash={true}
+              textClassName="text-white font-semibold text-xs sm:text-sm"
+              iconClassName="text-white/80 hover:text-white"
+            />
+          </div>
           {order.itemCount > 1 && (
-            <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
               {order.itemCount} Items
             </span>
           )}
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' :
+        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 ${order.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' :
           order.paymentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
           }`}>
           {order.paymentStatus}
@@ -249,29 +259,29 @@ const Orders = () => {
       </div>
 
       {/* Products List */}
-      <div className="p-4 space-y-3">
+      <div className="p-3 sm:p-4 space-y-3">
         {order.items.map((item, index) => (
-          <div key={item._id} className={`flex gap-4 ${index > 0 ? 'pt-3 border-t border-gray-200' : ''}`}>
+          <div key={item._id} className={`flex gap-3 sm:gap-4 ${index > 0 ? 'pt-3 border-t border-gray-200' : ''}`}>
             <div className="flex-shrink-0">
               <ProductImage
                 images={item.image}
                 name={item.name}
-                containerClassName="w-20 h-20 bg-white flex items-center justify-center shadow-sm rounded"
-                imgClassName="w-16 h-16 object-cover rounded"
-                fallbackClassName="w-16 h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded"
+                containerClassName="w-16 h-16 sm:w-20 sm:h-20 bg-white flex items-center justify-center shadow-sm rounded"
+                imgClassName="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded"
+                fallbackClassName="w-14 h-14 sm:w-16 sm:h-16 bg-gray-200 flex items-center justify-center text-gray-500 text-xs rounded"
                 fallbackContent="Image"
               />
             </div>
-            <div className="flex-1 flex flex-col justify-between">
+            <div className="flex-1 flex flex-col justify-between min-w-0">
               <div className="leading-tight">
-                <h4 className="font-semibold text-gray-800 text-base mb-1 leading-tight">{item.name}</h4>
-                <p className="text-base font-bold text-gray-800 mb-1 leading-tight">₹{item.currentPrice}</p>
+                <h4 className="font-semibold text-gray-800 text-sm sm:text-base mb-1 leading-tight line-clamp-2">{item.name}</h4>
+                <p className="text-sm sm:text-base font-bold text-gray-800 mb-1 leading-tight">₹{item.currentPrice?.toLocaleString()}</p>
                 <p className="text-xs text-gray-600 mb-1 leading-tight">
-                  MRP <span className="line-through">₹{item.mrp}</span>
+                  MRP <span className="line-through">₹{item.mrp?.toLocaleString()}</span>
                 </p>
-                <div className="flex items-center gap-3 text-xs text-gray-600">
-                  <span>QTY: {item.quantity}</span>
-                  {item.subtotal > 0 && <span className="font-medium">Subtotal: ₹{item.subtotal}</span>}
+                <div className="flex items-center flex-wrap gap-2 sm:gap-3 text-xs text-gray-600">
+                  <span className="whitespace-nowrap">QTY: {item.quantity}</span>
+                  {item.subtotal > 0 && <span className="font-medium whitespace-nowrap">Subtotal: ₹{item.subtotal?.toLocaleString()}</span>}
                 </div>
               </div>
             </div>
@@ -280,12 +290,12 @@ const Orders = () => {
       </div>
 
       {/* Order Footer */}
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-        <div className="text-sm">
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <div className="text-xs sm:text-sm">
           <span className="text-gray-600">Total Amount: </span>
-          <span className="font-bold text-gray-900">₹{order.finalAmount || order.totalAmount}</span>
+          <span className="font-bold text-gray-900">₹{(order.finalAmount || order.totalAmount)?.toLocaleString()}</span>
         </div>
-        <span className={`px-2 py-1 rounded text-xs font-medium ${order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+        <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
           order.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
             order.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' :
               order.orderStatus === 'SHIPPED' || order.orderStatus === 'DISPATCHED' ? 'bg-blue-100 text-blue-800' :
@@ -346,7 +356,15 @@ const Orders = () => {
 
       <div className="pt-3 border-t border-gray-200">
         <div className="flex justify-between items-center text-sm mb-2">
-          <span className="text-gray-600">Order ID: {service.orderId?.slice(-8) || 'N/A'}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-600">Order ID:</span>
+            <OrderIdCopy
+              orderId={service.orderId}
+              displayLength={8}
+              showHash={false}
+              textClassName="text-xs sm:text-sm text-gray-800"
+            />
+          </div>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${service.paymentStatus === 'PAID' ? 'bg-green-100 text-green-800' :
             service.paymentStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
             }`}>
@@ -375,15 +393,12 @@ const Orders = () => {
 
   // Main render
   return (
-    <div className="p-4 bg-white rounded-lg min-h-screen">
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
-          <div className="hidden lg:block">
+    <div className="p-3 sm:p-4 md:p-6 bg-white rounded-lg min-h-screen">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">My Orders</h1>
+          <div className="flex justify-center lg:justify-end w-full lg:w-auto">
             <Tabs activeTab={activeTab} onTabChange={handleTabChange} tabs={tabs} className="w-fit" />
-          </div>
-          <div className="lg:hidden">
-            <Tabs activeTab={activeTab} onTabChange={handleTabChange} tabs={tabs} className="w-full" />
           </div>
         </div>
       </div>
