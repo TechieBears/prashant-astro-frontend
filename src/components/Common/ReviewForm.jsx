@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FaStar } from 'react-icons/fa';
-import { createTestimonial } from '../../api';
+import { createReview } from '../../api';
 import toast from 'react-hot-toast';
 
 const ReviewForm = ({
@@ -39,7 +39,7 @@ const ReviewForm = ({
 
         try {
             setSubmittingReview(true);
-            const response = await createTestimonial({
+            const response = await createReview({
                 user_id: userId,
                 service_id: serviceId,
                 product_id: productId,

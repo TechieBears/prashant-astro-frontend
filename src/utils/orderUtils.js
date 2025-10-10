@@ -159,10 +159,10 @@ export const transformServiceOrderData = (serviceOrderData) => {
         return {
             services: [{
                 serviceType: "Service",
-                sessionDuration: "30-60 minutes",
-                date: "Date will be confirmed",
-                time: "Time will be confirmed",
-                mode: "Online",
+                sessionDuration: "30 minutes",
+                date: "2025-10-11",
+                time: "11:00 - 11:30",
+                mode: "online",
                 zoomLink: "Link will be provided"
             }],
             orderId: null,
@@ -174,63 +174,42 @@ export const transformServiceOrderData = (serviceOrderData) => {
     const orderId = serviceOrderData._id || `SRV-${Date.now()}`;
 
     // Format the total amount
-    const totalAmount = serviceOrderData.finalAmount || serviceOrderData.totalAmount || 0;
+    const totalAmount = serviceOrderData.finalAmount || serviceOrderData.totalAmount || serviceOrderData.payingAmount || 0;
 
-    // Transform services array - handle both ID arrays and full service objects
+    // Transform services array from the API response structure
     const services = [];
 
     if (serviceOrderData.services && Array.isArray(serviceOrderData.services)) {
-        serviceOrderData.services.forEach((service, index) => {
-            // Check if service is an object with details or just an ID
-            if (typeof service === 'object' && service !== null) {
-                // Full service object
-                services.push({
-                    serviceType: service.serviceName || `Service ${index + 1}`,
-                    sessionDuration: service.durationInMinutes
-                        ? `${service.durationInMinutes} minutes`
-                        : "30-60 minutes",
-                    date: service.bookingDate
-                        ? new Date(service.bookingDate).toLocaleDateString('en-IN', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        })
-                        : "Date will be confirmed",
-                    time: service.startTime && service.endTime
-                        ? `${service.startTime} - ${service.endTime}`
-                        : "Time will be confirmed",
-                    mode: service.serviceType === 'online'
-                        ? 'Consult Online'
-                        : service.serviceType === 'pandit_center'
-                            ? 'Consult at Astrologer location'
-                            : service.serviceType === 'pooja_at_home'
-                                ? 'Pooja at Home'
-                                : "Online",
-                    zoomLink: service.zoomLink || "Meeting link will be provided"
-                });
-            } else {
-                // Service ID - create placeholder service
-                services.push({
-                    serviceType: `Service ${index + 1}`,
-                    sessionDuration: "30-60 minutes",
-                    date: "Date will be confirmed",
-                    time: "Time will be confirmed",
-                    mode: "Online",
-                    zoomLink: "Meeting link will be provided"
-                });
-            }
+        serviceOrderData.services.forEach((serviceItem, index) => {
+            // Extract service details from the nested service object
+            const service = serviceItem.service || {};
+
+            services.push({
+                serviceType: service.name || `Service ${index + 1}`,
+                sessionDuration: service.durationInMinutes
+                    ? `${service.durationInMinutes} minutes`
+                    : "30 minutes",
+                date: serviceItem.bookingDate
+                    ? new Date(serviceItem.bookingDate).toISOString().split('T')[0] // Format as YYYY-MM-DD
+                    : "2025-10-11",
+                time: serviceItem.startTime && serviceItem.endTime
+                    ? `${serviceItem.startTime} - ${serviceItem.endTime}`
+                    : "11:00 - 11:30",
+                mode: serviceItem.serviceType || service.serviceType || "online",
+                zoomLink: serviceItem.zoomLink || "Link will be provided"
+            });
         });
     }
 
     // If no services found, create a default one
     if (services.length === 0) {
         services.push({
-            serviceType: "Astrology Service",
-            sessionDuration: "30-60 minutes",
-            date: "Date will be confirmed",
-            time: "Time will be confirmed",
-            mode: "Online",
-            zoomLink: "Meeting link will be provided"
+            serviceType: "Service",
+            sessionDuration: "30 minutes",
+            date: "2025-10-11",
+            time: "11:00 - 11:30",
+            mode: "online",
+            zoomLink: "Link will be provided"
         });
     }
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 import { ArrowLeft02Icon, ArrowRight02Icon } from 'hugeicons-react';
 import SectionHeader from '../Titles/SectionHeader';
-import { getAllTestimonials } from '../../api';
+import { getAllReviews } from '../../api';
 import Comment from '../../assets/user/home/comment.png';
 import Preloaders from '../Loader/Preloaders';
 
@@ -14,7 +14,7 @@ const Testimonials = () => {
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
-                const response = await getAllTestimonials(1, 10, true);
+                const response = await getAllReviews(1, 10, true);
 
                 if (response.success && response.data?.length > 0) {
                     const transformedData = response.data.map(testimonial => ({
@@ -52,7 +52,7 @@ const Testimonials = () => {
     }
 
     return (
-        <div className="relative bg-light-orange py-16 px-4 sm:px-6 lg:px-8">
+        <div className="relative bg-light-orange pt-16 pb-0 px-4 sm:px-6 lg:px-8">
             {/* Main Content */}
             <div className="max-w-6xl mx-auto">
                 {/* Title Section */}
@@ -119,8 +119,8 @@ const Testimonials = () => {
                                             className="absolute -top-2 -left-2 sm:-top-4 sm:-left-4 w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 z-20 scale-x-[-1]"
                                         />
                                         <div className={`w-72 sm:w-80 md:w-80 h-auto min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col ${isCenter
-                                            ? 'bg-button-gradient-orange text-white shadow-2xl'
-                                            : 'bg-white text-base-font shadow-lg'
+                                            ? 'bg-button-gradient-orange text-white shadow-lg'
+                                            : 'bg-white text-base-font shadow-md'
                                             }`}>
                                             <div className="flex justify-center mb-4 sm:mb-6">
                                                 <div className="flex">

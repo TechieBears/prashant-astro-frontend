@@ -8,7 +8,7 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import LoadBox from '../../components/Loader/LoadBox';
 import Preloaders from '../../components/Loader/Preloaders';
-import { getActiveProduct, getFilteredTestimonials } from '../../api';
+import { getActiveProduct, getFilteredReviews } from '../../api';
 import AddToCartButton from '../../components/Products/AddToCartButton';
 import { useCart } from '../../hooks/useCart';
 import toast from 'react-hot-toast';
@@ -70,12 +70,10 @@ const ProductDetail = () => {
         );
 
         if (cartItem) {
-            console.log('Product found in cart with quantity:', cartItem.quantity);
             setIsProductInCart(true);
             setCartItemId(cartItem._id);
             setQuantity(cartItem.quantity);
         } else {
-            console.log('Product not in cart, using default quantity');
             setIsProductInCart(false);
             setCartItemId(null);
             setQuantity(1);
@@ -85,7 +83,6 @@ const ProductDetail = () => {
     // Fetch product data
     useEffect(() => {
         const fetchProduct = async () => {
-            console.log('Fetching product with ID:', id);
             if (!id) {
                 console.error('No product ID provided');
                 setError('No product ID provided');
@@ -96,13 +93,10 @@ const ProductDetail = () => {
             try {
                 setLoading(true);
                 setError(null);
-                console.log('Calling getActiveProduct with ID:', id);
                 const response = await getActiveProduct(id);
-                console.log('API Response:', response);
 
                 if (response && response.success) {
                     if (response.data) {
-                        console.log('Product data received:', response.data);
                         setProduct(response.data);
                         setRelatedProducts(response.data.relatedProducts || []);
                     } else {
@@ -148,7 +142,7 @@ const ProductDetail = () => {
         if (!id) return;
         try {
             setLoadingReviews(true);
-            const response = await getFilteredTestimonials({
+            const response = await getFilteredReviews({
                 productId: id
             });
             if (response.success) {
