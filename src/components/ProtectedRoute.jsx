@@ -5,7 +5,7 @@ const ProtectedRoute = ({ children }) => {
     const user = useSelector((state) => state.user.userDetails);
     const isLogged = useSelector((state) => state.user.isLogged);
     const location = useLocation();
-    const isAuthenticated = (user?.user && Object.keys(user?.user).length > 0) || isLogged;
+    const isAuthenticated = (user && Object.keys(user).length > 0) || isLogged;
     if (!isAuthenticated) {
         return <Navigate to="/login" state={{ from: location.pathname }} replace />;
     }

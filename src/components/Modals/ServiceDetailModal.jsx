@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { FaClock, FaCalendarAlt, FaDesktop, FaVideo, FaTimes } from 'react-icons/fa';
-import { getSingleServiceOrder } from '../../api';
+import { getSingleServiceOrder, getFilteredTestimonials } from '../../api';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
-import ReviewForm from '../Common/ReviewForm';
+import UserReviews from '../Common/UserReviews';
 import Preloaders from '../Loader/Preloaders';
 import downloadIcon from '../../assets/user/orders/download.svg';
 
@@ -39,7 +40,8 @@ const getStatusInfo = (status) => {
     return statusMap[status?.toLowerCase()] || { text: 'Session Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: '#6B72801A' };
 };
 
-const ServiceItem = ({ serviceData, index, showReviewForm, setShowReviewForm, handleReviewSuccess }) => {
+const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loadingReviews }) => {
+    const [editingReviewId, setEditingReviewId] = useState(null);
     const details = [
         { icon: FaClock, text: 'Duration:', value: `${serviceData.durationInMinutes || 30} min` },
         { icon: FaCalendarAlt, text: 'Date:', value: formatDate(serviceData.bookingDate) },
@@ -65,70 +67,85 @@ const ServiceItem = ({ serviceData, index, showReviewForm, setShowReviewForm, ha
             </div>
 
             {/* Service Details */}
-            <div className="p-3 space-y-2">
-                <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 min-h-[2.5rem]">
-                    {serviceData.serviceName || 'Service'}
-                </h4>
+            <div className="p-3">
+                <div className="space-y-2 mb-3">
+                    <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 min-h-[2.5rem]">
+                        {serviceData.serviceName || 'Service'}
+                    </h4>
 
-                <div className="text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
-                    ₹{serviceData.total || serviceData.servicePrice}
+                    <div className="text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
+                        ₹{serviceData.total || serviceData.servicePrice}
+                    </div>
+
+                    {/* Service Info */}
+                    <div className="space-y-1.5 text-xs">
+                        {details.map(({ icon: Icon, text, value }, i) => (
+                            <div key={i} className="flex items-start gap-1.5">
+                                <Icon className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-gray-700">
+                                    <span className="text-gray-600">{text} </span>
+                                    <span className="font-medium text-gray-900">{value}</span>
+                                </span>
+                            </div>
+                        ))}
+                        {serviceData.zoomLink && (
+                            <div className="flex items-start gap-1.5">
+                                <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-gray-700 break-all text-xs">
+                                    {serviceData.zoomLink}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                {/* Service Info */}
-                <div className="space-y-1.5 text-xs">
-                    {details.map(({ icon: Icon, text, value }, i) => (
-                        <div key={i} className="flex items-start gap-1.5">
-                            <Icon className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700">
-                                <span className="text-gray-600">{text} </span>
-                                <span className="font-medium text-gray-900">{value}</span>
-                            </span>
-                        </div>
-                    ))}
-                    {serviceData.zoomLink && (
-                        <div className="flex items-start gap-1.5">
-                            <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700 break-all text-xs">
-                                {serviceData.zoomLink}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Review Button */}
-                <div className="pt-2 border-t border-gray-200">
-                    {!showReviewForm[serviceData.serviceId] ? (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowReviewForm(prev => ({ ...prev, [serviceData.serviceId]: true }));
-                            }}
-                            className="bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full"
-                        >
-                            Write Review
-                        </button>
-                    ) : (
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <ReviewForm
-                                isOpen={showReviewForm[serviceData.serviceId]}
-                                onClose={() => setShowReviewForm(prev => ({ ...prev, [serviceData.serviceId]: false }))}
-                                onSubmitSuccess={() => handleReviewSuccess(serviceData.serviceId)}
-                                serviceId={serviceData?.serviceId || null}
-                                productId={null}
-                            />
-                        </div>
-                    )}
-                </div>
+                {/* Consolidated Review Section */}
+                <UserReviews
+                    reviews={reviews}
+                    loadingReviews={loadingReviews}
+                    onReviewUpdate={() => handleReviewSuccess(serviceData.serviceId)}
+                    editingReviewId={editingReviewId}
+                    setEditingReviewId={setEditingReviewId}
+                    variant="compact"
+                    showWriteReview={true}
+                    productId={null}
+                    serviceId={serviceData?.serviceId || null}
+                />
             </div>
         </div>
     );
 };
 
 const ServiceDetailModal = ({ isOpen, onClose, service }) => {
+    const loggedUserDetails = useSelector(state => state.user.loggedUserDetails);
+    const userId = loggedUserDetails?._id;
+
     const [orderData, setOrderData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [showReviewForm, setShowReviewForm] = useState({});
+    const [serviceReviews, setServiceReviews] = useState({});
+    const [loadingReviews, setLoadingReviews] = useState(false);
+
+    const fetchServiceReviews = useCallback(async (serviceId) => {
+        if (!userId || !serviceId) return;
+        try {
+            setLoadingReviews(true);
+            const response = await getFilteredTestimonials({
+                userId,
+                serviceId
+            });
+            if (response.success) {
+                setServiceReviews(prev => ({
+                    ...prev,
+                    [serviceId]: response.data || []
+                }));
+            }
+        } catch (err) {
+            console.error('Error fetching service reviews:', err);
+        } finally {
+            setLoadingReviews(false);
+        }
+    }, [userId]);
 
     const fetchOrderDetails = useCallback(async () => {
         if (!service?.orderId) return;
@@ -138,6 +155,14 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
             const response = await getSingleServiceOrder(service.orderId);
             if (response.success) {
                 setOrderData(response.data[0]);
+                // Fetch reviews for all services in the order
+                if (response.data[0]?.services && userId) {
+                    response.data[0].services.forEach(serviceData => {
+                        if (serviceData.serviceId) {
+                            fetchServiceReviews(serviceData.serviceId);
+                        }
+                    });
+                }
             } else {
                 setError(response.message || 'Failed to fetch order details');
             }
@@ -147,7 +172,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
         } finally {
             setLoading(false);
         }
-    }, [service?.orderId]);
+    }, [service?.orderId, userId, fetchServiceReviews]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -162,9 +187,6 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
         }
     }, [isOpen, service?.orderId, fetchOrderDetails]);
 
-    const handleReviewSuccess = useCallback((serviceId) => {
-        setShowReviewForm(prev => ({ ...prev, [serviceId]: false }));
-    }, []);
 
     const handleDownloadInvoice = useCallback(() => {
         console.log('Downloading invoice for order:', orderData?.orderId);
@@ -292,9 +314,9 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
                                             key={serviceData.serviceId || index}
                                             serviceData={serviceData}
                                             index={index}
-                                            showReviewForm={showReviewForm}
-                                            setShowReviewForm={setShowReviewForm}
-                                            handleReviewSuccess={handleReviewSuccess}
+                                            handleReviewSuccess={fetchServiceReviews}
+                                            reviews={serviceReviews[serviceData.serviceId] || []}
+                                            loadingReviews={loadingReviews}
                                         />
                                     ))}
                                 </div>
