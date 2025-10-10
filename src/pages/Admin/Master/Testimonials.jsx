@@ -3,7 +3,7 @@ import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Switch from "react-js-switch";
-import { getAdminAllTestimonials, editTestimonials } from '../../../api';
+import { getAdminAllReviews, editReviews } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
 import usePagination from '../../../utils/customHooks/usePagination'
@@ -40,7 +40,7 @@ export default function Testimonials() {
         records,
         filterData,
         error
-    } = usePagination(1, 10, getAdminAllTestimonials, emptyFilters);
+    } = usePagination(1, 10, getAdminAllReviews, emptyFilters);
 
     useEffect(() => {
         if (error) toast.error('Failed to fetch testimonials');
@@ -51,7 +51,7 @@ export default function Testimonials() {
             const updatedData = {
                 isActive: !isActive
             }
-            await editTestimonials(id, updatedData);
+            await editReviews(id, updatedData);
             setRefreshTrigger(prev => prev + 1);
             toast.success('Status updated successfully');
         }

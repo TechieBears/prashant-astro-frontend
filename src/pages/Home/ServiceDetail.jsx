@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaMapMarkerAlt, FaArrowRight, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
-import { getSelectedService, getFilteredTestimonials } from '../../api';
+import { getSelectedService, getFilteredReviews } from '../../api';
 import { Clock05Icon, ShareKnowledgeIcon } from 'hugeicons-react';
 import { useSelector } from 'react-redux';
 import UserReviews from '../../components/Common/UserReviews';
@@ -73,7 +73,7 @@ const ServiceDetail = () => {
         if (!id) return;
         try {
             setLoadingReviews(true);
-            const response = await getFilteredTestimonials({
+            const response = await getFilteredReviews({
                 serviceId: id
             });
             if (response.success) {

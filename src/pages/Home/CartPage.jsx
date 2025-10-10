@@ -178,15 +178,9 @@ const CartPage = () => {
                 const response = await updateCartItem(id, quantity);
 
                 if (response.success) {
-                    console.log('API Response:', response);
-                    console.log('Current cartItems:', cartItems);
-
-                    // Always use local cart items and update only the changed item
-                    // This preserves all fields including images
                     const updatedItems = cartItems.map(item => {
                         if (item._id === id) {
                             const itemPrice = item.price || item.product?.price || 0;
-                            // Preserve ALL existing fields and only update quantity/totalPrice
                             console.log('Updating item:', {
                                 id: item._id,
                                 name: item.name,

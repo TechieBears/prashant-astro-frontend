@@ -6,7 +6,7 @@ export default function DeleteModal({ open, toggleModalBtn, deleteBtn, title, de
     const cancelButtonRef = useRef(null)
     return (
         <Transition.Root show={open} as={Fragment}>
-            <Dialog as="div" className="relative z-[99]" initialFocus={cancelButtonRef} onClose={toggleModalBtn}>
+            <Dialog as="div" className="relative z-[10000]" initialFocus={cancelButtonRef} onClose={toggleModalBtn}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -19,7 +19,7 @@ export default function DeleteModal({ open, toggleModalBtn, deleteBtn, title, de
                     <div className="fixed inset-0 backdrop-blur-[2.3px] bg-black/20" />
                 </Transition.Child>
 
-                <div className="fixed inset-0 z-[99] w-screen overflow-y-auto">
+                <div className="fixed inset-0 z-[10000] w-screen overflow-y-auto">
                     <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                         <Transition.Child
                             as={Fragment}
