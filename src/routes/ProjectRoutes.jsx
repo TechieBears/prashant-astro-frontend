@@ -35,6 +35,7 @@ import Notifications from '../pages/Admin/Master/Notifications';
 import OffersCoupons from '../pages/Admin/Master/OffersCoupons';
 import ReferEarn from '../pages/Admin/Master/ReferEarn';
 import Testimonials from '../pages/Admin/Master/Testimonials';
+import Reviews from '../pages/Admin/Master/Reviews';
 import AllUserProfiles from '../pages/Admin/UserManagement/AllUserProfiles';
 import AllProducts from '../pages/Admin/AllProducts/AllProducts';
 import ProductDetail from '../pages/Home/ProductDetail';
@@ -57,7 +58,7 @@ const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
     const login = useSelector(state => state.user.isLogged);
     const userDetails = useSelector(state => state.user.userDetails);
-    const role = userDetails?.user?.role;
+    const role = userDetails?.role;
 
     // const login = true;
     // const user = { user: { role: "admin" } };
@@ -311,6 +312,14 @@ const ProjectRoutes = () => {
                             element={
                                 <ProtectedRoute>
                                     <Testimonials />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="/reviews"
+                            element={
+                                <ProtectedRoute>
+                                    <Reviews />
                                 </ProtectedRoute>
                             }
                         />

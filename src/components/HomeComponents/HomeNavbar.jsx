@@ -414,6 +414,11 @@ const HomeNavbar = () => {
                                                                         onClick={() => {
                                                                             if (link.name === 'Products' && categoryId) {
                                                                                 handleCategoryClick(categoryId, category.category);
+                                                                            } else if (link.name === 'Services') {
+                                                                                // Navigate to services page with category query parameter
+                                                                                setActiveDropdown(null);
+                                                                                setActiveCategory(null);
+                                                                                navigate(`/services?category=${encodeURIComponent(category.category)}`);
                                                                             }
                                                                         }}
                                                                     >
@@ -481,7 +486,7 @@ const HomeNavbar = () => {
                                     <img
                                         alt="profile"
                                         src={
-                                            user?.user?.profileImage ||
+                                            user?.profileImage ||
                                             "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
                                         }
                                         onClick={() => {
@@ -599,6 +604,11 @@ const HomeNavbar = () => {
                                                                     onClick={() => {
                                                                         if (link.name === 'Products' && categoryId) {
                                                                             handleCategoryClick(categoryId, category.category);
+                                                                            setIsMenuOpen(false);
+                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                        } else if (link.name === 'Services') {
+                                                                            // Navigate to services page with category query parameter
+                                                                            navigate(`/services?category=${encodeURIComponent(category.category)}`);
                                                                             setIsMenuOpen(false);
                                                                             window.scrollTo({ top: 0, behavior: "smooth" });
                                                                         }

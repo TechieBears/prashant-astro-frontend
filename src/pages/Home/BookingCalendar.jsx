@@ -10,7 +10,7 @@ import '../../css/react-calendar.css';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import { getServiceModeOptions, getServiceType } from '../../utils/serviceConfig';
 import { Input, Select } from '../../components/Form';
-import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart } from '../../api';
+import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart, getSelectedService } from '../../api';
 import Preloaders from '../../components/Loader/Preloaders';
 
 const BookingCalendar = () => {
@@ -33,6 +33,7 @@ const BookingCalendar = () => {
     const [isAstrologersLoading, setIsAstrologersLoading] = useState(false);
     const [availability, setAvailability] = useState(null);
     const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
+    const [isFetchingServiceDetail, setIsFetchingServiceDetail] = useState(false);
 
     // Form setup with react-hook-form
     const { control, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm({
@@ -85,14 +86,12 @@ const BookingCalendar = () => {
         }
     }, [watchedBookingType, loggedUserDetails, setValue]);
 
-    const [selectedDate, setSelectedDate] = useState(null);
-
     const serviceModeOptions = getServiceModeOptions();
 
     const timeSlots = useMemo(() => {
         if (!availability?.data?.timeSlots) return [];
         const availableSlots = availability.data.timeSlots
-            .filter(slot => slot.status === 'available')
+            .filter(slot => (slot.status === 'available' && slot.disabled === false))
             .map(slot => ({
                 value: slot.time,
                 label: `${slot.time}`
@@ -112,14 +111,8 @@ const BookingCalendar = () => {
     // Service options
     const serviceOptions = useMemo(() => {
         if (!services.length) return [];
-        return [
-            {
-                value: selectedService?._id || '',
-                label: selectedService?.name || 'Select a service'
-            },
-            ...services.filter(service => service.value !== selectedService?._id)
-        ];
-    }, [services, selectedService]);
+        return services;
+    }, [services]);
 
     // Fetch services
     const fetchServices = useCallback(async () => {
@@ -222,22 +215,51 @@ const BookingCalendar = () => {
         fetchAstrologers();
     }, [isLogged, authLoading, fetchAstrologers]);
 
-    // Watch for service type changes and update service mode
+    // Watch for service type changes and fetch full service details
     useEffect(() => {
-        if (!watchedServiceType || !allServicesData.length) return;
+        const fetchServiceDetail = async () => {
+            if (!watchedServiceType || !allServicesData.length) return;
+            if (watchedServiceType === selectedService?._id) return;
 
-        const selectedServiceData = allServicesData.find(service => service._id === watchedServiceType);
-        if (selectedServiceData?.serviceType) {
-            setValue('serviceMode', selectedServiceData.serviceType);
-            setSelectedService(selectedServiceData);
-        }
-    }, [watchedServiceType, allServicesData, setValue]);
+            try {
+                setIsFetchingServiceDetail(true);
+                setAvailability(null);
+                setValue('timeSlot', '');
+                const serviceFromList = allServicesData.find(service => service._id === watchedServiceType);
+
+                if (serviceFromList) {
+                    const response = await getSelectedService(watchedServiceType);
+                    if (response?.success && response?.data) {
+                        setSelectedService(response.data);
+                        setValue('serviceMode', response.data.serviceType || 'online');
+                    } else {
+                        setValue('serviceMode', serviceFromList.serviceType || 'online');
+                        setSelectedService(serviceFromList);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching service details:', error);
+                toast.error('Failed to load service details');
+
+                // Fallback to list data on error
+                const serviceFromList = allServicesData.find(service => service._id === watchedServiceType);
+                if (serviceFromList) {
+                    setValue('serviceMode', serviceFromList.serviceType || 'online');
+                    setSelectedService(serviceFromList);
+                }
+            } finally {
+                setIsFetchingServiceDetail(false);
+            }
+        };
+
+        fetchServiceDetail();
+    }, [watchedServiceType, allServicesData, selectedService?._id, setValue]);
 
     if (authLoading || !isLogged || !serviceData || Object.keys(serviceData).length === 0) {
         return <Preloaders />;
     }
 
-    const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType) => {
+    const checkAstrologerAvailability = useCallback(async (date, astrologerId, serviceType, serviceDuration) => {
         if (!date || !astrologerId || !serviceType) return;
 
         try {
@@ -248,11 +270,10 @@ const BookingCalendar = () => {
                 date: formattedDate,
                 astrologer_id: astrologerId,
                 service_type: getServiceType(serviceType),
-                service_duration: parseInt(serviceData.durationInMinutes) || 60
+                service_duration: parseInt(serviceDuration) || 60
             };
             const response = await checkAvailability(payload);
 
-            // Check if the response indicates the astrologer is not available
             if (response && response.success === false) {
                 toast.error(response.message || 'Astrologer is not available on this day');
                 setAvailability(null);
@@ -279,34 +300,30 @@ const BookingCalendar = () => {
         } finally {
             setIsAvailabilityLoading(false);
         }
-    }, [serviceData.durationInMinutes]);
+    }, []);
 
     // Date selection handler for react-calendar
     const handleDateSelect = useCallback((date) => {
-        // Format date to YYYY-MM-DD
-        const formattedDate = date ?
-            date.toLocaleDateString('en-CA') :
-            null;
-
-        setSelectedDate(date);
         setValue('selectedDate', date);
         setValue('timeSlot', '');
     }, [setValue]);
 
     useEffect(() => {
-        if (watchedAstrologer && watchedDate && watchedServiceType) {
-            const selectedAstrologer = astrologers.find(astrologer => astrologer._id === watchedAstrologer);
-            const selectedService = allServicesData.find(service => service._id === watchedServiceType);
-            if (selectedAstrologer && selectedService) {
-                checkAstrologerAvailability(watchedDate, selectedAstrologer._id, selectedService?.serviceType);
-            }
-        }
-    }, [watchedAstrologer, watchedDate, watchedServiceType, checkAstrologerAvailability]);
+        if (!watchedServiceType || !watchedAstrologer || !watchedDate) return;
+        if (!selectedService?._id || watchedServiceType !== selectedService._id) return;
+        if (!selectedService.serviceType || !selectedService.durationInMinutes) return;
+
+        checkAstrologerAvailability(
+            watchedDate,
+            watchedAstrologer,
+            selectedService.serviceType,
+            selectedService.durationInMinutes
+        );
+    }, [watchedServiceType, watchedAstrologer, watchedDate, selectedService?._id, selectedService?.serviceType, selectedService?.durationInMinutes, checkAstrologerAvailability]);
 
     // Form submission handler
     const onSubmit = useCallback(async (data) => {
         try {
-            // Validate required fields
             if (!data.selectedDate) {
                 toast.error('Please select a date');
                 return;
@@ -342,7 +359,6 @@ const BookingCalendar = () => {
                 }
             }
 
-            // Format date for API (YYYY-MM-DD format)
             const formattedDate = data.selectedDate.toLocaleDateString('en-CA');
 
             // Map serviceMode values to API enum
@@ -352,12 +368,10 @@ const BookingCalendar = () => {
                 'pooja_at_home': 'pooja_at_home'
             };
 
-            // Parse timeSlot to extract startTime and endTime
             const timeSlotParts = data.timeSlot.split(' - ');
             const startTime = timeSlotParts[0];
             const endTime = timeSlotParts[1];
 
-            // Prepare payload for addServiceToCart API
             const servicePayload = {
                 serviceId: data.serviceType,
                 serviceMode: serviceModeMap[data.serviceMode] || 'online',
@@ -449,8 +463,8 @@ const BookingCalendar = () => {
                                             onChange={field.onChange}
                                             options={serviceOptions}
                                             required
-                                            disabled={isServicesLoading}
-                                            isLoading={isServicesLoading}
+                                            disabled={isServicesLoading || isFetchingServiceDetail}
+                                            isLoading={isServicesLoading || isFetchingServiceDetail}
                                         />
                                     )}
                                 />
@@ -664,7 +678,7 @@ const BookingCalendar = () => {
                                 <div className="bg-light-pg rounded-2xl shadow-lg p-2 sm:p-4 md:p-6 overflow-hidden">
                                     <Calendar
                                         onChange={handleDateSelect}
-                                        value={selectedDate}
+                                        value={watchedDate}
                                         minDate={new Date()}
                                         className="react-calendar-custom w-full"
                                     />
@@ -686,14 +700,14 @@ const BookingCalendar = () => {
                                                 ...timeSlots
                                             ]}
                                             required
-                                            disabled={!selectedDate || timeSlots.length === 0}
+                                            disabled={!watchedDate || timeSlots.length === 0}
                                         />
                                     )}
                                 />
                                 {errors.timeSlot && (
                                     <p className="text-red-500 text-sm mt-1">{errors.timeSlot.message}</p>
                                 )}
-                                {selectedDate && timeSlots.length === 0 && (
+                                {watchedDate && timeSlots.length === 0 && (
                                     <p className="text-sm text-gray-500 mt-1">No available time slots for this date</p>
                                 )}
                             </div>
