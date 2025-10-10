@@ -48,8 +48,8 @@ const AllServices = () => {
     const handleFilterSubmit = (data) => {
         setFilterCriteria(data);
         pageChangeHandler(1);
+        toast.success('Filters applied');
     };
-
     const handleClearFilters = () => {
         reset(initialFilterState);
         setFilterCriteria(initialFilterState);

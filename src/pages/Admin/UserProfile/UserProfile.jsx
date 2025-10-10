@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, CallCalling, Profile2User, SmsNotification, Edit2, Save2, CloseCircle } from 'iconsax-reactjs';
@@ -9,19 +9,17 @@ import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import MultiSelectTextInput from '../../../components/TextInput/MultiSelectTextInput';
 import ImageUploadInput from '../../../components/TextInput/ImageUploadInput';
 import LoadBox from '../../../components/Loader/LoadBox';
-import { editEmployee, getServiceDropdown } from '../../../api';
+import { editEmployee, getPublicServicesDropdown, updateAdminUserProfile } from '../../../api';
 import { validateAlphabets, validateEmail, validatePhoneNumber, validateCommision } from '../../../utils/validateFunction';
-import { formBtn1, formBtn2 } from '../../../utils/CustomClass';
+import { formBtn1 } from '../../../utils/CustomClass';
 import { setUserDetails } from '../../../redux/Slices/loginSlice';
 
 const AdminProfile = () => {
-    const user = useSelector(state => state?.user?.userDetails);
-    console.log("⚡️🤯 ~ UserProfile.jsx:18 ~ AdminProfile ~ user:", user)
+    const user = useSelector(state => state.user.userDetails);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serviceSkills, setServiceSkills] = useState([]);
     const dispatch = useDispatch();
-
     const {
         register,
         handleSubmit,
@@ -59,7 +57,7 @@ const AdminProfile = () => {
 
     const fetchServiceSkills = async () => {
         try {
-            const response = await getServiceDropdown();
+            const response = await getPublicServicesDropdown();
             if (response?.success && response?.data) {
                 const skills = response.data.map(service => ({
                     value: service.name,
@@ -94,17 +92,30 @@ const AdminProfile = () => {
 
     const onSubmit = async (data) => {
         try {
-            setLoading(true);
-            const response = await editEmployee(user?._id, data);
-            console.log("⚡️🤯 ~ UserProfile.jsx:98 ~ onSubmit ~ response:", response)
-            if (response?.success) {
-                toast.success('Profile updated successfully!');
-                setIsEditing(false);
-                dispatch(setUserDetails(response?.data));
-                setLoading(false);
+            if (user.role == "admin") {
+                setLoading(true);
+                const response = await updateAdminUserProfile(user?._id, data);
+                if (response?.success) {
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    dispatch(setUserDetails(response?.data?.user))
+                    setLoading(false);
+                } else {
+                    toast.error(response?.message || 'Failed to update profile');
+                    setLoading(false);
+                }
             } else {
-                toast.error(response?.message || 'Failed to update profile');
-                setLoading(false);
+                setLoading(true);
+                const response = await editEmployee(user?._id, data);
+                if (response?.success) {
+                    toast.success('Profile updated successfully!');
+                    setIsEditing(false);
+                    dispatch(setUserDetails(response?.data?.user))
+                    setLoading(false);
+                } else {
+                    toast.error(response?.message || 'Failed to update profile');
+                    setLoading(false);
+                }
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -163,7 +174,7 @@ const AdminProfile = () => {
                         <img
                             loading="lazy"
                             className="h-[120px] w-[120px] rounded-full border object-cover"
-                            src={user?.profileImage || user?.profilePicture || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
+                            src={user?.profileImage || "https://cdn.tailgrids.com/assets/images/core-components/account-dropdowns/image-1.jpg"}
                             alt="User_Profile"
                         />
                         <div>
