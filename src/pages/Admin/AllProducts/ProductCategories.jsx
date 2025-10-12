@@ -11,11 +11,15 @@ import { getProductCategories, getProductSubCategories, editProductSubCategory, 
 import usePagination from '../../../utils/customHooks/usePagination';
 import toast from 'react-hot-toast';
 import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import TextInput from '../../../components/TextInput/TextInput';
+import { formBtn1 } from '../../../utils/CustomClass';
+import { useForm } from 'react-hook-form';
+import { validateAlphabets } from '../../../utils/validateFunction';
 
 const ProductCategories = () => {
     const [selectedTab, setSelectedTab] = useState(0);
     return (
-        <div className="mx-5 mt-10 h-screen bg-slate-100" >
+        <div className="mx-5 mt-10 h-screen " >
             <Tabs selectedIndex={selectedTab} onSelect={index => setSelectedTab(index)} >
                 <TabList className="flex space-x-2 mx-1 ">
                     <Tab
@@ -46,26 +50,43 @@ const ProductCategories = () => {
 
 
 const ProductCategoriesPanel = () => {
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
-    const emptyFilters = useMemo(() => ({
+    const initialFilterState = {
+        name: ''
+    };
+
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const combinedFilters = useMemo(() => ({
+        ...filterCriteria,
         refresh: refreshTrigger
-    }), [refreshTrigger]);
+    }), [filterCriteria, refreshTrigger]);
 
     const {
+        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
-        filterData,
         error
-    } = usePagination(1, 10, getProductCategories, emptyFilters);
+    } = usePagination(1, 10, getProductCategories, combinedFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch categories');
+        if (error) toast.error('Failed to fetch product categories');
     }, [error]);
 
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
     const handleActiveChange = async (id, isActive) => {
         try {
             const updatedData = {
@@ -202,9 +223,29 @@ const ProductCategoriesPanel = () => {
     ];
 
     return (
-        <div className="space-y-5 h-screen bg-slate-100">
+        <div className="space-y-5 h-screen ">
             {/* Category Table Section */}
-            <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm p-5 sm:p-7">
+            {/* Filter Form */}
+            <div className="bg-white p-4 sm:my-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter Category Name*"
+                            placeholder="Enter Category Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name', { validate: validateAlphabets }) }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div className="bg-white rounded-xl my-4 sm:my-5 shadow-sm p-5 sm:p-7">
                 <TableHeader
                     title={"Product Categories"}
                     subtitle={"Recently added categories will appear here"}
@@ -244,25 +285,43 @@ const ProductCategoriesPanel = () => {
     )
 }
 const SubProductCategoriesPanel = () => {
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
-    const emptyFilters = useMemo(() => ({
+    const initialFilterState = {
+        name: ''
+    };
+
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const combinedFilters = useMemo(() => ({
+        ...filterCriteria,
         refresh: refreshTrigger
-    }), [refreshTrigger]);
+    }), [filterCriteria, refreshTrigger]);
 
     const {
+        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
-        filterData,
         error
-    } = usePagination(1, 10, getProductSubCategories, emptyFilters);
+    } = usePagination(1, 10, getProductSubCategories, combinedFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch subcategories');
+        if (error) toast.error('Failed to fetch product sub categories');
     }, [error]);
+
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
 
 
     const handleActiveChange = async (id, isActive) => {
@@ -419,9 +478,29 @@ const SubProductCategoriesPanel = () => {
     return (
         <div className="space-y-5 h-screen bg-slate-100">
             {/* Subcategory Table Section */}
-            <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm p-5 sm:p-7">
+            {/* Filter Form */}
+            <div className="bg-white p-4 sm:my-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter Subcategory Name*"
+                            placeholder="Enter Subcategory Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name', { validate: validateAlphabets }) }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div className="bg-white rounded-xl my-4 sm:my-5 shadow-sm p-5 sm:p-7">
                 <TableHeader
-                    title={"Product Subcategories"}
+                    title={"Product Sub Categories"}
                     subtitle={"Recently added subcategories will appear here"}
                     component={<ProductSubCategoriesModal title={"Create Subcategory"} edit={false} setRefreshTrigger={setRefreshTrigger} refreshTrigger={refreshTrigger} />}
                 />

@@ -1,48 +1,11 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import moment from "moment";
 import BookingDetailsModal from "../../../components/Modals/AdminModals/BookingDetailsModal";
 import { ArrowLeft2, ArrowRight2 } from "iconsax-reactjs";
 import { astrologerSlots } from "../../../api";
-
-const dummyCalendarData = {
-    bookings: [
-        {
-            bookingId: "BK001",
-            date: "2025-09-25",
-            serviceId: "SRV001",
-            start_time: "09:00",
-            slot_booked: true,
-            customer: {
-                first_name: "Ravi",
-                last_name: "Sharma",
-                email: "ravi.sharma@example.com",
-                phone: "+91 9876543210",
-            },
-            zoom_link: "https://zoom.us/j/1234567890",
-        },
-        {
-            bookingId: "BK_BLOCK_102_1030",
-            date: "2025-09-28",
-            start_time: "10:30",
-            blocked: true,
-        },
-        {
-            bookingId: "BK002",
-            date: "2025-10-01",
-            serviceId: "SRV002",
-            start_time: "12:00",
-            slot_booked: true,
-            customer: {
-                first_name: "Raj",
-                last_name: "Kumar",
-                email: "raj.kumar@example.com",
-                phone: "+91 9876543211",
-            },
-            zoom_link: "https://zoom.us/j/9876543210",
-        },
-    ],
-};
+import BlockCalenderSlotsModal from "../../../components/Modals/AdminModals/BlockCalenderSlotsModal";
+import BlockedMessageShowModal from "../../../components/Modals/AdminModals/BlockedMessageShowModal";
+import { useSelector } from "react-redux";
 
 // Generate full-day slots (09:00 to 21:00, every 30 mins)
 const generateFullDaySlots = (time) => {
@@ -86,76 +49,93 @@ const SkeletonTimeSlot = () => (
     </div>
 );
 
+const SkeletonSlot = () => (
+    <div className="h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl animate-pulse shadow-sm">
+        <div className="h-full flex items-center justify-center">
+            <div className="w-16 h-4 bg-gray-300 rounded animate-pulse"></div>
+        </div>
+    </div>
+);
+
 // Slot Card
 const SlotCard = ({ status, booking, onClick, isLoading }) => {
-    if (isLoading)
-        return (
-            <div className="h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl animate-pulse shadow-sm"></div>
-        );
-
+    if (isLoading) return <SkeletonSlot />;
+    // status = booking?.paymentStatus ? "booked" : status;
     const getSlotConfig = () => {
         switch (status) {
-            case "blocked":
+            case 'blocked':
                 return {
-                    bg: "bg-gradient-to-br from-red-50 via-red-50 to-red-100",
-                    text: "text-red-600",
-                    title: "Blocked",
-                    border: "border-red-300/80",
+                    bg: 'bg-gradient-to-br from-gray-50 via-gray-50 to-gray-100',
+                    text: 'text-gray-600',
+                    title: 'Unavailable',
+                    border: 'border-gray-300/80'
                 };
-            case "booked":
+            case 'adminBlocked':
                 return {
-                    bg: "bg-gradient-to-br from-amber-50 via-orange-50 to-orange-100",
-                    text: "text-orange-600",
-                    title: `${booking?.customer}`,
-                    border: "border-orange-300/80",
+                    bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
+                    text: 'text-red-600',
+                    title: 'Admin Blocked',
+                    border: 'border-red-300/80'
                 };
-            case "available":
+            case 'booked':
+                return {
+                    bg: 'bg-gradient-to-br from-amber-50 via-orange-50 to-orange-100',
+                    text: 'text-orange-600',
+                    title: `${booking?.customer || "---- No title ----"}`,
+                    border: 'border-orange-300/80'
+                };
+            case 'available':
             default:
                 return {
-                    bg: "bg-gradient-to-br from-green-50 via-emerald-50 to-green-100",
-                    text: "text-green-600",
-                    title: "Available",
-                    border: "border-green-300/80",
+                    bg: 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-100',
+                    text: 'text-green-600',
+                    title: 'Available',
+                    border: 'border-green-300/80'
                 };
         }
     };
 
     const config = getSlotConfig();
-    const isClickable = status === "available" || status === "booked";
+    const isClickable = status === 'available' || status === 'booked' || status === 'adminBlocked';
 
     return (
         <div
             onClick={isClickable ? onClick : undefined}
             className={`
-        py-5 ${config.bg} ${config.text}
-        rounded-md flex flex-col items-center justify-center
-        font-semibold capitalize text-sm transition-all duration-300 ease-in-out
-        ${isClickable ? "cursor-pointer transform" : "cursor-default"}
-        border ${config.border}
-      `}
+                py-5 ${config.bg} ${config.text}
+                rounded-md
+                flex flex-col items-center justify-center
+                font-semibold text-sm capitalize
+                transition-all duration-300 ease-in-out
+                ${isClickable ? 'cursor-pointer transform ' : 'cursor-default'}
+                border-[1.2px] border-dashed ${config.border}
+            `}
         >
             <div className="text-center leading-tight">
-                {status === "booked" ? (
-                    <h4 className="text-sm font-semibold line-clamp-1 px-5">
-                        {booking?.customer}
+                {status === 'booked' ? (
+                    <h4 className="text-sm text-center font-tbPop font-semibold line-clamp-1 px-5 text-nowrap">
+                        {config.title}
                     </h4>
                 ) : (
-                    <div className="text-sm font-bold text-center px-5">
+                    <div className="text-sm font-bold text-center px-5 line-clamp-1 text-nowrap">
                         {config.title}
                     </div>
                 )}
+
             </div>
         </div>
     );
 };
 
 const BookingCalendar = () => {
-    const loggedUserDetails = useSelector(state => state.user.loggedUserDetails);
-    const userId = loggedUserDetails?._id;
-
+    const user = useSelector(state => state.user.userDetails);
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [showBlockSlotsModal, setShowBlockSlotsModal] = useState(false);
+    const [selectedSlot, setSelectedSlot] = useState(null);
+    const [showBlockedMessageModal, setShowBlockedMessageModal] = useState(false);
+    const [selectedBlockedMessage, setSelectedBlockedMessage] = useState(null);
     const [slots, setSlots] = useState({
         bookings: [],
         date: {},
@@ -168,14 +148,9 @@ const BookingCalendar = () => {
     const daysRange = useMemo(() => generateDaysRange(startDate, 6), [startDate]);
 
     const getSlots = async () => {
-        if (!userId) {
-            console.warn("User ID not available");
-            return;
-        }
-
         setIsLoading(true);
         try {
-            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(5, 'days').format("YYYY-MM-DD"), userId);
+            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(5, 'days').format("YYYY-MM-DD"), "68d3df7c6de359385735d513");
             setSlots(response?.data || { bookings: [], astrologers: [], time: { start: "09:00", end: "21:00" } });
         } finally {
             setIsLoading(false);
@@ -184,7 +159,7 @@ const BookingCalendar = () => {
 
     useEffect(() => {
         getSlots();
-    }, [startDate, userId]);
+    }, [startDate]);
 
     const handleSlotClick = (day, timeSlot, booking, status) => {
         if (status === "booked" && booking) {
@@ -201,7 +176,22 @@ const BookingCalendar = () => {
 
             setSelectedBooking(bookingData);
             setShowBookingModal(true);
-        } else {
+        } else if (status === 'adminBlocked') {
+            setShowBlockedMessageModal(true);
+            setSelectedBlockedMessage(booking?.rejectReason);
+        } else if (status === 'available') {
+            const endTime = moment(timeSlot.slots_start_time, "HH:mm").add(30, 'minutes').format("HH:mm");
+            const slotData = {
+                astrologer_id: user?._id,
+                date: moment(day.fullDate).format("YYYY-MM-DD"),
+                start_time: timeSlot.slots_start_time,
+                end_time: endTime
+            };
+
+            setSelectedSlot(slotData);
+            setShowBlockSlotsModal(true);
+        }
+        else {
             console.log(
                 `Clicked slot: ${day.name} at ${timeSlot.slots_start_time} - Status: ${status}`
             );
@@ -287,24 +277,25 @@ const BookingCalendar = () => {
                                         const [h, m] = timeStr.split(":").map(Number);
                                         return h * 60 + m;
                                     }
-                                    const booking = slots?.bookings.find(
-                                        (b) => {
-                                            const bookingStart = toMinutes(b.startTime);
-                                            const bookingEnd = toMinutes(b.endTime);
-                                            const slotStart = toMinutes(timeSlot.slots_start_time);
-                                            const slotEnd = toMinutes(timeSlot.slots_end_time);
+                                    const booking = slots?.bookings.find((booking) => {
+                                        const bookingStart = toMinutes(booking.startTime);
+                                        const bookingEnd = toMinutes(booking.endTime);
+                                        const slotStart = toMinutes(timeSlot.slots_start_time);
+                                        const slotEnd = toMinutes(timeSlot.slots_end_time);
 
-                                            return ((moment(b.date).isSame(day.fullDate, "day")) &&
-                                                (b.blocked
-                                                    ? b.startTime === timeSlot.slots_start_time
-                                                    : bookingStart < slotEnd && bookingEnd > slotStart))
-                                        }
-                                    );
-
+                                        return ((moment(booking.date).isSame(day.fullDate, "day")) &&
+                                            (booking.blocked
+                                                ? booking.startTime === timeSlot.slots_start_time
+                                                : bookingStart < slotEnd && bookingEnd > slotStart))
+                                    });
                                     let status = "available";
-                                    if (booking?.blocked) status = "blocked";
-                                    else if (booking?.paymentStatus) status = "booked";
-
+                                    if (booking?.blocked && booking?.status === "blocked") {
+                                        status = "adminBlocked";
+                                    } else if (booking?.blocked) {
+                                        status = "blocked";
+                                    } else if (booking?.paymentStatus) {
+                                        status = "booked";
+                                    }
                                     return (
                                         <div key={day.id}>
                                             <SlotCard
@@ -329,6 +320,22 @@ const BookingCalendar = () => {
                 refetch={getSlots}
                 toggle={() => setShowBookingModal(false)}
                 bookingDatas={selectedBooking}
+            />
+
+
+            <BlockCalenderSlotsModal
+                slotData={selectedSlot}
+                setRefreshTrigger={() => {
+                    getSlots();
+                    setShowBlockSlotsModal(false);
+                    setSelectedSlot(null);
+                }}
+            />
+
+            <BlockedMessageShowModal
+                open={showBlockedMessageModal}
+                toggle={() => setShowBlockedMessageModal(false)}
+                message={selectedBlockedMessage}
             />
         </div>
     );
