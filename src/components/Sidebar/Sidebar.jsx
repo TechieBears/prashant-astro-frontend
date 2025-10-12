@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import SidebarLink from './SidebarLink';
 import Navbar from './Navbar';
@@ -9,9 +9,14 @@ import { Trade } from 'iconsax-reactjs';
 const Sidebar = ({ children }) => {
     const [isActiveLink, setIsActiveLink] = useState(false);
     const [mobileSidebar, setMobileSidebar] = useState(false);
+    const location = useLocation();
 
     const userDetails = useSelector(state => state.user.userDetails);
     const userRole = userDetails?.role;
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [location.pathname]);
 
     const getSidebarApi = () => {
         switch (userRole) {
@@ -46,6 +51,7 @@ const Sidebar = ({ children }) => {
                                     key={i}
                                     item={item}
                                     isActiveLink={isActiveLink}
+                                    setMobileSidebar={setMobileSidebar}
                                 />
                             )}
                         </ul>
@@ -55,20 +61,13 @@ const Sidebar = ({ children }) => {
                 <div className={isActiveLink ? "navbar-section-active transition-all duration-700 w-full bg-slate-100" : "navbar-section transition-all duration-700  w-full bg-slate-100"} >
 
                     {/* ====================== Navbar start ===================== */}
-
                     <Navbar setMobileSidebar={setMobileSidebar} mobileSidebar={mobileSidebar} setIsActiveLink={setIsActiveLink} isActiveLink={isActiveLink} />
-
                     {/* ====================== sidebar end ===================== */}
-
-                    <main className="pb-5 px-2 w-full bg-slate-100 h-full" >
-
+                    <main className="pb-5 px-2 w-full" >
                         {/* ====================== Routes start ===================== */}
-
                         {children}
-
                         {/* ======================Routes start ===================== */}
                     </main>
-
                 </div>
             </div>
         </>

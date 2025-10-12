@@ -5,7 +5,6 @@ import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
 
 export default function HorizontalSlotCalendar({
     selectedDate, setSelectedDate }) {
-    // const [selectedDate, setSelectedDate] = useState(new Date());
     const [startDate, setStartDate] = useState(moment().startOf('day'));
 
     const dates = useMemo(() => {
@@ -49,8 +48,8 @@ export default function HorizontalSlotCalendar({
 
     return (
         <div className="">
-            <h6 className='font-tbLex text-xl text-end font-semibold text-primary tracking-wider mb-2 uppercase '>
-                {moment(dates[0].date).format('MMMM YYYY')}
+            <h6 className='font-tbLex text-xl text-end font-semibold text-primary tracking-wide mb-2 uppercase '>
+                {moment(dates[0].date).format('MMMM | YYYY')}
             </h6>
             <div className=" flex justify-between items-center ">
                 <button className="p-2 bg-slate1 rounded-full hover:bg-slate-200 transition-colors duration-300" onClick={handlePrev}>

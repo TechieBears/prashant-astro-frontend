@@ -9,13 +9,22 @@ import CreateCouponModal from '../../../components/Modals/AdminModals/MasterModa
 import usePagination from '../../../utils/customHooks/usePagination';
 import Switch from 'react-js-switch';
 import { TrashIcon } from 'lucide-react';
+import TextInput from '../../../components/TextInput/TextInput.jsx';
+import { formBtn1 } from '../../../utils/CustomClass.jsx';
+import { useForm } from 'react-hook-form';
 
 function OffersCoupons() {
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const initialFilterState = {
+        name: ''
+    };
 
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
     const combinedFilters = useMemo(() => ({
-        refresh: refreshTrigger,
-    }), [refreshTrigger]);
+        ...filterCriteria,
+        refresh: refreshTrigger
+    }), [filterCriteria, refreshTrigger]);
 
     const {
         filterData,
@@ -31,6 +40,18 @@ function OffersCoupons() {
     useEffect(() => {
         if (error) toast.error('Failed to fetch coupons');
     }, [error]);
+
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
+
 
     // ================= Active Toggle =================
     const handleActiveChange = async (id, isActive) => {
@@ -125,6 +146,23 @@ function OffersCoupons() {
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
+            <div className="bg-white p-4 sm:m-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter Coupon Name*"
+                            placeholder="Enter Coupon Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name') }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm p-5 sm:p-7">
                 <TableHeader
                     title={`Coupons (${filterData?.length || 0})`}
