@@ -2231,3 +2231,36 @@ export const getPublicServicesDropdown = async () => {
         return err?.response?.data
     }
 }
+export const createTestimonial = async (ReviewData) => {
+    const url = `${environment.baseUrl}testimonials/create`;
+    try {
+        const response = await axios.post(url, ReviewData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating testimonial:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create testimonial' };
+    }
+};
+export const getAllTestimonials = async (data) => {
+    try {
+        const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAlltestimonials api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteTestimonial = async (id) => {
+    const url = `${environment.baseUrl}testimonials/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deletetestimonial api file", err);
+        return err?.response?.data
+    }
+}
