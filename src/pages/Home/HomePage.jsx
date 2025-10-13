@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SectionHeader from '../../components/Titles/SectionHeader';
 import HomeBanner from '../../components/HomeComponents/HomeBanner';
 import Testimonials from '../../components/Testimonials/Testimonials';
+import TestimonialModal from '../../components/Modals/TestimonialModal';
 import aboutImg from '../../assets/user/home/about.png';
 import certifiedExpert from '../../assets/user/home/certifiedExpert.png';
 import clients from '../../assets/user/home/clients.png';
@@ -41,6 +42,7 @@ const HomePage = () => {
     const [productsLoading, setProductsLoading] = useState(true);
     const [servicesData, setServicesData] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
+    const [showExperienceModal, setShowExperienceModal] = useState(false);
 
     useEffect(() => {
         const fetchSlides = async () => {
@@ -604,7 +606,7 @@ const HomePage = () => {
                     />
                     <div className="mt-8 sm:mt-6">
                         <button
-                            onClick={() => navigate('/reviews')}
+                            onClick={() => setShowExperienceModal(true)}
                             className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90"
                         >
                             Share Your Experience
@@ -612,6 +614,12 @@ const HomePage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Share Experience Modal */}
+            <TestimonialModal
+                open={showExperienceModal}
+                setOpen={setShowExperienceModal}
+            />
 
             <section className="relative" id='social-media'>
                 <img
