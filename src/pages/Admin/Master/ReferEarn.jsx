@@ -5,22 +5,24 @@ import toast from 'react-hot-toast';
 import { adminGetFilteredActors } from '../../../api';
 import Table from '../../../components/Table/Table';
 import usePagination from '../../../utils/customHooks/usePagination';
+import TextInput from '../../../components/TextInput/TextInput';
+import { formBtn1 } from '../../../utils/CustomClass';
+import { useForm } from 'react-hook-form';
 
-const initialFilterState = {
-    email: '',
-    role: '',
-};
 
 function ReferEarn() {
-    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const initialFilterState = {
+        name: ''
+    };
 
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
     const combinedFilters = useMemo(() => ({
         ...filterCriteria,
         refresh: refreshTrigger
     }), [filterCriteria, refreshTrigger]);
 
-    // Pagination hook
     const {
         filterData,
         pageNo,
@@ -31,10 +33,22 @@ function ReferEarn() {
         records,
         error
     } = usePagination(1, 10, adminGetFilteredActors, combinedFilters);
-    // Handle API errors
+
     useEffect(() => {
-        if (error) toast.error('Failed to fetch users');
+        if (error) toast.error('Failed to fetch refer & earn');
     }, [error]);
+
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
+
 
     const columns = [
         { field: 'fullName', header: 'Name', body: (row) => <span className='capitalize'>{row?.fullName || "---- -----"}</span>, style: true },
@@ -52,6 +66,23 @@ function ReferEarn() {
     return (
         <div className="space-y-5 h-screen bg-slate-100">
             {/* User Table Section */}
+            <div className="bg-white p-4 sm:m-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter Name*"
+                            placeholder="Enter Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name') }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
                 <div className="flex justify-between flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 mb-6">
                     <div className="lg:space-y-[1px]">

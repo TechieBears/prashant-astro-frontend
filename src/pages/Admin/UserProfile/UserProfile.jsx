@@ -16,6 +16,7 @@ import { setUserDetails } from '../../../redux/Slices/loginSlice';
 
 const AdminProfile = () => {
     const user = useSelector(state => state.user.userDetails);
+    console.log("⚡️🤯 ~ UserProfile.jsx:18 ~ AdminProfile ~ user:", user)
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [serviceSkills, setServiceSkills] = useState([]);
