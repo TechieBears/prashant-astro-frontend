@@ -987,6 +987,29 @@ export const getServiceCategoriesDropdown = async () => {
     }
 }
 
+export const getProductSubCategoriesDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}product-subcategories/get-dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProductSubCategoriesDropdown api file", err);
+        return err?.response?.data
+    }
+}
+
+export const getProductsDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}product/get-dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProductsDropdown api file", err);
+        return err?.response?.data
+    }
+}
 export const addServiceCategory = async (data) => {
     const url = `${environment.baseUrl}service-categories/create`;
     try {

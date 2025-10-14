@@ -7,7 +7,6 @@ import BlockCalenderSlotsModal from "../../../components/Modals/AdminModals/Bloc
 import BlockedMessageShowModal from "../../../components/Modals/AdminModals/BlockedMessageShowModal";
 import { useSelector } from "react-redux";
 
-// Generate full-day slots (09:00 to 21:00, every 30 mins)
 const generateFullDaySlots = (time) => {
     const slots = [];
     let start = moment(time?.start, "HH:mm");
@@ -21,28 +20,25 @@ const generateFullDaySlots = (time) => {
     return slots;
 };
 
-// Generate a range of consecutive days
-const generateDaysRange = (startDate, daysCount = 6) => {
+const generateDaysRange = (startDate, daysCount = 7) => {
     const days = [];
     for (let i = 0; i < daysCount; i++) {
         const date = moment(startDate).add(i, "day");
         days.push({
             id: date.format("YYYY-MM-DD"),
-            name: date.format("DD MMM"),
+            name: date.format("ddd, DD MMM"),
             fullDate: date.toDate(),
         });
     }
     return days;
 };
 
-// Format time for display
 const slotTimeFormatter = (start, end) =>
     `${moment(start, "HH:mm").format("hh:mm A")} - ${moment(
         end,
         "HH:mm"
     ).format("hh:mm A")}`;
 
-// Skeleton Loader
 const SkeletonTimeSlot = () => (
     <div className="py-3">
         <div className="w-40 h-6 bg-slate-300 rounded animate-pulse mx-auto"></div>
@@ -57,10 +53,8 @@ const SkeletonSlot = () => (
     </div>
 );
 
-// Slot Card
 const SlotCard = ({ status, booking, onClick, isLoading }) => {
     if (isLoading) return <SkeletonSlot />;
-    // status = booking?.paymentStatus ? "booked" : status;
     const getSlotConfig = () => {
         switch (status) {
             case 'blocked':
@@ -74,7 +68,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 return {
                     bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
                     text: 'text-red-600',
-                    title: 'Admin Blocked',
+                    title: 'Admin Block',
                     border: 'border-red-300/80'
                 };
             case 'booked':
@@ -132,7 +126,6 @@ const BookingCalendar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
-    const [showBlockSlotsModal, setShowBlockSlotsModal] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [showBlockedMessageModal, setShowBlockedMessageModal] = useState(false);
     const [selectedBlockedMessage, setSelectedBlockedMessage] = useState(null);
@@ -144,13 +137,18 @@ const BookingCalendar = () => {
 
     const fullDaySlots = useMemo(() => generateFullDaySlots(slots?.time), [slots]);
 
-    const [startDate, setStartDate] = useState(moment().startOf("day"));
-    const daysRange = useMemo(() => generateDaysRange(startDate, 6), [startDate]);
+    const [startDate, setStartDate] = useState(() => {
+        const today = moment().startOf("day");
+        const dayOfWeek = today.day();
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        return today.subtract(daysToSubtract, "days");
+    });
+    const daysRange = useMemo(() => generateDaysRange(startDate, 7), [startDate]);
 
     const getSlots = async () => {
         setIsLoading(true);
         try {
-            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(5, 'days').format("YYYY-MM-DD"), "68d3df7c6de359385735d513");
+            const response = await astrologerSlots(moment(startDate).format("YYYY-MM-DD"), moment(startDate).add(6, 'days').format("YYYY-MM-DD"), user?._id);
             setSlots(response?.data || { bookings: [], astrologers: [], time: { start: "09:00", end: "21:00" } });
         } finally {
             setIsLoading(false);
@@ -189,7 +187,6 @@ const BookingCalendar = () => {
             };
 
             setSelectedSlot(slotData);
-            setShowBlockSlotsModal(true);
         }
         else {
             console.log(
@@ -221,17 +218,17 @@ const BookingCalendar = () => {
             <div className="flex justify-between items-center mb-6">
                 <button
                     className="p-2 bg-slate-100 rounded-full hover:bg-slate-200"
-                    onClick={() => setStartDate((prev) => moment(prev).subtract(6, "days"))}
+                    onClick={() => setStartDate((prev) => moment(prev).subtract(7, "days"))}
                 >
                     <ArrowLeft2 size={22} color="#000" />
                 </button>
                 <h6 className="text-lg font-semibold">
                     {moment(startDate).format("DD MMM")} -{" "}
-                    {moment(startDate).add(5, "days").format("DD MMM YYYY")}
+                    {moment(startDate).add(6, "days").format("DD MMM YYYY")}
                 </h6>
                 <button
                     className="p-2 bg-slate-100 rounded-full hover:bg-slate-200"
-                    onClick={() => setStartDate((prev) => moment(prev).add(6, "days"))}
+                    onClick={() => setStartDate((prev) => moment(prev).add(7, "days"))}
                 >
                     <ArrowRight2 size={22} color="#000" />
                 </button>
@@ -240,12 +237,12 @@ const BookingCalendar = () => {
             <div className="overflow-x-auto">
                 <div className="min-w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                     <div className="bg-slate-100 text-gray-800 border-b border-gray-200">
-                        <div className="grid grid-cols-[200px_repeat(auto-fit,_minmax(120px,_1fr))] gap-4 p-3">
+                        <div className="grid grid-cols-[200px_repeat(auto-fit,_minmax(115px,_1fr))] gap-4 p-3">
                             <div className="font-bold text-center py-2 text-black">
                                 Time Slots
                             </div>
                             {daysRange.map((day) => (
-                                <div key={day.id} className="font-semibold font-tbLex text-center py-2 text-black">
+                                <div key={day.id} className="font-semibold font-tbLex text-center py-2 text-black text-sm">
                                     {day.name}
                                 </div>
                             ))}
@@ -256,7 +253,7 @@ const BookingCalendar = () => {
                         {fullDaySlots.map((timeSlot) => (
                             <div
                                 key={timeSlot.slots_start_time}
-                                className="grid grid-cols-[200px_repeat(auto-fit,_minmax(120px,_1fr))] gap-4 p-2.5 hover:bg-slate-50 transition-colors duration-200"
+                                className="grid grid-cols-[200px_repeat(auto-fit,_minmax(115px,_1fr))] gap-4 p-2.5 hover:bg-slate-50 transition-colors duration-200"
                             >
                                 <div className="flex items-center justify-center">
                                     {isLoading ? (
@@ -278,14 +275,18 @@ const BookingCalendar = () => {
                                         return h * 60 + m;
                                     }
                                     const booking = slots?.bookings.find((booking) => {
-                                        const bookingStart = toMinutes(booking.startTime);
-                                        const bookingEnd = toMinutes(booking.endTime);
+                                        const bookingDate = booking.bookingDate || booking.date;
+                                        const bookingStartTime = booking.startTime || booking.start_time;
+                                        const bookingEndTime = booking.endTime || booking.end_time;
+
+                                        const bookingStart = toMinutes(bookingStartTime);
+                                        const bookingEnd = toMinutes(bookingEndTime);
                                         const slotStart = toMinutes(timeSlot.slots_start_time);
                                         const slotEnd = toMinutes(timeSlot.slots_end_time);
 
-                                        return ((moment(booking.date).isSame(day.fullDate, "day")) &&
+                                        return ((moment(bookingDate).isSame(day.fullDate, "day")) &&
                                             (booking.blocked
-                                                ? booking.startTime === timeSlot.slots_start_time
+                                                ? bookingStartTime === timeSlot.slots_start_time
                                                 : bookingStart < slotEnd && bookingEnd > slotStart))
                                     });
                                     let status = "available";
@@ -327,7 +328,6 @@ const BookingCalendar = () => {
                 slotData={selectedSlot}
                 setRefreshTrigger={() => {
                     getSlots();
-                    setShowBlockSlotsModal(false);
                     setSelectedSlot(null);
                 }}
             />
