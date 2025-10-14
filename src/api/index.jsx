@@ -2121,7 +2121,7 @@ export const getFilteredReviews = async ({ userId, productId = null, serviceId =
     if (productId) params.append('product', productId);
     if (serviceId) params.append('service', serviceId);
 
-    const url = `${environment.baseUrl}reviews/filter?${params.toString()}`;
+    const url = `${environment.baseUrl}reviews/public/filter?${params.toString()}`;
     try {
         const response = await axios.get(url);
         return response.data;
@@ -2266,7 +2266,7 @@ export const createTestimonial = async (ReviewData) => {
 };
 export const getAllTestimonials = async (data) => {
     try {
-        const url = `${environment.baseUrl}testimonials/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}testimonials/public/get-all?page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }

@@ -126,11 +126,11 @@ const Testimonials = () => {
             );
 
             return {
-                name: item.user.firstName + " " + item.user.lastName,
-                location: item.city + ", " + item.state,
+                name: (item.user?.firstName || "Anonymous") + " " + (item.user?.lastName || ""),
+                location: (item.city || "Unknown") + ", " + (item.state || "Unknown"),
                 category: item.product?.name || item.service?.title || "General",
-                description: item.message,
-                image: item.user.profileImage,
+                description: item.message || "No description provided",
+                image: item.user?.profileImage || Profile1,
                 image2: mediaUrl,
                 isVideo: isVideo
             };
@@ -194,9 +194,13 @@ const Testimonials = () => {
     useEffect(() => {
         const fetchAllTestimonials = async () => {
             try {
-                const response = await getAllTestimonials();
+                const response = await getAllTestimonials({ p: 1, records: 100 });
                 if (response?.success) {
-                    setTestimonials(response?.data);
+                    // Filter out testimonials without proper data
+                    const validTestimonials = response?.data?.filter(item =>
+                        item && item.message && (item.user || item.city)
+                    ) || [];
+                    setTestimonials(validTestimonials);
                 }
             } catch (error) {
                 console.error('Error fetching testimonials:', error);
@@ -239,9 +243,9 @@ const Testimonials = () => {
                         return (
                             <div key={`${currentGroup}-${index}`} className="mx-6 relative transform transition-all duration-300 ease-in-out">
                                 <img src={Comment} alt="Comment" className="absolute top-3 right-1 w-10 h-10 z-20" />
-                                <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full flex flex-col hover:shadow-lg transition-shadow duration-200">
+                                <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full hover:shadow-lg transition-shadow duration-200 h-[420px] sm:h-[450px] flex flex-col">
                                     {/* ✅ Only this inner content is animated */}
-                                    <div className={`transition-opacity duration-300 ease-in-out ${fadeClass}`}>
+                                    <div className={`transition-opacity duration-300 ease-in-out ${fadeClass} flex-1 flex flex-col`}>
                                         <div className="flex items-center gap-3 mb-4">
                                             <img src={item.image} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
                                             <div>
@@ -254,7 +258,7 @@ const Testimonials = () => {
                                             {item.category}
                                         </span>
 
-                                        <p className="text-sm text-slate-600 mb-2">
+                                        <p className="text-sm text-slate-600 mb-4">
                                             {displayedText}
                                             {shouldTruncate && (
                                                 <button
