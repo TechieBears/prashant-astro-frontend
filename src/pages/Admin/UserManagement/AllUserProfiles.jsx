@@ -232,13 +232,13 @@ function AllUserProfiles() {
             style: true,
             sortable: true
         },
-        {
-            field: 'gender',
-            header: 'Gender',
-            body: genderBody,
-            style: true,
-            sortable: true
-        },
+        // {
+        //     field: 'gender',
+        //     header: 'Gender',
+        //     body: genderBody,
+        //     style: true,
+        //     sortable: true
+        // },
         {
             field: 'status',
             header: 'Status',
