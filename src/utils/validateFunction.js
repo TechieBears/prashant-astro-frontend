@@ -98,9 +98,10 @@ export const validateAccountNo = (value) => {
 };
 
 export const validateAlphabets = (value) => {
-    const AlphabetsPattern = /^[A-Za-z]+$/i;
+    // Allow letters and spaces between names
+    const AlphabetsPattern = /^[A-Za-z\s]+$/;
 
-    if (AlphabetsPattern.test(value)) {
+    if (!value || AlphabetsPattern.test(value)) {
         return true;
     }
     return 'Should Contain Alphabets Only*';
