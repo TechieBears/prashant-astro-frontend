@@ -20,13 +20,26 @@ const Register = () => {
         handleSubmit,
         watch,
         formState: { errors },
-    } = useForm();
+        trigger
+    } = useForm({
+        mode: 'onChange',
+        defaultValues: {
+            firstName: '',
+            lastName: ''
+        }
+    });
 
     const password = watch("password");
 
     const onSubmit = async (data) => {
         try {
             const { title, firstName, lastName, email, password, mobileNo } = data;
+            
+            // Validate form fields before submission
+            const isFormValid = await trigger();
+            if (!isFormValid) {
+                return;
+            }
 
             dispatch(setLoading(true));
 
@@ -119,7 +132,23 @@ const Register = () => {
                             name="firstName"
                             errors={errors.firstName}
                             registerName="firstName"
-                            props={{ ...register('firstName', { required: "First name is required" }) }}
+                            props={{
+                                ...register('firstName', {
+                                    required: "First name is required",
+                                    pattern: {
+                                        value: /^[A-Za-z\s\-']+$/,
+                                        message: "Please enter a valid first name (letters only)"
+                                    },
+                                    minLength: {
+                                        value: 2,
+                                        message: "First name must be at least 2 characters"
+                                    },
+                                    maxLength: {
+                                        value: 30,
+                                        message: "First name cannot exceed 30 characters"
+                                    }
+                                })
+                            }}
                         />
                         <TextInput
                             label="Last Name"
@@ -128,7 +157,23 @@ const Register = () => {
                             name="lastName"
                             registerName="lastName"
                             errors={errors.lastName}
-                            props={{ ...register('lastName', { required: "Last name is required" }) }}
+                            props={{
+                                ...register('lastName', {
+                                    required: "Last name is required",
+                                    pattern: {
+                                        value: /^[A-Za-z\s\-']+$/,
+                                        message: "Please enter a valid last name (letters only)"
+                                    },
+                                    minLength: {
+                                        value: 2,
+                                        message: "Last name must be at least 2 characters"
+                                    },
+                                    maxLength: {
+                                        value: 30,
+                                        message: "Last name cannot exceed 30 characters"
+                                    }
+                                })
+                            }}
                         />
                         <TextInput
                             label="Email"
