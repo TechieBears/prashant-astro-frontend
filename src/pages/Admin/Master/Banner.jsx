@@ -157,9 +157,9 @@ const Banner = () => {
         return (
             <div className="space-y-1">
                 <div className="text-xs font-medium">
-                    <div>{moment(startDate).format('DD-MM-YYYY, HH:mm')}</div>
+                    <div>{moment(startDate).format('DD-MM-YYYY')}</div>
                     <div className="text-gray-400">to</div>
-                    <div>{moment(endDate).format('DD-MM-YYYY, HH:mm')}</div>
+                    <div>{moment(endDate).format('DD-MM-YYYY')}</div>
                 </div>
                 <div className={`text-xs font-medium ${statusColor}`}>
                     {statusText}
