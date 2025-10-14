@@ -154,7 +154,6 @@ const BookingCalendar = () => {
             setIsLoading(false);
         }
     }
-
     useEffect(() => {
         getSlots();
     }, [startDate]);
