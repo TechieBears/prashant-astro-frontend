@@ -1231,7 +1231,7 @@ export const getAllCustomers = async (data) => {
     }
     catch (err) {
         console.log("==========error in getAllCustomers api file", err);
-        return err?.response?.data
+        return err?.response?.data;
     }
 }
 export const editCustomer = async (id, data) => {

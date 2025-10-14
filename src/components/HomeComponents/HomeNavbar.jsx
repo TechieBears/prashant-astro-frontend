@@ -269,7 +269,7 @@ const HomeNavbar = () => {
                         <img
                             src={logoText}
                             alt="Pandit Prashant"
-                            className="hidden sm:block h-6 md:h-7 mt-1"
+                            className="block h-6 md:h-7 mt-1 object-contain"
                         />
                     </div>
                 </div>
@@ -301,7 +301,7 @@ const HomeNavbar = () => {
                         <img
                             src={logoText}
                             alt="Pandit Prashant"
-                            className="hidden sm:block h-6 md:h-7 mt-1"
+                            className="block h-6 md:h-7 mt-1 object-contain"
                         />
                     </button>
 

@@ -83,7 +83,6 @@ function AllUserProfiles() {
     const activeBody = (row) => {
         return <Switch
             value={row?.isActive}
-            disabled={row?.isActive == false ? true : false}
             onChange={() => handleActiveChange(row?._id, row?.isActive)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}

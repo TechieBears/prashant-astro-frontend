@@ -34,7 +34,6 @@ const footerData = {
     legalLinks: [
         { label: "Privacy Policy", path: "/profile/privacy-policy" },
         { label: "Terms of Service", path: "/terms-conditions" },
-        { label: "Disclaimer", path: "/disclaimer" }
     ]
 };
 

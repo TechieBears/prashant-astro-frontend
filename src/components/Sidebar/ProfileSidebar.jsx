@@ -55,16 +55,18 @@ const ProfileSidebar = () => {
       const response = await deleteUser();
 
       if (response.success) {
-        dispatch(deleteUserSuccess());
+        dispatch(logoutSuccess());
+        dispatch(clearCart());
+        navigate("/");
         toast.success(response.message || "Account deleted successfully!");
         setShowDeleteModal(false);
-        navigate("/");
       } else {
         dispatch(setError(response.message || "Account deletion failed"));
         toast.error(response.message || "Account deletion failed");
         setShowDeleteModal(false);
       }
     } catch (error) {
+      console.log("error", error);
       dispatch(setError(error.message || "Account deletion failed"));
       toast.error(error.message || "Account deletion failed");
       setShowDeleteModal(false);
