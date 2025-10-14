@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 import BookingDetailsModal from '../../../components/Modals/AdminModals/BookingDetailsModal';
 import { adminSlots } from "../../../api";
-import HorizontalSlotCalendar from '../../../components/Calender/HorizontalSlotCalender';
+import HorizontalSlotCalendar from '../../../components/Calendar/HorizontalSlotCalendar';
 import BlockCalenderSlotsModal from "../../../components/Modals/AdminModals/BlockCalenderSlotsModal";
 import BlockedMessageShowModal from "../../../components/Modals/AdminModals/BlockedMessageShowModal";
 
