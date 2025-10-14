@@ -162,11 +162,12 @@ const ServiceDetail = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                     {selectedService.videoUrl.map((video, index) => {
                                         const getYouTubeThumbnail = (url) => {
+                                            if (!url || typeof url !== 'string') return null;
                                             const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
                                             return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
                                         };
 
-                                        const thumbnailUrl = getYouTubeThumbnail(video.videoUrl);
+                                        const thumbnailUrl = getYouTubeThumbnail(video?.videoUrl);
 
                                         return (
                                             <div key={video._id || index} className="relative group">
