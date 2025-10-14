@@ -9,6 +9,7 @@ import SectionHeader from '../../components/Titles/SectionHeader'; // Importing 
 import { postContactUs } from '../../api';
 import toast from 'react-hot-toast';
 import ClickableContact from '../../components/Common/ClickableContact';
+import PanditImage from '../../assets/user/contact/pandit_2.png';
 
 
 const ContactPage = () => {
@@ -68,7 +69,7 @@ const ContactPage = () => {
                     <div className="relative w-32 h-32 flex-shrink-0">
                         <div className="absolute inset-0 rounded-full p-[3px]">
                             <img
-                                src="/src/assets/user/contact/pandit_2.png"
+                                src={PanditImage}
                                 alt="Pandit Prashant Shastri"
                                 className="w-full h-full object-cover rounded-full"
                             />
