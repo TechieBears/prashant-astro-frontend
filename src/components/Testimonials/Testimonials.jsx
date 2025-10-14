@@ -244,7 +244,7 @@ const Testimonials = () => {
                             <div key={`${currentGroup}-${index}`} className="mx-6 relative transform transition-all duration-300 ease-in-out">
                                 <img src={Comment} alt="Comment" className="absolute top-3 right-1 w-10 h-10 z-20" />
                                 <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full hover:shadow-lg transition-shadow duration-200 h-[420px] sm:h-[450px] flex flex-col">
-                                    {/* ✅ Only this inner content is animated */}
+
                                     <div className={`transition-opacity duration-300 ease-in-out ${fadeClass} flex-1 flex flex-col`}>
                                         <div className="flex items-center gap-3 mb-4">
                                             <img src={item.image} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
