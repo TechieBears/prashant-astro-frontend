@@ -9,7 +9,7 @@ import SectionHeader from '../../components/Titles/SectionHeader'; // Importing 
 import { postContactUs } from '../../api';
 import toast from 'react-hot-toast';
 import ClickableContact from '../../components/Common/ClickableContact';
-import PanditImage from '../../assets/user/contact/pandit_2.png';
+import PanditImage from '../../assets/user/contact/pandit_contact.jpeg';
 
 
 const ContactPage = () => {
