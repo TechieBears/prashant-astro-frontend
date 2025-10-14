@@ -306,7 +306,7 @@ const HomeNavbar = () => {
                     </button>
 
                     {/* Search */}
-                    <div className="hidden md:flex flex-1 mx-6">
+                    {/* <div className="hidden md:flex flex-1 mx-6">
                         <div className="relative w-full max-w-lg">
                             <input
                                 type="text"
@@ -328,7 +328,7 @@ const HomeNavbar = () => {
                                 />
                             </svg>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Phone + CTA */}
                     <div className="flex items-center gap-10">
