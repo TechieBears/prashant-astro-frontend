@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
     const [state, setState] = useState({
@@ -11,10 +11,9 @@ const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
         error: null
     });
 
-    // Memoize filters to prevent infinite re-renders
     const memoizedFilters = useMemo(() => filters, [JSON.stringify(filters)]);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             const params = {
                 p: state.page,
@@ -23,25 +22,29 @@ const usePagination = (initialPage, initialRecords, fetchFunction, filters) => {
             };
 
             const response = await fetchFunction(params);
-            const { meta } = response;
-            const currentPage = meta?.page || 1;
-            const totalPages = meta?.totalPages || 1;
+            const meta = response?.meta || response?.pagination || {};
+            const currentPage = meta?.page || meta?.currentPage || state.page;
+            const totalPages = meta?.totalPages || meta?.total_pages || 1;
+            const total = meta?.total || meta?.totalRecords || response?.total || 0;
+            const dataLength = response?.data?.length || 0;
+            const hasMoreData = dataLength === state.records;
+            const hasNext = currentPage < totalPages || (hasMoreData && totalPages === 1);
             setState(prev => ({
                 ...prev,
                 data: response?.data || [],
-                total: meta?.total || 0,
-                hasNext: currentPage < totalPages,
+                total: total,
+                hasNext: hasNext,
                 hasPrev: currentPage > 1,
                 error: null
             }));
         } catch (error) {
             setState(prev => ({ ...prev, error }));
         }
-    };
+    }, [state.page, state.records, memoizedFilters, fetchFunction]);
 
     useEffect(() => {
         fetchData();
-    }, [state.page, state.records, memoizedFilters]);
+    }, [fetchData]);
 
     const handlePageChange = (newPage) => {
         if (newPage !== state.page) {

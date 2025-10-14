@@ -70,7 +70,10 @@ export default function Testimonials() {
     const handleActiveChange = async (id, isActive) => {
         try {
             const updatedData = {
-                isActive: !isActive
+                isActive: !isActive,
+                city: 'Mumbai',
+                state: 'Maharashtra',
+                country: 'india',
             }
             await editTestimonials(id, updatedData);
             setRefreshTrigger(prev => prev + 1);
