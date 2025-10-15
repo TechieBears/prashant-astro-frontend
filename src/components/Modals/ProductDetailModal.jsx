@@ -1,6 +1,15 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { FaTimes } from 'react-icons/fa';
+import {
+    FaTimes,
+    FaCheckCircle,
+    FaClock,
+    FaTimesCircle,
+    FaTruck,
+    FaCog,
+    FaMoneyBillWave,
+    FaBoxOpen
+} from 'react-icons/fa';
 import UserReviews from '../Common/UserReviews';
 import OrderIdCopy from '../Common/OrderIdCopy';
 import { getSingleProductOrder, getFilteredReviews } from '../../api';
@@ -31,20 +40,89 @@ const formatAddress = (address) => {
 };
 
 const STATUS_CONFIG = {
-    delivered: { text: 'Delivered', textColor: 'text-green-800', bgColor: '#00A63E1A' },
-    completed: { text: 'Delivered', textColor: 'text-green-800', bgColor: '#00A63E1A' },
-    pending: { text: 'Order Pending', shortText: 'Pending', textColor: 'text-yellow-800', bgColor: '#F59E0B1A' },
-    cancelled: { text: 'Order Cancelled', shortText: 'Cancelled', textColor: 'text-red-800', bgColor: '#EF44441A' },
-    shipped: { text: 'Shipped', textColor: 'text-blue-800', bgColor: '#3B82F61A' },
-    dispatched: { text: 'Shipped', textColor: 'text-blue-800', bgColor: '#3B82F61A' },
-    processing: { text: 'Processing', textColor: 'text-purple-800', bgColor: '#8B5CF61A' }
+    delivered: {
+        text: 'Delivered',
+        textColor: 'text-green-800',
+        bgColor: '#00A63E1A',
+        icon: FaBoxOpen,
+        iconColor: 'text-green-600'
+    },
+    completed: {
+        text: 'Delivered',
+        textColor: 'text-green-800',
+        bgColor: '#00A63E1A',
+        icon: FaCheckCircle,
+        iconColor: 'text-green-600'
+    },
+    pending: {
+        text: 'Order Pending',
+        shortText: 'Pending',
+        textColor: 'text-yellow-800',
+        bgColor: '#F59E0B1A',
+        icon: FaClock,
+        iconColor: 'text-yellow-600'
+    },
+    cancelled: {
+        text: 'Order Cancelled',
+        shortText: 'Cancelled',
+        textColor: 'text-red-800',
+        bgColor: '#EF44441A',
+        icon: FaTimesCircle,
+        iconColor: 'text-red-600'
+    },
+    shipped: {
+        text: 'Shipped',
+        textColor: 'text-blue-800',
+        bgColor: '#3B82F61A',
+        icon: FaTruck,
+        iconColor: 'text-blue-600'
+    },
+    dispatched: {
+        text: 'Shipped',
+        textColor: 'text-blue-800',
+        bgColor: '#3B82F61A',
+        icon: FaTruck,
+        iconColor: 'text-blue-600'
+    },
+    processing: {
+        text: 'Processing',
+        textColor: 'text-purple-800',
+        bgColor: '#8B5CF61A',
+        icon: FaCog,
+        iconColor: 'text-purple-600',
+        spin: true
+    },
+    refunded: {
+        text: 'Refunded',
+        textColor: 'text-purple-800',
+        bgColor: '#8B5CF61A',
+        icon: FaMoneyBillWave,
+        iconColor: 'text-purple-600'
+    }
 };
 
 const getStatusInfo = (status) => {
-    const config = STATUS_CONFIG[status?.toLowerCase()] || {
-        text: 'Order Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: '#6B72801A'
+    const defaultConfig = {
+        text: 'Order Status',
+        shortText: 'Status',
+        textColor: 'text-gray-800',
+        bgColor: '#6B72801A',
+        icon: FaClock,
+        iconColor: 'text-gray-600'
     };
-    return { ...config, shortText: config.shortText || config.text, icon: deliveredIcon };
+
+    const config = STATUS_CONFIG[status?.toLowerCase()] || defaultConfig;
+    const IconComponent = config.icon || FaClock;
+
+    return {
+        ...config,
+        shortText: config.shortText || config.text,
+        icon: (
+            <IconComponent
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${config.iconColor || 'text-current'} ${config.spin ? 'animate-spin' : ''}`}
+            />
+        )
+    };
 };
 
 const getPaymentStatusColor = (status) => {
@@ -239,11 +317,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3 pr-8 sm:pr-10 md:pr-12">
                         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">Order Details</h2>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <div className={`${statusInfo.textColor} px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium`} style={{ backgroundColor: statusInfo.bgColor }}>
-                                <img src={statusInfo.icon} alt="Status" className="w-3 h-3 sm:w-4 sm:h-4" />
-                                <span className="hidden sm:inline">{statusInfo.text}</span>
-                                <span className="sm:hidden">{statusInfo.shortText}</span>
-                            </div>
+
                             <button className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium" style={{ backgroundColor: '#4200981A' }}>
                                 <img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" />
                                 <span className="hidden sm:inline">Download Invoice</span>
@@ -269,7 +343,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                         </div>
                     ) : orderData && orderItems.length > 0 ? (
                         <div className="space-y-4 sm:space-y-6">
-                                    <OrderStatusBar currentStatus={orderData?.orderStatus} />
+                            <OrderStatusBar currentStatus={orderData?.orderStatus} />
                             {/* Order Summary Section */}
                             <div className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div className="bg-button-gradient-orange px-3 sm:px-4 py-2 sm:py-2.5">
@@ -317,9 +391,36 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                                             </p>
                                         </div>
                                     </div>
+
+                                    {/* Price Breakdown Section */}
+                                    {orderData.amount?.gst && (
+                                        <div className="border-t border-gray-100 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3">
+                                            <h4 className="text-xs sm:text-sm font-semibold text-gray-800 mb-2">Price Breakdown</h4>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">Subtotal:</span>
+                                                    <span className="text-xs font-medium text-gray-800">
+                                                        ₹{(orderData.amount?.basePrice || orderData.totalAmount || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">GST (18%):</span>
+                                                    <span className="text-xs font-medium text-gray-800">
+                                                        ₹{(orderData.amount?.gst || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
+                                                    <span className="text-xs sm:text-sm font-semibold text-gray-800">Total:</span>
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        ₹{(orderData.finalAmount || orderData.totalAmount || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                     {((orderData.paymentId || orderData.paymentDetails?.transactionId) || formattedAddress) && (
                                         <div className="border-t border-gray-100 mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 space-y-2">
-                                            {(orderData.paymentId || orderData.paymentDetails?.transactionId) && (
+                                            {(orderData?.paymentId || orderData?.paymentDetails?.transactionId) && (
                                                 <div>
                                                     <p className="text-xs text-gray-500 mb-0.5">Transaction ID</p>
                                                     <p className="text-xs sm:text-sm font-medium text-gray-800 break-all">

@@ -34,7 +34,6 @@ const footerData = {
     legalLinks: [
         { label: "Privacy Policy", path: "/profile/privacy-policy" },
         { label: "Terms of Service", path: "/terms-conditions" },
-        { label: "Disclaimer", path: "/disclaimer" }
     ]
 };
 
@@ -98,7 +97,7 @@ const HomeFooter = () => {
                     <h3 className="text-base font-semibold mb-4">Our Services</h3>
                     <ul className="space-y-2 text-sm text-gray-300">
                         {serviceCategories && serviceCategories.length > 0 ? (
-                            serviceCategories.slice(0, 5).map((category) => (
+                            serviceCategories?.map((category) => (
                                 <li key={category._id}>
                                     <button
                                         onClick={() => navigate(`/services?category=${encodeURIComponent(category.name)}`)}

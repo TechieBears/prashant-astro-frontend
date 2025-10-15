@@ -3,10 +3,13 @@ import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Switch from "react-js-switch";
-import { getAdminAllReviews, editReviews } from '../../../api';
+import { getAdminAllTestimonials, editTestimonials } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
 import usePagination from '../../../utils/customHooks/usePagination'
+import TextInput from '../../../components/TextInput/TextInput'
+import { formBtn1 } from '../../../utils/CustomClass'
+import { useForm } from 'react-hook-form'
 
 const StarRating = ({ rating, maxStars = 5 }) => {
     return (
@@ -25,33 +28,54 @@ const StarRating = ({ rating, maxStars = 5 }) => {
 };
 
 export default function Testimonials() {
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const initialFilterState = {
+        name: ''
+    };
 
-    const emptyFilters = useMemo(() => ({
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const combinedFilters = useMemo(() => ({
+        ...filterCriteria,
         refresh: refreshTrigger
-    }), [refreshTrigger]);
+    }), [filterCriteria, refreshTrigger]);
 
     const {
+        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
-        filterData,
         error
-    } = usePagination(1, 10, getAdminAllReviews, emptyFilters);
+    } = usePagination(1, 10, getAdminAllTestimonials, combinedFilters);
 
     useEffect(() => {
         if (error) toast.error('Failed to fetch testimonials');
     }, [error]);
 
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
+
+
     const handleActiveChange = async (id, isActive) => {
         try {
             const updatedData = {
-                isActive: !isActive
+                isActive: !isActive,
+                city: 'Mumbai',
+                state: 'Maharashtra',
+                country: 'india',
             }
-            await editReviews(id, updatedData);
+            await editTestimonials(id, updatedData);
             setRefreshTrigger(prev => prev + 1);
             toast.success('Status updated successfully');
         }
@@ -85,11 +109,9 @@ export default function Testimonials() {
                             e.target.src = `https://ui-avatars.com/api/?name=${row?.user?.firstName}+${row?.user?.lastName}&background=8833FF&color=fff&size=32`;
                         }}
                     />
-                    <div className=''>
+                    <div>
                         <p className="font-medium capitalize text-sm">{row?.user?.firstName} {row?.user?.lastName}</p>
-                        <p className="text-xs text-gray-500 truncate max-w-[130px]" title={row?.user?.email}>
-                            {row?.user?.email}
-                        </p>
+                        <p className="text-xs text-gray-500">{row?.user?.email}</p>
                     </div>
                 </div>
             ),
@@ -97,10 +119,10 @@ export default function Testimonials() {
         },
         {
             field: 'service',
-            header: 'Service',
+            header: 'Service/Product',
             body: (row) => (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {row?.service?.name || row?.service?.title || "N/A"}
+                    {row?.product?.name || row?.service?.title || "N/A"}
                 </span>
             ),
             style: true
@@ -128,6 +150,23 @@ export default function Testimonials() {
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
+            <div className="bg-white p-4 sm:m-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter User Name*"
+                            placeholder="Enter User Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name') }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
                 <TableHeader title="All Testimonials" subtitle="Recently added testimonials will appear here" />
                 <Table data={filterData} columns={columns} />

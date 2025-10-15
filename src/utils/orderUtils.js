@@ -334,21 +334,16 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
         throw new Error('No service items in cart');
     }
 
-    // Get user information from the first cart item or from a user object
     const userInfo = serviceCartItems[0]?.user || {};
 
-    // Transform all service cart items to the format expected by the API
     const services = serviceCartItems.map(service => {
-        // Ensure we have a valid service object with serviceId
         const serviceId = service.serviceId || service._id;
         if (!serviceId) {
             throw new Error('Invalid service item in cart');
         }
 
-        // Ensure date is in YYYY-MM-DD format
         let bookingDate = service.bookingDate || service.date;
         if (bookingDate) {
-            // If date is in a different format, convert it
             const dateObj = new Date(bookingDate);
             if (!isNaN(dateObj.getTime())) {
                 bookingDate = dateObj.toISOString().split('T')[0];
@@ -359,13 +354,10 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
             bookingDate = new Date().toISOString().split('T')[0];
         }
 
-        // Get astrologer ID from either the service or astrologer object
         const astrologerId = service.astrologer?._id || service.astrologerId;
 
-        // Get service mode (default to 'online' if not specified)
         const serviceMode = service.serviceMode || 'online';
 
-        // Get user information from cart item or userInfo
         const userData = service.cust || userInfo || {};
         const address = serviceMode !== 'online' && serviceMode !== 'pandit_center' && addressId
             ? { address: String(addressId).trim() }
@@ -378,12 +370,10 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
             startTime: service.startTime || '00:00',
             endTime: service.endTime || '00:30',
             serviceMode: serviceMode,
-            // Include user information from cart item or user info
             firstName: (service.cust?.firstName || userInfo?.firstName || '').trim(),
             lastName: (service.cust?.lastName || userInfo?.lastName || '').trim(),
             email: (service.cust?.email || userInfo?.email || '').trim(),
             phone: (service.cust?.phone || userInfo?.phone || '').trim(),
-            // Include address if needed
             ...address
         };
     });

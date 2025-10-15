@@ -867,7 +867,7 @@ export const editProfile = async (id, data) => {
 // ====================== Product Categories Api ======================
 export const getProductCategories = async (data) => {
     try {
-        const url = `${environment.baseUrl}product-categories/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}product-categories/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -917,7 +917,7 @@ export const editProductCategory = async (id, data) => {
 // ======================= Product Sub Categories Api ======================
 export const getProductSubCategories = async (data) => {
     try {
-        const url = `${environment.baseUrl}product-subcategories/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}product-subcategories/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -966,7 +966,7 @@ export const deleteProductSubCategory = async (id) => {
 // ====================== Service Categories Api ======================
 export const getServiceCategories = async (data) => {
     try {
-        const url = `${environment.baseUrl}service-categories/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}service-categories/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -987,6 +987,29 @@ export const getServiceCategoriesDropdown = async () => {
     }
 }
 
+export const getProductSubCategoriesDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}product-subcategories/get-dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProductSubCategoriesDropdown api file", err);
+        return err?.response?.data
+    }
+}
+
+export const getProductsDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}product/get-dropdown`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getProductsDropdown api file", err);
+        return err?.response?.data
+    }
+}
 export const addServiceCategory = async (data) => {
     const url = `${environment.baseUrl}service-categories/create`;
     try {
@@ -1202,13 +1225,13 @@ export const updateCustomerProfile = async (data) => {
 
 export const getAllCustomers = async (data) => {
     try {
-        const url = `${environment.baseUrl}customer-users/get-all?name=${data?.name}&page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}customer-users/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
     catch (err) {
         console.log("==========error in getAllCustomers api file", err);
-        return err?.response?.data
+        return err?.response?.data;
     }
 }
 export const editCustomer = async (id, data) => {
@@ -1228,7 +1251,7 @@ export const editCustomer = async (id, data) => {
 
 export const getAllBanners = async (data) => {
     try {
-        const url = `${environment.baseUrl}banners/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}banners/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1275,13 +1298,37 @@ export const deleteBanner = async (id) => {
     }
 }
 
+// =========================== admin product order api ====================
+
+export const getAdminAllTestimonials = async (data) => {
+    try {
+        const url = `${environment.baseUrl}testimonials/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAdminAllTestimonials api file", err);
+        return err?.response?.data
+    }
+}
+export const editTestimonials = async (id, data) => {
+    const url = `${environment.baseUrl}testimonials/update?id=${id}`;
+    try {
+        const response = await axios.put(url, data)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in editTestimonials api file", err);
+        return err?.response?.data
+    }
+}
 
 
 // ================== Coupon API ==================
 
 export const getAllCoupons = async (data) => {
     try {
-        const url = `${environment.baseUrl}coupon/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}coupon/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
@@ -1990,7 +2037,7 @@ export const adminSlots = async (date) => {
 
 export const getAdminAllReviews = async (data) => {
     try {
-        const url = `${environment.baseUrl}reviews/get-all?page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}reviews/get-all?name=${data?.name || ""}&page=${data?.p}&limit=${data?.records}`;
         const response = await axios.get(url)
         return response.data
     }
@@ -2074,7 +2121,7 @@ export const getFilteredReviews = async ({ userId, productId = null, serviceId =
     if (productId) params.append('product', productId);
     if (serviceId) params.append('service', serviceId);
 
-    const url = `${environment.baseUrl}reviews/filter?${params.toString()}`;
+    const url = `${environment.baseUrl}reviews/public/filter?${params.toString()}`;
     try {
         const response = await axios.get(url);
         return response.data;
@@ -2204,6 +2251,39 @@ export const getPublicServicesDropdown = async () => {
     }
     catch (err) {
         console.log("==========error in get Public Services Dropdown api file", err);
+        return err?.response?.data
+    }
+}
+export const createTestimonial = async (ReviewData) => {
+    const url = `${environment.baseUrl}testimonials/create`;
+    try {
+        const response = await axios.post(url, ReviewData);
+        return response.data;
+    } catch (err) {
+        console.error('Error creating testimonial:', err);
+        return err?.response?.data || { success: false, message: 'Failed to create testimonial' };
+    }
+};
+export const getAllTestimonials = async (data) => {
+    try {
+        const url = `${environment.baseUrl}testimonials/public/get-all?page=${data?.p}&limit=${data?.records}`;
+        const response = await axios.get(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getAlltestimonials api file", err);
+        return err?.response?.data
+    }
+}
+
+export const deleteTestimonial = async (id) => {
+    const url = `${environment.baseUrl}testimonials/delete?id=${id}`;
+    try {
+        const response = await axios.delete(url)
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in deletetestimonial api file", err);
         return err?.response?.data
     }
 }

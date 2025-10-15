@@ -143,18 +143,18 @@ const ServiceBookings = () => {
             ),
             style: true, sortable: false
         },
-        {
-            field: 'address',
-            header: 'Address',
-            body: (row) => row?.address ? (
-                <div className="text-sm space-y-1">
-                    <div className="font-medium">{row?.address?.firstName} {row?.address?.lastName}</div>
-                    <div className="text-xs text-gray-500">{row?.address?.phoneNumber}</div>
-                    <div className="text-xs text-gray-500">{row?.address?.address}, {row?.address?.city}, {row?.address?.state}</div>
-                </div>
-            ) : <span className="text-xs text-gray-400">-- No Address --</span>,
-            style: true, sortable: false
-        },
+        // {
+        //     field: 'address',
+        //     header: 'Address',
+        //     body: (row) => row?.address ? (
+        //         <div className="text-sm space-y-1">
+        //             <div className="font-medium">{row?.address?.firstName} {row?.address?.lastName}</div>
+        //             <div className="text-xs text-gray-500">{row?.address?.phoneNumber}</div>
+        //             <div className="text-xs text-gray-500">{row?.address?.address}, {row?.address?.city}, {row?.address?.state}</div>
+        //         </div>
+        //     ) : <span className="text-xs text-gray-400">-- No Address --</span>,
+        //     style: true, sortable: false
+        // },
         {
             field: 'finalAmount',
             header: 'Total Amount',

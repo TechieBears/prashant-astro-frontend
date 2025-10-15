@@ -80,7 +80,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                 subTitle: userData?.subTitle,
                 price: userData?.price,
                 description: userData?.description,
-                durationInMinutes: userData?.durationInMinutes,
+                durationInMinutes: Number(userData?.durationInMinutes) || 30,
                 htmlContent: userData?.htmlContent,
                 ...userData
             });
@@ -297,7 +297,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const currentValue = watch('durationInMinutes') || 30;
+                                                                const currentValue = Number(watch('durationInMinutes')) || 30;
                                                                 const newValue = Math.max(30, currentValue - 30);
                                                                 setValue('durationInMinutes', newValue);
                                                             }}
@@ -308,14 +308,14 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         <div className="flex-1 min-w-0">
                                                             <div className="h-12 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
                                                                 <span className="text-lg font-semibold text-gray-700">
-                                                                    {watch('durationInMinutes') || 30} min
+                                                                    {(Number(watch('durationInMinutes')) || 30)} min
                                                                 </span>
                                                             </div>
                                                         </div>
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const currentValue = watch('durationInMinutes') || 30;
+                                                                const currentValue = Number(watch('durationInMinutes')) || 30;
                                                                 const newValue = currentValue + 30;
                                                                 setValue('durationInMinutes', newValue);
                                                             }}
@@ -328,7 +328,8 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         type="hidden"
                                                         {...register('durationInMinutes', {
                                                             required: "Service duration is required",
-                                                            min: { value: 30, message: "Minimum duration is 30 minutes" }
+                                                            min: { value: 30, message: "Minimum duration is 30 minutes" },
+                                                            valueAsNumber: true
                                                         })}
                                                     />
                                                     {errors.durationInMinutes && (

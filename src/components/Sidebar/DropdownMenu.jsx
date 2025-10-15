@@ -1,10 +1,16 @@
 import { NavLink } from 'react-router-dom';
 
-const DropdownMenu = ({ items, isActiveLink }) => {
+const DropdownMenu = ({ items, isActiveLink, setMobileSidebar }) => {
+    const handleLinkClick = () => {
+        if (setMobileSidebar) {
+            setMobileSidebar(false);
+        }
+    };
+
     return (
         <>
             {items.map((item, i) => (
-                <NavLink to={item?.link} i={i} className={`${!isActiveLink ? "px-9" : "justify-center"} flex items-center  space-x-2  group pt-2.5 pb-1 my-1 w-full origin-left relative transition-all duration-500`}>
+                <NavLink to={item?.link} i={i} onClick={handleLinkClick} className={`${!isActiveLink ? "px-9" : "justify-center"} flex items-center  space-x-2  group pt-2.5 pb-1 my-1 w-full origin-left relative transition-all duration-500`}>
                     {!isActiveLink && <div className="absolute top-0 left-0 transition-all duration-300 origin-left w-1.5 h-full rounded-r-md left-border opacity-0"></div>
                     }
                     <div className="flex items-center  space-x-2">

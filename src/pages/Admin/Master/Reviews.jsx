@@ -7,6 +7,10 @@ import { getAdminAllReviews, editReviews } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
 import usePagination from '../../../utils/customHooks/usePagination'
+import { validateAlphabets } from '../../../utils/validateFunction';
+import { formBtn1 } from '../../../utils/CustomClass';
+import TextInput from '../../../components/TextInput/TextInput';
+import { useForm } from 'react-hook-form';
 
 const StarRating = ({ rating, maxStars = 5 }) => {
     return (
@@ -25,26 +29,44 @@ const StarRating = ({ rating, maxStars = 5 }) => {
 };
 
 export default function Reviews() {
-    const [refreshTrigger, setRefreshTrigger] = useState(0)
+    const initialFilterState = {
+        name: ''
+    };
 
-    const emptyFilters = useMemo(() => ({
+    const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
+    const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const combinedFilters = useMemo(() => ({
+        ...filterCriteria,
         refresh: refreshTrigger
-    }), [refreshTrigger]);
+    }), [filterCriteria, refreshTrigger]);
 
     const {
+        filterData,
         pageNo,
         nextIsValid,
         prevIsValid,
         pageChangeHandler,
         recordChangeHandler,
         records,
-        filterData,
         error
-    } = usePagination(1, 10, getAdminAllReviews, emptyFilters);
+    } = usePagination(1, 10, getAdminAllReviews, combinedFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch Reviews');
+        if (error) toast.error('Failed to fetch reviews');
     }, [error]);
+
+    const handleFilterSubmit = (data) => {
+        setFilterCriteria(data);
+        pageChangeHandler(1);
+        toast.success('Filters applied');
+    };
+    const handleClearFilters = () => {
+        reset(initialFilterState);
+        setFilterCriteria(initialFilterState);
+        toast.success('Filters cleared');
+    };
+
 
     const handleActiveChange = async (id, isActive) => {
         try {
@@ -128,6 +150,23 @@ export default function Reviews() {
 
     return (
         <div className="space-y-5 h-screen bg-slate-100">
+            <div className="bg-white p-4 sm:m-5 rounded-xl">
+                <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
+                    <div className="grid grid-cols-1 w-full gap-2">
+                        <TextInput
+                            label="Enter User Name*"
+                            placeholder="Enter User Name"
+                            type="text"
+                            registerName="name"
+                            props={{ ...register('name', { validate: validateAlphabets }) }}
+                        />
+                    </div>
+                    <div className="flex space-x-2">
+                        <button type="submit" className={`${formBtn1} w-full`}>Filter</button>
+                        <button type="button" onClick={handleClearFilters} className={`${formBtn1} w-full !bg-white border border-primary !text-primary`}>Clear</button>
+                    </div>
+                </form>
+            </div>
             <div className="bg-white rounded-xl m-4 sm:m-5 shadow-sm  p-5 sm:p-7 ">
                 <TableHeader title="All Reviews" subtitle="Recently added Reviews will appear here" />
                 <Table data={filterData} columns={columns} />

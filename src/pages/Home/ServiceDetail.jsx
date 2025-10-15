@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaMapMarkerAlt, FaArrowRight, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
@@ -23,6 +23,8 @@ const ServiceDetail = () => {
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [totalReviews, setTotalReviews] = useState(0);
     const [editingReviewId, setEditingReviewId] = useState(null);
+    const cardRef = useRef(null);
+    const [cardHeight, setCardHeight] = useState(null);
 
     const transformedServices = servicesDropdown.map(category => ({
         category: category.name,
@@ -46,7 +48,6 @@ const ServiceDetail = () => {
     }, [id]);
 
     const handleCheckAvailability = () => {
-        // Navigate to booking calendar page with service ID and data
         navigate(`/booking-calendar/${id}`, {
             state: {
                 serviceData: selectedService
@@ -94,6 +95,30 @@ const ServiceDetail = () => {
         }
     }, [selectedService, id, fetchServiceReviews]);
 
+    // Keep the image height in sync with the booking card's natural height
+    useEffect(() => {
+        if (!cardRef.current) return;
+
+        const updateHeight = () => {
+            const height = cardRef.current?.offsetHeight ?? null;
+            setCardHeight(height);
+        };
+
+        updateHeight();
+
+        const resizeObserver = new ResizeObserver(() => {
+            updateHeight();
+        });
+        resizeObserver.observe(cardRef.current);
+
+        window.addEventListener('resize', updateHeight);
+
+        return () => {
+            resizeObserver.disconnect();
+            window.removeEventListener('resize', updateHeight);
+        };
+    }, [selectedService, reviews, isLogged]);
+
     return (
         <div className="min-h-screen bg-slate1">
             <BackgroundTitle
@@ -112,35 +137,35 @@ const ServiceDetail = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 relative">
                     {/* Left Column - Service Details */}
                     <div className="lg:col-span-2">
-                        {/* Main Service Image */}
-                        <div className="mb-4 sm:mb-6">
-                            <img
-                                src={selectedService.image}
-                                alt={selectedService.name}
-                                className="w-full object-cover rounded-lg shadow-lg"
-                                style={{ height: window.innerWidth < 640 ? '300px' : window.innerWidth < 1024 ? '400px' : '564px' }}
-                            />
-                        </div>
+                        {/* Service Image and Book Your Session - Side by Side */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 items-start">
+                            {/* Main Service Image */}
+                            <div style={{ height: cardHeight ? `${cardHeight}px` : 'auto' }}>
+                                <img
+                                    src={selectedService.image}
+                                    alt={selectedService.name}
+                                    className="w-full h-full object-cover rounded-lg shadow-lg"
+                                />
+                            </div>
 
-                        {/* Book Your Session Card */}
-                        <div className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6">
-                            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 bg-button-gradient-orange bg-clip-text text-transparent">
-                                Book Your Session
-                            </h2>
+                            {/* Book Your Session Card */}
+                            <div ref={cardRef} className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6 flex flex-col justify-center">
+                                <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 bg-button-gradient-orange bg-clip-text text-transparent">
+                                    Book Your Session
+                                </h2>
 
-                            <p className="text-gray-700 mb-4 sm:mb-6 text-sm sm:text-base">
-                                {selectedService.subTitle}
-                            </p>
+                                <p className="text-gray-700 mb-4 sm:mb-6 text-sm sm:text-base">
+                                    {selectedService.subTitle}
+                                </p>
 
-                            {/* Session Details */}
-                            <div className="mb-2">
-                                <div className="flex items-center text-gray-700 gap-3 sm:gap-4">
-                                    <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
-                                </div>
+                                {/* Session Details */}
+                                <div className="mb-2">
+                                    <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-3">
+                                        <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
+                                        <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
+                                    </div>
 
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 text-gray-700">
-                                    <div className="flex items-center gap-3 sm:gap-4">
+                                    <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-4">
                                         <ShareKnowledgeIcon size={18} color='#000' className="flex-shrink-0" />
                                         <span className="font-medium text-sm sm:text-base">Mode: {selectedService.serviceType}</span>
                                     </div>
@@ -148,7 +173,7 @@ const ServiceDetail = () => {
                                     {/* Check Availability Button */}
                                     <button
                                         onClick={handleCheckAvailability}
-                                        className="bg-button-diagonal-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-sm font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base w-full sm:w-auto"
+                                        className="bg-button-diagonal-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-sm font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base w-full"
                                     >
                                         Check Availability
                                     </button>
@@ -162,11 +187,12 @@ const ServiceDetail = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                     {selectedService.videoUrl.map((video, index) => {
                                         const getYouTubeThumbnail = (url) => {
+                                            if (!url || typeof url !== 'string') return null;
                                             const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
                                             return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
                                         };
 
-                                        const thumbnailUrl = getYouTubeThumbnail(video.videoUrl);
+                                        const thumbnailUrl = getYouTubeThumbnail(video?.videoUrl);
 
                                         return (
                                             <div key={video._id || index} className="relative group">
