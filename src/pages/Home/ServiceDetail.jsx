@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaClock, FaMapMarkerAlt, FaArrowRight, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
@@ -23,32 +23,48 @@ const ServiceDetail = () => {
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [totalReviews, setTotalReviews] = useState(0);
     const [editingReviewId, setEditingReviewId] = useState(null);
-    const cardRef = useRef(null);
+    const [currentServiceId, setCurrentServiceId] = useState(id);
+
+    const transformedServices = useMemo(() => {
+        return servicesDropdown.map(category => ({
+            category: category.name,
+            services: category.services.map(service => ({
+                name: service.name,
+                path: `/services/${service._id}`,
+            })),
+        }));
+    }, [servicesDropdown]);
+
     const [cardHeight, setCardHeight] = useState(null);
+    const cardRef = useRef(null);
 
-    const transformedServices = servicesDropdown.map(category => ({
-        category: category.name,
-        services: category.services.map(service => ({
-            name: service.name,
-            path: `/services/${service._id}`,
-        })),
-    }));
-
+    // Utility function to find category containing a service
+    const findServiceCategory = useCallback((serviceId) => {
+        return servicesDropdown.find(category =>
+            category.services.some(service => service._id === serviceId)
+        );
+    }, [servicesDropdown]);
 
     useEffect(() => {
         const fetchService = async () => {
             const response = await getSelectedService(id);
             if (response?.success) {
                 setSelectedService(response?.data);
+
+                // Find and expand the category that contains this service
+                const currentCategory = findServiceCategory(response.data._id);
+                if (currentCategory) {
+                    setExpandedCategory(currentCategory.name);
+                }
             }
             // setIsLoading(false);
         };
 
         fetchService();
-    }, [id]);
+    }, [id, findServiceCategory]);
 
     const handleCheckAvailability = () => {
-        navigate(`/booking-calendar/${id}`, {
+        navigate(`/booking-calendar/${currentServiceId}`, {
             state: {
                 serviceData: selectedService
             }
@@ -65,17 +81,39 @@ const ServiceDetail = () => {
         setExpandedCategory(prev => prev === categoryName ? null : categoryName);
     };
 
-    const handleServiceClick = (path) => {
-        navigate(path);
+    const handleServiceClick = async (path) => {
+        // Extract service ID from path
+        const serviceId = path.split('/services/')[1];
+
+        try {
+            // Fetch the new service data
+            const response = await getSelectedService(serviceId);
+            if (response?.success) {
+                // Update the selected service state
+                setSelectedService(response.data);
+                setCurrentServiceId(serviceId);
+
+                // Update URL without triggering React Router navigation
+                window.history.replaceState(null, '', path);
+
+                // Find and expand the category that contains this service
+                const currentCategory = findServiceCategory(response.data._id);
+                if (currentCategory) {
+                    setExpandedCategory(currentCategory.name);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching service:', error);
+        }
     };
 
     // Fetch reviews for the service
     const fetchServiceReviews = useCallback(async () => {
-        if (!id) return;
+        if (!currentServiceId) return;
         try {
             setLoadingReviews(true);
             const response = await getFilteredReviews({
-                serviceId: id
+                serviceId: currentServiceId
             });
             if (response.success) {
                 setReviews(response.data || []);
@@ -86,14 +124,14 @@ const ServiceDetail = () => {
         } finally {
             setLoadingReviews(false);
         }
-    }, [id]);
+    }, [currentServiceId]);
 
     // Fetch reviews when service is loaded
     useEffect(() => {
-        if (selectedService && id) {
+        if (selectedService && currentServiceId) {
             fetchServiceReviews();
         }
-    }, [selectedService, id, fetchServiceReviews]);
+    }, [selectedService, currentServiceId, fetchServiceReviews]);
 
     // Keep the image height in sync with the booking card's natural height
     useEffect(() => {
@@ -106,9 +144,7 @@ const ServiceDetail = () => {
 
         updateHeight();
 
-        const resizeObserver = new ResizeObserver(() => {
-            updateHeight();
-        });
+        const resizeObserver = new ResizeObserver(updateHeight);
         resizeObserver.observe(cardRef.current);
 
         window.addEventListener('resize', updateHeight);
@@ -117,7 +153,7 @@ const ServiceDetail = () => {
             resizeObserver.disconnect();
             window.removeEventListener('resize', updateHeight);
         };
-    }, [selectedService, reviews, isLogged]);
+    }, []); // Remove unnecessary dependencies
 
     return (
         <div className="min-h-screen bg-slate1">
@@ -135,7 +171,58 @@ const ServiceDetail = () => {
 
             <div className="container mx-auto px-4 sm:px-6 md:px-8 max-w-7xl py-4 sm:py-6 md:py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 relative">
-                    {/* Left Column - Service Details */}
+                    {/* Left Column - Related Services */}
+                    <div className="lg:col-span-1 mt-6 lg:mt-0">
+                        <div className="lg:sticky lg:top-24">
+                            <div className="shadow-lg">
+                                <div className="space-y-0">
+                                    {transformedServices.map((category, index) => (
+                                        <div key={index} className="mt-0 border-b border-gray-200 last:border-b-0">
+                                            {/* Category Button */}
+                                            <button
+                                                onClick={() => handleCategoryToggle(category.category)}
+                                                className="w-full flex items-center justify-between hover:bg-orange-100 transition-colors duration-200 group p-4"
+                                            >
+                                                <span className="font-medium text-base sm:text-lg">{category.category}</span>
+                                                {expandedCategory === category.name ? (
+                                                    <FaChevronUp className="w-4 h-4 transition-transform duration-300 flex-shrink-0" />
+                                                ) : (
+                                                    <FaChevronDown className="w-4 h-4 transition-transform duration-300 flex-shrink-0" />
+                                                )}
+                                            </button>
+
+                                            {expandedCategory === category.category && (
+                                                <div className="h-0.5 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400"></div>
+                                            )}
+
+                                            <div
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === category.category ? 'max-h-none mt-2' : 'max-h-0'
+                                                    }`}
+                                            >
+                                                <ul className="pl-2 sm:pl-4 space-y-1 sm:space-y-2">
+                                                    {category.services.map((service, i) => (
+                                                        <li key={i}>
+                                                            <button
+                                                                onClick={() => handleServiceClick(service.path)}
+                                                                className={`text-xs sm:text-sm hover:bg-[#FFFFFF26] p-1.5 sm:p-2 pr-4 sm:pr-6 rounded-md transition-colors duration-200 w-full text-left ${service.path === `/services/${currentServiceId}` ? 'border-b border-orange-300' : ''
+                                                                    }`}
+                                                            >
+                                                                <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                    {service.name}
+                                                                </span>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column - Service Details */}
                     <div className="lg:col-span-2">
                         {/* Service Image and Book Your Session - Side by Side */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 items-start">
@@ -253,57 +340,10 @@ const ServiceDetail = () => {
                                 showEmptyState={true}
                                 showWriteReview={true}
                                 productId={null}
-                                serviceId={id}
+                                serviceId={currentServiceId}
                                 isLogged={isLogged}
                                 onLoginClick={() => navigate('/login')}
                             />
-                        </div>
-                    </div>
-
-                    {/* Right Column - Related Services */}
-                    <div className="lg:col-span-1 mt-6 lg:mt-0">
-                        <div className="lg:sticky lg:top-24">
-                            <div className="bg-primary-orange rounded-2xl shadow-lg p-4 sm:p-6">
-                                <div className="space-y-3 sm:space-y-4">
-                                    {transformedServices.map((category, index) => (
-                                        <div key={index}>
-                                            {/* Category Button */}
-                                            <button
-                                                onClick={() => handleCategoryToggle(category.category)}
-                                                className="w-full flex items-center justify-between text-white hover:text-orange-100 transition-colors duration-200 group"
-                                            >
-                                                <span className="font-medium text-base sm:text-lg">{category.category}</span>
-                                                {expandedCategory === category.name ? (
-                                                    <FaChevronUp className="w-4 h-4 transition-transform duration-300 flex-shrink-0" />
-                                                ) : (
-                                                    <FaChevronDown className="w-4 h-4 transition-transform duration-300 flex-shrink-0" />
-                                                )}
-                                            </button>
-
-                                            {/* Animated Services List */}
-                                            <div
-                                                className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedCategory === category.category ? 'max-h-none mt-2' : 'max-h-0'
-                                                    }`}
-                                            >
-                                                <ul className="pl-2 sm:pl-4 space-y-1 sm:space-y-2">
-                                                    {category.services.map((service, i) => (
-                                                        <li key={i}>
-                                                            <button
-                                                                onClick={() => handleServiceClick(service.path)}
-                                                                className="text-xs sm:text-sm text-white hover:bg-[#FFFFFF26] p-1.5 sm:p-2 pr-4 sm:pr-6 rounded-md transition-colors duration-200 w-full text-left"
-                                                            >
-                                                                <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
-                                                                    {service.name}
-                                                                </span>
-                                                            </button>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </div>
 
