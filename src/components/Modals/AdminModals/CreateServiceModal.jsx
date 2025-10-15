@@ -19,7 +19,6 @@ import { setServiceCategories } from '../../../redux/Slices/rootSlice';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
-    const watchedImage = watch('image');
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
@@ -33,7 +32,6 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
 
     const formSubmit = async (data) => {
         try {
-            console.log('Service form data being submitted:', data);
             setLoader(true);
             if (edit) {
                 await editService(userData?._id, data).then(res => {
@@ -80,7 +78,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                 subTitle: userData?.subTitle,
                 price: userData?.price,
                 description: userData?.description,
-                durationInMinutes: Number(userData?.durationInMinutes) || 30,
+                durationInMinutes: userData?.durationInMinutes,
                 htmlContent: userData?.htmlContent,
                 ...userData
             });
@@ -158,7 +156,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Category
+                                                        Service Category <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <div className="">
                                                         <SelectTextInput
@@ -181,7 +179,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Mode
+                                                        Service Mode <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <div className="">
                                                         <SelectTextInput
@@ -205,7 +203,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Name
+                                                        Service Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Service Name"
@@ -221,7 +219,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Title
+                                                        Service Title <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Service Title"
@@ -237,7 +235,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Sub Title
+                                                        Service Sub Title <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Service Sub Title"
@@ -275,7 +273,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Price
+                                                        Service Price <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Service Price"
@@ -291,13 +289,13 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Duration (Minutes)
+                                                        Service Duration (Minutes) <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <div className="flex items-center space-x-3">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const currentValue = Number(watch('durationInMinutes')) || 30;
+                                                                const currentValue = watch('durationInMinutes') || 30;
                                                                 const newValue = Math.max(30, currentValue - 30);
                                                                 setValue('durationInMinutes', newValue);
                                                             }}
@@ -308,14 +306,14 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         <div className="flex-1 min-w-0">
                                                             <div className="h-12 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
                                                                 <span className="text-lg font-semibold text-gray-700">
-                                                                    {(Number(watch('durationInMinutes')) || 30)} min
+                                                                    {watch('durationInMinutes') || 30} min
                                                                 </span>
                                                             </div>
                                                         </div>
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const currentValue = Number(watch('durationInMinutes')) || 30;
+                                                                const currentValue = watch('durationInMinutes') || 30;
                                                                 const newValue = currentValue + 30;
                                                                 setValue('durationInMinutes', newValue);
                                                             }}
@@ -328,8 +326,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         type="hidden"
                                                         {...register('durationInMinutes', {
                                                             required: "Service duration is required",
-                                                            min: { value: 30, message: "Minimum duration is 30 minutes" },
-                                                            valueAsNumber: true
+                                                            min: { value: 30, message: "Minimum duration is 30 minutes" }
                                                         })}
                                                     />
                                                     {errors.durationInMinutes && (
@@ -340,26 +337,18 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Image
+                                                        Service Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
-                                                    <Controller
-                                                        name="image"
+                                                    <ImageUploadInput
+                                                        label="Upload Service Image"
+                                                        multiple={false}
+                                                        registerName="image"
+                                                        errors={errors.image}
+                                                        {...register("image", { required: "Service Image is required", minLength: { value: 10, message: "Image must be at least 10 characters" } })}
+                                                        register={register}
+                                                        setValue={setValue}
                                                         control={control}
-                                                        rules={{ required: "Service Image is required" }}
-                                                        render={({ field }) => (
-                                                            <ImageUploadInput
-                                                                label="Upload Service Image"
-                                                                multiple={false}
-                                                                registerName="image"
-                                                                errors={errors.image}
-                                                                register={register}
-                                                                setValue={setValue}
-                                                                control={control}
-                                                                defaultValue={userData?.image}
-                                                                value={field.value}
-                                                                onChange={field.onChange}
-                                                            />
-                                                        )}
+                                                        defaultValue={userData?.image}
                                                     />
 
                                                 </div>
@@ -414,7 +403,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                             </div>
                                             <div className="pt-4">
                                                 <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
-                                                    Service Description
+                                                    Service Description <span className="text-red-500 text-xs font-tbLex">*</span>
                                                 </h4>
                                                 <Controller
                                                     name="htmlContent"
@@ -426,11 +415,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             "Description must be at least 10 characters (excluding HTML)"
                                                     }}
                                                     render={({ field: { onChange, value }, fieldState: { error } }) => (
-                                                        <div
-                                                            onClick={(e) => e.stopPropagation()}
-                                                            onMouseDown={(e) => e.stopPropagation()}
-                                                            onKeyDown={(e) => e.stopPropagation()}
-                                                        >
+                                                        <>
                                                             <JoditEditor
                                                                 ref={editorRef}
                                                                 value={value || ''}
@@ -442,7 +427,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             {error && (
                                                                 <p className="text-red-500 text-sm mt-1">{error.message}</p>
                                                             )}
-                                                        </div>
+                                                        </>
                                                     )}
                                                 />
                                             </div>

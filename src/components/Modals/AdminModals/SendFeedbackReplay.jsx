@@ -103,7 +103,7 @@ function SendFeedbackReplay({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Message
+                                                        Message <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <CustomTextArea
                                                         label="Enter Message"
@@ -125,7 +125,7 @@ function SendFeedbackReplay({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Subject
+                                                        Subject <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Subject*"
@@ -140,7 +140,7 @@ function SendFeedbackReplay({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Greeting
+                                                        Greeting <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Greeting"
@@ -155,7 +155,7 @@ function SendFeedbackReplay({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Signature (Your Name)
+                                                        Signature (Your Name) <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <div className="">
                                                         <TextInput

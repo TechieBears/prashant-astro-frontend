@@ -27,14 +27,13 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
             couponName: '',
             couponCode: '',
             couponType: '',
+            applicableType: '',
             discountIn: '',
             discount: '',
             activationDate: '',
             expiryDate: '',
             redemptionPerUser: '',
             totalRedemptions: '',
-            applyAllServices: false,
-            applyAllProducts: false,
             services: [],
             serviceCategories: [],
             products: [],
@@ -53,8 +52,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
     const [productSubcategories, setProductSubcategories] = useState([]);
 
     const couponType = watch('couponType');
-    const applyAllServices = watch('applyAllServices');
-    const applyAllProducts = watch('applyAllProducts');
+    const applicableType = watch('applicableType');
     const selectedProductCategories = watch('productCategories');
     const selectedProductSubcategories = watch('productSubcategories');
 
@@ -66,14 +64,13 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 couponName: data.couponName,
                 couponCode: data.couponCode,
                 couponType: data.couponType,
+                applicableType: data.applicableType || '',
                 discountIn: data.discountIn,
                 discount: Number(data.discount),
                 activationDate: data.activationDate,
                 expiryDate: data.expiryDate,
                 redemptionPerUser: Number(data.redemptionPerUser),
                 totalRedemptions: Number(data.totalRedemptions),
-                applyAllServices: data.applyAllServices || false,
-                applyAllProducts: data.applyAllProducts || false,
                 applicableServices: data.services || [],
                 applicableServiceCategories: data.serviceCategories || [],
                 applicableProducts: data.products || [],
@@ -86,6 +83,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 : addCoupon(formattedData);
 
             const res = await apiCall;
+            console.log("⚡️🤯 ~ CreateCouponModal.jsx:86 ~ formSubmit ~ res:", res)
 
             if (res?.success) {
                 toast.success(edit ? "Coupon Updated" : "Coupon Created");
@@ -153,14 +151,13 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
             setValue('couponName', userData?.couponName);
             setValue('couponCode', userData?.couponCode);
             setValue('couponType', userData?.couponType);
+            setValue('applicableType', userData?.applicableType || '');
             setValue('discountIn', userData?.discountIn);
             setValue('discount', userData?.discount);
             setValue('activationDate', userData?.activationDate?.split('T')[0]);
             setValue('expiryDate', userData?.expiryDate?.split('T')[0]);
             setValue('redemptionPerUser', userData?.redemptionPerUser);
             setValue('totalRedemptions', userData?.totalRedemptions);
-            setValue('applyAllServices', userData?.applyAllServices || false);
-            setValue('applyAllProducts', userData?.applyAllProducts || false);
 
             setValue('services', userData?.applicableServices || []);
             setValue('serviceCategories', userData?.applicableServiceCategories || []);
@@ -207,7 +204,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all">
                                     <TableTitle
                                         title={edit ? "Edit Coupon" : "Create New Coupon"}
                                         toggle={toggle}
@@ -218,7 +215,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-x-3 gap-y-5">
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon title</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon title <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Enter Coupon Name"
                                                             placeholder="🎉 Use code SAVE20 — Get 20% OFF!"
@@ -229,7 +226,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon Code</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon Code <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Enter Coupon Code"
                                                             placeholder="Enter Coupon Code"
@@ -248,14 +245,13 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon Type</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Coupon Type <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <SelectTextInput
                                                             label="Select Coupon Type"
                                                             registerName="couponType"
                                                             options={[
                                                                 { value: 'products', label: 'Products' },
                                                                 { value: 'services', label: 'Services' },
-                                                                { value: 'both', label: 'Both' },
                                                             ]}
                                                             placeholder="Select Coupon Type"
                                                             props={{ ...register('couponType', { required: true }) }}
@@ -264,8 +260,132 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
 
+                                                    {(couponType === 'products' || couponType === 'services') && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable To <span className="text-red-500 text-xs font-tbLex">*</span></h4>
+                                                            <SelectTextInput
+                                                                label="Select Applicable Type"
+                                                                registerName="applicableType"
+                                                                options={
+                                                                    couponType === 'products'
+                                                                        ? [
+                                                                            { value: 'product', label: 'Select Product' },
+                                                                            { value: 'category', label: 'Select Category' },
+                                                                            { value: 'subcategory', label: 'Select Subcategory' },
+                                                                        ]
+                                                                        : [
+                                                                            { value: 'service', label: 'Service' },
+                                                                            { value: 'serviceCategory', label: 'Service Category' },
+                                                                        ]
+                                                                }
+                                                                placeholder="Select Applicable Type"
+                                                                props={{ ...register('applicableType', { required: true }) }}
+                                                                errors={errors.applicableType}
+                                                                defaultValue={userData?.applicableType}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    {couponType === 'services' && applicableType === 'service' && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Services</h4>
+                                                            <Controller
+                                                                name="services"
+                                                                control={control}
+                                                                defaultValue={[]}
+                                                                render={({ field: { onChange, value } }) => (
+                                                                    <MultiSelectTextInput
+                                                                        label="Select Services"
+                                                                        options={services}
+                                                                        value={Array.isArray(value) ? value : []}
+                                                                        onChange={onChange}
+                                                                        errors={errors.services}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {couponType === 'services' && applicableType === 'serviceCategory' && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Service Categories</h4>
+                                                            <Controller
+                                                                name="serviceCategories"
+                                                                control={control}
+                                                                defaultValue={[]}
+                                                                render={({ field: { onChange, value } }) => (
+                                                                    <MultiSelectTextInput
+                                                                        label="Select Service Categories"
+                                                                        options={serviceCategories}
+                                                                        value={Array.isArray(value) ? value : []}
+                                                                        onChange={onChange}
+                                                                        errors={errors.serviceCategories}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {couponType === 'products' && applicableType === 'category' && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Categories</h4>
+                                                            <Controller
+                                                                name="productCategories"
+                                                                control={control}
+                                                                defaultValue={[]}
+                                                                render={({ field: { onChange, value } }) => (
+                                                                    <MultiSelectTextInput
+                                                                        label="Select Product Categories"
+                                                                        options={productCategories}
+                                                                        value={Array.isArray(value) ? value : []}
+                                                                        onChange={onChange}
+                                                                        errors={errors.productCategories}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {couponType === 'products' && applicableType === 'subcategory' && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Subcategories</h4>
+                                                            <Controller
+                                                                name="productSubcategories"
+                                                                control={control}
+                                                                defaultValue={[]}
+                                                                render={({ field: { onChange, value } }) => (
+                                                                    <MultiSelectTextInput
+                                                                        label="Select Product Subcategories"
+                                                                        options={productSubcategories}
+                                                                        value={Array.isArray(value) ? value : []}
+                                                                        onChange={onChange}
+                                                                        errors={errors.productSubcategories}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {couponType === 'products' && applicableType === 'product' && (
+                                                        <div>
+                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Products</h4>
+                                                            <Controller
+                                                                name="products"
+                                                                control={control}
+                                                                defaultValue={[]}
+                                                                render={({ field: { onChange, value } }) => (
+                                                                    <MultiSelectTextInput
+                                                                        label="Select Products"
+                                                                        options={products}
+                                                                        value={Array.isArray(value) ? value : []}
+                                                                        onChange={onChange}
+                                                                        errors={errors.products}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    )}
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Discount In</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Discount In <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <SelectTextInput
                                                             label="Select Discount Type"
                                                             registerName="discountIn"
@@ -281,7 +401,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Discount in {watch('discountIn') === 'percent' ? '%' : '₹'} <span className="text-red-500 text-xs font-tbLex">{edit ? '(Cannot be edited)' : ''}</span></h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Discount in {watch('discountIn') === 'percent' ? '%' : '₹'} <span className="text-red-500 text-xs font-tbLex">*</span> <span className="text-red-500 text-xs font-tbLex">{edit ? '(Cannot be edited)' : ''}</span></h4>
                                                         <TextInput
                                                             disabled={edit}
                                                             label={`Enter Discount ${watch('discountIn') === 'percent' ? '%' : '₹'}`}
@@ -294,29 +414,65 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Activation Date</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Activation Date <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Activation Date"
                                                             type="date"
                                                             registerName="activationDate"
-                                                            props={{ ...register('activationDate', { required: "Required" }) }}
+                                                            props={{
+                                                                ...register('activationDate', {
+                                                                    required: "Required",
+                                                                    validate: (value) => {
+                                                                        const today = new Date();
+                                                                        today.setHours(0, 0, 0, 0);
+                                                                        const selectedDate = new Date(value);
+                                                                        selectedDate.setHours(0, 0, 0, 0);
+                                                                        return selectedDate >= today || "Cannot select a past date";
+                                                                    }
+                                                                })
+                                                            }}
                                                             errors={errors.activationDate}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Expiry Date</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Expiry Date <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Expiry Date"
                                                             type="date"
                                                             registerName="expiryDate"
-                                                            props={{ ...register('expiryDate', { required: "Required" }) }}
+                                                            props={{
+                                                                ...register('expiryDate', {
+                                                                    required: "Required",
+                                                                    validate: (value) => {
+                                                                        const today = new Date();
+                                                                        today.setHours(0, 0, 0, 0);
+                                                                        const selectedDate = new Date(value);
+                                                                        selectedDate.setHours(0, 0, 0, 0);
+
+                                                                        if (selectedDate < today) {
+                                                                            return "Cannot select a past date";
+                                                                        }
+
+                                                                        const activationDate = watch('activationDate');
+                                                                        if (activationDate) {
+                                                                            const activation = new Date(activationDate);
+                                                                            activation.setHours(0, 0, 0, 0);
+                                                                            if (selectedDate <= activation) {
+                                                                                return "Expiry date must be after activation date";
+                                                                            }
+                                                                        }
+
+                                                                        return true;
+                                                                    }
+                                                                })
+                                                            }}
                                                             errors={errors.expiryDate}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Redemption Per User</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Redemption Per User <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Enter Redemption Per User"
                                                             placeholder="Enter Redemption Per User"
@@ -328,7 +484,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                     </div>
 
                                                     <div>
-                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Total Redemptions</h4>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Total Redemptions <span className="text-red-500 text-xs font-tbLex">*</span></h4>
                                                         <TextInput
                                                             label="Enter Total Redemptions"
                                                             placeholder="Enter Total Redemptions"
@@ -338,142 +494,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                             errors={errors.totalRedemptions}
                                                         />
                                                     </div>
-
                                                 </div>
-
-                                                {/* Service Applicability Section */}
-                                                {(couponType === 'services' || couponType === 'both') && (
-                                                    <div className="mt-6 pt-6 border-t border-slate-200">
-                                                        <h3 className="text-lg font-tbLex font-semibold text-slate-700 mb-4">Service Applicability</h3>
-
-                                                        <div className="mb-4">
-                                                            <label className="flex items-center space-x-2 cursor-pointer w-fit">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    {...register('applyAllServices')}
-                                                                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary"
-                                                                />
-                                                                <span className="text-sm font-tbLex text-slate-600">Apply to all services</span>
-                                                            </label>
-                                                        </div>
-
-                                                        {!applyAllServices && (
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-5">
-                                                                <div>
-                                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Services</h4>
-                                                                    <Controller
-                                                                        name="services"
-                                                                        control={control}
-                                                                        defaultValue={[]}
-                                                                        render={({ field: { onChange, value } }) => (
-                                                                            <MultiSelectTextInput
-                                                                                label="Select Services"
-                                                                                options={services}
-                                                                                value={Array.isArray(value) ? value : []}
-                                                                                onChange={onChange}
-                                                                                errors={errors.services}
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
-
-                                                                <div>
-                                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Service Categories</h4>
-                                                                    <Controller
-                                                                        name="serviceCategories"
-                                                                        control={control}
-                                                                        defaultValue={[]}
-                                                                        render={({ field: { onChange, value } }) => (
-                                                                            <MultiSelectTextInput
-                                                                                label="Select Service Categories"
-                                                                                options={serviceCategories}
-                                                                                value={Array.isArray(value) ? value : []}
-                                                                                onChange={onChange}
-                                                                                errors={errors.serviceCategories}
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                {/* Product Applicability Section */}
-                                                {(couponType === 'products' || couponType === 'both') && (
-                                                    <div className="mt-6 pt-6 border-t border-slate-200">
-                                                        <h3 className="text-lg font-tbLex font-semibold text-slate-700 mb-4">Product Applicability</h3>
-
-                                                        <div className="mb-4">
-                                                            <label className="flex items-center space-x-2 cursor-pointer w-fit">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    {...register('applyAllProducts')}
-                                                                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary"
-                                                                />
-                                                                <span className="text-sm font-tbLex text-slate-600">Apply to all products</span>
-                                                            </label>
-                                                        </div>
-
-                                                        {!applyAllProducts && (
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-5">
-                                                                <div>
-                                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Categories</h4>
-                                                                    <Controller
-                                                                        name="productCategories"
-                                                                        control={control}
-                                                                        defaultValue={[]}
-                                                                        render={({ field: { onChange, value } }) => (
-                                                                            <MultiSelectTextInput
-                                                                                label="Select Product Categories"
-                                                                                options={productCategories}
-                                                                                value={Array.isArray(value) ? value : []}
-                                                                                onChange={onChange}
-                                                                                errors={errors.productCategories}
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
-
-                                                                <div>
-                                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Subcategories</h4>
-                                                                    <Controller
-                                                                        name="productSubcategories"
-                                                                        control={control}
-                                                                        defaultValue={[]}
-                                                                        render={({ field: { onChange, value } }) => (
-                                                                            <MultiSelectTextInput
-                                                                                label="Select Product Subcategories"
-                                                                                options={productSubcategories}
-                                                                                value={Array.isArray(value) ? value : []}
-                                                                                onChange={onChange}
-                                                                                errors={errors.productSubcategories}
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
-
-                                                                <div>
-                                                                    <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Products</h4>
-                                                                    <Controller
-                                                                        name="products"
-                                                                        control={control}
-                                                                        defaultValue={[]}
-                                                                        render={({ field: { onChange, value } }) => (
-                                                                            <MultiSelectTextInput
-                                                                                label="Select Products"
-                                                                                options={products}
-                                                                                value={Array.isArray(value) ? value : []}
-                                                                                onChange={onChange}
-                                                                                errors={errors.products}
-                                                                            />
-                                                                        )}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
                                             </div>
 
                                             <footer className="py-3 flex bg-slate1 justify-end px-4 space-x-3">
