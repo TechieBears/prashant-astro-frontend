@@ -1,13 +1,13 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { formBtn1, tableBtn, formBtn3 } from '../../../utils/CustomClass';
+import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import { validateAlphabets, validateEmail, validatePhoneNumber, validateCommision } from '../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
-import { addEmployee, editEmployee, getServiceDropdown } from '../../../api';
+import { addEmployee, editEmployee, getPublicServicesDropdown } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 import { Controller } from 'react-hook-form';
@@ -102,7 +102,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     useEffect(() => {
         if (open) {
             const apiCall = async () => {
-                const response = await getServiceDropdown();
+                const response = await getPublicServicesDropdown();
                 setServiceSkills(response?.data?.map(item => ({ value: item?.name, label: item?.name })))
             }
             apiCall();
@@ -181,7 +181,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        First Name
+                                                        First Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter First Name*"
@@ -196,7 +196,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Last Name
+                                                        Last Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Last Name*"
@@ -211,33 +211,25 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Employee Image
+                                                        Employee Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
-                                                    <Controller
-                                                        name="profileImage"
+                                                    <ImageUploadInput
+                                                        label="Upload Employee Image"
+                                                        multiple={false}
+                                                        registerName="profileImage"
+                                                        errors={errors.profileImage}
+                                                        {...register("profileImage", { required: "Employee Image is required" })}
+                                                        register={register}
+                                                        setValue={setValue}
                                                         control={control}
-                                                        rules={{ required: "Employee Image is required" }}
-                                                        render={({ field }) => (
-                                                            <ImageUploadInput
-                                                                label="Upload Employee Image"
-                                                                multiple={false}
-                                                                registerName="profileImage"
-                                                                errors={errors.profileImage}
-                                                                register={register}
-                                                                setValue={setValue}
-                                                                control={control}
-                                                                defaultValue={userData?.profileImage}
-                                                                value={field.value}
-                                                                onChange={field.onChange}
-                                                            />
-                                                        )}
+                                                        defaultValue={userData?.profileImage}
                                                     />
                                                 </div>
                                                 <div className="">
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Email {edit ? "(Cannot be edited)" : ""}
+                                                        Email <span className="text-red-500 text-xs font-tbLex">*</span> {edit ? "(Cannot be edited)" : ""}
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Your Email"
@@ -245,7 +237,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         type="text"
                                                         disabled={edit}
                                                         registerName="email"
-                                                        props={{ ...register('email'), validate: validateEmail, required: "Email is required" }}
+                                                        props={{ ...register('email'), valdate: validateEmail, required: "Email is required" }}
                                                         errors={errors.email}
                                                     />
                                                 </div>
@@ -253,7 +245,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Phone Number
+                                                        Phone Number <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Enter Your Phone Number"
@@ -384,7 +376,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Start Time
+                                                        Start Time <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
                                                         label="Start Time*"
@@ -406,7 +398,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        End Time
+                                                        End Time <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <div className="">
                                                         <TextInput

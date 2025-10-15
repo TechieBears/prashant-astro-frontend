@@ -115,7 +115,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Category Name
+                                                            Category Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Category Name"
@@ -130,7 +130,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Category Image
+                                                            Category Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <ImageUploadInput
                                                             label="Upload Category Image"
