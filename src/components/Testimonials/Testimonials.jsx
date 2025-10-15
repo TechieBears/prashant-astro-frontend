@@ -11,6 +11,9 @@ import Comment from '../../assets/user/home/comment.png';
 import { ArrowLeft02Icon, ArrowRight02Icon } from 'hugeicons-react';
 import { Play } from 'iconsax-reactjs';
 import { getAllTestimonials } from '../../api';
+import TestimonialModal from '../Modals/TestimonialModal';
+import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
 
 const TestimonialsData = [
     {
@@ -114,6 +117,17 @@ const Testimonials = () => {
     const [slidesPerGroup, setSlidesPerGroup] = useState(3);
     const [testimonials, setTestimonials] = useState([]);
     const [playingVideos, setPlayingVideos] = useState({});
+    const [showExperienceModal, setShowExperienceModal] = useState(false);
+
+    const { isLogged } = useSelector(state => state.user);
+
+    const handleShareExperience = () => {
+        if (!isLogged) {
+            toast.error('Please login to share your experience');
+            return;
+        }
+        setShowExperienceModal(true);
+    };
 
     const formattedData = useMemo(() =>
         testimonials.map(item => {
@@ -217,13 +231,31 @@ const Testimonials = () => {
 
             {/* Section Header */}
             <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
-                <SectionHeader prefix="Our" highlight="Testimonials" />
+                {/* <SectionHeader prefix="Our" highlight="Testimonials" /> */}
                 <div className="flex items-center gap-2 justify-center">
                     <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
                 </div>
                 <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
                     Read the Testimonials by our clients and find more about our services.
                 </p>
+            </div>
+
+            {/* Share Experience Section */}
+            <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto">
+                <div className="text-center">
+                    {/* <SectionHeader
+                        prefix="Share your experience"
+                        highlight="with us"
+                    /> */}
+                    <div className="mb-2 sm:mb-12 md:mb-10">
+                        <button
+                            onClick={handleShareExperience}
+                            className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90"
+                        >
+                            Share Your Experience with us
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Background Shape */}
@@ -314,6 +346,12 @@ const Testimonials = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Share Experience Modal */}
+            <TestimonialModal
+                open={showExperienceModal}
+                setOpen={setShowExperienceModal}
+            />
         </div>
     );
 };
