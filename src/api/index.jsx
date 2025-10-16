@@ -2121,7 +2121,7 @@ export const getFilteredReviews = async ({ userId, productId = null, serviceId =
     if (productId) params.append('product', productId);
     if (serviceId) params.append('service', serviceId);
 
-    const url = `${environment.baseUrl}reviews/public/filter?${params.toString()}`;
+    const url = `${environment.baseUrl}reviews/filter?${params.toString()}`;
     try {
         const response = await axios.get(url);
         return response.data;
