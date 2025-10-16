@@ -185,7 +185,7 @@ const HomePage = () => {
     const whyData = [
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: '16+ Years Experience',
+            title: '21+ Years Experience',
             description:
                 'Extensive experience in Vedic astrology with thousands of successful consultations',
         },
@@ -209,7 +209,7 @@ const HomePage = () => {
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: '500+ Happy Clients',
+            title: '2000+ Happy Clients',
             description:
                 'Trusted by clients for life-changing guidance and solutions',
         },

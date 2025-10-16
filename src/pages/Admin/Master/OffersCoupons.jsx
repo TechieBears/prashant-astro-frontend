@@ -1,4 +1,4 @@
-import { ArrowLeft2, ArrowRight2 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Copy } from 'iconsax-reactjs';
 import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -53,28 +53,6 @@ function OffersCoupons() {
     };
 
 
-    // ================= Active Toggle =================
-    const handleActiveChange = async (id, isActive) => {
-        try {
-            await editCoupon(id, { isActive: !isActive });
-            setRefreshTrigger(prev => prev + 1);
-            toast.success('Status updated');
-        } catch (error) {
-            console.error('Failed to update status', error);
-            toast.error('Update failed');
-        }
-    };
-
-    const activeBody = (row) => (
-        <Switch
-            value={row?.isActive}
-            onChange={() => handleActiveChange(row?._id, row?.isActive)}
-            size={50}
-            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-        />
-    );
-
     // ================= Delete Coupon =================
     const handleDeleteCoupon = async (id) => {
         if (!window.confirm("Are you sure you want to delete this coupon?")) return;
@@ -89,7 +67,225 @@ function OffersCoupons() {
         }
     };
 
-    // ================= Action Buttons =================
+    // ================= Active Toggle =================
+    const handleActiveChange = async (id, isActive) => {
+        try {
+            await editCoupon(id, { isActive: !isActive });
+            setRefreshTrigger(prev => prev + 1);
+            toast.success('Status updated');
+        } catch (error) {
+            console.error('Failed to update status', error);
+            toast.error('Update failed');
+        }
+    };
+
+    // ================= Enhanced Body Templates =================
+    const couponIdBody = (row) => (
+        <div className="flex items-center gap-2">
+            <span className="capitalize font-medium">{row?._id?.slice(-8) || "---- -----"}</span>
+            <span>
+                <Copy
+                    className="cursor-pointer text-primary hover:text-primary-dark"
+                    size={16}
+                    onClick={() => {
+                        navigator.clipboard.writeText(row?._id);
+                        toast.success('Coupon ID Copied!');
+                    }}
+                />
+            </span>
+        </div>
+    );
+
+    const couponDetailsBody = (row) => (
+        <div className="space-y-1">
+            <div className="text-sm">
+                <div className="font-medium capitalize">
+                    {row?.couponName || "---- -----"}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                        {row?.couponCode || "---- -----"}
+                    </span>
+                    <Copy
+                        className="cursor-pointer text-blue-600 hover:text-blue-800"
+                        size={14}
+                        onClick={() => {
+                            navigator.clipboard.writeText(row?.couponCode);
+                            toast.success('Coupon Code Copied!');
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+
+    const discountDetailsBody = (row) => {
+        const discountIn = row?.discountIn || "percent";
+        const discount = row?.discount || 0;
+
+        return (
+            <div className="space-y-1">
+                <div className="text-sm font-bold text-green-600">
+                    {discountIn === "percent" ? `${discount}%` : `₹${discount}`}
+                </div>
+                <div className="text-xs text-gray-500 capitalize">
+                    {discountIn === "percent" ? "Percentage" : "Fixed Amount"}
+                </div>
+            </div>
+        );
+    };
+
+    const couponTypeBody = (row) => {
+        const typeColors = {
+            'products': 'bg-blue-100 text-blue-600',
+            'services': 'bg-purple-100 text-purple-600',
+            'both': 'bg-orange-100 text-orange-600'
+        };
+        const type = row?.couponType || "---- -----";
+        const colorClass = typeColors[type] || 'bg-gray-100 text-gray-600';
+
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${colorClass}`}>
+                {type}
+            </span>
+        );
+    };
+
+    const applicableItemsBody = (row) => {
+        const applicableServices = row?.applicableServices || [];
+        const applicableServiceCategories = row?.applicableServiceCategories || [];
+        const applicableProducts = row?.applicableProducts || [];
+        const applicableProductCategories = row?.applicableProductCategories || [];
+        const applicableProductSubcategories = row?.applicableProductSubcategories || [];
+
+        let items = [];
+        let label = "";
+        let colorClass = "";
+
+        if (row?.couponType === 'services') {
+            if (applicableServices.length > 0) {
+                items = applicableServices;
+                label = "Services";
+                colorClass = "bg-purple-100 text-purple-700";
+            } else if (applicableServiceCategories.length > 0) {
+                items = applicableServiceCategories;
+                label = "Categories";
+                colorClass = "bg-purple-100 text-purple-700";
+            }
+        } else if (row?.couponType === 'products') {
+            if (applicableProducts.length > 0) {
+                items = applicableProducts;
+                label = "Products";
+                colorClass = "bg-blue-100 text-blue-700";
+            } else if (applicableProductCategories.length > 0) {
+                items = applicableProductCategories;
+                label = "Categories";
+                colorClass = "bg-blue-100 text-blue-700";
+            } else if (applicableProductSubcategories.length > 0) {
+                items = applicableProductSubcategories;
+                label = "Subcategories";
+                colorClass = "bg-blue-100 text-blue-700";
+            }
+        }
+
+        if (items.length === 0) {
+            return <span className="text-xs text-gray-400">All {row?.couponType}</span>;
+        }
+
+        return (
+            <div className="space-y-1">
+                <div className="text-xs font-medium text-gray-600">{label}</div>
+                <div className="flex flex-wrap gap-1">
+                    <span className={`px-2 py-1 ${colorClass} text-xs rounded-full`}>
+                        {items.length} {label}
+                    </span>
+                </div>
+            </div>
+        );
+    };
+
+    const datesBody = (row) => (
+        <div className="space-y-1 text-sm">
+            <div>
+                <div className="text-xs text-gray-500">Activation</div>
+                <div className="font-medium text-green-600">
+                    {moment(row?.activationDate).format('DD-MM-YYYY') || "---- -----"}
+                </div>
+            </div>
+            <div>
+                <div className="text-xs text-gray-500">Expiry</div>
+                <div className="font-medium text-red-600">
+                    {moment(row?.expiryDate).format('DD-MM-YYYY') || "---- -----"}
+                </div>
+            </div>
+        </div>
+    );
+
+    const expiryStatusBody = (row) => {
+        const isExpired = moment().isAfter(moment(row?.expiryDate));
+        const isUpcoming = moment().isBefore(moment(row?.activationDate));
+
+        let statusText = "Active";
+        let colorClass = "bg-green-100 text-green-600";
+
+        if (isExpired) {
+            statusText = "Expired";
+            colorClass = "bg-red-100 text-red-600";
+        } else if (isUpcoming) {
+            statusText = "Upcoming";
+            colorClass = "bg-yellow-100 text-yellow-600";
+        }
+
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${colorClass}`}>
+                {statusText}
+            </span>
+        );
+    };
+
+    const redemptionBody = (row) => {
+        const redemptionPerUser = row?.redemptionPerUser || 0;
+        const totalRedemptions = row?.totalRedemptions || 0;
+
+        return (
+            <div className="space-y-1 text-sm">
+                <div>
+                    <div className="text-xs text-gray-500">Per User</div>
+                    <div className="font-medium text-blue-600">{redemptionPerUser}</div>
+                </div>
+                <div>
+                    <div className="text-xs text-gray-500">Total</div>
+                    <div className="font-medium text-purple-600">{totalRedemptions}</div>
+                </div>
+            </div>
+        );
+    };
+
+    const activeBody = (row) => (
+        <div className="space-y-2">
+            <div className="flex items-center">
+                <Switch
+                    value={row?.isActive}
+                    onChange={() => handleActiveChange(row?._id, row?.isActive)}
+                    size={50}
+                    backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+                    borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+                />
+            </div>
+        </div>
+    );
+
+    const createdAtBody = (row) => (
+        <div className="text-sm">
+            <div className="font-medium">
+                {moment(row?.createdAt).format('DD-MM-YYYY') || "---- -----"}
+            </div>
+            <div className="text-xs text-gray-500">
+                {moment(row?.createdAt).format('hh:mm A') || ""}
+            </div>
+        </div>
+    );
+
     const actionBodyTemplate = (row) => (
         <div className="flex items-center gap-2">
             <CreateCouponModal edit={true} title="Edit Coupon" userData={row} setRefreshTrigger={setRefreshTrigger} />
@@ -102,46 +298,86 @@ function OffersCoupons() {
         </div>
     );
 
-    // ================= Expiry Status =================
-    const expiryStatus = (row) => {
-        const isExpired = moment().isAfter(moment(row?.expiryDate));
-        return (
-            <h6 className={`${!isExpired ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"} py-2 px-5 text-center capitalize rounded-full`}>
-                {isExpired ? "Expired" : "Active"}
-            </h6>
-        );
-    };
-    const couponType = (row) => {
-        return (
-            <h6 className={`${row?.couponType == "both" ? "bg-orange-100 text-orange-500" : row?.couponType === "products" ? "bg-blue-100 text-blue-500" : "bg-purple-100 text-purple-500"} py-2 px-5 text-center capitalize rounded-full`}>
-                {row?.couponType}
-            </h6>
-        );
-    };
-
 
     // ================= Columns =================
     const columns = [
-        { field: 'couponName', header: 'Coupon Title', body: (row) => <span className='capitalize'>{row?.couponName}</span>, sortable: true },
-        { field: 'couponCode', header: 'Coupon Code', body: (row) => <span className='capitalize'>{row?.couponCode}</span>, sortable: true },
-        { field: 'discount', header: 'Discount', body: (row) => <span className='capitalize'>{row?.discount}</span>, sortable: true },
-        { field: 'discountIn', header: 'Discount Type', body: (row) => <span className='capitalize'>{row?.discountIn}</span>, sortable: true },
         {
-            field: 'activationDate',
-            header: 'Activation Date',
-            sortable: true,
-            body: (row) => <span className='capitalize'>{moment(row.activationDate).format('YYYY-MM-DD')}</span>
+            field: '_id',
+            header: 'Coupon ID',
+            body: couponIdBody,
+            style: true,
+            sortable: true
         },
         {
-            field: 'expiryDate',
-            header: 'Expiry Date',
-            sortable: true,
-            body: (row) => <span className='capitalize'>{moment(row.expiryDate).format('YYYY-MM-DD')}</span>
+            field: 'couponDetails',
+            header: 'Coupon Details',
+            body: couponDetailsBody,
+            style: true,
+            sortable: true
         },
-        { field: 'couponType', header: 'Coupon Type', body: couponType, sortable: true },
-        { field: 'status', header: 'Status', body: expiryStatus },
-        { field: 'isActive', header: 'Active', body: activeBody, sortable: true },
-        { field: 'action', header: 'Action', body: actionBodyTemplate, sortable: true }
+        {
+            field: 'discount',
+            header: 'Discount',
+            body: discountDetailsBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'couponType',
+            header: 'Coupon Type',
+            body: couponTypeBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'applicableItems',
+            header: 'Applicable To',
+            body: applicableItemsBody,
+            style: true,
+            sortable: false
+        },
+        {
+            field: 'dates',
+            header: 'Dates',
+            body: datesBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'status',
+            header: 'Status',
+            body: expiryStatusBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'redemption',
+            header: 'Redemptions',
+            body: redemptionBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'isActive',
+            header: 'Active',
+            body: activeBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'createdAt',
+            header: 'Created At',
+            body: createdAtBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'action',
+            header: 'Action',
+            body: actionBodyTemplate,
+            style: true,
+            sortable: false
+        }
     ];
 
     return (

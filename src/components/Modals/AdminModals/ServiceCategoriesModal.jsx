@@ -119,7 +119,7 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Service Category Name
+                                                            Service Category Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Service Category Name"
@@ -156,7 +156,7 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Service Category Image
+                                                            Service Category Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <ImageUploadInput
                                                             label="Upload Service Category Image"

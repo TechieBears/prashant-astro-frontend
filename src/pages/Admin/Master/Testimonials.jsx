@@ -119,7 +119,7 @@ export default function Testimonials() {
         },
         {
             field: 'service',
-            header: 'Service/Product',
+            header: 'Services/Products',
             body: (row) => (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                     {row?.product?.name || row?.service?.title || "N/A"}

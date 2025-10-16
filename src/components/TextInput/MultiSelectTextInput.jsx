@@ -1,33 +1,62 @@
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Error from '../Errors/Error';
 
 export default function MultiSelectTextInput({ label, options, value, onChange, errors }) {
-    const selectedOptions = options?.filter(option =>
+    const allOptions = [
+        { value: 'select_all', label: 'Select All' },
+        ...(options || [])
+    ];
+
+    const allSelected = options?.length > 0 &&
+        options?.every(option => (value || [])?.includes(option?.value));
+
+    const selectedOptions = allOptions?.filter(option =>
         (value || [])?.includes(option?.value)
     );
+
+    const handleChange = (event, newOptions, reason, details) => {
+        const selectAllOption = newOptions.find(opt => opt.value === 'select_all');
+        const previouslyHadSelectAll = allSelected;
+
+        if (selectAllOption && !previouslyHadSelectAll) {
+            const allValues = options?.map(option => option?.value) || [];
+            onChange(allValues);
+        }
+        else if (details?.option?.value === 'select_all' && previouslyHadSelectAll) {
+            onChange([]);
+        }
+        else {
+            const newValues = newOptions
+                ?.filter(option => option.value !== 'select_all')
+                ?.map(option => option?.value) || [];
+            onChange(newValues);
+        }
+    };
+
+    const displaySelectedOptions = selectedOptions;
 
     return (
         <div className=''>
             <Autocomplete
                 multiple
-                options={options}
+                options={allOptions}
                 disableCloseOnSelect
-                value={selectedOptions}
-                onChange={(event, newOptions) => {
-                    const newValues = newOptions?.map(option => option?.value);
-                    onChange(newValues);
-                }}
+                value={displaySelectedOptions}
+                onChange={handleChange}
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, value) => option?.value === value?.value}
                 renderOption={(props, option, { selected }) => {
-                    const { key, ...otherProps } = props;
+                    const isSelected = option.value === 'select_all'
+                        ? allSelected
+                        : selected;
+
                     return (
-                        <li key={key} {...otherProps} className={`px-2 bg-white text-sm font-tbLex text-slate-500 transition-all duration-150 tracking-tight`}>
-                            <Checkbox
-                                checked={selected}
-                            />
+                        <li
+                            {...props}
+                            className={`px-4 py-2 bg-white text-sm font-tbLex transition-all duration-150 tracking-tight hover:bg-slate-50 ${isSelected ? 'text-primary font-medium bg-blue-50' : 'text-slate-500'
+                                } ${option.value === 'select_all' ? 'border-b border-slate-200 font-semibold' : ''}`}
+                        >
                             {option?.label}
                         </li>
                     );
@@ -53,7 +82,6 @@ export default function MultiSelectTextInput({ label, options, value, onChange, 
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        // label={label}
                         placeholder={label}
                         className='[&>div]:!rounded-lg [&>div]:hover:!border-primary [&>div]:!py-[8px] [&>div]:!border-slate-300 [&>label]:!text-base [&>label]:!font-tbLex [&>label]:!text-slate-400 [&>label]:!px-2'
                     />

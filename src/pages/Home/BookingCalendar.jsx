@@ -104,7 +104,7 @@ const BookingCalendar = () => {
         if (!astrologers.length) return [];
         return astrologers.map(astrologer => ({
             value: astrologer._id,
-            label: astrologer.fullName
+            label: astrologer?.profile?.firstName + ' ' + astrologer?.profile?.lastName
         }));
     }, [astrologers]);
 

@@ -66,7 +66,8 @@ const TestimonialsData = [
     }
 ];
 
-const VideoPlayer = ({ src, videoId, playingVideos, setPlayingVideos }) => {
+const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
     const videoRef = useRef(null);
     const isPlaying = playingVideos[videoId];
 
@@ -81,29 +82,81 @@ const VideoPlayer = ({ src, videoId, playingVideos, setPlayingVideos }) => {
         setPlayingVideos(prev => ({ ...prev, [videoId]: false }));
     };
 
+    const nextSlide = () => setCurrentIndex(prev => (prev + 1) % media.length);
+    const prevSlide = () => setCurrentIndex(prev => (prev - 1 + media.length) % media.length);
+
+    if (!media?.length) {
+        return (
+            <div className="w-full h-32 sm:h-40 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No media</span>
+            </div>
+        );
+    }
+
+    const currentMedia = media[currentIndex];
+    const isVideo = currentMedia.type === 'video';
+    const hasMultipleMedia = media.length > 1;
+
     return (
         <div className="relative w-full h-32 sm:h-40">
-            <video
-                ref={videoRef}
-                src={src}
-                className="w-full h-full object-cover"
-                controls={isPlaying}
-                preload="metadata"
-                onPause={handlePause}
-                onEnded={handlePause}
-            >
-                Your browser does not support the video tag.
-            </video>
+            {isVideo ? (
+                <>
+                    <video
+                        ref={videoRef}
+                        src={currentMedia.url}
+                        className="w-full h-full object-cover"
+                        controls={isPlaying}
+                        preload="metadata"
+                        onPause={handlePause}
+                        onEnded={handlePause}
+                    />
+                    {!isPlaying && (
+                        <div
+                            className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer group hover:bg-opacity-40 transition-all duration-300"
+                            onClick={handlePlay}
+                        >
+                            <div className="bg-white bg-opacity-90 rounded-full p-3 sm:p-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                                <Play size={24} variant="Bold" className="text-orange-500" />
+                            </div>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <img
+                    src={currentMedia.url}
+                    alt="testimonial media"
+                    className="w-full h-full object-cover"
+                />
+            )}
 
-            {!isPlaying && (
-                <div
-                    className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer group hover:bg-opacity-40 transition-all duration-300"
-                    onClick={handlePlay}
-                >
-                    <div className="bg-white bg-opacity-90 rounded-full p-3 sm:p-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                        <Play size={24} variant="Bold" className="text-orange-500" />
+            {hasMultipleMedia && (
+                <>
+                    {/* Navigation dots */}
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                        {media.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentIndex(index)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                                    }`}
+                            />
+                        ))}
                     </div>
-                </div>
+
+                    {/* Navigation arrows */}
+                    <button
+                        onClick={prevSlide}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-all duration-300"
+                    >
+                        <ArrowLeft02Icon size={16} />
+                    </button>
+                    <button
+                        onClick={nextSlide}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-all duration-300"
+                    >
+                        <ArrowRight02Icon size={16} />
+                    </button>
+                </>
             )}
         </div>
     );
@@ -131,13 +184,18 @@ const Testimonials = () => {
 
     const formattedData = useMemo(() =>
         testimonials.map(item => {
-            const mediaUrl = item.media?.[0] || '';
-            const isVideo = mediaUrl && (
-                mediaUrl.includes('.mp4') ||
-                mediaUrl.includes('.mov') ||
-                mediaUrl.includes('.webm') ||
-                mediaUrl.includes('video/upload')
+            const mediaArray = item.media || [];
+            const isVideo = (url) => url && (
+                url.includes('.mp4') ||
+                url.includes('.mov') ||
+                url.includes('.webm') ||
+                url.includes('video/upload')
             );
+
+            const processedMedia = mediaArray.map(url => ({
+                url,
+                type: isVideo(url) ? 'video' : 'image'
+            }));
 
             return {
                 name: (item.user?.firstName || "Anonymous") + " " + (item.user?.lastName || ""),
@@ -145,8 +203,8 @@ const Testimonials = () => {
                 category: item.product?.name || item.service?.title || "General",
                 description: item.message || "No description provided",
                 image: item.user?.profileImage || Profile1,
-                image2: mediaUrl,
-                isVideo: isVideo
+                media: processedMedia,
+                rating: item.rating || 0
             };
         })
         , [testimonials]);
@@ -286,7 +344,7 @@ const Testimonials = () => {
                                             </div>
                                         </div>
 
-                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-[#0088FF] rounded-full">
+                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-primary-orange rounded-full">
                                             {item.category}
                                         </span>
 
@@ -303,22 +361,12 @@ const Testimonials = () => {
                                         </p>
 
                                         <div className="rounded-md overflow-hidden mt-auto">
-                                            {item.image2 ? (
-                                                item.isVideo ? (
-                                                    <VideoPlayer
-                                                        src={item.image2}
-                                                        videoId={`video-${currentGroup}-${index}`}
-                                                        playingVideos={playingVideos}
-                                                        setPlayingVideos={setPlayingVideos}
-                                                    />
-                                                ) : (
-                                                    <img src={item.image2} alt="testimonial" className="w-full h-32 sm:h-40 object-cover" />
-                                                )
-                                            ) : (
-                                                <div className="w-full h-32 sm:h-40 bg-gray-200 flex items-center justify-center">
-                                                    <span className="text-gray-400 text-sm">No media</span>
-                                                </div>
-                                            )}
+                                            <MediaCarousel
+                                                media={item.media}
+                                                videoId={`video-${currentGroup}-${index}`}
+                                                playingVideos={playingVideos}
+                                                setPlayingVideos={setPlayingVideos}
+                                            />
                                         </div>
                                     </div>
                                 </div>

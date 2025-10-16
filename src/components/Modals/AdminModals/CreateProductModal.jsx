@@ -185,7 +185,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Category
+                                                            Product Category <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
@@ -208,7 +208,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Sub Category
+                                                            Product Sub Category <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
@@ -228,7 +228,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Name
+                                                            Product Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Product Name"
@@ -243,7 +243,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Image (multiple)
+                                                            Product Image (multiple) <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <ImageUploadInput
                                                             label="Upload Product Image"
@@ -256,6 +256,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                             control={control}
                                                             defaultValue={userData?.images}
                                                         />
+
                                                     </div>
 
                                                     <div className="">
@@ -263,7 +264,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product MRP Price
+                                                            Product MRP Price <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Product MRP Price"
@@ -286,7 +287,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Selling Price
+                                                            Product Selling Price <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Product Selling Price"
@@ -301,7 +302,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Quantity (Stock)
+                                                            Product Quantity (Stock) <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Product Quantity"
@@ -316,7 +317,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Description
+                                                            Description <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <CustomTextArea
                                                             label="Enter Description"
