@@ -344,7 +344,7 @@ const Testimonials = () => {
                                             </div>
                                         </div>
 
-                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-[#0088FF] rounded-full">
+                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-primary-orange rounded-full">
                                             {item.category}
                                         </span>
 
