@@ -1,13 +1,12 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { CloseCircle, DocumentUpload } from 'iconsax-reactjs';
 import LoadBox from '../Loader/LoadBox';
 import TextInput from '../TextInput/TextInput';
-import StarRating from '../Common/StarRating';
 import { createTestimonial, getServiceDropdown, getProductCategoriesWithProductsPublic, uploadToCloudinary } from '../../api';
 import { formBtn1 } from '../../utils/CustomClass';
 
@@ -18,7 +17,6 @@ function TestimonialModal({ open, setOpen }) {
             service_id: '',
             product_id: '',
             message: '',
-            rating: 0,
             city: '',
             state: '',
             country: ''
@@ -157,11 +155,6 @@ function TestimonialModal({ open, setOpen }) {
             return;
         }
 
-        if (data.rating === 0) {
-            toast.error('Please provide a rating');
-            return;
-        }
-
         try {
             setLoader(true);
 
@@ -183,7 +176,6 @@ function TestimonialModal({ open, setOpen }) {
                 service_id: data.service_id || null,
                 product_id: data.product_id || null,
                 message: data.message,
-                rating: data.rating,
                 media: mediaUrls,
                 city: data.city,
                 state: data.state,
@@ -306,27 +298,6 @@ function TestimonialModal({ open, setOpen }) {
                                                 </select>
                                             </div>
                                         )}
-
-                                        {/* Rating */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Rating <span className="text-red-500">*</span>
-                                            </label>
-                                            <Controller
-                                                name="rating"
-                                                control={control}
-                                                rules={{ required: 'Rating is required', min: 1 }}
-                                                render={({ field }) => (
-                                                    <StarRating
-                                                        rating={field.value}
-                                                        onRatingChange={field.onChange}
-                                                    />
-                                                )}
-                                            />
-                                            {errors.rating && (
-                                                <p className="mt-1 text-sm text-red-600">{errors.rating.message}</p>
-                                            )}
-                                        </div>
 
                                         {/* Message */}
                                         <div>
