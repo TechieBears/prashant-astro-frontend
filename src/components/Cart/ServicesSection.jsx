@@ -99,6 +99,7 @@ const ServicesSection = ({
                                     total={total}
                                     onCheckout={onCheckout}
                                     activeTab={activeTab}
+                                    serviceIds={services.map(s => s.serviceId)}
                                 />
                             </div>
                         </div>

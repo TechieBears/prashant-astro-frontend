@@ -1,17 +1,64 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { applyCoupon } from '../../../api';
+import toast from 'react-hot-toast';
 
-const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
+const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [] }) => {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [couponCode, setCouponCode] = useState('');
+    const [isApplying, setIsApplying] = useState(false);
 
-    const handleApply = () => {
-        if (selectedCoupon) {
-            onApply(selectedCoupon);
-            onClose();
+    const handleApply = async () => {
+        if (!selectedCoupon) return;
+        
+        try {
+            setIsApplying(true);
+            const response = await applyCoupon(selectedCoupon.couponCode, serviceIds);
+            
+            if (response.success) {
+                onApply({
+                    ...selectedCoupon,
+                    ...response.data // Include any additional data from the API response
+                });
+                onClose();
+            } else {
+                toast.error(response.message || 'Failed to apply coupon', { position: 'top-right' });
+            }
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+            toast.error(error.response?.data?.message || 'An error occurred while applying the coupon', { position: 'top-right' });
+        } finally {
+            setIsApplying(false);
         }
     };
-    
+
+    const handleCheckCoupon = async () => {
+        if (!couponCode.trim()) {
+            toast.error('Please enter a coupon code', { position: 'top-right' });
+            return;
+        }
+
+        try {
+            setIsApplying(true);
+            const response = await applyCoupon(couponCode, serviceIds);
+            
+            if (response.success) {
+                const couponDetails = response.data;
+                setSelectedCoupon({
+                    ...couponDetails,
+                    couponCode: couponCode
+                });
+            } else {
+                toast.error(response.message || 'Invalid coupon code', { position: 'top-right' });
+            }
+        } catch (error) {
+            console.error('Error checking coupon:', error);
+            toast.error(error.response?.data?.message || 'An error occurred while checking the coupon', { position: 'top-right' });
+        } finally {
+            setIsApplying(false);
+        }
+    };
+
     const calculateMaxSavings = () => {
         if (!selectedCoupon) return 0;
 
@@ -56,8 +103,12 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
                             onChange={(e) => setCouponCode(e.target.value)}
                             className="flex-1 px-2.5 py-1.5 border-2 border-primary-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white text-xs"
                         />
-                        <button className="px-3 py-1.5 text-primary font-semibold hover:bg-primary-light rounded-lg transition-colors text-xs">
-                            Check
+                        <button 
+                            onClick={handleCheckCoupon}
+                            disabled={isApplying || !couponCode.trim()}
+                            className={`px-3 py-1.5 font-semibold rounded-lg transition-colors text-xs ${isApplying || !couponCode.trim() ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary-dark'}`}
+                        >
+                            {isApplying ? 'Checking...' : 'Check'}
                         </button>
                     </div>
                 </div>
@@ -85,22 +136,20 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
                                 return (
                                     <div
                                         key={coupon._id}
-                                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 bg-white ${
-                                            selectedCoupon?._id === coupon._id
-                                                ? 'border-primary shadow-lg scale-[1.02]'
-                                                : 'border-primary-light hover:border-primary hover:shadow-md'
-                                        }`}
+                                        className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 bg-white ${selectedCoupon?._id === coupon._id
+                                            ? 'border-primary shadow-lg scale-[1.02]'
+                                            : 'border-primary-light hover:border-primary hover:shadow-md'
+                                            }`}
                                         onClick={() => setSelectedCoupon(coupon)}
                                     >
                                         <div className="flex items-start gap-3">
                                             {/* Custom Checkbox */}
                                             <div className="mt-1">
                                                 <div
-                                                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
-                                                        selectedCoupon?._id === coupon._id
-                                                            ? 'bg-primary border-primary'
-                                                            : 'border-orange-light'
-                                                    }`}
+                                                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${selectedCoupon?._id === coupon._id
+                                                        ? 'bg-primary border-primary'
+                                                        : 'border-orange-light'
+                                                        }`}
                                                 >
                                                     {selectedCoupon?._id === coupon._id && (
                                                         <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
@@ -170,14 +219,10 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount }) => {
                         </button>
                         <button
                             onClick={handleApply}
-                            disabled={!selectedCoupon}
-                            className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all text-xs ${
-                                selectedCoupon
-                                    ? 'bg-primary text-white hover:bg-[#ea580c] shadow-md hover:shadow-lg'
-                                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
+                            disabled={!selectedCoupon || isApplying}
+                            className={`w-full py-2.5 px-4 rounded-lg font-medium text-sm ${!selectedCoupon || isApplying ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary-dark'}`}
                         >
-                            Apply
+                            {isApplying ? 'Applying...' : 'Apply Coupon'}
                         </button>
                     </div>
                 </div>

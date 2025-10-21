@@ -6,33 +6,52 @@
  * - Service Orders: Supports multiple service items in a single order
  */
 
+// Default values for service data
+const DEFAULT_SERVICE_VALUES = {
+    serviceType: 'Service',
+    sessionDuration: '30 minutes',
+    date: '2025-10-11',
+    time: '11:00 - 11:30',
+    mode: 'online',
+    zoomLink: 'Link will be provided'
+};
+
 /**
  * Extract image URL from various possible data structures
  * @param {Object} item - Item object with potential image data
  * @returns {string} Image URL or placeholder
  */
 const getImageUrl = (item) => {
+    if (!item) return 'https://via.placeholder.com/150';
+
     const imageSources = [
         item.snapshot?.images,
         item.images,
         item.product?.images,
         item.snapshot?.image,
         item.image
-    ];
+    ].filter(Boolean);
 
     for (const source of imageSources) {
-        if (!source) continue;
-
-        if (typeof source === 'string') {
-            return source;
-        }
-        if (Array.isArray(source) && source[0]) {
-            return source[0];
-        }
+        if (typeof source === 'string') return source;
+        if (Array.isArray(source) && source[0]) return source[0];
     }
 
     return 'https://via.placeholder.com/150';
 };
+
+/**
+ * Create default payment details object
+ * @param {Object} overrides - Custom payment details to override defaults
+ * @returns {Object} Default payment details
+ */
+const createDefaultPaymentDetails = (overrides = {}) => ({
+    transactionId: `TXN${Date.now()}`,
+    provider: 'PhonePe',
+    status: 'PENDING',
+    paidAt: null,
+    ...overrides
+});
 
 /**
  * Create order data object with consistent structure
@@ -55,23 +74,11 @@ export const createOrderData = ({
     paymentMethod = 'UPI',
     paymentProvider = 'PhonePe'
 }) => {
-    if (!addressId) {
-        throw new Error('addressId is required');
-    }
-
+    if (!addressId) throw new Error('addressId is required');
     if (!cartItems && (!productId || quantity === undefined)) {
         throw new Error('Either cartItems or both productId and quantity must be provided');
     }
 
-    const defaultPaymentDetails = {
-        transactionId: `TXN${Date.now()}`,
-        provider: paymentProvider,
-        status: 'PENDING',
-        paidAt: null,
-        ...paymentDetails
-    };
-
-    // Create items array based on input type
     const items = cartItems
         ? cartItems.map(item => ({
             product: item.productId || item.product?._id || item._id,
@@ -83,7 +90,10 @@ export const createOrderData = ({
         items,
         address: addressId,
         paymentMethod,
-        paymentDetails: defaultPaymentDetails
+        paymentDetails: createDefaultPaymentDetails({
+            provider: paymentProvider,
+            ...paymentDetails
+        })
     };
 };
 
@@ -93,7 +103,7 @@ export const createOrderData = ({
  * @returns {Object} Transformed data for ProductSuccessSection
  */
 export const transformProductOrderData = (apiData) => {
-    if (!apiData || !apiData.order || !apiData.order.items) {
+    if (!apiData?.order?.items) {
         return {
             orderItems: [],
             subtotal: 0,
@@ -103,28 +113,32 @@ export const transformProductOrderData = (apiData) => {
         };
     }
 
-    const orderItems = apiData.order.items.map((item, index) => ({
+    const { order } = apiData;
+    const orderItems = order.items.map((item, index) => ({
         id: item._id || `item-${index}`,
         title: item.snapshot?.name || item.name || 'Product',
-        price: item.snapshot?.sellingPrice || item.price || item.subtotal / item.quantity,
-        oldPrice: item.snapshot?.mrpPrice || item.snapshot?.sellingPrice || item.price || item.subtotal / item.quantity,
+        price: item.snapshot?.sellingPrice || item.price || (item.subtotal / item.quantity) || 0,
+        oldPrice: item.snapshot?.mrpPrice || item.snapshot?.sellingPrice || item.price || (item.subtotal / item.quantity) || 0,
         image: getImageUrl(item),
-        quantity: item.quantity
+        quantity: item.quantity || 1
     }));
 
-    const subtotal = apiData.order.amount?.basePrice || apiData.order.totalAmount || 0;
-    const total = apiData.order.finalAmount || apiData.order.totalAmount || 0;
+    const subtotal = order.amount?.basePrice || order.totalAmount || 0;
+    const total = order.finalAmount || order.totalAmount || 0;
     const totalDiscount = Math.max(0, subtotal - total);
-    const orderId = apiData.order._id;
 
-    return {
-        orderItems,
-        subtotal,
-        totalDiscount,
-        total,
-        orderId
-    };
+    return { orderItems, subtotal, totalDiscount, total, orderId: order._id };
 };
+
+/**
+ * Create default service data
+ * @param {Object} overrides - Custom service data to override defaults
+ * @returns {Object} Default service data
+ */
+const createDefaultServiceData = (overrides = {}) => ({
+    ...DEFAULT_SERVICE_VALUES,
+    ...overrides
+});
 
 /**
  * Transform service cart items to service booking data
@@ -132,19 +146,18 @@ export const transformProductOrderData = (apiData) => {
  * @returns {Object}
  */
 export const transformServiceData = (serviceCartItems) => {
-    if (!serviceCartItems || serviceCartItems.length === 0) {
-        return null;
-    }
+    if (!serviceCartItems?.length) return null;
 
     const firstService = serviceCartItems[0];
-
     return {
-        serviceType: firstService.name || "Service",
-        sessionDuration: "30-60 minutes",
-        date: "15th Sep, 2025",
-        time: "12:00PM - 01:00PM",
-        mode: "In-person / Online",
-        zoomLink: "zoommtg://zoom.us/join?confno=8529015944&pwd=123456&uname=John%20Doe",
+        ...createDefaultServiceData({
+            serviceType: firstService.name,
+            sessionDuration: '30-60 minutes',
+            date: '15th Sep, 2025',
+            time: '12:00PM - 01:00PM',
+            mode: 'In-person / Online',
+            zoomLink: 'zoommtg://zoom.us/join?confno=8529015944&pwd=123456&uname=John%20Doe'
+        }),
         orderId: `SRV-${Date.now()}`
     };
 };
@@ -157,67 +170,37 @@ export const transformServiceData = (serviceCartItems) => {
 export const transformServiceOrderData = (serviceOrderData) => {
     if (!serviceOrderData) {
         return {
-            services: [{
-                serviceType: "Service",
-                sessionDuration: "30 minutes",
-                date: "2025-10-11",
-                time: "11:00 - 11:30",
-                mode: "online",
-                zoomLink: "Link will be provided"
-            }],
+            services: [createDefaultServiceData()],
             orderId: null,
             totalAmount: 0
         };
     }
 
-    // Format the order ID
     const orderId = serviceOrderData._id || `SRV-${Date.now()}`;
-
-    // Format the total amount
     const totalAmount = serviceOrderData.finalAmount || serviceOrderData.totalAmount || serviceOrderData.payingAmount || 0;
-
-    // Transform services array from the API response structure
     const services = [];
 
-    if (serviceOrderData.services && Array.isArray(serviceOrderData.services)) {
+    if (Array.isArray(serviceOrderData.services)) {
         serviceOrderData.services.forEach((serviceItem, index) => {
-            // Extract service details from the nested service object
             const service = serviceItem.service || {};
-
-            services.push({
+            services.push(createDefaultServiceData({
                 serviceType: service.name || `Service ${index + 1}`,
-                sessionDuration: service.durationInMinutes
-                    ? `${service.durationInMinutes} minutes`
-                    : "30 minutes",
-                date: serviceItem.bookingDate
-                    ? new Date(serviceItem.bookingDate).toISOString().split('T')[0] // Format as YYYY-MM-DD
-                    : "2025-10-11",
+                sessionDuration: service.durationInMinutes ? `${service.durationInMinutes} minutes` : DEFAULT_SERVICE_VALUES.sessionDuration,
+                date: serviceItem.bookingDate ? new Date(serviceItem.bookingDate).toISOString().split('T')[0] : DEFAULT_SERVICE_VALUES.date,
                 time: serviceItem.startTime && serviceItem.endTime
                     ? `${serviceItem.startTime} - ${serviceItem.endTime}`
-                    : "11:00 - 11:30",
-                mode: serviceItem.serviceType || service.serviceType || "online",
-                zoomLink: serviceItem.zoomLink || "Link will be provided"
-            });
+                    : DEFAULT_SERVICE_VALUES.time,
+                mode: serviceItem.serviceType || service.serviceType || DEFAULT_SERVICE_VALUES.mode,
+                zoomLink: serviceItem.zoomLink || DEFAULT_SERVICE_VALUES.zoomLink
+            }));
         });
     }
 
-    // If no services found, create a default one
     if (services.length === 0) {
-        services.push({
-            serviceType: "Service",
-            sessionDuration: "30 minutes",
-            date: "2025-10-11",
-            time: "11:00 - 11:30",
-            mode: "online",
-            zoomLink: "Link will be provided"
-        });
+        services.push(createDefaultServiceData());
     }
 
-    return {
-        services,
-        orderId,
-        totalAmount
-    };
+    return { services, orderId, totalAmount };
 };
 
 /**
@@ -243,7 +226,6 @@ export const createServiceOrderData = ({
     address,
     paymentDetails = {}
 }) => {
-    // Validate input - either services array or individual service params
     if (!services && (!serviceId || !astrologerId || !bookingDate || !startTime)) {
         throw new Error('Either services array or serviceId, astrologerId, bookingDate, and startTime are required');
     }
@@ -268,9 +250,7 @@ export const createServiceOrderData = ({
 
     // Handle multiple services
     if (services) {
-        // Map services to the required format for the API
         orderData.serviceItems = services.map(service => {
-            // Ensure all required fields are present and properly formatted
             const serviceItem = {
                 serviceId: String(service.serviceId || '').trim(),
                 astrologerId: String(service.astrologerId || '').trim(),
