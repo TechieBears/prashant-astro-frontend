@@ -127,12 +127,12 @@ export default function Testimonials() {
             ),
             style: true
         },
-        {
-            field: 'rating',
-            header: 'Rating',
-            body: (row) => <StarRating rating={row?.rating || 0} />,
-            style: true
-        },
+        // {
+        //     field: 'rating',
+        //     header: 'Rating',
+        //     body: (row) => <StarRating rating={row?.rating || 0} />,
+        //     style: true
+        // },
         {
             field: 'createdAt',
             header: 'Date',
