@@ -146,8 +146,9 @@ const ProductDetail = () => {
                 productId: id
             });
             if (response.success) {
-                setReviews(response.data || []);
-                setTotalReviews(response.data?.length || 0);
+                const activeReviews = response.data?.filter(review => review.isActive) || [];
+                setReviews(activeReviews);
+                setTotalReviews(activeReviews.length);
             }
         } catch (err) {
             console.error('Error fetching product reviews:', err);
@@ -496,7 +497,7 @@ const ProductDetail = () => {
 
                         {activeTab === 'reviews' && (
                             <UserReviews
-                                reviews={reviews}
+                                reviews={reviews.filter(review => review.isActive === true)}
                                 loadingReviews={loadingReviews}
                                 onReviewUpdate={fetchProductReviews}
                                 editingReviewId={editingReviewId}

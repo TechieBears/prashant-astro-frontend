@@ -34,7 +34,7 @@ const VARIANT_STYLES = {
     },
     detailed: {
         container: 'space-y-3',
-        card: 'bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-300',
+        card: 'p-4 transition-all duration-300',
         loader: 'py-4',
         loaderSize: 'w-5 h-5',
         loaderText: 'text-sm',
@@ -499,7 +499,7 @@ const UserReviews = ({
         <>
             {/* Reviews Section with Header and Write Button */}
             {isDetailed && showWriteReview && !editingReviewId && (
-                <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
+                <div className="p-4 mb-4">
                     <div className="flex items-center justify-between gap-4">
                         <h3 className="text-lg font-bold text-gray-900">
                             Customer Reviews
