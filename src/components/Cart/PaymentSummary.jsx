@@ -11,7 +11,8 @@ const PaymentSummary = ({
     buttonText = 'Continue to pay',
     onCheckout = () => { },
     isCreatingOrder = false,
-    activeTab
+    activeTab,
+    serviceIds = []
 }) => {
     const { defaultAddress } = useAddress();
 
@@ -147,6 +148,7 @@ const PaymentSummary = ({
                     onApply={setAppliedCoupon}
                     coupons={coupons}
                     amount={subtotal}
+                    serviceIds={serviceIds}
                 />
             )}
         </div>
