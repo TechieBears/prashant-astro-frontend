@@ -368,7 +368,7 @@ const UserReviews = ({
                                                 e.stopPropagation();
                                                 setShowReviewForm(true);
                                             }}
-                                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
+                                            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-opacity-90 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -379,7 +379,7 @@ const UserReviews = ({
                                 ) : (
                                     <button
                                         onClick={onLoginClick}
-                                        className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
+                                        className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-opacity-90 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
                                     >
                                         Login to Review
                                     </button>
@@ -420,7 +420,7 @@ const UserReviews = ({
                                 e.stopPropagation();
                                 setShowReviewForm(true);
                             }}
-                            className="bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full"
+                            className="bg-primary text-white px-3 py-1.5 rounded-md hover:bg-opacity-90 transition-colors text-xs font-medium w-full"
                         >
                             Write Review
                         </button>
@@ -458,8 +458,8 @@ const UserReviews = ({
                                 }}
                                 className={
                                     isCompact
-                                        ? 'bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full'
-                                        : 'w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-all duration-150 text-sm font-medium'
+                                        ? 'bg-primary text-white px-3 py-1.5 rounded-md hover:bg-opacity-90 transition-colors text-xs font-medium w-full'
+                                        : 'w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-opacity-90 active:bg-opacity-100 transition-all duration-150 text-sm font-medium'
                                 }
                             >
                                 <svg className={isDetailed ? "w-4 h-4" : "hidden"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -485,7 +485,7 @@ const UserReviews = ({
                         <p className="text-gray-600 mb-3 text-sm">Please login to write a review</p>
                         <button
                             onClick={onLoginClick}
-                            className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-all duration-150 text-sm font-medium"
+                            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 active:bg-opacity-100 transition-all duration-150 text-sm font-medium"
                         >
                             Login
                         </button>
@@ -512,7 +512,7 @@ const UserReviews = ({
                                         e.stopPropagation();
                                         setShowReviewForm(true);
                                     }}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-opacity-90 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -523,7 +523,7 @@ const UserReviews = ({
                         ) : (
                             <button
                                 onClick={onLoginClick}
-                                className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
+                                className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-opacity-90 shadow-sm hover:shadow-md transition-all duration-200 text-sm font-medium whitespace-nowrap"
                             >
                                 Login to Review
                             </button>
@@ -554,7 +554,7 @@ const UserReviews = ({
                                 e.stopPropagation();
                                 setShowReviewForm(true);
                             }}
-                            className="bg-gray-800 text-white px-3 py-1.5 rounded-md hover:bg-gray-900 transition-colors text-xs font-medium w-full"
+                            className="bg-primary text-white px-3 py-1.5 rounded-md hover:bg-opacity-90 transition-colors text-xs font-medium w-full"
                         >
                             Write Review
                         </button>

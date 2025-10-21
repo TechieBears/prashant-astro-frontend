@@ -7,6 +7,8 @@ import UserReviews from '../Common/UserReviews';
 import OrderIdCopy from '../Common/OrderIdCopy';
 import Preloaders from '../Loader/Preloaders';
 import downloadIcon from '../../assets/user/orders/download.svg';
+import fallbackServiceImage from '../../assets/user/home/services/service-homepage (1).png';
+import ProductImage from '../Common/ProductImage';
 
 const formatDate = (dateString) => {
     if (!dateString) return 'Date will be confirmed';
@@ -31,38 +33,47 @@ const formatTime = (timeString) => {
 
 const getStatusInfo = (status) => {
     const statusMap = {
-        completed: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-green-800', bgColor: '#00A63E1A' },
-        delivered: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-green-800', bgColor: '#00A63E1A' },
-        pending: { text: 'Session Pending', shortText: 'Pending', textColor: 'text-yellow-800', bgColor: '#F59E0B1A' },
-        cancelled: { text: 'Session Cancelled', shortText: 'Cancelled', textColor: 'text-red-800', bgColor: '#EF44441A' },
-        in_progress: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-blue-800', bgColor: '#3B82F61A' },
-        ongoing: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-blue-800', bgColor: '#3B82F61A' }
+        completed: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-white', bgColor: 'bg-green-600' },
+        delivered: { text: 'Session Completed', shortText: 'Completed', textColor: 'text-white', bgColor: 'bg-green-600' },
+        pending: { text: 'Session Pending', shortText: 'Pending', textColor: 'text-yellow-900', bgColor: 'bg-yellow-400' },
+        cancelled: { text: 'Session Cancelled', shortText: 'Cancelled', textColor: 'text-white', bgColor: 'bg-red-600' },
+        in_progress: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-white', bgColor: 'bg-blue-600' },
+        ongoing: { text: 'Session Ongoing', shortText: 'Ongoing', textColor: 'text-white', bgColor: 'bg-blue-600' }
     };
-    return statusMap[status?.toLowerCase()] || { text: 'Session Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: '#6B72801A' };
+    return statusMap[status?.toLowerCase()] || { text: 'Session Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: 'bg-gray-300' };
 };
 
 const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loadingReviews }) => {
     const [editingReviewId, setEditingReviewId] = useState(null);
     const details = [
-        { icon: FaClock, text: 'Duration:', value: `${serviceData.durationInMinutes || 30} min` },
+        { icon: FaClock, text: 'Duration:', value: `${serviceData.serviceDuration || serviceData.durationInMinutes || 30} min` },
         { icon: FaCalendarAlt, text: 'Date:', value: formatDate(serviceData.bookingDate) },
         { icon: FaDesktop, text: 'Mode:', value: getServiceModeLabel(serviceData.serviceType) }
     ];
     const statusInfo = getStatusInfo(serviceData?.bookingStatus);
 
+    // Astrologer details
+    const astrologerName = `${serviceData.astrologerFirstName || ''} ${serviceData.astrologerLastName || ''}`.trim();
+
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
             {/* Service Image - Small */}
             <div className="relative h-28 sm:h-32 bg-gray-100">
-                <img
-                    src={serviceData.serviceImage || "/src/assets/user/services/palmistry.png"}
-                    alt={serviceData.serviceName || "Service"}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                        e.target.src = "/src/assets/user/services/palmistry.png";
-                    }}
+                <ProductImage
+                    images={serviceData.serviceImage}
+                    name={serviceData.serviceName || "Service"}
+                    containerClassName="w-full h-full"
+                    imgClassName="w-full h-full object-cover"
+                    fallbackClassName="w-full h-full flex items-center justify-center bg-gray-100"
+                    fallbackContent={
+                        <img 
+                            src={fallbackServiceImage} 
+                            alt="Fallback Service" 
+                            className="w-full h-full object-cover"
+                        />
+                    }
                 />
-                <div className={`absolute top-2 right-2 ${statusInfo.textColor} px-2 py-0.5 sm:py-1 rounded-md text-xs font-medium`} style={{ backgroundColor: statusInfo.bgColor }}>
+                <div className={`absolute top-2 right-2 ${statusInfo.textColor} ${statusInfo.bgColor} px-2 py-0.5 sm:py-1 rounded-md text-xs font-medium`}>
                     {statusInfo.shortText}
                 </div>
             </div>
@@ -80,37 +91,58 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
 
                     {/* Service Info */}
                     <div className="space-y-1.5 text-xs">
-                        {details.map(({ icon: Icon, text, value }, i) => (
-                            <div key={i} className="flex items-start gap-1.5">
-                                <Icon className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700">
-                                    <span className="text-gray-600">{text} </span>
-                                    <span className="font-medium text-gray-900">{value}</span>
-                                </span>
-                            </div>
-                        ))}
-                        {serviceData.zoomLink && (
-                            <div className="flex items-start gap-1.5">
-                                <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700 break-all text-xs">
-                                    {serviceData.zoomLink}
-                                </span>
+                        {/* Astrologer Details */}
+                        {astrologerName && (
+                            <div className="bg-gray-50 p-2 rounded-md mb-2">
+                                <h5 className="font-medium text-gray-800 mb-1">Astrologer Details</h5>
+                                <div className="space-y-1">
+                                    <div className="flex items-start gap-1.5">
+                                        <span className="text-gray-600">Name: </span>
+                                        <span className="font-medium text-gray-900">{astrologerName}</span>
+                                    </div>
+                                    {serviceData.astrologerMobileNo && (
+                                        <div className="flex items-start gap-1.5">
+                                            <span className="text-gray-600">Mobile: </span>
+                                            <span className="font-medium text-gray-900">{serviceData.astrologerMobileNo}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
+
+                        {/* Service Details */}
+                        <div className="space-y-1">
+                            {details.map(({ icon: Icon, text, value }, i) => (
+                                <div key={i} className="flex items-start gap-1.5">
+                                    <Icon className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700">
+                                        <span className="text-gray-600">{text} </span>
+                                        <span className="font-medium text-gray-900">{value}</span>
+                                    </span>
+                                </div>
+                            ))}
+                            {serviceData.zoomLink && (
+                                <div className="flex items-start gap-1.5">
+                                    <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
+                                    <span className="text-gray-700 break-all">
+                                        {serviceData.zoomLink}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Consolidated Review Section */}
                 <UserReviews
                     reviews={reviews}
                     loadingReviews={loadingReviews}
-                    onReviewUpdate={() => handleReviewSuccess(serviceData.serviceId)}
+                    onReviewUpdate={() => handleReviewSuccess(serviceData.serviceId || serviceData._id)}
                     editingReviewId={editingReviewId}
                     setEditingReviewId={setEditingReviewId}
                     variant="compact"
                     showWriteReview={true}
                     productId={null}
-                    serviceId={serviceData?.serviceId || null}
+                    serviceId={serviceData?.serviceId || serviceData?._id || null}
                 />
             </div>
         </div>
@@ -154,13 +186,19 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
             setLoading(true);
             setError(null);
             const response = await getSingleServiceOrder(service.orderId);
-            if (response.success) {
-                setOrderData(response.data[0]);
+            if (response.success && response.orderData?.[0]?.items?.length > 0) {
+                // Map the items data to the expected format
+                const orderData = {
+                    ...response.orderData[0].orderData,
+                    services: response.orderData[0].items
+                };
+                setOrderData(orderData);
+
                 // Fetch reviews for all services in the order
-                if (response.data[0]?.services && userId) {
-                    response.data[0].services.forEach(serviceData => {
-                        if (serviceData.serviceId) {
-                            fetchServiceReviews(serviceData.serviceId);
+                if (orderData.services && userId) {
+                    orderData.services.forEach(serviceData => {
+                        if (serviceData._id) {  // Using _id as serviceId
+                            fetchServiceReviews(serviceData._id);
                         }
                     });
                 }
