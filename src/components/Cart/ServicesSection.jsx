@@ -11,7 +11,10 @@ const ServicesSection = ({
     gstAmount,
     total,
     isRemoving = null,
-    activeTab
+    activeTab,
+    appliedCoupon,
+    onApplyCoupon,
+    isCreatingOrder
 }) => {
 
     return (
@@ -100,6 +103,9 @@ const ServicesSection = ({
                                     onCheckout={onCheckout}
                                     activeTab={activeTab}
                                     serviceIds={services.map(s => s.serviceId)}
+                                    appliedCoupon={appliedCoupon}
+                                    onApplyCoupon={onApplyCoupon}
+                                    isCreatingOrder={isCreatingOrder}
                                 />
                             </div>
                         </div>

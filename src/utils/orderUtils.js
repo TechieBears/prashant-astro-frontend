@@ -63,6 +63,7 @@ const createDefaultPaymentDetails = (overrides = {}) => ({
  * @param {Object} [options.paymentDetails] - Optional payment details
  * @param {string} [options.paymentMethod='UPI'] - Payment method (default: 'UPI')
  * @param {string} [options.paymentProvider='PhonePe'] - Payment provider (default: 'PhonePe')
+ * @param {string} [options.couponId] - Optional coupon ID to apply
  * @returns {Object} Formatted order data
  */
 export const createOrderData = ({
@@ -72,7 +73,8 @@ export const createOrderData = ({
     addressId,
     paymentDetails = {},
     paymentMethod = 'UPI',
-    paymentProvider = 'PhonePe'
+    paymentProvider = 'PhonePe',
+    couponId
 }) => {
     if (!addressId) throw new Error('addressId is required');
     if (!cartItems && (!productId || quantity === undefined)) {
@@ -86,7 +88,7 @@ export const createOrderData = ({
         }))
         : [{ product: productId, quantity }];
 
-    return {
+    const orderData = {
         items,
         address: addressId,
         paymentMethod,
@@ -95,6 +97,13 @@ export const createOrderData = ({
             ...paymentDetails
         })
     };
+
+    // Add coupon if provided
+    if (couponId) {
+        orderData.couponId = couponId;
+    }
+
+    return orderData;
 };
 
 /**
@@ -307,9 +316,10 @@ export const createServiceOrderData = ({
  * Transform service cart items to service order data
  * @param {Array} serviceCartItems - Array of service cart items
  * @param {string} [addressId] - Optional address ID for non-online services
+ * @param {string} [couponId] - Optional coupon ID to apply
  * @returns {Object} Service order data ready for API
  */
-export const transformServiceCartToOrderData = (serviceCartItems, addressId = null) => {
+export const transformServiceCartToOrderData = (serviceCartItems, addressId = null, couponId = null) => {
     if (!serviceCartItems || serviceCartItems.length === 0) {
         throw new Error('No service items in cart');
     }
@@ -379,6 +389,11 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
             ...(service.address ? { address: String(service.address).trim() } : {})
         }))
     };
+
+    // Add coupon if provided
+    if (couponId) {
+        orderData.couponId = couponId;
+    }
 
     return orderData;
 };

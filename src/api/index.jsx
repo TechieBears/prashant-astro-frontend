@@ -1337,13 +1337,25 @@ export const getAllCoupons = async (data) => {
     }
 };
 
-export const applyCoupon = async (couponCode, services) => {
+export const applyServiceCoupon = async (couponCode, services) => {
     try {
         const url = `${environment.baseUrl}coupon/service/apply`;
         const response = await axios.post(url, { couponCode, services });
         return response.data;
     } catch (err) {
         console.log("==========error in ApplyCoupon api file", err);
+        return err?.response?.data;
+    }
+}
+
+export const applyProductCoupon = async (couponCode, products) => {
+    try {
+        const url = `${environment.baseUrl}coupon/product/apply`;
+        const payload = { couponCode, products };
+        const response = await axios.post(url, payload);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in ApplyProductCoupon api file", err);
         return err?.response?.data;
     }
 }
@@ -2254,6 +2266,7 @@ export const getHomeModalStatus = async () => {
         return err?.response?.data || { success: false, message: 'Failed to fetch HomepageModal Status' };
     }
 };
+
 export const getPublicServicesDropdown = async () => {
     try {
         const url = `${environment.baseUrl}service/public/dropdown`;
