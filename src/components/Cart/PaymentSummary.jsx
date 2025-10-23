@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import AddressSelector from '../Address/AddressSelector';
 import { useAddress } from '../../context/AddressContext';
 import UserCouponModal from '../Modals/CouponModal/UserCouponModal';
-import { getUserCoupons } from '../../api';
+import { getUserCoupons, applyProductCoupon, applyServiceCoupon } from '../../api';
+
+
 const PaymentSummary = ({
     itemCount = 0,
     subtotal = 0,
@@ -12,13 +14,19 @@ const PaymentSummary = ({
     onCheckout = () => { },
     isCreatingOrder = false,
     activeTab,
-    serviceIds = []
+    serviceIds = [],
+    appliedCoupon,
+    onApplyCoupon,
+    cartItems = []
 }) => {
     const { defaultAddress } = useAddress();
 
     const [showCouponModal, setShowCouponModal] = useState(false);
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [coupons, setCoupons] = useState([]);
+
+    // Extract product IDs for coupon API
+    const productIdsForCoupon = cartItems.map(item => item.productId || item._id || item.id);
+
 
     useEffect(() => {
         const fetchCoupons = async () => {
@@ -66,7 +74,7 @@ const PaymentSummary = ({
                         <div className="text-sm text-green-700">
                             Applied: <strong>{appliedCoupon.couponName}</strong> - {appliedCoupon.couponCode}
                             <button
-                                onClick={() => setAppliedCoupon(null)}
+                                onClick={() => onApplyCoupon(null)}
                                 className="ml-2 text-red-500 underline text-xs"
                             >
                                 Remove
@@ -145,10 +153,12 @@ const PaymentSummary = ({
             {showCouponModal && (
                 <UserCouponModal
                     onClose={() => setShowCouponModal(false)}
-                    onApply={setAppliedCoupon}
+                    onApply={onApplyCoupon}
                     coupons={coupons}
                     amount={subtotal}
                     serviceIds={serviceIds}
+                    products={activeTab === 'products' ? productIdsForCoupon : []}
+                    applyFn={activeTab === 'products' ? applyProductCoupon : applyServiceCoupon}
                 />
             )}
         </div>
