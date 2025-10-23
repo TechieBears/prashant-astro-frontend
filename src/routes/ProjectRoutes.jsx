@@ -53,6 +53,7 @@ import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
 import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 import ProtectedRoute from '../components/ProtectedRoute'
 import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
+import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -134,6 +135,7 @@ const ProjectRoutes = () => {
                         <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                         <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
                         <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                        <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
                         <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
                         <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
                     </Route>
