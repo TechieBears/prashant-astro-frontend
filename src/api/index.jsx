@@ -1,5 +1,6 @@
 import axios from "axios";
 import { environment } from "../env";
+import toast from "react-hot-toast";
 
 axios.defaults.withCredentials = environment?.production;
 
