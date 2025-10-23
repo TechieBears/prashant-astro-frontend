@@ -1,44 +1,36 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/astroguid logo.png";
 import logoText from "../../assets/astroguid logo text.png";
 import { formBtn1 } from "../../utils/CustomClass";
 import { List, X } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { LoginCurve, Profile } from "iconsax-reactjs";
-import { formatRole } from "../../helper/Helper";
 import { fetchNavDropdownsSuccess, setLoading as setNavLoading, setError as setNavError } from "../../redux/Slices/navSlice";
 import { getNavDropdowns } from "../../api";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ShoppingCart, Phone, ArrowDown01Icon, ArrowDown, ArrowDown01, ArrowDownAZ } from "lucide-react";
+import { ShoppingCart, Phone, ArrowDown01Icon } from "lucide-react";
 import { logoutSuccess, setLoading, setError } from "../../redux/Slices/loginSlice";
 import { logoutUser } from "../../api";
 import { clearCart } from "../../redux/Slices/cartSlice";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
-import { ChevronDown, ChevronUp, User } from 'lucide-react';
+import { ChevronDown, User } from 'lucide-react';
 
 const HomeNavbar = () => {
-    const { servicesDropdown, productsDropdown, hasAttemptedFetch } = useSelector(state => state.nav);
-    const [expandedItems, setExpandedItems] = useState({});
+    const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [card, setCard] = useState(true);
-    const [isNavbarVisible, setIsNavbarVisible] = useState(true);
-    const [isMounted, setIsMounted] = useState(false);
+    const [isProductsHovered, setIsProductsHovered] = useState(false);
+    const [isServicesHovered, setIsServicesHovered] = useState(false);
+    const [hoveredCategory, setHoveredCategory] = useState(null);
 
     const login = useSelector((state) => state.user.isLogged);
     const user = useSelector((state) => state.user.userDetails);
     const { productItems, serviceItems } = useSelector((state) => state.cart);
 
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const [activeDropdown, setActiveDropdown] = useState(null);
-    const [activeCategory, setActiveCategory] = useState(null);
-    const [hoverTimeout, setHoverTimeout] = useState(null);
 
     // Calculate total cart items count
     const totalCartItems = useMemo(() => {
@@ -48,30 +40,7 @@ const HomeNavbar = () => {
     }, [productItems, serviceItems]);
 
 
-    const toggleExpanded = (index) => {
-        setExpandedItems(prev => ({
-            ...prev,
-            [index]: !prev[index]
-        }));
-    };
-
     const navLinks = useMemo(() => {
-        const transformedServices = (servicesDropdown || []).map(category => ({
-            category: category.name,
-            services: (category.services || []).map(service => ({
-                name: service.name,
-                path: `/services/${service._id}`,
-            })),
-        }));
-
-        const transformedProducts = (productsDropdown || []).map(product => ({
-            category: product.name,
-            products: (product.products || []).map(product => ({
-                name: product.name,
-                path: `/products/${product._id}`,
-            })),
-        }));
-
         return [
             login && {
                 name: 'Profile',
@@ -89,79 +58,16 @@ const HomeNavbar = () => {
             {
                 name: 'Services',
                 path: '/services',
-                dropdown: transformedServices,
+                dropdown: servicesDropdown,
             },
             {
                 name: 'Products',
                 path: '/products',
-                dropdown: transformedProducts,
+                dropdown: productsDropdown,
             },
             { name: 'Contact', path: '/contact' },
-        ].filter(Boolean); // <- filters out 'false'
+        ].filter(Boolean);
     }, [servicesDropdown, productsDropdown, login]);
-
-    useEffect(() => {
-        if (isMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-
-        return () => {
-            document.body.style.overflow = '';
-        };
-    }, [isMenuOpen]);
-
-    const handleMouseEnter = (dropdown) => {
-        if (hoverTimeout) {
-            clearTimeout(hoverTimeout);
-            setHoverTimeout(null);
-        }
-        setActiveDropdown(dropdown);
-    };
-
-    const handleMouseLeave = () => {
-        const timeout = setTimeout(() => {
-            setActiveDropdown(null);
-            setActiveCategory(null);
-        }, 150); // Small delay to allow moving to submenu
-        setHoverTimeout(timeout);
-    };
-
-    const handleCategoryMouseEnter = (categoryName) => {
-        if (hoverTimeout) {
-            clearTimeout(hoverTimeout);
-            setHoverTimeout(null);
-        }
-        setActiveCategory(categoryName);
-    };
-
-    const handleCategoryMouseLeave = () => {
-        const timeout = setTimeout(() => {
-            setActiveCategory(null);
-        }, 150);
-        setHoverTimeout(timeout);
-    };
-
-    const handleCategoryClick = (categoryId, categoryName) => {
-        // Close dropdowns
-        setActiveDropdown(null);
-        setActiveCategory(null);
-
-        // Navigate to products page with category pre-selected
-        navigate('/products', {
-            state: {
-                selectedCategoryId: categoryId,
-                selectedCategoryName: categoryName
-            }
-        });
-    };
-
-    // Ensure component is mounted
-    useEffect(() => {
-        setIsMounted(true);
-        return () => setIsMounted(false);
-    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -171,42 +77,39 @@ const HomeNavbar = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Ensure navbar visibility is maintained
-    useEffect(() => {
-        setIsNavbarVisible(true);
-    }, [login, user]);
-
     // Fetch navigation data when component mounts
     useEffect(() => {
         const fetchNavData = async () => {
-            // Only fetch if we haven't attempted to fetch yet
-            if (!hasAttemptedFetch) {
-                try {
-                    dispatch(setNavLoading(true));
-                    const response = await getNavDropdowns();
+            try {
+                dispatch(setNavLoading(true));
+                const response = await getNavDropdowns();
 
-                    if (response.success) {
-                        dispatch(fetchNavDropdownsSuccess(response.data));
-                    } else {
-                        dispatch(setNavError(response.message || 'Failed to fetch navigation data'));
-                    }
-                } catch (error) {
-                    dispatch(setNavError(error.message || 'Failed to fetch navigation data'));
+                if (response.success) {
+                    dispatch(fetchNavDropdownsSuccess(response.data));
+                } else {
+                    dispatch(setNavError(response.message || 'Failed to fetch navigation data'));
                 }
+            } catch (error) {
+                dispatch(setNavError(error.message || 'Failed to fetch navigation data'));
             }
         };
 
         fetchNavData();
-    }, [dispatch, hasAttemptedFetch]);
+    }, [dispatch]);
 
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (hoverTimeout) {
-                clearTimeout(hoverTimeout);
-            }
-        };
-    }, [hoverTimeout]);
+    const handleMouseEnter = (dropdown) => {
+        if (dropdown === 'Products') {
+            setIsProductsHovered(true);
+        } else if (dropdown === 'Services') {
+            setIsServicesHovered(true);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setIsProductsHovered(false);
+        setIsServicesHovered(false);
+        setHoveredCategory(null);
+    };
 
     const handleLogout = async () => {
         try {
@@ -230,52 +133,6 @@ const HomeNavbar = () => {
             console.error("Logout Failed:", error);
         }
     };
-
-    useGSAP(() => {
-        if (!isMounted) return;
-
-        // Set initial state to visible to prevent disappearing
-        gsap.set(".navbar", {
-            y: 0,
-            opacity: 1,
-            immediateRender: true
-        });
-
-        // Then animate from hidden state with error handling
-        try {
-            gsap.from(".navbar", {
-                y: -80,
-                opacity: 0,
-                ease: "power1.inOut",
-                duration: 1.2,
-                delay: 0.1,
-                onComplete: () => {
-                    gsap.set(".navbar", { opacity: 1, y: 0 });
-                }
-            });
-        } catch (error) {
-            console.warn("GSAP animation failed, ensuring navbar visibility:", error);
-            gsap.set(".navbar", { opacity: 1, y: 0 });
-        }
-    }, [isMounted]);
-
-    // Fallback render to ensure navbar is always visible
-    if (!isMounted) {
-        return (
-            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow">
-                <div className="flex items-center justify-between px-10 md:px-40 gap-4 py-3">
-                    <div className="flex items-center">
-                        <img src={logo} alt="logo" className="h-10 md:h-12" />
-                        <img
-                            src={logoText}
-                            alt="Pandit Prashant"
-                            className="block h-6 md:h-7 mt-1 object-contain"
-                        />
-                    </div>
-                </div>
-            </nav>
-        );
-    }
 
 
     return (
@@ -385,61 +242,113 @@ const HomeNavbar = () => {
                                                     </span>
                                                 </NavLink>
 
-                                                {activeDropdown === link.name && (
+                                                {link.name === 'Products' && isProductsHovered && productsDropdown && productsDropdown.length > 0 && (
                                                     <div
-                                                        className="absolute left-0 mt-3 bg-primary shadow-lg rounded-b-md w-max z-50 py-3"
-                                                        onMouseEnter={() => {
-                                                            if (hoverTimeout) {
-                                                                clearTimeout(hoverTimeout);
-                                                                setHoverTimeout(null);
-                                                            }
-                                                        }}
+                                                        className="absolute left-0 mt-1 bg-primary shadow-lg rounded-b-md w-max z-50 py-1"
+                                                        onMouseEnter={() => setIsProductsHovered(true)}
                                                         onMouseLeave={handleMouseLeave}
                                                     >
-                                                        {link.dropdown.map((category, idx) => {
-                                                            // Get category ID - for products it's from the original productsDropdown
-                                                            const originalCategory = link.name === 'Products'
-                                                                ? productsDropdown?.find(cat => cat.name === category.category)
-                                                                : servicesDropdown?.find(cat => cat.name === category.category);
-                                                            const categoryId = originalCategory?._id;
+                                                        {productsDropdown.map((category, idx) => {
+                                                            const categoryId = category._id;
 
                                                             return (
                                                                 <div
                                                                     key={idx}
-                                                                    className="relative px-2"
-                                                                    onMouseEnter={() => handleCategoryMouseEnter(category.category)}
+                                                                    className="relative px-1"
+                                                                    onMouseEnter={() => setHoveredCategory(idx)}
+                                                                    onMouseLeave={() => setHoveredCategory(null)}
                                                                 >
                                                                     <p
-                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 pr-4 rounded-md cursor-pointer"
+                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md cursor-pointer"
                                                                         onClick={() => {
-                                                                            if (link.name === 'Products' && categoryId) {
-                                                                                handleCategoryClick(categoryId, category.category);
-                                                                            } else if (link.name === 'Services') {
-                                                                                // Navigate to services page with category query parameter
-                                                                                setActiveDropdown(null);
-                                                                                setActiveCategory(null);
-                                                                                navigate(`/services?category=${encodeURIComponent(category.category)}`);
+                                                                            if (categoryId) {
+                                                                                navigate('/products', {
+                                                                                    state: {
+                                                                                        selectedCategoryId: categoryId,
+                                                                                        selectedCategoryName: category.name
+                                                                                    }
+                                                                                });
                                                                             }
                                                                         }}
                                                                     >
                                                                         <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
-                                                                            {category.category}
+                                                                            {category.name}
                                                                         </span>
                                                                     </p>
 
-                                                                    {activeCategory === category.category && (category.services?.length > 0 || category.products?.length > 0) && (
+                                                                    {hoveredCategory === idx && category.products && category.products.length > 0 && (
                                                                         <div
-                                                                            className="absolute left-full top-0 ml-0 bg-primary shadow-lg rounded-md w-max z-50 py-3 min-w-[200px] border-l-2 border-white/20"
+                                                                            className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-1 min-w-[200px] border-l-2 border-white/20"
+                                                                            onMouseEnter={() => setHoveredCategory(idx)}
+                                                                            onMouseLeave={() => setHoveredCategory(null)}
                                                                         >
                                                                             <ul className="space-y-1">
-                                                                                {(category.services || category.products || []).map((item, j) => (
+                                                                                {category.products.map((product, j) => (
                                                                                     <li key={j}>
                                                                                         <NavLink
-                                                                                            to={item.path}
+                                                                                            to={`/products/${product._id}`}
                                                                                             className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
                                                                                         >
                                                                                             <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
-                                                                                                {item.name}
+                                                                                                {product.name}
+                                                                                            </span>
+                                                                                        </NavLink>
+                                                                                    </li>
+                                                                                ))}
+                                                                            </ul>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+
+                                                {link.name === 'Services' && isServicesHovered && servicesDropdown && servicesDropdown.length > 0 && (
+                                                    <div
+                                                        className="absolute left-0 mt-1 bg-primary shadow-lg rounded-b-md w-max z-50 py-1"
+                                                        onMouseEnter={() => setIsServicesHovered(true)}
+                                                        onMouseLeave={handleMouseLeave}
+                                                    >
+                                                        {servicesDropdown.map((category, idx) => {
+                                                            const categoryId = category._id;
+
+                                                            return (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="relative px-1"
+                                                                    onMouseEnter={() => setHoveredCategory(idx)}
+                                                                    onMouseLeave={() => setHoveredCategory(null)}
+                                                                >
+                                                                    <p
+                                                                        className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md cursor-pointer"
+                                                                        onClick={() => {
+                                                                            if (categoryId) {
+                                                                                navigate('/services', {
+                                                                                    state: {
+                                                                                        selectedCategoryId: categoryId,
+                                                                                        selectedCategoryName: category.name
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <span className="inline-block transform transition-transform duration-300 hover:translate-x-2">
+                                                                            {category.name}
+                                                                        </span>
+                                                                    </p>
+
+                                                                    {hoveredCategory === idx && category.services && category.services.length > 0 && (
+                                                                        <div className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-1 min-w-[200px] border-l-2 border-white/20">
+                                                                            <ul className="space-y-1">
+                                                                                {category.services.map((service, j) => (
+                                                                                    <li key={j}>
+                                                                                        <NavLink
+                                                                                            to={`/services/${service._id}`}
+                                                                                            className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
+                                                                                        >
+                                                                                            <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
+                                                                                                {service.name}
                                                                                             </span>
                                                                                         </NavLink>
                                                                                     </li>
@@ -552,120 +461,153 @@ const HomeNavbar = () => {
                             <div key={i} className="w-full">
                                 {/* Main Navigation Item */}
                                 {link.dropdown ? (
-                                    <button
-                                        className="w-full flex items-center justify-between text-left py-4 px-4 rounded-lg hover:bg-slate1 transition-all duration-200 text-lg font-medium text-gray-700"
-                                        onClick={() => toggleExpanded(i)}
-                                    >
-                                        <span>{link.name}</span>
-                                        {expandedItems[i] ? (
-                                            <ChevronUp size={20} className="text-gray-500" />
-                                        ) : (
+                                    <div className="w-full">
+                                        <button
+                                            className="w-full flex items-center justify-between text-left py-4 px-4 rounded-lg hover:bg-slate1 transition-all duration-200 text-lg font-medium text-gray-700"
+                                            onClick={() => {
+                                                if (link.name === 'Products') {
+                                                    // For products, show all categories directly
+                                                    console.log('Mobile Products clicked:', productsDropdown);
+                                                } else if (link.name === 'Services') {
+                                                    // For services, show all categories directly
+                                                    console.log('Mobile Services clicked:', servicesDropdown);
+                                                }
+                                            }}
+                                        >
+                                            <span>{link.name}</span>
                                             <ChevronDown size={20} className="text-gray-500" />
-                                        )}
-                                    </button>
-                                ) : (
+                                        </button>
 
-                                    <NavLink
-                                        to={link.path}
-                                        onClick={() => {
-                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className={({ isActive }) =>
-                                            `block w-full py-4 px-4 rounded-lg transition-all duration-200 text-lg font-medium ${isActive
-                                                ? "text-primary bg-primary-light border-l-4 border-primary"
-                                                : "text-gray-700 hover:bg-slate1"
-                                            }`
-                                        }
-                                    >
-                                        {link.name}
-                                    </NavLink>
-                                )}
+                                        {/* Show products dropdown immediately when Products is clicked */}
+                                        {link.name === 'Products' && productsDropdown && productsDropdown.length > 0 && (
+                                            <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
+                                                {productsDropdown.map((category, categoryIndex) => {
+                                                    const categoryId = category._id;
 
-                                {/* Dropdown Menu */}
-                                {link.dropdown && expandedItems[i] && (
-                                    <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
-                                        {/* Check if it's a grouped dropdown (has category + services/products) */}
-                                        {Array.isArray(link.dropdown) && (link.dropdown[0]?.services || link.dropdown[0]?.products) ? (
-                                            link.dropdown.map((category, categoryIndex) => {
-                                                const items = category.services || category.products || [];
-                                                // Get category ID for products
-                                                const originalCategory = link.name === 'Products'
-                                                    ? productsDropdown?.find(cat => cat.name === category.category)
-                                                    : servicesDropdown?.find(cat => cat.name === category.category);
-                                                const categoryId = originalCategory?._id;
-
-                                                return (
-                                                    <div key={categoryIndex} className="mb-4">
-                                                        {items.length > 0 && (
-                                                            <>
-                                                                <h4
-                                                                    className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4 cursor-pointer hover:text-primary transition-colors"
-                                                                    onClick={() => {
-                                                                        if (link.name === 'Products' && categoryId) {
-                                                                            handleCategoryClick(categoryId, category.category);
-                                                                            setIsMenuOpen(false);
-                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                                                        } else if (link.name === 'Services') {
-                                                                            // Navigate to services page with category query parameter
-                                                                            navigate(`/services?category=${encodeURIComponent(category.category)}`);
-                                                                            setIsMenuOpen(false);
-                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    {category.category}
-                                                                </h4>
-                                                                {items.map((item, itemIndex) => (
-                                                                    <NavLink
-                                                                        key={itemIndex}
-                                                                        to={item.path}
+                                                    return (
+                                                        <div key={categoryIndex} className="mb-4">
+                                                            {category.products && category.products.length > 0 && (
+                                                                <>
+                                                                    <h4
+                                                                        className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4 cursor-pointer hover:text-primary transition-colors"
                                                                         onClick={() => {
-                                                                            setIsMenuOpen(false);
-                                                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                            if (categoryId) {
+                                                                                navigate('/products', {
+                                                                                    state: {
+                                                                                        selectedCategoryId: categoryId,
+                                                                                        selectedCategoryName: category.name
+                                                                                    }
+                                                                                });
+                                                                                setIsMenuOpen(false);
+                                                                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                            }
                                                                         }}
-                                                                        className={({ isActive }) =>
-                                                                            `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
-                                                                                ? "text-blue-600 bg-blue-50 font-medium"
-                                                                                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
-                                                                            }`
-                                                                        }
                                                                     >
-                                                                        {item.name}
-                                                                    </NavLink>
-                                                                ))}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })
-                                        ) : (
-                                            // Flat dropdown (like Profile)
-                                            link.dropdown?.length > 0 ? (
-                                                link.dropdown.map((item, itemIndex) => (
-                                                    <NavLink
-                                                        key={itemIndex}
-                                                        to={item.path}
-                                                        onClick={() => {
-                                                            setIsMenuOpen(false);
-                                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                                        }}
-                                                        className={({ isActive }) =>
-                                                            `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
-                                                                ? "text-blue-600 bg-blue-50 font-medium"
-                                                                : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
-                                                            }`
-                                                        }
-                                                    >
-                                                        {item.name}
-                                                    </NavLink>
-                                                ))
-                                            ) : null
+                                                                        {category.name}
+                                                                    </h4>
+                                                                    <div className="ml-4">
+                                                                        {category.products.map((product, productIndex) => (
+                                                                            <NavLink
+                                                                                key={productIndex}
+                                                                                to={`/products/${product._id}`}
+                                                                                onClick={() => {
+                                                                                    setIsMenuOpen(false);
+                                                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                                }}
+                                                                                className={({ isActive }) =>
+                                                                                    `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
+                                                                                        ? "text-blue-600 bg-blue-50 font-medium"
+                                                                                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                                                                                    }`
+                                                                                }
+                                                                            >
+                                                                                {product.name}
+                                                                            </NavLink>
+                                                                        ))}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
 
+                                        {/* Show services dropdown when Services is clicked */}
+                                        {link.name === 'Services' && servicesDropdown && servicesDropdown.length > 0 && (
+                                            <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
+                                                {servicesDropdown.map((category, categoryIndex) => {
+                                                    const categoryId = category._id;
+
+                                                    return (
+                                                        <div key={categoryIndex} className="mb-4">
+                                                            {category.services && category.services.length > 0 && (
+                                                                <>
+                                                                    <h4
+                                                                        className="text-sm font-semibold text-base-font uppercase tracking-wide mb-2 px-4 cursor-pointer hover:text-primary transition-colors"
+                                                                        onClick={() => {
+                                                                            if (categoryId) {
+                                                                                navigate('/services', {
+                                                                                    state: {
+                                                                                        selectedCategoryId: categoryId,
+                                                                                        selectedCategoryName: category.name
+                                                                                    }
+                                                                                });
+                                                                                setIsMenuOpen(false);
+                                                                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        {category.name}
+                                                                    </h4>
+                                                                    <div className="ml-4">
+                                                                        {category.services.map((service, serviceIndex) => (
+                                                                            <NavLink
+                                                                                key={serviceIndex}
+                                                                                to={`/services/${service._id}`}
+                                                                                onClick={() => {
+                                                                                    setIsMenuOpen(false);
+                                                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                                                }}
+                                                                                className={({ isActive }) =>
+                                                                                    `block py-2 px-4 ml-2 rounded-md text-base transition-all duration-200 ${isActive
+                                                                                        ? "text-blue-600 bg-blue-50 font-medium"
+                                                                                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                                                                                    }`
+                                                                                }
+                                                                            >
+                                                                                {service.name}
+                                                                            </NavLink>
+                                                                        ))}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
                                     </div>
+                                ) : (
+                                    <div className="py-3" key={i}>
+                                        <NavLink
+                                            key={i}
+                                            to={link.path}
+                                            onClick={() => {
+                                                setIsMenuOpen(false);
+                                                window.scrollTo({ top: 0, behavior: "smooth" });
+                                            }}
+                                            className={({ isActive }) =>
+                                                `block w-full py-4 px-4 rounded-lg transition-all duration-200 text-lg font-medium ${isActive
+                                                    ? "text-primary bg-primary-light border-l-4 border-primary"
+                                                    : "text-gray-700 hover:bg-slate1"
+                                                }`
+                                            }
+                                        >
+                                            {link.name}
+                                        </NavLink>
+                                    </div>
                                 )}
-
                             </div>
                         ))}
                     </nav>
