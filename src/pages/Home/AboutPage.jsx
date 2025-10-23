@@ -141,16 +141,16 @@ const AboutPage = () => {
                             <h2 className="text-3xl mb-4 text-slate-800">About Pandit Prashant Shastri</h2>
                         </div>
                         <p className="text-base-font mb-4 text-sm">
-                            Pandit Prashant Shastri—today often recognized as a 'celebrity priest'—yet beyond this public image, my truest identity is that of a trusted companion who walks beside you on the path of peace, happiness, and progress. My work is not limited to recognition or popularity; it is rooted in the timeless wisdom of our scriptures and the sincere desire to guide every seeker toward balance and fulfillment.
+                            Pandit Prashant Shastri — often recognized today as a celebrity priest — is, beyond this public image, a trusted spiritual guide who walks beside devotees on their journey toward peace, happiness, and progress. His work is not driven by recognition or popularity but is deeply rooted in the timeless wisdom of the scriptures and a sincere desire to guide every seeker toward balance and fulfillment.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            Be it the sacred conduct of traditional pujas, the application of vastu shastra for harmony in living and working spaces, or the resolution of personal challenges that life inevitably brings, my purpose remains constant: to provide authentic, scripture-based remedies with compassion and clarity. Every ritual, every suggestion, and every consultation is offered with the intent to uplift and empower those who place their trust in me.
+                            Whether it involves the sacred conduct of traditional pujas, the application of Vastu Shastra to bring harmony to homes and workplaces, or providing solutions to life’s personal challenges, his purpose remains constant: to offer authentic, scripture-based remedies with compassion and clarity. Every ritual, suggestion, and consultation is performed with the intent to uplift and empower those who place their trust in him.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            My journey has been shaped by years of devotion, learning, and practice. While firmly grounded in tradition, I also carry a fresh perspective that bridges the gap between ancient practices and modern lifestyles. This unique blend allows me to make puja rituals, vastu principles, and astrological insights accessible and relevant to contemporary lives while never compromising on authenticity.
+                            With years of devotion, study, and practice, Pandit Prashant Shastri combines a firm grounding in tradition with a modern perspective. This rare blend bridges ancient wisdom with contemporary living, making puja rituals, Vastu principles, and astrological insights both accessible and meaningful—while maintaining complete authenticity.
                         </p>
                         <p className="text-base-font mb-4 text-sm">
-                            As an Astro and Vastu Consultant, I see my role as a bridge between tradition and transformation. For me, the sacred path is not just about rituals but about meaningful change. It is about weaving together scriptures, traditions, and a renewed outlook, creating a powerful synergy that guides you toward peace, prosperity, and spiritual growth.
+                            As an Astro and Vastu Consultant, Pandit Prashant Shastri serves as a bridge between tradition and transformation. For him, the sacred path is not merely about rituals but about creating meaningful change—harmonizing spiritual wisdom with a renewed outlook to guide individuals toward peace, prosperity, and spiritual growth.
                         </p>
                     </div>
                 </div>
