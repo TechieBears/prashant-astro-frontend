@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { applyCoupon } from '../../../api';
 import toast from 'react-hot-toast';
 
-const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [] }) => {
+const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [], products = [], applyFn }) => {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [couponCode, setCouponCode] = useState('');
     const [isApplying, setIsApplying] = useState(false);
 
     const handleApply = async () => {
         if (!selectedCoupon) return;
-        
+
         try {
             setIsApplying(true);
-            const response = await applyCoupon(selectedCoupon.couponCode, serviceIds);
-            
+            const payload = serviceIds?.length ? serviceIds : (products?.length ? products : []);
+            const response = await applyFn(selectedCoupon.couponCode || couponCode, payload);
+
             if (response.success) {
                 onApply({
                     ...selectedCoupon,
@@ -40,8 +40,9 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [] }
 
         try {
             setIsApplying(true);
-            const response = await applyCoupon(couponCode, serviceIds);
-            
+            const payload = serviceIds?.length ? serviceIds : (products?.length ? products : []);
+            const response = await applyFn(couponCode, payload);
+
             if (response.success) {
                 const couponDetails = response.data;
                 setSelectedCoupon({
@@ -103,7 +104,7 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [] }
                             onChange={(e) => setCouponCode(e.target.value)}
                             className="flex-1 px-2.5 py-1.5 border-2 border-primary-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white text-xs"
                         />
-                        <button 
+                        <button
                             onClick={handleCheckCoupon}
                             disabled={isApplying || !couponCode.trim()}
                             className={`px-3 py-1.5 font-semibold rounded-lg transition-colors text-xs ${isApplying || !couponCode.trim() ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-primary text-white hover:bg-primary-dark'}`}
