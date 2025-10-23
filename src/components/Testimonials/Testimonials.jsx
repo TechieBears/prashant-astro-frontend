@@ -87,8 +87,8 @@ const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
 
     if (!media?.length) {
         return (
-            <div className="w-full h-32 sm:h-40 bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">No media</span>
+            <div className="w-full h-24 sm:h-32 md:h-36 bg-gray-200 flex items-center justify-center rounded-md">
+                <span className="text-gray-400 text-xs sm:text-sm">No media</span>
             </div>
         );
     }
@@ -98,13 +98,13 @@ const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
     const hasMultipleMedia = media.length > 1;
 
     return (
-        <div className="relative w-full h-32 sm:h-40">
+        <div className="relative w-full h-24 sm:h-32 md:h-36">
             {isVideo ? (
                 <>
                     <video
                         ref={videoRef}
                         src={currentMedia.url}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-md"
                         controls={isPlaying}
                         preload="metadata"
                         onPause={handlePause}
@@ -112,11 +112,11 @@ const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
                     />
                     {!isPlaying && (
                         <div
-                            className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer group hover:bg-opacity-40 transition-all duration-300"
+                            className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center cursor-pointer group hover:bg-opacity-40 transition-all duration-300 rounded-md"
                             onClick={handlePlay}
                         >
-                            <div className="bg-white bg-opacity-90 rounded-full p-3 sm:p-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300 shadow-lg">
-                                <Play size={24} variant="Bold" className="text-orange-500" />
+                            <div className="bg-white bg-opacity-90 rounded-full p-2 sm:p-3 md:p-4 group-hover:bg-opacity-100 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                                <Play size={20} variant="Bold" className="text-orange-500" />
                             </div>
                         </div>
                     )}
@@ -125,19 +125,19 @@ const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
                 <img
                     src={currentMedia.url}
                     alt="testimonial media"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-md"
                 />
             )}
 
             {hasMultipleMedia && (
                 <>
                     {/* Navigation dots */}
-                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                    <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
                         {media.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-white' : 'bg-white bg-opacity-50'
                                     }`}
                             />
                         ))}
@@ -146,15 +146,15 @@ const MediaCarousel = ({ media, videoId, playingVideos, setPlayingVideos }) => {
                     {/* Navigation arrows */}
                     <button
                         onClick={prevSlide}
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-all duration-300"
+                        className="absolute left-1 sm:left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 sm:p-1.5 rounded-full hover:bg-opacity-70 transition-all duration-300"
                     >
-                        <ArrowLeft02Icon size={16} />
+                        <ArrowLeft02Icon size={12} />
                     </button>
                     <button
                         onClick={nextSlide}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 rounded-full hover:bg-opacity-70 transition-all duration-300"
+                        className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1 sm:p-1.5 rounded-full hover:bg-opacity-70 transition-all duration-300"
                     >
-                        <ArrowRight02Icon size={16} />
+                        <ArrowRight02Icon size={12} />
                     </button>
                 </>
             )}
@@ -320,7 +320,7 @@ const Testimonials = () => {
             <div className="hidden sm:block absolute bottom-24 left-1/2 -translate-x-1/2 translate-y-2 w-40 sm:w-1/2 md:w-[50%] h-48 sm:h-64 md:h-80 bg-orange-light z-0 rounded-lg"></div>
 
             {/* Cards */}
-            <div className="mt-2 px-4 sm:px-6 lg:px-16 py-16 relative z-10 max-w-[1280px] mx-auto pt-1">
+            <div className="mt-2 px-4 sm:px-6 lg:px-16 py-8 relative z-10 max-w-[1280px] mx-auto pt-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {getCurrentSlides().map((item, index) => {
                         const globalIndex = currentGroup * slidesPerGroup + index;
@@ -331,43 +331,47 @@ const Testimonials = () => {
                             : item.description.slice(0, DESCRIPTION_LIMIT) + (shouldTruncate ? '...' : '');
 
                         return (
-                            <div key={`${currentGroup}-${index}`} className="mx-6 relative transform transition-all duration-300 ease-in-out">
-                                <img src={Comment} alt="Comment" className="absolute top-3 right-1 w-10 h-10 z-20" />
-                                <div className="relative bg-white rounded-lg p-4 sm:p-6 mt-6 shadow-md w-full hover:shadow-lg transition-shadow duration-200 h-[420px] sm:h-[450px] flex flex-col">
+                            <div key={`${currentGroup}-${index}`} className="mx-2 sm:mx-6 relative transform transition-all duration-300 ease-in-out">
+                                <img src={Comment} alt="Comment" className="absolute top-2 right-1 sm:top-3 sm:right-1 w-8 h-8 sm:w-10 sm:h-10 z-20" />
+                                <div className="relative bg-white rounded-lg p-3 sm:p-4 md:p-6 mt-4 sm:mt-6 shadow-md w-full hover:shadow-lg transition-shadow duration-200 min-h-[320px] sm:min-h-[340px] md:min-h-[360px] flex flex-col">
 
-                                    <div className={`transition-opacity duration-300 ease-in-out ${fadeClass} flex-1 flex flex-col`}>
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <img src={item.image} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
-                                            <div>
-                                                <h3 className="text-sm font-semibold text-slate-800">{item.name}</h3>
-                                                <p className="text-xs text-slate-500">{item.location}</p>
+                                    <div className={`transition-opacity duration-300 ease-in-out flex-1 flex flex-col`}>
+                                        <div className="space-y-3 sm:space-y-4">
+                                            <div className="flex items-center gap-2 sm:gap-3">
+                                                <img src={item.image} alt={item.name} className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0" />
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{item.name}</h3>
+                                                    <p className="text-xs text-slate-500 truncate">{item.location}</p>
+                                                </div>
+                                            </div>
+
+                                            <span className="w-fit inline-block px-2 sm:px-3 py-1 text-xs font-medium text-white bg-primary-orange rounded-full">
+                                                {item.category}
+                                            </span>
+
+                                            <div className="flex-1">
+                                                <p className="text-xs sm:text-sm text-slate-600 break-words overflow-wrap-anywhere leading-relaxed">
+                                                    {displayedText}
+                                                </p>
+                                                {shouldTruncate && (
+                                                    <button
+                                                        onClick={() => toggleReadMore(globalIndex)}
+                                                        className="text-blue-600 font-medium hover:text-blue-800 transition-colors duration-200 block mt-2 sm:inline sm:ml-1 text-xs sm:text-sm"
+                                                    >
+                                                        {isExpanded ? 'Read less' : 'Read more'}
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <span className="w-fit inline-block mb-3 px-3 py-1 text-xs font-medium text-white bg-primary-orange rounded-full">
-                                            {item.category}
-                                        </span>
-
-                                        <p className="text-sm text-slate-600 mb-4">
-                                            {displayedText}
-                                            {shouldTruncate && (
-                                                <button
-                                                    onClick={() => toggleReadMore(globalIndex)}
-                                                    className="text-blue-600 font-medium ml-1 hover:text-blue-800 transition-colors duration-200"
-                                                >
-                                                    {isExpanded ? 'Read less' : 'Read more'}
-                                                </button>
-                                            )}
-                                        </p>
-
-                                        <div className="rounded-md overflow-hidden mt-auto">
-                                            <MediaCarousel
-                                                media={item.media}
-                                                videoId={`video-${currentGroup}-${index}`}
-                                                playingVideos={playingVideos}
-                                                setPlayingVideos={setPlayingVideos}
-                                            />
-                                        </div>
+                                    <div className="rounded-md overflow-hidden mt-auto">
+                                        <MediaCarousel
+                                            media={item.media}
+                                            videoId={`video-${currentGroup}-${index}`}
+                                            playingVideos={playingVideos}
+                                            setPlayingVideos={setPlayingVideos}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -376,7 +380,7 @@ const Testimonials = () => {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-around gap-4 mt-8">
+                <div className="flex justify-around gap-4 mt-4">
                     <button
                         onClick={handlePrevClick}
                         disabled={isAnimating}

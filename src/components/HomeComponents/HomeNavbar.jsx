@@ -24,6 +24,8 @@ const HomeNavbar = () => {
     const [isProductsHovered, setIsProductsHovered] = useState(false);
     const [isServicesHovered, setIsServicesHovered] = useState(false);
     const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
+    const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
 
     const login = useSelector((state) => state.user.isLogged);
     const user = useSelector((state) => state.user.userDetails);
@@ -208,7 +210,11 @@ const HomeNavbar = () => {
                             <List
                                 size={30}
                                 className="cursor-pointer"
-                                onClick={() => setIsMenuOpen(true)}
+                                onClick={() => {
+                                    setIsMenuOpen(true);
+                                    setIsMobileProductsOpen(false);
+                                    setIsMobileServicesOpen(false);
+                                }}
                             />
                         </div>
                     </div>
@@ -431,7 +437,11 @@ const HomeNavbar = () => {
                         <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
                         <button
                             className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                setIsMobileProductsOpen(false);
+                                setIsMobileServicesOpen(false);
+                            }}
                             aria-label="Close menu"
                         >
                             <X size={24} className="text-gray-700" />
@@ -440,46 +450,91 @@ const HomeNavbar = () => {
 
                     {/* Profile Section - Show if user is logged in */}
                     {login && (
-                        <div className="w-full px-6 mb-2">
-                            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                        <User size={20} className="text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800">Welcome back!</h3>
-                                        <p className="text-sm text-gray-600">Manage your account</p>
+                        <div className="w-full px-4 sm:px-6 mb-6">
+                            <NavLink
+                                to="/profile"
+                                onClick={() => {
+                                    setIsMenuOpen(false);
+                                    setIsMobileProductsOpen(false);
+                                    setIsMobileServicesOpen(false);
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                className="block w-full group"
+                            >
+                                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-5 border border-blue-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden">
+                                    {/* Background decoration */}
+                                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-5 translate-x-5"></div>
+
+                                    <div className="flex items-center gap-4 relative z-10">
+                                        <div className="relative">
+                                            <img
+                                                alt="profile"
+                                                src={
+                                                    user?.profileImage ||
+                                                    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                                                }
+                                                onError={(e) => {
+                                                    e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                                                }}
+                                                className="w-14 h-14 rounded-full border-3 border-white shadow-md object-cover ring-2 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300"
+                                            />
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-white rounded-full"></div>
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-bold text-gray-900 text-base leading-relaxed break-words group-hover:text-blue-700 transition-colors duration-200">
+                                                Welcome back, {user?.firstName || 'User'}!
+                                            </h3>
+                                            <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                                Manage your account
+                                            </p>
+                                            <div className="flex items-center gap-1 mt-2">
+                                                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                                                <span className="text-xs text-blue-600 font-medium">Tap to view profile</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Arrow indicator */}
+                                        <div className="text-blue-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </NavLink>
                         </div>
                     )}
 
                     {/* Navigation Links */}
-                    <nav className="flex flex-col w-full px-6 gap-2 flex-1">
-                        {navLinks.map((link, i) => (
+                    <nav className="flex flex-col w-full px-4 sm:px-6 gap-2 flex-1">
+                        {navLinks.filter(link => link.name !== 'Profile').map((link, i) => (
                             <div key={i} className="w-full">
-                                {/* Main Navigation Item */}
                                 {link.dropdown ? (
                                     <div className="w-full">
                                         <button
                                             className="w-full flex items-center justify-between text-left py-4 px-4 rounded-lg hover:bg-slate1 transition-all duration-200 text-lg font-medium text-gray-700"
                                             onClick={() => {
                                                 if (link.name === 'Products') {
-                                                    // For products, show all categories directly
-                                                    console.log('Mobile Products clicked:', productsDropdown);
+                                                    setIsMobileProductsOpen(!isMobileProductsOpen);
                                                 } else if (link.name === 'Services') {
-                                                    // For services, show all categories directly
-                                                    console.log('Mobile Services clicked:', servicesDropdown);
+                                                    setIsMobileServicesOpen(!isMobileServicesOpen);
                                                 }
                                             }}
                                         >
                                             <span>{link.name}</span>
-                                            <ChevronDown size={20} className="text-gray-500" />
+                                            <ChevronDown
+                                                size={20}
+                                                className={`text-gray-500 transition-transform duration-200 ${(link.name === 'Products' && isMobileProductsOpen) ||
+                                                    (link.name === 'Services' && isMobileServicesOpen)
+                                                    ? 'rotate-180'
+                                                    : 'rotate-0'
+                                                    }`}
+                                            />
                                         </button>
 
-                                        {/* Show products dropdown immediately when Products is clicked */}
-                                        {link.name === 'Products' && productsDropdown && productsDropdown.length > 0 && (
+                                        {/* Show products dropdown when Products is clicked and expanded */}
+                                        {link.name === 'Products' && isMobileProductsOpen && productsDropdown && productsDropdown.length > 0 && (
                                             <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
                                                 {productsDropdown.map((category, categoryIndex) => {
                                                     const categoryId = category._id;
@@ -499,6 +554,8 @@ const HomeNavbar = () => {
                                                                                     }
                                                                                 });
                                                                                 setIsMenuOpen(false);
+                                                                                setIsMobileProductsOpen(false);
+                                                                                setIsMobileServicesOpen(false);
                                                                                 window.scrollTo({ top: 0, behavior: "smooth" });
                                                                             }
                                                                         }}
@@ -512,6 +569,8 @@ const HomeNavbar = () => {
                                                                                 to={`/products/${product._id}`}
                                                                                 onClick={() => {
                                                                                     setIsMenuOpen(false);
+                                                                                    setIsMobileProductsOpen(false);
+                                                                                    setIsMobileServicesOpen(false);
                                                                                     window.scrollTo({ top: 0, behavior: "smooth" });
                                                                                 }}
                                                                                 className={({ isActive }) =>
@@ -533,8 +592,8 @@ const HomeNavbar = () => {
                                             </div>
                                         )}
 
-                                        {/* Show services dropdown when Services is clicked */}
-                                        {link.name === 'Services' && servicesDropdown && servicesDropdown.length > 0 && (
+                                        {/* Show services dropdown when Services is clicked and expanded */}
+                                        {link.name === 'Services' && isMobileServicesOpen && servicesDropdown && servicesDropdown.length > 0 && (
                                             <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
                                                 {servicesDropdown.map((category, categoryIndex) => {
                                                     const categoryId = category._id;
@@ -554,6 +613,8 @@ const HomeNavbar = () => {
                                                                                     }
                                                                                 });
                                                                                 setIsMenuOpen(false);
+                                                                                setIsMobileProductsOpen(false);
+                                                                                setIsMobileServicesOpen(false);
                                                                                 window.scrollTo({ top: 0, behavior: "smooth" });
                                                                             }
                                                                         }}
@@ -567,6 +628,8 @@ const HomeNavbar = () => {
                                                                                 to={`/services/${service._id}`}
                                                                                 onClick={() => {
                                                                                     setIsMenuOpen(false);
+                                                                                    setIsMobileProductsOpen(false);
+                                                                                    setIsMobileServicesOpen(false);
                                                                                     window.scrollTo({ top: 0, behavior: "smooth" });
                                                                                 }}
                                                                                 className={({ isActive }) =>
@@ -595,6 +658,8 @@ const HomeNavbar = () => {
                                             to={link.path}
                                             onClick={() => {
                                                 setIsMenuOpen(false);
+                                                setIsMobileProductsOpen(false);
+                                                setIsMobileServicesOpen(false);
                                                 window.scrollTo({ top: 0, behavior: "smooth" });
                                             }}
                                             className={({ isActive }) =>
@@ -613,20 +678,22 @@ const HomeNavbar = () => {
                     </nav>
 
                     {/* Cart & Authentication Buttons - Bottom Section */}
-                    <div className="w-full px-6 py-4 border-t border-gray-100 bg-white/80">
+                    <div className="w-full px-4 sm:px-6 py-5 border-t border-gray-100 bg-gradient-to-t from-white via-white to-white/95 backdrop-blur-sm">
                         {/* Cart Button */}
-                        <div className="mb-4">
+                        <div className="mb-5">
                             <button
-                                className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                                className="w-full flex items-center justify-center gap-3 py-4 px-5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
                                 onClick={() => {
                                     navigate("/cart");
                                     setIsMenuOpen(false);
+                                    setIsMobileProductsOpen(false);
+                                    setIsMobileServicesOpen(false);
                                 }}
                             >
                                 <div className="relative">
                                     <ShoppingCart size={20} />
                                     {totalCartItems > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium border border-red-200">
+                                        <span className="absolute -top-2 -right-2 bg-white text-red-600 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold border-2 border-orange-100 shadow-sm">
                                             {totalCartItems > 99 ? '99+' : totalCartItems}
                                         </span>
                                     )}
@@ -636,20 +703,30 @@ const HomeNavbar = () => {
                         </div>
 
                         {!login ? (
-                            <div className="flex flex-col gap-4">
-                                <button className={`${formBtn1}`} onClick={() => navigate("/login")}>
+                            <div className="flex flex-col gap-3">
+                                <button className={`${formBtn1} !rounded-xl !py-3 !font-semibold hover:!scale-[1.02] transition-all duration-300`} onClick={() => {
+                                    navigate("/login");
+                                    setIsMenuOpen(false);
+                                    setIsMobileProductsOpen(false);
+                                    setIsMobileServicesOpen(false);
+                                }}>
                                     Login
                                 </button>
                                 <button
-                                    className={`${formBtn1}`}
-                                    onClick={() => navigate("/register")}
+                                    className={`${formBtn1} !bg-gradient-to-r !from-gray-100 !to-gray-200 !text-gray-700 !border-gray-300 !rounded-xl !py-3 !font-semibold hover:!scale-[1.02] hover:!from-gray-200 hover:!to-gray-300 transition-all duration-300`}
+                                    onClick={() => {
+                                        navigate("/register");
+                                        setIsMenuOpen(false);
+                                        setIsMobileProductsOpen(false);
+                                        setIsMobileServicesOpen(false);
+                                    }}
                                 >
                                     Register
                                 </button>
                             </div>
                         ) : (
                             <button
-                                className={`${formBtn1} !bg-red-500`}
+                                className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl py-3 font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] transform"
                                 onClick={handleLogout}
                             >
                                 Logout
