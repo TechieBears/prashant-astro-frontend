@@ -1,136 +1,319 @@
-import { useDispatch, useSelector } from "react-redux";
-import { loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
-import { useCart } from "../hooks/useCart";
-import { loginUser } from "../api";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import google from "../assets/google-icon.png";
-import facebook from "../assets/facebook-icon.png";
-import apple from "../assets/apple-icon.png";
 import TextInput from "../components/TextInput/TextInput";
+import { FcGoogle } from "react-icons/fc";
+import ForgetPasswordModal from "../components/Modals/ForgetPassword/ForgetPasswordModal";
+import { loginUser, registerUser } from "../api";
+import { loginSuccess, setLoggedUser, setRoleIs, setUserDetails } from "../redux/Slices/loginSlice";
+import { validateEmail, validatePassword } from "../utils/validateFunction";
 import { useForm } from "react-hook-form";
+import LoadBox from "../components/Loader/LoadBox";
+import { formBtn3 } from "../utils/CustomClass";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../utils/firebase/firebase";
+import { useCart } from "../hooks/useCart";
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading } = useSelector((state) => state.user);
-  const { fetchCartData } = useCart();
+    const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const [showForgetPasswordModal, setShowForgetPasswordModal] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        setValue,
+    } = useForm();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { fetchCartData } = useCart();
 
-  const onSubmit = async (data) => {
-    try {
-      dispatch(setLoading(true));
-
-      const response = await loginUser(data);
-
-      if (response.success) {
-        dispatch(loginSuccess({
-          user: response.data.user,
-          token: response.data.token,
-          role: response.data.user.role
-        }));
-
-        // Fetch user's cart data after successful login
-        try {
-          await fetchCartData();
-        } catch (error) {
-          console.error('Failed to fetch cart data:', error);
+    useEffect(() => {
+        const savedCredentials = localStorage.getItem('rememberedCredentials');
+        if (savedCredentials) {
+            const { email, password, rememberMe: savedRememberMe } = JSON.parse(savedCredentials);
+            if (savedRememberMe) {
+                setValue('email', email);
+                setValue('password', password);
+                setRememberMe(true);
+            }
         }
-        toast.success("Login successful!");
-        navigate("/");
-      } else {
-        dispatch(setError(response.message || "Login failed"));
-        toast.error(response.message || "Login failed");
-      }
-    } catch (error) {
-      dispatch(setError(error.message || "Login failed"));
-      toast.error(error.message || "Login failed");
+    }, [setValue]);
+
+    const saveCredentials = (email, password, remember) => {
+        if (remember) {
+            const credentials = {
+                email,
+                password,
+                rememberMe: true
+            };
+            localStorage.setItem('rememberedCredentials', JSON.stringify(credentials));
+        } else {
+            localStorage.removeItem('rememberedCredentials');
+        }
+    };
+
+    const onSubmit = async (data) => {
+        setLoading(true);
+        const playload = {
+            ...data,
+            fcmToken: localStorage.getItem('token')
+        }
+        try {
+            const response = await loginUser(playload);
+            if (response?.success) {
+                dispatch(loginSuccess({
+                    user: response.data.user,
+                    token: response.data.token,
+                    role: response.data.user.role
+                }));
+                await fetchCartData();
+                saveCredentials(data.email, data.password, rememberMe);
+                toast.success("Login Successfully 🥳");
+                const from = location.state?.from || '/';
+                navigate(from, { replace: true });
+            } else {
+                toast.error(response?.message || response?.error || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            if (error.code === 'ERR_NETWORK') {
+                toast.error('Network error. Please check your connection or try again later.');
+            } else {
+                toast.error(error || 'Something went wrong. Please try again.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useGSAP(() => {
+        gsap.from(".card", {
+            y: 30,
+            opacity: 0,
+            ease: "power1.inOut",
+            duration: 1
+        })
+    }, [])
+
+    const handerGoogleSignIn = async () => {
+        // Prevent multiple simultaneous requests
+        if (loading) return;
+
+        setGoogleLoading(true);
+        const provider = new GoogleAuthProvider();
+
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const playload = {
+                firstName: result?.user?.displayName?.split(' ')[0] || '',
+                lastName: result?.user?.displayName?.split(' ')[1] || '',
+                email: result?.user?.email || '',
+                mobileNo: result?.user?.providerData[0]?.phoneNumber || '',
+                profileImage: result?.user?.photoURL || '',
+                gender: result?.user?.providerData[0]?.gender || 'other' || '',
+                registerType: 'google'
+            }
+
+            try {
+                const response = await registerUser(playload);
+                console.log("⚡️🤯 ~ Login.jsx:129 ~ handerGoogleSignIn ~ response:", response)
+                if (response?.success) {
+                    dispatch(loginSuccess({
+                        user: response.data.user,
+                        token: response.data.token,
+                        role: response.data.user.role
+                    }));
+                    await fetchCartData();
+                    toast.success("Login Successfully 🥳");
+                    const from = location.state?.from || '/';
+                    navigate(from, { replace: true });
+                } else {
+                    toast.error(response?.message || response?.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Google sign-in error:', error);
+                toast.error('Authentication failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+
+            // Handle specific Firebase auth errors
+            switch (error.code) {
+                case 'auth/cancelled-popup-request':
+                    // User cancelled the popup - don't show error message
+                    console.log('User cancelled Google sign-in popup');
+                    break;
+                case 'auth/popup-closed-by-user':
+                    // User closed the popup - don't show error message
+                    console.log('User closed Google sign-in popup');
+                    break;
+                case 'auth/popup-blocked':
+                    toast.error('Popup was blocked by your browser. Please allow popups and try again.');
+                    break;
+                case 'auth/network-request-failed':
+                    toast.error('Network error. Please check your internet connection and try again.');
+                    break;
+                case 'auth/too-many-requests':
+                    toast.error('Too many failed attempts. Please try again later.');
+                    break;
+                case 'auth/account-exists-with-different-credential':
+                    toast.error('An account already exists with this email using a different sign-in method.');
+                    break;
+                default:
+                    // Only show error for unexpected errors
+                    if (error.code && error.code.startsWith('auth/')) {
+                        toast.error('Authentication failed. Please try again.');
+                    } else {
+                        toast.error('Something went wrong. Please try again.');
+                    }
+            }
+        } finally {
+            setGoogleLoading(false);
+        }
     }
-  };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-yellow-50">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16">
-        <h2 className="text-2xl font-bold text-center mb-6 text-primary">Login</h2>
+    return (
+        <div className="min-h-screen  flex items-center justify-center bg-[#FFF9EF] px-4">
+            <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 card">
+                {/* Title */}
+                <h2 className="text-3xl font-extrabold text-center text-p">
+                    Login
+                </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Email Field */}
+                {/* Form */}
+                <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
+                    {/* Email */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-1">
+                            Email *
+                        </label>
+                        <TextInput
+                            label="Enter email*"
+                            placeholder="Enter email"
+                            type="email"
+                            registerName="email"
+                            props={{ ...register('email', { required: "Email is required", validate: validateEmail }), minLength: 3 }}
+                            errors={errors.email}
+                        />
+                    </div>
 
-          <TextInput
-            label="Email"
-            type="email"
-            name="email"
-            placeholder="Enter email address"
-            registerName="email"
-            props={{ ...register('email', { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" } }) }}
-            errors={errors.email}
-          />
+                    {/* Password */}
+                    <div>
+                        <label className="block text-gray-700 font-medium mb-1">
+                            Password *
+                        </label>
+                        <TextInput
+                            label="Enter Your Password"
+                            placeholder="Enter Your Password"
+                            type="password"
+                            registerName="password"
+                            props={{ ...register('password', { validate: validatePassword, required: "Password is required" }), minLength: 6, }}
+                            errors={errors.password}
+                        />
+                    </div>
 
-          {/* Password Field */}
-          <TextInput
-            label="Password"
-            type="password"
-            name="password"
-            placeholder="Enter password"
-            registerName="password"
-            props={{ ...register('password', { required: "Password is required", minLength: { value: 6, message: "Password must be at least 6 characters" } }) }}
-            errors={errors.password}
-          />
+                    {/* Remember & Forgot */}
+                    <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                            <input
+                                id="remember-me"
+                                name="remember-me"
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            />
+                            <label htmlFor="remember-me" className="ml-2 text-gray-700">
+                                Remember me
+                            </label>
+                        </div>
+                        {/* <button
+                            type="button"
+                            onClick={() => setShowForgetPasswordModal(true)}
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            Forgot Password?
+                        </button> */}
+                    </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="w-4 h-4" />
-              <span>Remember me</span>
-            </label>
-            <Link to="/forget-password" className="text-primary hover:underline">
-              Forgot Password?
-            </Link>
-          </div>
+                    {/* Login Button */}
+                    {loading ? <LoadBox className={`${formBtn3} !rounded bg-gradient-orange text-white`} /> : <button
+                        type="submit"
+                        className={`${formBtn3} !rounded bg-gradient-orange text-white`}
+                    >
+                        Login
+                    </button>}
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-gradient-orange w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+                    {/* Sign up link */}
+                    <p className="text-center text-sm text-gray-600">
+                        Don’t have an account?{" "}
+                        <NavLink
+                            to="/register"
+                            className="font-medium text-pink-600 hover:text-pink-500 underline"
+                        >
+                            Sign Up
+                        </NavLink>
+                    </p>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-primary hover:underline">
-            Sign Up
+                    {/* Divider */}
+                    <div className="flex items-center my-4">
+                        <div className="flex-grow border-t border-gray-300"></div>
+                        <span className="mx-3 text-gray-400 text-sm">Or Continue With</span>
+                        <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
 
-          </Link>
-        </p>
+                    {/* Social Login */}
+                    <div className="flex justify-center gap-4">
+                        <button
+                            type="button"
+                            disabled={googleLoading}
+                            className={`p-3 px-5 w-full h-[51px] flex justify-center items-center rounded-full shadow-md border border-slate-100 gap-2 transition-colors ${loading
+                                ? 'bg-gray-100 cursor-not-allowed opacity-70'
+                                : 'bg-white hover:bg-gray-100'
+                                }`}
+                            onClick={handerGoogleSignIn}
+                        >
+                            {googleLoading ? (
+                                <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                            ) : (
+                                <FcGoogle size={22} />
+                            )}
+                            <span className="text-sm font-tbLex font-normal">
+                                {googleLoading ? 'Signing in...' : 'Continue with Google'}
+                            </span>
+                        </button>
 
-        {/* Social Login */}
-        <div className="border-t my-4" style={{ borderColor: "rgba(39, 43, 53, 0.1)" }}></div>
-        <div className="mt-6">
-          <p className="text-center text-gray-400 text-sm mb-3">Or Continue With</p>
-          <div className="flex justify-center space-x-4">
-            <button className="w-12 h-12 rounded-full bg-white shadow hover:shadow-md flex items-center justify-center transition">
-              <img src={google} alt="Google" className="w-6 h-6" />
-            </button>
-            {/* <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
-              <img src={facebook} alt="Facebook" className="w-6 h-6" />
-            </button>
-            <button className="w-12 h-12 rounded-full bg-black shadow hover:shadow-md flex items-center justify-center transition">
-              <img src={apple} alt="Apple" className="w-6 h-6" />
+                        {/* <button
+              type="button"
+              onClick={() => setShowResetPasswordModal(true)}
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              ResetPass
             </button> */}
-          </div>
+                    </div>
+                </form>
+            </div>
+
+            {/* Forget Password Modal */}
+            {/* <ForgetPasswordModal
+                open={showForgetPasswordModal}
+                setOpen={setShowForgetPasswordModal}
+            /> */}
+            {/* Forget Password Modal */}
+            {/* <ResetPasswordModal
+        open={showResetPasswordModal}
+        setOpen={setShowResetPasswordModal}
+      /> */}
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Login;
-

@@ -1,130 +1,139 @@
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { registerSuccess, loginSuccess, setLoading, setError } from "../redux/Slices/loginSlice";
-import { registerUser, loginUser } from "../api";
-import { useCart } from "../hooks/useCart";
-import { Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
-import google from "../assets/google-icon.png";
-import facebook from "../assets/facebook-icon.png";
-import apple from "../assets/apple-icon.png";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import toast from "react-hot-toast";
 import TextInput from "../components/TextInput/TextInput";
+import SelectTextInput from "../components/TextInput/SelectTextInput";
+import LoadBox from "../components/Loader/LoadBox";
+import { registerUser } from "../api";
+import { loginSuccess, registerSuccess } from "../redux/Slices/loginSlice";
+import {
+    validateEmail,
+    validatePassword,
+    validatePhoneNumber,
+} from "../utils/validateFunction";
+import { formBtn3 } from "../utils/CustomClass";
+import { useCart } from "../hooks/useCart";
 
 const Register = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { fetchCartData } = useCart();
-
+    const [loader, setLoader] = useState(false);
     const {
         register,
         handleSubmit,
         watch,
+        setValue,
+        control,
         formState: { errors },
-        trigger
-    } = useForm({
-        mode: 'onChange',
-        defaultValues: {
-            firstName: '',
-            lastName: ''
-        }
-    });
+        reset,
+    } = useForm();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const password = watch("password");
+    const { fetchCartData } = useCart();
+
 
     const onSubmit = async (data) => {
+        const playload = {
+            ...data,
+            registerType: "normal",
+        };
         try {
-            const { title, firstName, lastName, email, password, mobileNo } = data;
-            
-            // Validate form fields before submission
-            const isFormValid = await trigger();
-            if (!isFormValid) {
-                return;
-            }
+            setLoader(true);
+            const response = await registerUser(playload);
 
-            dispatch(setLoading(true));
-
-            // Register user
-            const registerResponse = await registerUser({
-                title,
-                firstName,
-                lastName,
-                email,
-                password,
-                mobileNo,
-                registerType: "normal"
-            });
-
-            if (registerResponse.success) {
-                dispatch(registerSuccess(registerResponse));
-
-                // Auto-login after successful registration
-                const loginResponse = await loginUser({ email, password });
-
-                if (loginResponse.success) {
-                    dispatch(loginSuccess({
-                        user: loginResponse.data.user,
-                        token: loginResponse.data.token,
-                        role: loginResponse.data.user.role
-                    }));
-
-                    // Fetch user's cart data after successful login
-                    try {
-                        await fetchCartData();
-                    } catch (error) {
-                        console.error('Failed to fetch cart data:', error);
-                    }
-                    toast.success("Registration and login successful!");
-                    navigate("/");
-                } else {
-                    dispatch(setError(loginResponse.message || "Login after registration failed"));
-                    toast.error(loginResponse.message || "Login after registration failed");
+            if (
+                response?.message === "User created successfully" ||
+                response?.success
+            ) {
+                dispatch(registerSuccess(response));
+                dispatch(loginSuccess({
+                    user: response.data.user,
+                    token: response.data.token,
+                    role: response.data.user.role
+                }));
+                try {
+                    await fetchCartData();
+                } catch (error) {
+                    console.error('Failed to fetch cart data:', error);
                 }
+                setLoader(false);
+                toast.success("Registration and login successful!");
+                navigate("/", { replace: true });
             } else {
-                dispatch(setError(registerResponse.message || "Registration failed"));
-                toast.error(registerResponse.message || "Registration failed");
+                setLoader(false);
+                toast.error(response?.message || "Registration failed");
             }
         } catch (error) {
-            dispatch(setError(error.message || "Registration failed"));
-            toast.error(error.message || "Registration failed");
+            console.error("Registration error:", error);
+            setLoader(false);
+            toast.error(error?.message || "Something went wrong");
         }
     };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-yellow-50">
-            <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg m-4 sm:m-8 md:m-12 lg:m-16 sm:mt-6 mt-20">
-                <h2 className="text-2xl font-bold text-center mb-2 text-primary">Register</h2>
-                <p className="text-center text-gray-500 mb-6 text-sm">Create a new account</p>
+    useGSAP(() => {
+        gsap.from(".card", {
+            y: 30,
+            opacity: 0,
+            ease: "power1.inOut",
+            duration: 1,
+        });
+    }, []);
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Title */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium mb-1">Title <span className="text-red-500">*</span></label>
-                        <div className="flex gap-2 flex-wrap">
-                            {["Mr", "Mrs", "Miss", "Baby", "Master"].map((opt) => (
-                                <label
-                                    key={opt}
-                                    className={`px-3 py-2 rounded-xl border text-sm cursor-pointer transition-all duration-150 ${watch("title") === opt
-                                        ? "border-primary text-primary font-medium"
-                                        : "bg-white text-black"
-                                        }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        value={opt}
-                                        {...register("title", { required: "Title is required" })}
-                                        className="hidden"
-                                    />
-                                    {opt}
-                                </label>
+    return (
+        <div className="h-full bg-[#FFF9EF] py-24 flex items-center justify-center  px-4">
+            <div className="card w-full max-w-2xl bg-white p-8 rounded-xl shadow-md">
+                {/* Title */}
+                <div className="text-center mb-6">
+                    <h2 className="text-3xl font-extrabold text-center text-p">
+                        Register
+                    </h2>
+                </div>
+
+                {/* Form */}
+                <form
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    onSubmit={handleSubmit(onSubmit)}
+                >
+                    {/* First Name */}
+                    <div className="col-span-2">
+                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
+                            Title *
+                        </h4>
+                        <div className="sm:flex sm:gap-2 space-x-2 space-y-2 sm:space-y-0">
+                            {["Mr", "Mrs", "Miss", "Baby", "Master"].map((type) => (
+                                <Controller
+                                    key={type}
+                                    name="title"
+                                    control={control}
+                                    render={({
+                                        field: { onChange, value },
+                                        fieldState: { error },
+                                    }) => (
+                                        <button
+                                            type="button"
+                                            onClick={() => onChange(type)}
+                                            className={`px-5 font-tbLex py-3 rounded-md text-sm font-medium ${value === type
+                                                ? "bg-gradient-orange text-white"
+                                                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                                }`}
+                                        >
+                                            {type}
+                                        </button>
+                                    )}
+                                />
                             ))}
                         </div>
-                        {errors.title && (
-                            <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
-                        )}
                     </div>
-
-                    {/* Name, Email, Phone */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="firstName"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            First Name *
+                        </label>
                         <TextInput
                             label="First Name"
                             type="text"
@@ -150,6 +159,16 @@ const Register = () => {
                                 })
                             }}
                         />
+                    </div>
+
+                    {/* Last Name */}
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="lastName"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Last Name *
+                        </label>
                         <TextInput
                             label="Last Name"
                             type="text"
@@ -175,76 +194,163 @@ const Register = () => {
                                 })
                             }}
                         />
+                    </div>
+
+                    {/* Email */}
+                    <div className="col-span-1 md:col-span-2">
+                        <label
+                            htmlFor="email"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Email *
+                        </label>
                         <TextInput
-                            label="Email"
-                            type="email"
-                            placeholder="Enter email"
-                            name="email"
-                            errors={errors.email}
+                            label="Enter Your Email"
+                            placeholder="Enter Your Email"
+                            type="text"
                             registerName="email"
-                            props={{ ...register('email', { required: "Email is required", pattern: { value: /^\S+@\S+\.\S+$/, message: "Invalid email address" } }) }}
-                        />
-                        <TextInput
-                            label="Phone Number"
-                            type="tel"
-                            placeholder="Enter phone number"
-                            name="mobileNo"
-                            errors={errors.mobileNo}
-                            registerName="mobileNo"
-                            props={{ ...register('mobileNo', { required: "Phone number is required", pattern: { value: /^[0-9]{10}$/, message: "Enter a valid 10-digit number" } }) }}
-                        />
-                        <TextInput
-                            label="Create Password"
-                            type="password"
-                            placeholder="Enter password"
-                            name="password"
-                            errors={errors.password}
-                            registerName="password"
-                            props={{ ...register('password', { required: "Password is required", minLength: { value: 6, message: "Password must be at least 6 characters" } }) }}
-                        />
-                        <TextInput
-                            label="Confirm Password"
-                            type="password"
-                            placeholder="Confirm password"
-                            name="confirmPassword"
-                            errors={errors.confirmPassword}
-                            registerName="confirmPassword"
-                            props={{ ...register('confirmPassword', { required: "Please confirm your password", validate: (value) => value === password || "Passwords do not match" }) }}
+                            props={{
+                                ...register("email", {
+                                    required: "Email is required",
+                                    pattern: {
+                                        value: /^\S+@\S+\.\S+$/,
+                                        message: "Invalid email address",
+                                    },
+                                }),
+                            }}
+                            errors={errors.email}
                         />
                     </div>
 
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        className="bg-gradient-orange px-10 py-3 rounded-lg text-white font-semibold hover:opacity-90 transition mx-auto block"
-                    >
-                        Register
-                    </button>
+                    {/* Phone */}
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="mobileNo"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Phone Number *
+                        </label>
+                        <TextInput
+                            label="Enter Your Phone Number"
+                            placeholder="Enter Your Phone Number"
+                            type="tel"
+                            registerName="mobileNo"
+                            props={{
+                                ...register("mobileNo", {
+                                    required: "Phone number is required",
+                                    pattern: {
+                                        value: /^[0-9]{10}$/,
+                                        message: "Enter a valid 10-digit number",
+                                    },
+                                }),
+                                maxLength: 10,
+                                minLength: 10,
+                            }}
+                            errors={errors.mobileNo}
+                        />
+                    </div>
+
+                    {/* Gender */}
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="gender"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Gender *
+                        </label>
+                        <SelectTextInput
+                            label="Select Gender"
+                            placeholder="Select Gender"
+                            registerName="gender"
+                            options={[
+                                { value: "male", label: "Male" },
+                                { value: "female", label: "Female" },
+                                { value: "other", label: "Other" },
+                            ]}
+                            props={{
+                                ...register("gender", { required: "Gender is required" }),
+                                onChange: (e) => {
+                                    setValue("gender", e.target.value);
+                                },
+                                value: watch("gender") || "",
+                            }}
+                            errors={errors.gender}
+                        />
+                    </div>
+
+                    {/* Password */}
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="password"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Password *
+                        </label>
+                        <TextInput
+                            label="Enter Your Password"
+                            placeholder="Enter Your Password"
+                            type="password"
+                            registerName="password"
+                            props={{
+                                ...register("password", {
+                                    validate: validatePassword,
+                                    required: "Password is required",
+                                }),
+                                minLength: 6,
+                            }}
+                            errors={errors.password}
+                        />
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div className="col-span-1">
+                        <label
+                            htmlFor="confirmPassword"
+                            className="block text-sm font-medium text-gray-700 mb-1.5"
+                        >
+                            Confirm Password *
+                        </label>
+                        <TextInput
+                            label="Enter Your Confirm Password"
+                            placeholder="Enter Your Confirm Password"
+                            type="password"
+                            registerName="confirmPassword"
+                            props={{
+                                ...register("confirmPassword", {
+                                    required: "Please confirm your password",
+                                    validate: (value) =>
+                                        value === watch("password") || "Passwords do not match",
+                                }),
+                                minLength: 6,
+                            }}
+                            errors={errors.confirmPassword}
+                        />
+                    </div>
+
+                    {/* Button */}
+                    <div className="md:col-span-2 mt-2">
+                        {loader ? <LoadBox className={`${formBtn3} !rounded bg-gradient-orange text-white`} /> : <button
+                            type="submit"
+                            className={`${formBtn3} !rounded bg-gradient-orange text-white`}
+                        >
+                            Register
+                        </button>}
+                    </div>
                 </form>
 
-                <p className="text-center text-sm text-gray-500 mt-4">
-                    Already have an account?{" "}
-                    <Link to="/login" className="text-primary hover:underline">Login</Link>
-                </p>
-
-                {/* Social Logins */}
-                <div className="border-t my-4" style={{ borderColor: "rgba(39, 43, 53, 0.1)" }}></div>
-                <div className="mt-6">
-                    <p className="text-center text-gray-400 text-sm mb-3">Or Continue With</p>
-                    <div className="flex justify-center space-x-4">
-                        <button className="w-12 h-12 rounded-full bg-white shadow hover:shadow-md flex items-center justify-center transition">
-                            <img src={google} alt="Google" className="w-6 h-6" />
-                        </button>
-                        {/* <button className="w-12 h-12 rounded-full bg-[#0866ff] shadow hover:shadow-md flex items-center justify-center transition">
-                            <img src={facebook} alt="Facebook" className="w-6 h-6" />
-                        </button>
-                        <button className="w-12 h-12 rounded-full bg-black shadow hover:shadow-md flex items-center justify-center transition">
-                            <img src={apple} alt="Apple" className="w-6 h-6" />
-                        </button> */}
-                    </div>
+                {/* Already have account */}
+                <div className="mt-6 text-center">
+                    <p className="text-center text-sm text-gray-600">
+                        Already have an account?{" "}
+                        <NavLink
+                            to="/login"
+                            className="font-medium text-pink-600 hover:text-pink-500 underline"
+                        >
+                            Login
+                        </NavLink>
+                    </p>
                 </div>
             </div>
-
         </div>
     );
 };
