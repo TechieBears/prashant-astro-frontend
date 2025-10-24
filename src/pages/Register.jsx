@@ -99,7 +99,7 @@ const Register = () => {
                 >
                     {/* First Name */}
                     <div className="col-span-2">
-                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
+                        <h4 className="text-sm font-tbLex font-normal text-black-400 pb-2.5">
                             Title *
                         </h4>
                         <div className="sm:flex sm:gap-2 space-x-2 space-y-2 sm:space-y-0">
@@ -117,7 +117,7 @@ const Register = () => {
                                             onClick={() => onChange(type)}
                                             className={`px-5 font-tbLex py-3 rounded-md text-sm font-medium ${value === type
                                                 ? "bg-gradient-orange text-white"
-                                                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                                : "bg-slate-100 text-slate-700 hover:bg-button-gradient-orange hover:text-white"
                                                 }`}
                                         >
                                             {type}
@@ -344,7 +344,7 @@ const Register = () => {
                         Already have an account?{" "}
                         <NavLink
                             to="/login"
-                            className="font-medium text-pink-600 hover:text-pink-500 underline"
+                            className="font-medium bg-gradient-orange bg-clip-text text-transparent hover:opacity-80 underline"
                         >
                             Login
                         </NavLink>
