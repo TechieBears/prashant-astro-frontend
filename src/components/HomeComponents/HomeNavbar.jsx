@@ -410,7 +410,7 @@ const HomeNavbar = () => {
                                         onError={(e) => {
                                             e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
                                         }}
-                                        className="size-7 rounded-full border-2 border-white cursor-pointer"
+                                        className="size-7 rounded-full border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200"
                                     />
                                 </NavLink>
 
@@ -461,12 +461,12 @@ const HomeNavbar = () => {
                                 }}
                                 className="block w-full group"
                             >
-                                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-5 border border-blue-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden">
+                                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-4 sm:p-5 border border-blue-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden">
                                     {/* Background decoration */}
-                                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-5 translate-x-5"></div>
+                                    <div className="absolute top-0 right-0 w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-bl from-blue-100/30 to-transparent rounded-full -translate-y-3 sm:-translate-y-5 translate-x-3 sm:translate-x-5"></div>
 
-                                    <div className="flex items-center gap-4 relative z-10">
-                                        <div className="relative">
+                                    <div className="flex items-center gap-3 sm:gap-4 relative z-10">
+                                        <div className="relative flex-shrink-0">
                                             <img
                                                 alt="profile"
                                                 src={
@@ -476,16 +476,16 @@ const HomeNavbar = () => {
                                                 onError={(e) => {
                                                     e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
                                                 }}
-                                                className="w-14 h-14 rounded-full border-3 border-white shadow-md object-cover ring-2 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300"
+                                                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-3 border-white shadow-md object-cover ring-2 ring-blue-100 group-hover:ring-blue-200 transition-all duration-300"
                                             />
-                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 border-2 border-white rounded-full"></div>
+                                            <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-400 border-2 border-white rounded-full"></div>
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-base leading-relaxed break-words group-hover:text-blue-700 transition-colors duration-200">
+                                            <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-relaxed break-words group-hover:text-blue-700 transition-colors duration-200">
                                                 Welcome back, {user?.firstName || 'User'}!
                                             </h3>
-                                            <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                            <p className="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
                                                 Manage your account
                                             </p>
                                             <div className="flex items-center gap-1 mt-2">
@@ -495,8 +495,8 @@ const HomeNavbar = () => {
                                         </div>
 
                                         {/* Arrow indicator */}
-                                        <div className="text-blue-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200">
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="text-blue-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0">
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
                                         </div>

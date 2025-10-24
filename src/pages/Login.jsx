@@ -257,7 +257,7 @@ const Login = () => {
                         Don’t have an account?{" "}
                         <NavLink
                             to="/register"
-                            className="font-medium text-pink-600 hover:text-pink-500 underline"
+                            className="font-medium bg-gradient-orange bg-clip-text text-transparent hover:opacity-80 underline"
                         >
                             Sign Up
                         </NavLink>

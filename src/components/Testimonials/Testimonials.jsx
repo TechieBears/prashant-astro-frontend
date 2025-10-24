@@ -308,7 +308,7 @@ const Testimonials = () => {
                     <div className="mb-2 sm:mb-12 md:mb-10">
                         <button
                             onClick={handleShareExperience}
-                            className="bg-button-diagonal-gradient-orange text-white px-12 sm:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90"
+                            className="bg-button-diagonal-gradient-orange text-white px-8 sm:px-12 md:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90 whitespace-nowrap"
                         >
                             Share Your Experience with us
                         </button>
