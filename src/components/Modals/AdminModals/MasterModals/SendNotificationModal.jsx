@@ -3,9 +3,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { validateAlphabets } from '../../../../utils/validateFunction';
 import toast from 'react-hot-toast';
-import { Edit } from 'iconsax-reactjs';
-import { editBanner } from '../../../../api';
-import { addBanner } from '../../../../api/index';
+import { sendNotificationToUser } from '../../../../api';
 import { formBtn1, tableBtn } from '../../../../utils/CustomClass';
 import LoadBox from '../../../Loader/LoadBox';
 import TextInput from '../../../TextInput/TextInput';
@@ -14,11 +12,13 @@ import CustomTextArea from '../../../TextInput/CustomTextArea';
 import { TableTitle } from '../../../../helper/Helper';
 import ImageUploadInput from '../../../TextInput/ImageUploadInput';
 
-function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
+function SendNotificationModal({ userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset() };
     const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+
+    const watchUserType = watch('userType');
 
     const formSubmit = async (data) => {
         try {
@@ -26,70 +26,53 @@ function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
             const updatedData = {
                 title: data?.title,
                 description: data?.description,
-                redirection_type: data?.redirection_type,
-                featured_time: data?.featured_time,
-                start_time: data?.startDate,
-                end_time: data?.endDate,
+                image: data?.image,
+                notificationType: data?.notificationType,
+                notificationFor: data?.notificationFor,
+                userType: data?.userType,
             }
 
-            if (edit) {
-                await editBanner(userData?._id, updatedData).then(res => {
-                    if (res?.status == 200) {
-                        toast.success(res?.data?.message)
-                        setLoader(false);
-                        reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
-                        toggle();
-                    } else {
-                        toast.error(res?.data?.message || "Something went wrong")
-                        setLoader(false);
-                    }
-                })
-            } else {
-                await addBanner(updatedData).then(res => {
-                    if (res?.status === 200) {
-                        setLoader(false);
-                        reset();
-                        setRefreshTrigger(prev => prev + 1); // Trigger refreshz
-                        toggle();
-                        toast.success("Banner Added Successfully");
-                    } else {
-                        setLoader(false);
-                        toast.error(res?.message || "Something went wrong");
-                    }
-                })
+            if (data?.userType === 'specific-customer' && data?.userIds) {
+                updatedData.userIds = data?.userIds;
             }
+
+            await sendNotificationToUser(updatedData).then(res => {
+                if (res?.status === 200) {
+                    setLoader(false);
+                    reset();
+                    setRefreshTrigger(prev => prev + 1);
+                    toggle();
+                    toast.success("Notification Sent Successfully");
+                } else {
+                    setLoader(false);
+                    toast.error(res?.message || "Something went wrong");
+                }
+            })
         } catch (error) {
             console.log('Error submitting form:', error);
             setLoader(false);
-            toast.error("Failed to add Banner");
+            toast.error("Failed to send Notification");
         }
     }
 
 
     useEffect(() => {
-        if (edit && userData) {
+        if (userData) {
             setValue('title', userData?.title);
             setValue('description', userData?.description);
-            setValue('redirection_type', userData?.redirection_type);
-            setValue('featured_time', userData?.featured_time);
-            setValue('start_time', userData?.start_time);
-            setValue('end_time', userData?.end_time);
             setValue('image', userData?.image);
-            setValue('type', userData?.type);
-            setValue('position', userData?.position);
+            setValue('notificationType', userData?.notificationType);
+            setValue('notificationFor', userData?.notificationFor);
+            setValue('userType', userData?.userType);
+            setValue('userIds', userData?.userIds);
         }
-    }, [edit, userData, reset, setValue]);
+    }, [userData, reset, setValue]);
 
     return (
         <>
-            {
-                edit ? <button onClick={toggle}>
-                    <Edit className='text-yellow-500' size={20} />
-                </button> : <button onClick={toggle} className={tableBtn}>
-                    Create Notification
-                </button>
-            }
+            <button onClick={toggle} className={tableBtn}>
+                Send Notification
+            </button>
 
             <Transition appear show={open} as={Fragment}>
                 <Dialog as="div" className="relative z-[1000]" onClose={() => toggle()}>
@@ -117,33 +100,13 @@ function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
                             >
                                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
-                                        title={edit ? "Edit Banner" : "Create New Banner"}
+                                        title="Send Notification"
                                         toggle={toggle}
                                     />
                                     <div className=" bg-white">
-                                        {/* React Hook Form */}
                                         <form onSubmit={handleSubmit(formSubmit)} >
                                             <div className="md:py-5 md:pb-7 mx-4 md:mx-8 space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2  gap-x-3 gap-y-5">
-                                                    <div className=''>
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Banner Image <span className="text-red-500 text-xs font-tbLex">*</span>
-                                                        </h4>
-                                                        <ImageUploadInput
-                                                            label="Upload Banner Image"
-                                                            multiple={false}
-                                                            registerName="image"
-                                                            errors={errors.image}
-                                                            {...register("image", { required: "Banner Image is required" })}
-                                                            defaultValue={userData?.image}
-                                                            register={register}
-                                                            setValue={setValue}
-                                                            control={control}
-                                                        />
-
-                                                    </div>
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
@@ -160,6 +123,24 @@ function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                     <div className="">
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Notification Type <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                        </h4>
+                                                        <SelectTextInput
+                                                            label="Select Notification Type"
+                                                            registerName="notificationType"
+                                                            options={[
+                                                                { value: 'in-app', label: 'In-App' },
+                                                                { value: 'push', label: 'Push' },
+                                                            ]}
+                                                            placeholder="Select Notification Type"
+                                                            props={{ ...register('notificationType', { required: "Notification Type is required" }) }}
+                                                            errors={errors.notificationType}
+                                                        />
+                                                    </div>
+                                                    <div className="md:col-span-2">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
@@ -181,76 +162,83 @@ function SendNotificationModal({ edit, userData, setRefreshTrigger }) {
                                                             errors={errors.description}
                                                         />
                                                     </div>
+                                                    <div className=''>
+                                                        <h4
+                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                        >
+                                                            Notification Image
+                                                        </h4>
+                                                        <ImageUploadInput
+                                                            label="Upload Image"
+                                                            placeholder="Upload Image"
+                                                            type="text"
+                                                            registerName="image"
+                                                            errors={errors.image}
+                                                            {...register("image")}
+                                                            defaultValue={userData?.image}
+                                                            register={register}
+                                                            setValue={setValue}
+                                                            control={control}
+                                                        />
+                                                    </div>
                                                     <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Banner Type <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            Notification For <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
-                                                                label="Select Banner Type"
-                                                                registerName="type"
+                                                                label="Select Notification For"
+                                                                registerName="notificationFor"
                                                                 options={[
-                                                                    { value: '', label: 'Select Banner Type' },
-                                                                    { value: 'website', label: 'Website Banner' },
-                                                                    { value: 'app', label: 'App Banner' },
+                                                                    { value: 'services', label: 'Services' },
+                                                                    { value: 'products', label: 'Products' },
                                                                 ]}
-                                                                placeholder="Select Banner Type"
-                                                                props={{
-                                                                    ...register('type', { required: true }),
-                                                                    value: watch('type') || ''
-                                                                }}
-                                                                errors={errors.type}
-                                                                defaultValue={userData?.type}
+                                                                placeholder="Select Notification For"
+                                                                props={{ ...register('notificationFor', { required: "Notification For is required" }) }}
+                                                                errors={errors.notificationFor}
                                                             />
                                                         </div>
                                                     </div>
-                                                    <div>
+                                                    <div className="">
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Position <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            User Type <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
-                                                        <TextInput
-                                                            label="Enter Position"
-                                                            placeholder="Enter Position"
-                                                            type="text"
-                                                            registerName="position"
-                                                            props={{ ...register('position', { required: true }) }}
-                                                            errors={errors.position}
-                                                        />
+                                                        <div className="">
+                                                            <SelectTextInput
+                                                                label="Select User Type"
+                                                                registerName="userType"
+                                                                options={[
+                                                                    { value: 'all-customers', label: 'All Customers' },
+                                                                    { value: 'specific-customer', label: 'Specific Customer' },
+                                                                ]}
+                                                                placeholder="Select User Type"
+                                                                props={{ ...register('userType', { required: "User Type is required" }) }}
+                                                                errors={errors.userType}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Start Date Time <span className="text-red-500 text-xs font-tbLex">*</span>
-                                                        </h4>
-                                                        <TextInput
-                                                            label="Start Date Time"
-                                                            placeholder="Start Date Time"
-                                                            type="date"
-                                                            registerName="startDate"
-                                                            props={{ ...register('startDate', { required: "Start Date Time is required" }) }}
-                                                            errors={errors.startDate}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            End Date Time <span className="text-red-500 text-xs font-tbLex">*</span>
-                                                        </h4>
-                                                        <TextInput
-                                                            label="End Date Time"
-                                                            placeholder="End Date Time"
-                                                            type="date"
-                                                            registerName="endDate"
-                                                            props={{ ...register('endDate', { required: "End Date Time is required" }) }}
-                                                            errors={errors.endDate}
-                                                        />
-                                                    </div>
+
+                                                    {watchUserType === 'specific-customer' && (
+                                                        <div className="col-span-1">
+                                                            <h4
+                                                                className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                            >
+                                                                Specific Customer IDs <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            </h4>
+                                                            <TextInput
+                                                                label="Enter Specific Customer IDs (comma separated)"
+                                                                placeholder="Enter Specific Customer IDs (comma separated)"
+                                                                type="text"
+                                                                registerName="userIds"
+                                                                props={{ ...register('userIds', { required: watchUserType === 'specific-customer' ? "Specific Customer IDs are required" : false }) }}
+                                                                errors={errors.userIds}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 

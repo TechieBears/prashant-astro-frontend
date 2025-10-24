@@ -104,15 +104,15 @@ function ServiceBookingViewModal({ bookingData }) {
                                                     <div className="bg-slate-50 rounded-lg p-4 space-y-3">
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-sm font-medium text-gray-600 font-tbLex">Name:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.firstName} {bookingData?.address?.lastName}
+                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop capitalize">
+                                                                {bookingData?.customer?.name}
                                                             </span>
                                                         </div>
 
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-sm font-medium text-gray-600 font-tbLex">Phone:</span>
                                                             <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.phoneNumber}
+                                                                {bookingData?.customer?.mobileNo}
                                                             </span>
                                                         </div>
 

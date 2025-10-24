@@ -180,12 +180,6 @@ const ServiceBookings = () => {
             style: true, sortable: true
         },
         {
-            field: 'orderStatus',
-            header: 'Order Status',
-            body: orderStatusBody,
-            style: true, sortable: true
-        },
-        {
             field: 'createdAt',
             header: 'Order Date',
             body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY HH:mm') || '---- -----'}</>,

@@ -2312,3 +2312,26 @@ export const deleteTestimonial = async (id) => {
         return err?.response?.data
     }
 }
+
+// ==================== Notification API ====================
+export const sendNotificationToUser = async (data) => {
+    const url = `${environment.baseUrl}notification/send`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.error('Error sending notification:', err);
+        return err?.response?.data || { success: false, message: 'Failed to send notification' };
+    }
+}
+
+export const getAllNotifications = async () => {
+    const url = `${environment.baseUrl}notification/public/get-all`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error getting all notifications:', err);
+        return err?.response?.data || { success: false, message: 'Failed to get all notifications' };
+    }
+}
