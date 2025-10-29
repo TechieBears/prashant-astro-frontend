@@ -3,11 +3,10 @@ import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import Switch from "react-js-switch";
-import { getAdminAllReviews, editReviews } from '../../../api';
+import { editReviews, getAdminAllReviews } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TableHeader from '../../../components/Table/TableHeader'
 import usePagination from '../../../utils/customHooks/usePagination'
-import { validateAlphabets } from '../../../utils/validateFunction';
 import { formBtn1 } from '../../../utils/CustomClass';
 import TextInput from '../../../components/TextInput/TextInput';
 import { useForm } from 'react-hook-form';
@@ -53,7 +52,7 @@ export default function Reviews() {
     } = usePagination(1, 10, getAdminAllReviews, combinedFilters);
 
     useEffect(() => {
-        if (error) toast.error('Failed to fetch reviews');
+        if (error) toast.error('Failed to fetch coupons');
     }, [error]);
 
     const handleFilterSubmit = (data) => {
@@ -115,7 +114,8 @@ export default function Reviews() {
                     </div>
                 </div>
             ),
-            style: true
+            style: true,
+            sortable: true
         },
         {
             field: 'service',
@@ -126,12 +126,14 @@ export default function Reviews() {
                 </span>
             ),
             style: true
+            , sortable: true
         },
         {
             field: 'rating',
             header: 'Rating',
             body: (row) => <StarRating rating={row?.rating || 0} />,
             style: true
+            , sortable: true
         },
         {
             field: 'createdAt',
@@ -143,8 +145,9 @@ export default function Reviews() {
                 </div>
             ),
             style: true
+            , sortable: true
         },
-        { field: 'message', header: 'Message', body: (row) => <textarea className='capitalize overflow-y-auto w-[20rem] h-[5rem] text-wrap rounded-md px-2 py-1 resize-none cursor-default' value={row?.message || "---- -----"} readOnly />, style: true },
+        { field: 'message', header: 'Message', body: (row) => <textarea className='capitalize overflow-y-auto w-[20rem] h-[5rem] text-wrap rounded-md px-2 py-1 resize-none cursor-default' value={row?.message || "---- -----"} readOnly />, style: true, sortable: true },
         { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
     ];
 
@@ -154,11 +157,11 @@ export default function Reviews() {
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
                     <div className="grid grid-cols-1 w-full gap-2">
                         <TextInput
-                            label="Enter User Name*"
-                            placeholder="Enter User Name"
+                            label="Search User"
+                            placeholder="Search User"
                             type="text"
                             registerName="name"
-                            props={{ ...register('name', { validate: validateAlphabets }) }}
+                            props={{ ...register('name') }}
                         />
                     </div>
                     <div className="flex space-x-2">

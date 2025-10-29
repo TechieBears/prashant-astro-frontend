@@ -2,9 +2,10 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { TableTitle } from '../../../helper/Helper';
 import PriceFormater from '../../../utils/PriceFormater';
-import { CreditCard, Calendar, MapPin, User, Package, Eye, Clock } from 'lucide-react';
+import { CreditCard, Calendar, User, Package, Eye, Clock, Tag, MapPin } from 'lucide-react';
 
 function ServiceBookingViewModal({ bookingData }) {
+    console.log("⚡️🤯 ~ ServiceBookingViewModal.jsx:8 ~ ServiceBookingViewModal ~ bookingData:", bookingData)
 
     const [open, setOpen] = useState(false);
     const toggle = () => setOpen(!open);
@@ -21,6 +22,16 @@ function ServiceBookingViewModal({ bookingData }) {
 
     const formatTime = (timeString) => {
         return timeString;
+    };
+
+    const calculateDiscountAmount = () => {
+        if (!bookingData?.coupon) return 0;
+
+        if (bookingData?.coupon?.discountIn === 'percent') {
+            return (bookingData?.totalAmount - bookingData?.coupon?.discount);
+        } else {
+            return bookingData?.coupon?.discount;
+        }
     };
 
     const getStatusColor = (status) => {
@@ -300,7 +311,7 @@ function ServiceBookingViewModal({ bookingData }) {
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-sm font-medium text-gray-600 font-tbLex">Payment ID:</span>
                                                             <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.paymentId}
+                                                                {bookingData?.paymentId || 'N/A'}
                                                             </span>
                                                         </div>
 
@@ -311,7 +322,49 @@ function ServiceBookingViewModal({ bookingData }) {
                                                             </span>
                                                         </div>
 
-                                                        <div className="flex justify-between items-center">
+                                                        {bookingData?.isCoupon && bookingData?.coupon && (
+                                                            <>
+                                                                <div className="border-t border-gray-300 pt-3 mt-3">
+                                                                    <div className="text-sm font-semibold text-indigo-600 font-tbPop mb-3 flex items-center gap-2">
+                                                                        <Tag size={16} /> Coupon Applied
+                                                                    </div>
+
+                                                                    <div className="space-y-2 bg-indigo-50 rounded p-3">
+                                                                        <div className="flex justify-between items-center">
+                                                                            <span className="text-xs font-medium text-gray-600 font-tbLex">Coupon Code:</span>
+                                                                            <span className="text-xs font-bold text-indigo-600 font-tbPop bg-white px-2 py-1 rounded">
+                                                                                {bookingData?.coupon?.couponCode}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div className="flex justify-between items-center">
+                                                                            <span className="text-xs font-medium text-gray-600 font-tbLex">Coupon Name:</span>
+                                                                            <span className="text-xs font-semibold text-gray-800 font-tbPop">
+                                                                                {bookingData?.coupon?.couponName}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div className="flex justify-between items-center">
+                                                                            <span className="text-xs font-medium text-gray-600 font-tbLex">Discount:</span>
+                                                                            <span className="text-xs font-semibold text-red-600 font-tbPop">
+                                                                                {bookingData?.coupon?.discountIn === 'percent'
+                                                                                    ? `${bookingData?.coupon?.discount}%`
+                                                                                    : `₹${bookingData?.coupon?.discount}`}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div className="flex justify-between items-center border-t border-indigo-200 pt-2">
+                                                                            <span className="text-xs font-medium text-gray-600 font-tbLex">Discount Amount:</span>
+                                                                            <span className="text-xs font-bold text-red-600 font-tbPop">
+                                                                                -<PriceFormater price={calculateDiscountAmount()} />
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </>
+                                                        )}
+
+                                                        <div className={`flex justify-between items-center ${bookingData?.isCoupon && bookingData?.coupon ? 'pt-3 border-t border-gray-300' : ''}`}>
                                                             <span className="text-sm font-medium text-gray-600 font-tbLex">Final Amount:</span>
                                                             <span className="text-lg font-bold text-gray-900 font-tbPop">
                                                                 <PriceFormater price={bookingData?.finalAmount} />

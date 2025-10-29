@@ -8,24 +8,27 @@ import greetingTime from "greeting-time";
 import moment from "moment";
 import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { logoutUser } from "../../api";
+import { getNotificationsDropdown, logoutUser } from "../../api";
 import { setLoggedUser, setLoggedUserDetails, setRoleIs, setUserDetails } from "../../redux/Slices/loginSlice";
+import { HamburgerMenu } from "iconsax-reactjs";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { clearAllNotifications } from '../../api/index';
 
-const Navbar = ({ mobileSidebar, isActiveLink }) => {
+const Navbar = ({ mobileSidebar, setMobileSidebar, isActiveLink, setIsActiveLink }) => {
     const user = useSelector((state) => state.user.userDetails)
     const [open, setOpen] = useState(false)
     return (
         <>
             <div className={`${mobileSidebar ? "left-[15rem]" : ""} ${isActiveLink ? "left-[5rem]" : "left-0 xl:left-[15rem]"}  duration-700 transition-all ease-in-out  pt-3.5 py-2 px-4 z-50 md:px-3 m-5 mx-7 rounded-xl bg-white mt-7`} >
                 <div className="md:px-2">
-                    {/* <div className="hidden xl:block">
+                    <div className="hidden xl:block">
                         <button onClick={() => { setIsActiveLink(!isActiveLink), console.log("ss") }} className=''>
                             <HamburgerMenu size={27} variant="TwoTone" className={` duration-700 ease-in-out transition-all ${!isActiveLink ? "-rotate-180" : ""}`} />
                         </button>
                     </div>
                     <button className='relative xl:hidden  shadow-none ' onClick={() => { setMobileSidebar(!mobileSidebar), console.log("ff") }}>
                         {mobileSidebar ? <XMarkIcon className='w-8 h-8 text-gray-500' /> : <HamburgerMenu size={28} className='text-gray-500' />}
-                    </button> */}
+                    </button>
                     <div className="flex items-center justify-between">
                         {/* =====================Dashboard header===================== */}
                         <div className="px-1 py-3 space-y-1">
@@ -188,6 +191,7 @@ const ProfilePage = () => {
 
 const NotificationSection = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [notificationsDropdown, setNotificationsDropdown] = useState([]);
 
     const trigger = useRef(null);
     const dropdown = useRef(null);
@@ -218,17 +222,52 @@ const NotificationSection = () => {
         return () => document.removeEventListener("keydown", keyHandler);
     });
 
+    const fetchNotificationsDropdown = async () => {
+        try {
+            const res = await getNotificationsDropdown();
+            if (res?.success) {
+                setNotificationsDropdown(res?.data);
+            } else {
+                setNotificationsDropdown([]);
+                toast.error(res?.message || res?.error || 'Failed to fetch notifications dropdown');
+            }
+        } catch (error) {
+            console.log("==========error in fetchNotificationsDropdown", error);
+        }
+    }
+
+
+    const clearAllNotificationHandler = async () => {
+        try {
+            const res = await clearAllNotifications();
+            if (res?.success) {
+                toast.success(res?.message || res?.success || 'Notifications cleared successfully');
+                setDropdownOpen(false);
+                fetchNotificationsDropdown();
+            } else {
+                toast.error(res?.message || res?.error || 'Failed to clear notifications');
+            }
+        }
+        catch (error) {
+            console.log("==========error in clearAllNotifications", error);
+            toast.error(error?.message || error?.error || 'Failed to clear notifications');
+        }
+    }
+
+    useEffect(() => {
+        fetchNotificationsDropdown();
+    }, []);
     return (
         <section className=" ">
             <div className="container">
                 <div className="flex justify-center">
                     <div className="relative inline-block">
-                        <button className=' relative' ref={trigger}
-                            onClick={() => setDropdownOpen(!dropdownOpen)}>
-                            <span className="absolute flex top-0 -right-2 h-3.5 w-3.5">
+                        <button className=' relative disabled:cursor-not-allowed' ref={trigger}
+                            onClick={() => setDropdownOpen(!dropdownOpen)} disabled={notificationsDropdown?.length === 0}>
+                            {notificationsDropdown?.length > 0 && <span className="absolute flex top-0 -right-2 h-3.5 w-3.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
+                            </span>}
                             <div className="flex items-center space-x-2 p-1.5 bg-slate-100 rounded-full">
                                 <NotificationBing size="26" className='text-black' variant='TwoTone' />
                             </div>
@@ -242,8 +281,8 @@ const NotificationSection = () => {
                             <ul className="focus:outline-none" tabIndex="-1">
                                 <div className="flex items-center px-6 justify-between">
                                     <h3 className="mb-0 text-lg font-semibold font-tbLex">Notifications</h3>
-                                    <span className="flex h-fit w-fit items-center font-medium font-tbPop bg-red-500 text-white p-1 text-xs rounded-full px-2.5 py-1" data-testid="flowbite-badge">
-                                        <span>5 new</span>
+                                    <span className="flex h-fit w-fit items-center font-medium font-tbPop bg-red-500 text-white p-1 text-xs rounded-full capitalize px-2.5 py-1" data-testid="flowbite-badge">
+                                        <span>{notificationsDropdown?.length > 0 ? notificationsDropdown?.length + " new" : "No new"}</span>
                                     </span>
                                 </div>
 
@@ -256,167 +295,36 @@ const NotificationSection = () => {
                                         style={{ height: 'auto', overflow: ' scroll' }}
                                     >
                                         <div className="simplebar-content" style={{ padding: '0px' }}>
-                                            {/* Notification Item 1 */}
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
+                                            {notificationsDropdown?.map((item, i) => (
+                                                <li role="menuitem" className="focus:outline-none">
+                                                    <a
+                                                        // href={item?.url}
+                                                        type="button"
+                                                        className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
+                                                        tabIndex="-1"
+                                                        data-discover="true"
+                                                    >
+                                                        <div className="flex items-center w-full space-x-2">
+                                                            <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
+                                                                <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
                                                             </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
+                                                            <div className=" flex justify-between w-full">
+                                                                <div className="w-3/4 text-start leading-4 -space-y-0.5">
+                                                                    <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary capitalize line-clamp-1 text-start">{item?.title}</h5>
+                                                                    <div className="text-xs text-slate-500  line-clamp-1 capitalize text-start">{item?.description}</div>
+                                                                </div>
+                                                                <h6 className="text-xs block font-tbPop self-start pt-1.5 text-end ">{moment(item?.createdAt).format('hh:mm A')}</h6>
                                                             </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
                                                         </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
-                                                            </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
-                                                            </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
-                                                            </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
-                                                            </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            <li role="menuitem" className="focus:outline-none">
-                                                <a
-                                                    href="/headless-ui/dropdown"
-                                                    type="button"
-                                                    className="cursor-pointer text-sm text-ld hover:text-primary focus:bg-hover focus:outline-none px-6 py-3 flex justify-between items-center bg-hover group/link w-full"
-                                                    tabIndex="-1"
-                                                    data-discover="true"
-                                                >
-                                                    <div className="flex items-center w-full space-x-2">
-                                                        <div className="h-10 w-10 flex-shrink-0 rounded-full flex justify-center items-center bg-lighterror ">
-                                                            <SmsNotification size={24} variant='TwoTone' className='text-orange-500' />
-                                                        </div>
-                                                        <div className=" flex justify-between w-full">
-                                                            <div className="w-3/4 text-start leading-4 -space-y-0.5">
-                                                                <h5 className="mb-1 text-sm font-tbLex font-medium group-hover/link:text-primary">Launch Admin</h5>
-                                                                <div className="text-xs text-slate-500  line-clamp-1">Just see the my new admin!</div>
-                                                            </div>
-                                                            <h6 className="text-xs block font-tbPop self-start pt-1.5">9:30 AM</h6>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
+                                                    </a>
+                                                </li>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="pt-5 px-5">
-                                    <button type='submit' className={`${formBtn1}  bg-red-500 hover:bg-red-500/90 w-full tracking-tight font-normal text-sm`}>See All Notifications</button>
+                                    <button type='submit' className={`${formBtn1}  bg-red-500 hover:bg-red-500/90 w-full tracking-tight font-normal text-sm`} onClick={clearAllNotificationHandler}>Clear All</button>
                                 </div>
                             </ul>
                         </div>

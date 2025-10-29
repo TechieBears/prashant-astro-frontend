@@ -2325,13 +2325,100 @@ export const sendNotificationToUser = async (data) => {
     }
 }
 
-export const getAllNotifications = async () => {
-    const url = `${environment.baseUrl}notification/public/get-all`;
+// =================== Refer & Earn Api ==================
+
+
+// =================== Refer & Earn Api ==================
+
+export const getWalletBalance = async () => {
+    const url = `${environment.baseUrl}customer-users/get-wallet-balance`;
     try {
+        const response = await axios.get(url);
+        return response.data
+    }
+    catch (err) {
+        console.log("==========error in getWalletBalance api file", err);
+        return err?.response?.data
+    }
+}
+
+
+// ===================== Customer Notification Api =====================
+
+export const getAllNotifications = async (data) => {
+    try {
+        const url = `${environment.baseUrl}notification/get-all?page=${data?.p || 1}&limit=${data?.records || 10}&status=${data?.status || 'active'}&userType=${data?.userType || 'all-customers'}&from=${data?.from || 'admin'}`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
-        console.error('Error getting all notifications:', err);
-        return err?.response?.data || { success: false, message: 'Failed to get all notifications' };
+        console.log("==========error in getAllNotifications api file", err);
+        return err?.response?.data;
+    }
+}
+export const getNotificationsDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}notification/dropdown-dashboard`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getNotificationsDropdown api file", err);
+        return err?.response?.data;
+    }
+}
+export const getNotificationsDropdownCustomer = async () => {
+    try {
+        const url = `${environment.baseUrl}notifications/dropdown-customer`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getNotificationsDropdownCustomer api file", err);
+        return err?.response?.data;
+    }
+}
+
+export const clearAllNotifications = async () => {
+    try {
+        const url = `${environment.baseUrl}notification/remove-all`;
+        const response = await axios.delete(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in clearAllNotifications api file", err);
+        return err?.response?.data;
+    }
+}
+
+export const addNotification = async (data) => {
+    const url = `${environment.baseUrl}notification/create`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in addNotification api file", err);
+        return err?.response?.data;
+    }
+};
+
+
+export const getCustomerUsersDropdown = async () => {
+    try {
+        const url = `${environment.baseUrl}customer-users/dropdown`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getCustomerUsersDropdown api file", err);
+        return err?.response?.data;
+    }
+}
+
+// ========================== dashboard insights api ========================
+
+export const getDashboardInsights = async (astrologerId) => {
+    try {
+        const url = `${environment.baseUrl}dashboard/get-dashboard-data?astrologer=${astrologerId || ""}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getDashboardData api file", err);
+        return err?.response?.data;
     }
 }
