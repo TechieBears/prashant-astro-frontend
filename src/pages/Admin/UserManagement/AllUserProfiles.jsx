@@ -202,7 +202,7 @@ function AllUserProfiles() {
             header: 'Profile',
             body: profileImageBody,
             style: true,
-            sortable: false
+            sortable: true
         },
         {
             field: '_id',

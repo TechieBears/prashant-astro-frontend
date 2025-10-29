@@ -6,7 +6,7 @@ import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
-import ImageUploadInput from '../../TextInput/ImageUploadInput';
+// import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import { addService, editService, getServiceCategoriesDropdown } from '../../../api';
 import { configTextEditor, TableTitle } from '../../../helper/Helper';
@@ -16,6 +16,8 @@ import { validateYoutubeUrl } from '../../../utils/validateFunction';
 import Error from '../../Errors/Error';
 import CustomTextArea from '../../TextInput/CustomTextArea';
 import { setServiceCategories } from '../../../redux/Slices/rootSlice';
+import ImageCropUpload from '../../TextInput/ImageCropUpload';
+import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 
 function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -175,27 +177,30 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="">
+                                                <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Service Mode <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                        Service Mode <span className="text-red-500 text-xs font-tbLex">*</span> (Multiple)
                                                     </h4>
                                                     <div className="">
-                                                        <SelectTextInput
-                                                            label="Select Service Mode"
-                                                            registerName="serviceType"
-                                                            options={[
-                                                                { value: 'online', label: 'Online' },
-                                                                { value: 'pandit_center', label: `Pandit's Center` },
-                                                                { value: 'pooja_at_home', label: 'Pooja at Home' },
-                                                            ]}
-                                                            placeholder="Select Service Mode"
-                                                            props={{
-                                                                ...register('serviceType', { required: true }),
-                                                                value: watch('serviceType') || ''
-                                                            }}
-                                                            errors={errors.serviceType}
+                                                        <Controller
+                                                            name="serviceType"
+                                                            control={control}
+                                                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                                <MultiSelectTextInput
+                                                                    label="Select Service Mode"
+                                                                    options={[
+                                                                        { value: 'online', label: 'Online' },
+                                                                        { value: 'pandit_center', label: `Pandit's Center` },
+                                                                        { value: 'pooja_at_home', label: 'Pooja at Home' },
+                                                                    ]}
+                                                                    key={'serviceType'}
+                                                                    value={value || []}
+                                                                    onChange={onChange}
+                                                                    errors={errors.serviceType}
+                                                                />
+                                                            )}
                                                         />
                                                     </div>
                                                 </div>
@@ -304,11 +309,16 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             -
                                                         </button>
                                                         <div className="flex-1 min-w-0">
-                                                            <div className="h-12 bg-gray-50 border border-gray-300 rounded-lg flex items-center justify-center">
-                                                                <span className="text-lg font-semibold text-gray-700">
-                                                                    {watch('durationInMinutes') || 30} min
-                                                                </span>
-                                                            </div>
+                                                            <input
+                                                                type="number"
+                                                                {...register('durationInMinutes', {
+                                                                    required: "Service duration is required",
+                                                                    min: { value: 30, message: "Minimum duration is 30 minutes" },
+                                                                    valueAsNumber: true
+                                                                })}
+                                                                className="w-full h-12 bg-gray-50 border border-gray-300 rounded-lg px-3 text-lg font-semibold text-gray-700 text-center focus:outline-none focus:border-blue-500"
+                                                                placeholder="30"
+                                                            />
                                                         </div>
                                                         <button
                                                             type="button"
@@ -322,13 +332,6 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                             +
                                                         </button>
                                                     </div>
-                                                    <input
-                                                        type="hidden"
-                                                        {...register('durationInMinutes', {
-                                                            required: "Service duration is required",
-                                                            min: { value: 30, message: "Minimum duration is 30 minutes" }
-                                                        })}
-                                                    />
                                                     {errors.durationInMinutes && (
                                                         <p className="text-red-500 text-sm mt-1">{errors.durationInMinutes.message}</p>
                                                     )}
@@ -339,7 +342,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                     >
                                                         Service Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
-                                                    <ImageUploadInput
+                                                    <ImageCropUpload
                                                         label="Upload Service Image"
                                                         multiple={false}
                                                         registerName="image"
@@ -349,6 +352,10 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         setValue={setValue}
                                                         control={control}
                                                         defaultValue={userData?.image}
+                                                        cropAspectRatio={1}
+                                                        cropWidth={500}
+                                                        cropHeight={300}
+
                                                     />
 
                                                 </div>

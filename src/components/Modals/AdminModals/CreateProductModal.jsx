@@ -6,7 +6,7 @@ import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
-import ImageUploadInput from '../../TextInput/ImageUploadInput';
+// import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import {
     addProduct,
@@ -19,6 +19,7 @@ import CustomTextArea from '../../TextInput/CustomTextArea';
 import { useDispatch, useSelector } from 'react-redux';
 import { setProductCategories } from '../../../redux/Slices/rootSlice';
 import Error from '../../Errors/Error';
+import ImageCropUpload from '../../TextInput/ImageCropUpload';
 
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -36,6 +37,12 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
 
     const formSubmit = async (data) => {
         try {
+            // Validate images
+            if (!data.images || (Array.isArray(data.images) && data.images.length === 0)) {
+                toast.error("Please upload at least one product image");
+                return;
+            }
+
             setLoader(true);
             if (edit) {
                 await editProduct(userData?._id, data).then(res => {
@@ -82,7 +89,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 additionalInfo: userData?.additionalInfo,
                 stock: userData?.stock,
                 sellingPrice: userData?.sellingPrice,
-                images: userData?.images,
+                images: userData?.images || [],
                 mrpPrice: userData?.mrpPrice,
                 specification: userData?.specification || []
             });
@@ -105,7 +112,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 stock: '',
                 sellingPrice: '',
                 mrpPrice: '',
-                images: '',
+                images: [],
                 specification: []
             });
         }
@@ -243,20 +250,21 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Image (multiple) <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            Product Images (multiple) <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
-                                                        <ImageUploadInput
-                                                            label="Upload Product Image"
+                                                        <ImageCropUpload
+                                                            label="Upload Product Images"
                                                             multiple={true}
+                                                            cropAspectRatio={1}
+                                                            cropHeight={400}
+                                                            cropWidth={400}
                                                             registerName="images"
                                                             errors={errors.images}
-                                                            {...register("images", { required: "Product Image is required" })}
                                                             register={register}
                                                             setValue={setValue}
-                                                            control={control}
-                                                            defaultValue={userData?.images}
+                                                            defaultValue={edit ? userData?.images : []}
                                                         />
-
+                                                        {errors.images && <Error message="Product images are required" />}
                                                     </div>
 
                                                     <div className="">

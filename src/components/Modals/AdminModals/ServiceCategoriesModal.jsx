@@ -1,20 +1,31 @@
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { formBtn1, tableBtn } from '../../../utils/CustomClass';
-import LoadBox from '../../Loader/LoadBox';
-import TextInput from '../../TextInput/TextInput';
-import toast from 'react-hot-toast';
-import { Edit } from 'iconsax-reactjs';
-import ImageUploadInput from '../../TextInput/ImageUploadInput';
-import { addServiceCategory, editServiceCategory } from '../../../api';
-import { TableTitle } from '../../../helper/Helper';
-import CustomTextArea from '../../TextInput/CustomTextArea';
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { formBtn1, tableBtn } from "../../../utils/CustomClass";
+import LoadBox from "../../Loader/LoadBox";
+import TextInput from "../../TextInput/TextInput";
+import toast from "react-hot-toast";
+import { Edit } from "iconsax-reactjs";
+// import ImageUploadInput from "../../TextInput/ImageUploadInput";
+import { addServiceCategory, editServiceCategory } from "../../../api";
+import { TableTitle } from "../../../helper/Helper";
+import CustomTextArea from "../../TextInput/CustomTextArea";
+import ImageCropUpload from "../../TextInput/ImageCropUpload";
 
 function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
-    const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
+    const {
+        register,
+        handleSubmit,
+        control,
+        watch,
+        reset,
+        formState: { errors },
+        setValue,
+    } = useForm();
     const [open, setOpen] = useState(false);
-    const toggle = () => { setOpen(!open), reset() };
+    const toggle = () => {
+        setOpen(!open), reset();
+    };
     const [loader, setLoader] = useState(false);
 
     const formSubmit = async (data) => {
@@ -23,42 +34,41 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
             const updatedData = {
                 name: data?.name,
                 image: data?.image,
-                description: data?.description
-            }
+                description: data?.description,
+            };
             if (edit) {
-                await editServiceCategory(userData?._id, updatedData).then(res => {
+                await editServiceCategory(userData?._id, updatedData).then((res) => {
                     if (res?.success) {
-                        toast.success(res?.message)
+                        toast.success(res?.message);
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1);
+                        setRefreshTrigger((prev) => prev + 1);
                         toggle();
                     } else {
-                        toast.error(res?.message || "Something went wrong")
+                        toast.error(res?.message || "Something went wrong");
                         setLoader(false);
                     }
-                })
+                });
             } else {
-                await addServiceCategory(updatedData).then(res => {
+                await addServiceCategory(updatedData).then((res) => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
-                        setRefreshTrigger(prev => prev + 1);
+                        setRefreshTrigger((prev) => prev + 1);
                         toggle();
                         toast.success("Service Category Added Successfully");
                     } else {
                         setLoader(false);
                         toast.error(res?.message || "Something went wrong");
                     }
-                })
+                });
             }
         } catch (error) {
-            console.log('Error submitting form:', error);
+            console.log("Error submitting form:", error);
             setLoader(false);
             toast.error("Failed to add Service Category");
         }
-    }
-
+    };
 
     useEffect(() => {
         if (edit && userData) {
@@ -74,13 +84,15 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
 
     return (
         <>
-            {
-                edit ? <button onClick={toggle}>
-                    <Edit className='text-yellow-500' size={20} />
-                </button> : <button onClick={toggle} className={tableBtn}>
+            {edit ? (
+                <button onClick={toggle}>
+                    <Edit className="text-yellow-500" size={20} />
+                </button>
+            ) : (
+                <button onClick={toggle} className={tableBtn}>
                     Create Service Category
                 </button>
-            }
+            )}
 
             <Transition appear show={open} as={Fragment}>
                 <Dialog as="div" className="relative z-[1000]" onClose={() => toggle()}>
@@ -108,33 +120,37 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                             >
                                 <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white  text-left align-middle shadow-xl transition-all">
                                     <TableTitle
-                                        title={edit ? "Edit Service Category" : "Create Service Category"}
+                                        title={
+                                            edit ? "Edit Service Category" : "Create Service Category"
+                                        }
                                         toggle={toggle}
                                     />
                                     <div className=" bg-slate1">
-                                        <form onSubmit={handleSubmit(formSubmit)} >
+                                        <form onSubmit={handleSubmit(formSubmit)}>
                                             <div className="bg-white px-4 pb-5 pt-5 sm:p-6 sm:pb-4">
-                                                <div className='grid grid-cols-1 gap-x-3 gap-y-5' >
+                                                <div className="grid grid-cols-1 gap-x-3 gap-y-5">
                                                     <div className="">
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Service Category Name <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
+                                                            Service Category Name{" "}
+                                                            <span className="text-red-500 text-xs font-tbLex">
+                                                                *
+                                                            </span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Service Category Name"
                                                             placeholder="Enter Service Category Name"
                                                             type="text"
                                                             registerName="name"
-                                                            props={{ ...register('name', { required: "Service Category is required" }) }}
+                                                            props={{
+                                                                ...register("name", {
+                                                                    required: "Service Category is required",
+                                                                }),
+                                                            }}
                                                             errors={errors.name}
                                                         />
                                                     </div>
                                                     <div className="">
-
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
                                                             Service Category Description
                                                         </h4>
                                                         <CustomTextArea
@@ -142,39 +158,51 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                                                             placeholder="Enter Service Category Description"
                                                             registerName="description"
                                                             props={{
-                                                                ...register('description', {
+                                                                ...register("description", {
                                                                     minLength: {
                                                                         value: 10,
-                                                                        message: "Description must be at least 10 characters"
-                                                                    }
-                                                                })
+                                                                        message:
+                                                                            "Description must be at least 10 characters",
+                                                                    },
+                                                                }),
                                                             }}
                                                             errors={errors.description}
                                                         />
                                                     </div>
-                                                    <div className=''>
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Service Category Image <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                    <div className="">
+                                                        <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">
+                                                            Service Category Image{" "}
+                                                            <span className="text-red-500 text-xs font-tbLex">
+                                                                *
+                                                            </span>
                                                         </h4>
-                                                        <ImageUploadInput
+                                                        <ImageCropUpload
                                                             label="Upload Service Category Image"
                                                             multiple={false}
                                                             registerName="image"
                                                             errors={errors.image}
-                                                            {...register("image", { required: "Service Category Image is required" })}
+                                                            {...register("image", {
+                                                                required: "Service Category Image is required",
+                                                            })}
                                                             defaultValue={userData?.image}
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
+                                                            cropAspectRatio={1}
+                                                            cropWidth={300}
+                                                            cropHeight={300}
                                                         />
-
                                                     </div>
                                                 </div>
                                             </div>
                                             <footer className="py-3 flex bg-primary/5 justify-end px-4 space-x-3">
-                                                {loader ? <LoadBox className={formBtn1} /> : <button type='submit' className={formBtn1}>submit</button>}
+                                                {loader ? (
+                                                    <LoadBox className={formBtn1} />
+                                                ) : (
+                                                    <button type="submit" className={formBtn1}>
+                                                        submit
+                                                    </button>
+                                                )}
                                             </footer>
                                         </form>
                                     </div>
@@ -183,9 +211,9 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                         </div>
                     </div>
                 </Dialog>
-            </Transition >
+            </Transition>
         </>
-    )
+    );
 }
 
-export default ServiceCategoriesModal
+export default ServiceCategoriesModal;

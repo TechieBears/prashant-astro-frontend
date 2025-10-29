@@ -4,7 +4,7 @@ import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: "astroguid.com",
+    authDomain: "astroguid-1.firebaseapp.com",
     projectId: "astroguid-1",
     storageBucket: "astroguid-1.firebasestorage.app",
     messagingSenderId: "765854749850",
