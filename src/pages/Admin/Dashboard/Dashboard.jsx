@@ -453,7 +453,7 @@ const Dashboard = () => {
                         <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
                         <div className='flex items-center justify-between'>
                             <h6 className='text-black font-tb text-sm'>Total Bookings</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
+                            <div className="p-2.5 rounded-full bg-white z-40">
                                 <Calendar size={22} className="text-purple-600" />
                             </div>
                         </div>
@@ -471,7 +471,7 @@ const Dashboard = () => {
                         <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
                         <div className='flex items-center justify-between'>
                             <h6 className='text-black font-tb text-sm'>Pending</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
+                            <div className="p-2.5 rounded-full bg-white z-40">
                                 <CalendarAdd size={22} className="text-orange-600" />
                             </div>
                         </div>
@@ -490,7 +490,7 @@ const Dashboard = () => {
                         <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
                         <div className='flex items-center justify-between'>
                             <h6 className='text-black font-tb text-sm'>Scheduled</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
+                            <div className="p-2.5 rounded-full bg-white z-40">
                                 <CalendarSearch size={22} className="text-red-600" />
                             </div>
                         </div>
@@ -509,7 +509,7 @@ const Dashboard = () => {
                         <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
                         <div className='flex items-center justify-between'>
                             <h6 className='text-black font-tb text-sm'>Completed</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
+                            <div className="p-2.5 rounded-full bg-white z-40">
                                 <CalendarTick size={22} className="text-emerald-600" />
                             </div>
                         </div>
@@ -535,7 +535,7 @@ const Dashboard = () => {
                             <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
                             <div className='flex items-center justify-between'>
                                 <h6 className='text-black font-tb text-sm'>Total Orders</h6>
-                                <div className="p-2.5 rounded-full bg-white z-50">
+                                <div className="p-2.5 rounded-full bg-white z-40">
                                     <Box size={22} className="text-purple-600" />
                                 </div>
                             </div>
@@ -563,7 +563,7 @@ const Dashboard = () => {
                             <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
                             <div className='flex items-center justify-between'>
                                 <h6 className='text-black font-tb text-sm'>Pending Orders</h6>
-                                <div className="p-2.5 rounded-full bg-white z-50">
+                                <div className="p-2.5 rounded-full bg-white z-40">
                                     <BoxTime size={22} className="text-orange-600" />
                                 </div>
                             </div>
@@ -591,7 +591,7 @@ const Dashboard = () => {
                             <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
                             <div className='flex items-center justify-between'>
                                 <h6 className='text-black font-tb text-sm'>Shipped Orders</h6>
-                                <div className="p-2.5 rounded-full bg-white z-50">
+                                <div className="p-2.5 rounded-full bg-white z-40">
                                     <BoxSearch size={22} className="text-red-600" />
                                 </div>
                             </div>
@@ -619,7 +619,7 @@ const Dashboard = () => {
                             <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
                             <div className='flex items-center justify-between'>
                                 <h6 className='text-black font-tb text-sm'>Delivered Orders</h6>
-                                <div className="p-2.5 rounded-full bg-white z-50">
+                                <div className="p-2.5 rounded-full bg-white z-40">
                                     <BoxTick size={22} className="text-emerald-600" />
                                 </div>
                             </div>

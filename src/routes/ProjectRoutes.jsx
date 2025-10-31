@@ -57,9 +57,7 @@ import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
-    const login = useSelector(state => state.user.isLogged);
-    const userDetails = useSelector(state => state.user.userDetails);
-    const role = userDetails?.role;
+    const user = useSelector((state) => state.user.userDetails);
 
     // const login = true;
     // const user = { user: { role: "admin" } };
@@ -83,86 +81,6 @@ const ProjectRoutes = () => {
         };
     }, []);
 
-    // ====== Derived booleans & shared UI blocks ======
-    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "superadmin" || role === "employee" || role === "astrologer"));
-
-    const PublicSite = () => (
-        <main className="flex flex-col min-h-screen">
-            <HomeNavbar />
-            <div className="flex-1 pt-0 lg:pt-28">
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                    <Route path="/products/:id" element={<ProductDetail />} />
-                    <Route
-                        path="/cart"
-                        element={
-                            <ProtectedRoute>
-                                <AddressProvider>
-                                    <CartPage />
-                                </AddressProvider>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route
-                        path="/buy-now"
-                        element={
-                            <ProtectedRoute>
-                                <AddressProvider>
-                                    <BuyNowPage />
-                                </AddressProvider>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/services/:id" element={<ServiceDetail />} />
-                    <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/forget-password" element={<ForgetPassword />} />
-                    <Route path="/password/reset/:token" element={<ResetPassword />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/profile" element={
-                        <ProtectedRoute>
-                            <AddressProvider>
-                                <ProfileLayout />
-                            </AddressProvider>
-                        </ProtectedRoute>
-                    }>
-                        <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
-                        <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
-                        <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-                        <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
-                        <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
-                        <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
-                    </Route>
-                    <Route path="/terms-conditions" element={<TermsConditions />} />
-                    <Route
-                        path="/payment-success"
-                        element={
-                            <ProtectedRoute>
-                                <PaymentSuccess />
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route path='*' element={<ErrorPage />} />
-                </Routes>
-            </div>
-            <HomeFooter />
-            <a
-                href={`https://wa.me/${8693000900}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
-            >
-                <WhatsappIcon size={30} />
-            </a>
-        </main>
-    );
 
     return (
         <div className='min-h-screen transition-all duration-300'>
@@ -170,15 +88,13 @@ const ProjectRoutes = () => {
                 <div className="relative">
                     <Preloaders />
                 </div>
-            ) : isAdminOrEmployee ? (
+            ) : user?.role == "admin" || user?.role == "employee" || user?.role == "astrologer" ? (
                 <Sidebar>
                     <Routes>
                         <Route
                             path="/"
                             element={
-                                <ProtectedRoute>
-                                    <Dashboard />
-                                </ProtectedRoute>
+                                <Dashboard />
                             }
                         />
                         <Route
@@ -338,7 +254,81 @@ const ProjectRoutes = () => {
                 </Sidebar>
 
             ) : (
-                <PublicSite />
+                <main className="flex flex-col min-h-screen">
+                    <HomeNavbar />
+                    <div className="flex-1 pt-0 lg:pt-28">
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/products" element={<ProductsPage />} />
+                            <Route path="/products/:id" element={<ProductDetail />} />
+                            <Route
+                                path="/cart"
+                                element={
+                                    <ProtectedRoute>
+                                        <AddressProvider>
+                                            <CartPage />
+                                        </AddressProvider>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/buy-now"
+                                element={
+                                    <ProtectedRoute>
+                                        <AddressProvider>
+                                            <BuyNowPage />
+                                        </AddressProvider>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route path="/services" element={<ServicesPage />} />
+                            <Route path="/services/:id" element={<ServiceDetail />} />
+                            <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/forget-password" element={<ForgetPassword />} />
+                            <Route path="/password/reset/:token" element={<ResetPassword />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/profile" element={
+                                <ProtectedRoute>
+                                    <AddressProvider>
+                                        <ProfileLayout />
+                                    </AddressProvider>
+                                </ProtectedRoute>
+                            }>
+                                <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                                <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
+                                <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                                <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
+                                <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
+                                <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
+                            </Route>
+                            <Route path="/terms-conditions" element={<TermsConditions />} />
+                            <Route
+                                path="/payment-success"
+                                element={
+                                    <ProtectedRoute>
+                                        <PaymentSuccess />
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route path='*' element={<ErrorPage />} />
+                        </Routes>
+                    </div>
+                    <HomeFooter />
+                    <a
+                        href={`https://wa.me/${8693000900}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
+                    >
+                        <WhatsappIcon size={30} />
+                    </a>
+                </main>
             )}
 
         </div>

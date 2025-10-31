@@ -77,8 +77,7 @@ const Login = () => {
                 await fetchCartData();
                 saveCredentials(data.email, data.password, rememberMe);
                 toast.success("Login Successfully 🥳");
-                const from = location.state?.from || '/';
-                navigate(from, { replace: true });
+                navigate('/', { replace: true });
             } else {
                 toast.error(response?.message || response?.error || 'Login failed');
             }
@@ -133,8 +132,7 @@ const Login = () => {
                     }));
                     await fetchCartData();
                     toast.success("Login Successfully 🥳");
-                    const from = location.state?.from || '/';
-                    navigate(from, { replace: true });
+                    navigate('/', { replace: true });
                 } else {
                     toast.error(response?.message || response?.error || 'Login failed');
                 }
