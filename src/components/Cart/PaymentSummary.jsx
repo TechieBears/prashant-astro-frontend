@@ -123,17 +123,19 @@ const PaymentSummary = ({
                     </div>
                 </div>
 
-                {/* Address Selection */}
-                <div className="mb-4">
-                    <h4 className="font-medium text-gray-900 text-sm md:text-base mb-2">Delivery Address</h4>
-                    <AddressSelector />
-                </div>
+                {/* Address Selection - Only for products */}
+                {activeTab === 'products' && (
+                    <div className="mb-4">
+                        <h4 className="font-medium text-gray-900 text-sm md:text-base mb-2">Delivery Address</h4>
+                        <AddressSelector />
+                    </div>
+                )}
 
                 {/* Continue to Pay Button */}
                 <button
                     onClick={onCheckout}
-                    disabled={isCreatingOrder || !defaultAddress}
-                    className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium transition-opacity shadow-md text-sm md:text-base ${isCreatingOrder || !defaultAddress
+                    disabled={isCreatingOrder || (activeTab === 'products' && !defaultAddress)}
+                    className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium transition-opacity shadow-md text-sm md:text-base ${isCreatingOrder || (activeTab === 'products' && !defaultAddress)
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                         : 'bg-button-diagonal-gradient-orange text-white hover:opacity-90'
                         }`}

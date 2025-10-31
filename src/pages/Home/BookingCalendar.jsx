@@ -12,6 +12,8 @@ import { getServiceModeOptions, getServiceType } from '../../utils/serviceConfig
 import { Input, Select } from '../../components/Form';
 import { getServicesList, getAllAstrologer, checkAvailability, addServiceToCart, getSelectedService } from '../../api';
 import Preloaders from '../../components/Loader/Preloaders';
+import ServiceAddressSelector from '../../components/Address/ServiceAddressSelector';
+import { useAddress } from '../../context/AddressContext';
 
 const BookingCalendar = () => {
     const navigate = useNavigate();
@@ -46,16 +48,19 @@ const BookingCalendar = () => {
             lastName: '',
             email: '',
             phone: '',
+            address: '',
             timeSlot: '',
             selectedDate: null
         }
     });
 
-    // Watch form values for availability checks
     const watchedAstrologer = watch('astrologer');
     const watchedDate = watch('selectedDate');
     const watchedServiceType = watch('serviceType');
     const watchedBookingType = watch('bookingType');
+
+    // Get address context for default address
+    const { defaultAddress } = useAddress();
 
     // User details population
     useEffect(() => {
@@ -70,13 +75,12 @@ const BookingCalendar = () => {
     // Handle booking type change
     useEffect(() => {
         if (watchedBookingType === 'others') {
-            // Clear fields when "For Others" tab is selected
             setValue('firstName', '');
             setValue('lastName', '');
             setValue('phone', '');
             setValue('email', '');
+            setValue('address', '');
         } else if (watchedBookingType === 'self') {
-            // Restore user details when "For Self" tab is selected
             if (loggedUserDetails && Object.keys(loggedUserDetails).length > 0) {
                 setValue('firstName', loggedUserDetails.firstName || '');
                 setValue('lastName', loggedUserDetails.lastName || '');
@@ -140,7 +144,7 @@ const BookingCalendar = () => {
         } finally {
             setIsServicesLoading(false);
         }
-    }, [isServicesLoading]); // Removed services.length dependency
+    }, [isServicesLoading]);
 
     // Fetch astrologers
     const fetchAstrologers = useCallback(async () => {
@@ -150,16 +154,13 @@ const BookingCalendar = () => {
             setIsAstrologersLoading(true);
             const response = await getAllAstrologer();
             if (response?.success) {
-                // Set astrologers even if data is empty array to prevent re-fetching
                 setAstrologers(response.data || []);
             } else {
-                // Set empty array to prevent continuous retries
                 setAstrologers([]);
                 toast.error('Failed to load astrologers. Please try again.');
             }
         } catch (error) {
             console.error('Error fetching astrologers:', error);
-            // Set empty array to prevent continuous retries
             setAstrologers([]);
             toast.error('Failed to load astrologers. Please try again.');
         } finally {
@@ -339,22 +340,15 @@ const BookingCalendar = () => {
                 return;
             }
 
-            // Validate personal details when booking for others
-            if (data.bookingType === 'others') {
-                if (!data.firstName || !data.firstName.trim()) {
-                    toast.error('Please enter first name');
+            // Validate address based on booking type
+            if (data.bookingType === 'self') {
+                if (!defaultAddress) {
+                    toast.error('Please select a default address');
                     return;
                 }
-                if (!data.lastName || !data.lastName.trim()) {
-                    toast.error('Please enter last name');
-                    return;
-                }
-                if (!data.email || !data.email.trim()) {
-                    toast.error('Please enter email address');
-                    return;
-                }
-                if (!data.phone || !data.phone.trim()) {
-                    toast.error('Please enter phone number');
+            } else {
+                if (!data.address || !data.address.trim()) {
+                    toast.error('Please enter address');
                     return;
                 }
             }
@@ -372,18 +366,40 @@ const BookingCalendar = () => {
             const startTime = timeSlotParts[0];
             const endTime = timeSlotParts[1];
 
-            const servicePayload = {
-                serviceId: data.serviceType,
-                serviceMode: serviceModeMap[data.serviceMode] || 'online',
-                astrologer: data.astrologer,
-                startTime: startTime,
-                endTime: endTime,
-                date: formattedDate,
-                firstName: data.firstName || '',
-                lastName: data.lastName || '',
-                email: data.email || '',
-                phone: data.phone || ''
-            };
+            // Construct payload based on booking type
+            let servicePayload;
+
+            if (data.bookingType === 'self') {
+                // For self booking: use default address ID from context
+                servicePayload = {
+                    serviceId: data.serviceType,
+                    serviceMode: serviceModeMap[data.serviceMode] || 'online',
+                    astrologer: data.astrologer,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: formattedDate,
+                    firstName: data.firstName || '',
+                    lastName: data.lastName || '',
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    address: defaultAddress ? defaultAddress._id : ''
+                };
+            } else {
+                // For others booking: use address data from form
+                servicePayload = {
+                    serviceId: data.serviceType,
+                    serviceMode: serviceModeMap[data.serviceMode] || 'online',
+                    astrologer: data.astrologer,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: formattedDate,
+                    firstName: data.firstName || '',
+                    lastName: data.lastName || '',
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    addressData: data.address || ''
+                };
+            }
 
             // Call the API to add service to cart
             const response = await addServiceToCart(servicePayload);
@@ -404,7 +420,7 @@ const BookingCalendar = () => {
             toast.dismiss();
             toast.error('Failed to book service. Please try again.');
         }
-    }, [navigate]);
+    }, [navigate, defaultAddress]);
 
 
     // Show loading state
@@ -657,6 +673,38 @@ const BookingCalendar = () => {
                                     />
                                 </div>
 
+                                {/* Address field for "For Others" */}
+                                {watchedBookingType === 'others' && (
+                                    <Controller
+                                        name="address"
+                                        control={control}
+                                        rules={{
+                                            required: 'Address is required'
+                                        }}
+                                        render={({ field }) => (
+                                            <div className="flex flex-col h-full">
+                                                <div>
+                                                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Address
+                                                        <span className="text-red-500 ml-1">*</span>
+                                                    </label>
+                                                </div>
+                                                <div className="flex-grow flex flex-col justify-center">
+                                                    <textarea
+                                                        id="address"
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        placeholder="Enter complete address including street, city, state, and postal code"
+                                                        required
+                                                        rows={4}
+                                                        className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white resize-vertical"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    />
+                                )}
+
                                 {/* Display validation errors */}
                                 {errors.firstName && (
                                     <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
@@ -669,6 +717,17 @@ const BookingCalendar = () => {
                                 )}
                                 {errors.email && (
                                     <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                                )}
+                                {errors.address && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                                )}
+
+                                {/* Address section - only show for "For Self" */}
+                                {watchedBookingType === 'self' && (
+                                    <div className="mt-6">
+                                        <h2 className="text-lg font-semibold mb-2">Address</h2>
+                                        <ServiceAddressSelector />
+                                    </div>
                                 )}
                             </div>
 
