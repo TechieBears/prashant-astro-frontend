@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import moment from "moment";
 import BookingDetailsModal from '../../../components/Modals/AdminModals/BookingDetailsModal';
 import { adminSlots } from "../../../api";
+import HorizontalSlotCalendar from '../../../components/Calender/HorizontalSlotCalender';
 import BlockCalenderSlotsModal from "../../../components/Modals/AdminModals/BlockCalenderSlotsModal";
 import BlockedMessageShowModal from "../../../components/Modals/AdminModals/BlockedMessageShowModal";
-import HorizontalSlotCalendar from "../../../components/Calendar/HorizontalSlotCalendar";
 
 
 const generateFullDaySlots = (data) => {
@@ -93,7 +93,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 return {
                     bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
                     text: 'text-red-600',
-                    title: 'Admin Blocked',
+                    title: `${booking?.astroRole == "admin" ? 'Admin Blocked' : booking?.astroRole == "astrologer" ? 'Astrologer Blocked' : 'Employee Blocked'}`,
                     border: 'border-red-300/80'
                 };
             case 'booked':
@@ -203,7 +203,7 @@ const VenueCalendar = () => {
             setShowBookingModal(true);
         } else if (status === 'adminBlocked') {
             setShowBlockedMessageModal(true);
-            setSelectedBlockedMessage(booking?.rejectReason);
+            setSelectedBlockedMessage(booking);
         }
         else if (status === 'available') {
             const endTime = moment(timeSlot.slots_start_time, "HH:mm").add(30, 'minutes').format("HH:mm");
