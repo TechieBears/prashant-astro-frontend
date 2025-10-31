@@ -445,194 +445,201 @@ const Dashboard = () => {
 
     return (
         <>
-            <div className="px-1 mx-4 m-2 rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-                {/* Total Bookings Card */}
-                <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                    <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
-                    <div className='flex items-center justify-between'>
-                        <h6 className='text-black font-tb text-sm'>Total Bookings</h6>
-                        <div className="p-2.5 rounded-full bg-white z-50">
-                            <Calendar size={22} className="text-purple-600" />
+            <div className="px-1 mx-4 m-2 rounded-xl  pt-4 space-y-2.5">
+                <h6 className='text-black font-tbPop text-base tracking-normal font-medium px-2'>Service Statistics</h6>
+                <div className="rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {/* Total Bookings Card */}
+                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
+                        <div className='flex items-center justify-between'>
+                            <h6 className='text-black font-tb text-sm'>Total Bookings</h6>
+                            <div className="p-2.5 rounded-full bg-white z-50">
+                                <Calendar size={22} className="text-purple-600" />
+                            </div>
                         </div>
+                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                            <NumberFlow
+                                value={insites?.totalBookings || 0}
+                                trend={0}
+                                format={{ notation: "compact" }}
+                            />
+                        </h6>
+                        <h6 className='text-slate-500 font-tb font-normal text-xs'>All time bookings</h6>
                     </div>
-                    <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                        <NumberFlow
-                            value={insites?.totalBookings || 0}
-                            trend={0}
-                            format={{ notation: "compact" }}
-                        />
-                    </h6>
-                    <h6 className='text-slate-500 font-tb font-normal text-xs'>All time bookings</h6>
-                </div>
-                {/* Pending Bookings Card */}
-                <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                    <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
-                    <div className='flex items-center justify-between'>
-                        <h6 className='text-black font-tb text-sm'>Pending</h6>
-                        <div className="p-2.5 rounded-full bg-white z-50">
-                            <CalendarAdd size={22} className="text-orange-600" />
+                    {/* Pending Bookings Card */}
+                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
+                        <div className='flex items-center justify-between'>
+                            <h6 className='text-black font-tb text-sm'>Pending</h6>
+                            <div className="p-2.5 rounded-full bg-white z-50">
+                                <CalendarAdd size={22} className="text-orange-600" />
+                            </div>
                         </div>
+                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                            <NumberFlow
+                                value={insites?.pendingConfirmatch || 0}
+                                trend={0}
+                                format={{ notation: "compact" }}
+                            />
+                        </h6>
+                        <h6 className='text-slate-500 font-tb font-normal text-xs'>Awaiting confirmation</h6>
                     </div>
-                    <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                        <NumberFlow
-                            value={insites?.pendingConfirmatch || 0}
-                            trend={0}
-                            format={{ notation: "compact" }}
-                        />
-                    </h6>
-                    <h6 className='text-slate-500 font-tb font-normal text-xs'>Awaiting confirmation</h6>
-                </div>
 
-                {/* Scheduled Bookings Card */}
-                <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                    <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
-                    <div className='flex items-center justify-between'>
-                        <h6 className='text-black font-tb text-sm'>Scheduled</h6>
-                        <div className="p-2.5 rounded-full bg-white z-50">
-                            <CalendarSearch size={22} className="text-red-600" />
+                    {/* Scheduled Bookings Card */}
+                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
+                        <div className='flex items-center justify-between'>
+                            <h6 className='text-black font-tb text-sm'>Scheduled</h6>
+                            <div className="p-2.5 rounded-full bg-white z-50">
+                                <CalendarSearch size={22} className="text-red-600" />
+                            </div>
                         </div>
+                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                            <NumberFlow
+                                value={insites?.scheduledBookings || 0}
+                                trend={0}
+                                format={{ notation: "compact" }}
+                            />
+                        </h6>
+                        <h6 className='text-slate-500 font-tb font-normal text-xs'>Scheduled appointments</h6>
                     </div>
-                    <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                        <NumberFlow
-                            value={insites?.scheduledBookings || 0}
-                            trend={0}
-                            format={{ notation: "compact" }}
-                        />
-                    </h6>
-                    <h6 className='text-slate-500 font-tb font-normal text-xs'>Scheduled appointments</h6>
-                </div>
 
-                {/* Completed Bookings Card */}
-                <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                    <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
-                    <div className='flex items-center justify-between'>
-                        <h6 className='text-black font-tb text-sm'>Completed</h6>
-                        <div className="p-2.5 rounded-full bg-white z-50">
-                            <CalendarTick size={22} className="text-emerald-600" />
+                    {/* Completed Bookings Card */}
+                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
+                        <div className='flex items-center justify-between'>
+                            <h6 className='text-black font-tb text-sm'>Completed</h6>
+                            <div className="p-2.5 rounded-full bg-white z-50">
+                                <CalendarTick size={22} className="text-emerald-600" />
+                            </div>
                         </div>
+                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                            <NumberFlow
+                                value={insites?.completedBookings || 0}
+                                trend={0}
+                                format={{ notation: "compact" }}
+                            />
+                        </h6>
+                        <h6 className='text-slate-500 font-tb font-normal text-xs'>Completed sessions</h6>
                     </div>
-                    <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                        <NumberFlow
-                            value={insites?.completedBookings || 0}
-                            trend={0}
-                            format={{ notation: "compact" }}
-                        />
-                    </h6>
-                    <h6 className='text-slate-500 font-tb font-normal text-xs'>Completed sessions</h6>
                 </div>
             </div>
 
             {
-                user?.role == "admin" && <div className="px-1 mx-4 m-2 rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 pb-4">
+                user?.role == "admin" &&
+                <div className="px-1 mx-4 m-2 rounded-xl  pt-4 space-y-2.5">
+                    <h6 className='text-black font-tbPop text-base tracking-normal font-medium px-2'>Order Statistics</h6>
+                    <div className="rounded-xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-5">
 
-                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
-                        <div className='flex items-center justify-between'>
-                            <h6 className='text-black font-tb text-sm'>Total Orders</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
-                                <Box size={22} className="text-purple-600" />
+                        <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                            <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-purple-300  rounded-[40px] flex items-center justify-center' />
+                            <div className='flex items-center justify-between'>
+                                <h6 className='text-black font-tb text-sm'>Total Orders</h6>
+                                <div className="p-2.5 rounded-full bg-white z-50">
+                                    <Box size={22} className="text-purple-600" />
+                                </div>
                             </div>
-                        </div>
-                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                            <NumberFlow
-                                value={insites?.totalProductsOrders || 0}
-                                trend={0}
-                                format={{ notation: "compact" }}
-                            />
-                        </h6>
-                        <div className="flex items-center gap-1">
-                            <h6 className='text-purple-600 font-tbPop font-semibold text-base'>
-                                ₹<NumberFlow
-                                    value={insites?.totalProductsOrdersAmount || 0}
+                            <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                                <NumberFlow
+                                    value={insites?.totalProductsOrders || 0}
                                     trend={0}
                                     format={{ notation: "compact" }}
                                 />
                             </h6>
-                            <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
-                        </div>
-                    </div>
-
-                    {/* Pending Orders Card */}
-                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
-                        <div className='flex items-center justify-between'>
-                            <h6 className='text-black font-tb text-sm'>Pending Orders</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
-                                <BoxTime size={22} className="text-orange-600" />
+                            <div className="flex items-center gap-1">
+                                <h6 className='text-purple-600 font-tbPop font-semibold text-base'>
+                                    ₹<NumberFlow
+                                        value={insites?.totalProductsOrdersAmount || 0}
+                                        trend={0}
+                                        format={{ notation: "compact" }}
+                                    />
+                                </h6>
+                                <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
                             </div>
                         </div>
-                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                            <NumberFlow
-                                value={insites?.pendingProductOrders || 0}
-                                trend={0}
-                                format={{ notation: "compact" }}
-                            />
-                        </h6>
-                        <div className="flex items-center gap-1">
-                            <h6 className='text-orange-600 font-tbPop font-semibold text-base'>
-                                ₹<NumberFlow
-                                    value={insites?.pendingProductOrdersAmount || 0}
+
+                        {/* Pending Orders Card */}
+                        <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                            <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-orange-300  rounded-[40px] flex items-center justify-center' />
+                            <div className='flex items-center justify-between'>
+                                <h6 className='text-black font-tb text-sm'>Pending Orders</h6>
+                                <div className="p-2.5 rounded-full bg-white z-50">
+                                    <BoxTime size={22} className="text-orange-600" />
+                                </div>
+                            </div>
+                            <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                                <NumberFlow
+                                    value={insites?.pendingProductOrders || 0}
                                     trend={0}
                                     format={{ notation: "compact" }}
                                 />
                             </h6>
-                            <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
-                        </div>
-                    </div>
-
-                    {/* Shipped Orders Card */}
-                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
-                        <div className='flex items-center justify-between'>
-                            <h6 className='text-black font-tb text-sm'>Shipped Orders</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
-                                <BoxSearch size={22} className="text-red-600" />
+                            <div className="flex items-center gap-1">
+                                <h6 className='text-orange-600 font-tbPop font-semibold text-base'>
+                                    ₹<NumberFlow
+                                        value={insites?.pendingProductOrdersAmount || 0}
+                                        trend={0}
+                                        format={{ notation: "compact" }}
+                                    />
+                                </h6>
+                                <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
                             </div>
                         </div>
-                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                            <NumberFlow
-                                value={insites?.shippedProductsOrders || 0}
-                                trend={0}
-                                format={{ notation: "compact" }}
-                            />
-                        </h6>
-                        <div className="flex items-center gap-1">
-                            <h6 className='text-red-600 font-tbPop font-semibold text-base'>
-                                ₹<NumberFlow
-                                    value={insites?.shippedProductsOrdersAmount || 0}
+
+                        {/* Shipped Orders Card */}
+                        <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                            <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-red-300  rounded-[40px] flex items-center justify-center' />
+                            <div className='flex items-center justify-between'>
+                                <h6 className='text-black font-tb text-sm'>Shipped Orders</h6>
+                                <div className="p-2.5 rounded-full bg-white z-50">
+                                    <BoxSearch size={22} className="text-red-600" />
+                                </div>
+                            </div>
+                            <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                                <NumberFlow
+                                    value={insites?.shippedProductsOrders || 0}
                                     trend={0}
                                     format={{ notation: "compact" }}
                                 />
                             </h6>
-                            <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
-                        </div>
-                    </div>
-
-                    {/* Delivered Orders Card */}
-                    <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
-                        <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
-                        <div className='flex items-center justify-between'>
-                            <h6 className='text-black font-tb text-sm'>Delivered Orders</h6>
-                            <div className="p-2.5 rounded-full bg-white z-50">
-                                <BoxTick size={22} className="text-emerald-600" />
+                            <div className="flex items-center gap-1">
+                                <h6 className='text-red-600 font-tbPop font-semibold text-base'>
+                                    ₹<NumberFlow
+                                        value={insites?.shippedProductsOrdersAmount || 0}
+                                        trend={0}
+                                        format={{ notation: "compact" }}
+                                    />
+                                </h6>
+                                <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
                             </div>
                         </div>
-                        <h6 className='text-black font-tbPop font-semibold text-3xl'>
-                            <NumberFlow
-                                value={insites?.deliveredProductsOrders || 0}
-                                trend={0}
-                                format={{ notation: "compact" }}
-                            />
-                        </h6>
-                        <div className="flex items-center gap-1">
-                            <h6 className='text-emerald-600 font-tbPop font-semibold text-base'>
-                                ₹<NumberFlow
-                                    value={insites?.deliveredProductsOrdersAmount || 0}
+
+                        {/* Delivered Orders Card */}
+                        <div className="bg-white p-5 rounded-3xl space-y-1.5 relative overflow-hidden" >
+                            <div className='absolute -top-8 -right-8 w-[7.7rem] h-[7.7rem] bg-emerald-300  rounded-[40px] flex items-center justify-center' />
+                            <div className='flex items-center justify-between'>
+                                <h6 className='text-black font-tb text-sm'>Delivered Orders</h6>
+                                <div className="p-2.5 rounded-full bg-white z-50">
+                                    <BoxTick size={22} className="text-emerald-600" />
+                                </div>
+                            </div>
+                            <h6 className='text-black font-tbPop font-semibold text-3xl'>
+                                <NumberFlow
+                                    value={insites?.deliveredProductsOrders || 0}
                                     trend={0}
                                     format={{ notation: "compact" }}
                                 />
                             </h6>
-                            <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
+                            <div className="flex items-center gap-1">
+                                <h6 className='text-emerald-600 font-tbPop font-semibold text-base'>
+                                    ₹<NumberFlow
+                                        value={insites?.deliveredProductsOrdersAmount || 0}
+                                        trend={0}
+                                        format={{ notation: "compact" }}
+                                    />
+                                </h6>
+                                <h6 className='text-slate-500 font-tb font-normal text-sm'>total product sell</h6>
+                            </div>
                         </div>
                     </div>
                 </div>

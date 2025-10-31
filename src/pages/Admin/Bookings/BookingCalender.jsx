@@ -54,6 +54,7 @@ const SkeletonSlot = () => (
 );
 
 const SlotCard = ({ status, booking, onClick, isLoading }) => {
+    console.log("⚡️🤯 ~ BookingCalender.jsx:57 ~ SlotCard ~ booking:===", booking)
     if (isLoading) return <SkeletonSlot />;
     const getSlotConfig = () => {
         switch (status) {
@@ -68,7 +69,7 @@ const SlotCard = ({ status, booking, onClick, isLoading }) => {
                 return {
                     bg: 'bg-gradient-to-br from-red-50 via-red-50 to-red-100',
                     text: 'text-red-600',
-                    title: 'Admin Block',
+                    title: `${booking?.astroRole == "admin" ? 'Admin Blocked' : booking?.astroRole == "astrologer" ? 'Astrologer Blocked' : 'Employee Blocked'}`,
                     border: 'border-red-300/80'
                 };
             case 'booked':
@@ -176,7 +177,7 @@ const BookingCalendar = () => {
             setShowBookingModal(true);
         } else if (status === 'adminBlocked') {
             setShowBlockedMessageModal(true);
-            setSelectedBlockedMessage(booking?.rejectReason);
+            setSelectedBlockedMessage(booking);
         } else if (status === 'available') {
             const endTime = moment(timeSlot.slots_start_time, "HH:mm").add(30, 'minutes').format("HH:mm");
             const slotData = {

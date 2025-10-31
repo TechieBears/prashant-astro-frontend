@@ -31,14 +31,14 @@ function BlockedMessageShowModal({ open, toggle, message }) {
                                 <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                                     <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                         <div className="sm:flex sm:items-start">
-                                            <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 font-tbPop">
-                                                Blocked Message
+                                            <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900 font-tbPop flex justify-between w-full gap-2">
+                                                <span className="text-sm font-tbPop font-medium text-slate-500">Blocked Message</span>
+                                                <span className="text-sm font-tbPop font-medium text-slate-500">By: <span className="text-sm font-tbPop font-medium text-red-500">{message?.astroRole == "admin" ? 'Admin Blocked' : message?.astroRole == "astrologer" ? 'Astrologer Blocked' : 'Employee Blocked'}</span></span>
                                             </Dialog.Title>
-
                                         </div>
                                         <div className="mt-5 h-40 bg-slate-100 rounded-lg p-4">
                                             <p className="text-sm font-tbPop font-medium text-slate-500">
-                                                {message}
+                                                {message?.rejectReason}
                                             </p>
                                         </div>
                                     </div>
