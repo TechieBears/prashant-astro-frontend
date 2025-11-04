@@ -345,13 +345,16 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
         }
 
         const astrologerId = service.astrologer?._id || service.astrologerId;
-
         const serviceMode = service.serviceMode || 'online';
-
         const userData = service.cust || userInfo || {};
-        const address = serviceMode !== 'online' && serviceMode !== 'pandit_center' && addressId
-            ? { address: String(addressId).trim() }
-            : {};
+
+        // Handle address data - check for both address ID and addressData string
+        const addressData = {};
+        if (service.address) {
+            addressData.address = String(service.address).trim();
+        } else if (service.cust?.addressData) {
+            addressData.addressData = String(service.cust.addressData).trim();
+        }
 
         return {
             serviceId: serviceId,
@@ -364,7 +367,7 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
             lastName: (service.cust?.lastName || userInfo?.lastName || '').trim(),
             email: (service.cust?.email || userInfo?.email || '').trim(),
             phone: (service.cust?.phone || userInfo?.phone || '').trim(),
-            ...address
+            ...addressData
         };
     });
 
@@ -375,19 +378,28 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
         paymentDetails: {
             note: "Cash will be collected at time of service"
         },
-        serviceItems: services.map(service => ({
-            serviceId: service.serviceId,
-            astrologerId: service.astrologerId,
-            bookingDate: service.bookingDate,
-            startTime: service.startTime,
-            endTime: service.endTime || '00:30',
-            serviceMode: service.serviceMode || 'online',
-            firstName: service.firstName || '',
-            lastName: service.lastName || '',
-            email: service.email || '',
-            phone: service.phone || '',
-            ...(service.address ? { address: String(service.address).trim() } : {})
-        }))
+        serviceItems: services.map(service => {
+            const serviceItem = {
+                serviceId: service.serviceId,
+                serviceType: service.serviceMode || 'online',
+                astrologerId: service.astrologerId,
+                bookingDate: service.bookingDate,
+                startTime: service.startTime,
+                firstName: service.firstName || '',
+                lastName: service.lastName || '',
+                email: service.email || '',
+                phone: service.phone || ''
+            };
+
+            // Add address or addressData based on what exists
+            if (service.address) {
+                serviceItem.address = String(service.address).trim();
+            } else if (service.addressData) {
+                serviceItem.addressData = String(service.addressData).trim();
+            }
+
+            return serviceItem;
+        })
     };
 
     // Add coupon if provided
