@@ -326,6 +326,8 @@ const CartPage = () => {
                 appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
             );
 
+            console.log('Service Order Data:', JSON.stringify(serviceOrderData, null, 2));
+
             // Set loading state
             setIsCreatingOrder(true);
             setOrderError(null);

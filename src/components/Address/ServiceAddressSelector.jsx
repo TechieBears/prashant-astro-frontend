@@ -7,7 +7,16 @@ import toast from 'react-hot-toast';
 // Memoized components to prevent unnecessary re-renders
 const AddButton = memo(({ onClick, className = "" }) => (
     <button
-        onClick={onClick}
+        type="button"
+        onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClick(e);
+        }}
+        onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }}
         className={`w-full flex items-center justify-center gap-2 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 active:bg-orange-700 transition-all duration-150 text-sm font-medium ${className}`}
     >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +43,15 @@ const ActionButton = memo(({ onClick, disabled, className, title, children }) =>
 const AddressItem = memo(({ address, isDefault, isSelecting, onSelect, onEdit, onDelete }) => (
     <div
         className={`p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer ${isSelecting ? 'bg-orange-50' : ''}`}
-        onClick={() => onSelect(address)}
+        onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onSelect(address);
+        }}
+        onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }}
     >
         <div className="flex items-start justify-between">
             <div className={`flex-1 ${isSelecting ? 'pointer-events-none' : ''}`}>
@@ -218,7 +235,10 @@ const ServiceAddressSelector = () => {
 
 
     const renderContent = () => (
-        <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+        <div 
+            className="bg-red-50 border border-red-200 p-3 rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+        >
             <div className="flex flex-col">
                 <div className="mb-2">
                     <p className="text-red-600 text-sm font-medium">No delivery address selected</p>
@@ -233,10 +253,7 @@ const ServiceAddressSelector = () => {
                 {!hasAddresses && (
                     <div className="mt-2">
                         <AddButton
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                openForm("add");
-                            }}
+                            onClick={() => openForm("add")}
                             className="w-full"
                         />
                     </div>
@@ -245,13 +262,13 @@ const ServiceAddressSelector = () => {
 
             {/* Show address selector dropdown when addresses exist */}
             {hasAddresses && (
-                <div className="mt-3 border border-gray-200 rounded-lg bg-white shadow-sm">
+                <div 
+                    className="mt-3 border border-gray-200 rounded-lg bg-white shadow-sm"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="p-3 border-b border-gray-100">
                         <AddButton
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                openForm("add");
-                            }}
+                            onClick={() => openForm("add")}
                         />
                     </div>
                     {addresses.map((address) => (
@@ -329,7 +346,10 @@ const ServiceAddressSelector = () => {
 
     return (
         <div>
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div 
+                className="bg-gray-50 p-3 rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="flex justify-between items-start">
                     <div className="flex-1">
                         <p className="font-medium text-sm text-gray-900">
@@ -341,7 +361,16 @@ const ServiceAddressSelector = () => {
                         </p>
                     </div>
                     <button
-                        onClick={() => setShowSelector(!showSelector)}
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowSelector(!showSelector);
+                        }}
+                        onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }}
                         disabled={isUpdating}
                         className="text-orange-500 text-xs hover:underline disabled:opacity-50"
                     >
@@ -352,7 +381,10 @@ const ServiceAddressSelector = () => {
 
             {/* Address Selector Dropdown */}
             {showSelector && (
-                <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm">
+                <div 
+                    className="mt-2 border border-gray-200 rounded-lg bg-white shadow-sm"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="p-3 border-b border-gray-100">
                         <AddButton onClick={() => openForm("add")} />
                     </div>

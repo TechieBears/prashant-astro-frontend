@@ -197,8 +197,8 @@ const BookingCalendar = () => {
         setValue('serviceType', serviceData?._id || '');
 
         // Auto-select service Mode based on serviceType from API
-        if (serviceData?.serviceType) {
-            setValue('serviceMode', serviceData.serviceType);
+        if (serviceData?.serviceType && Array.isArray(serviceData.serviceType) && serviceData.serviceType.length > 0) {
+            setValue('serviceMode', serviceData.serviceType[0]);
         }
 
         setIsLoading(false);
@@ -232,9 +232,15 @@ const BookingCalendar = () => {
                     const response = await getSelectedService(watchedServiceType);
                     if (response?.success && response?.data) {
                         setSelectedService(response.data);
-                        setValue('serviceMode', response.data.serviceType || 'online');
+                        const serviceMode = Array.isArray(response.data.serviceType) && response.data.serviceType.length > 0 
+                            ? response.data.serviceType[0] 
+                            : 'online';
+                        setValue('serviceMode', serviceMode);
                     } else {
-                        setValue('serviceMode', serviceFromList.serviceType || 'online');
+                        const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0 
+                            ? serviceFromList.serviceType[0] 
+                            : 'online';
+                        setValue('serviceMode', serviceMode);
                         setSelectedService(serviceFromList);
                     }
                 }
@@ -245,7 +251,10 @@ const BookingCalendar = () => {
                 // Fallback to list data on error
                 const serviceFromList = allServicesData.find(service => service._id === watchedServiceType);
                 if (serviceFromList) {
-                    setValue('serviceMode', serviceFromList.serviceType || 'online');
+                    const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0 
+                        ? serviceFromList.serviceType[0] 
+                        : 'online';
+                    setValue('serviceMode', serviceMode);
                     setSelectedService(serviceFromList);
                 }
             } finally {
@@ -493,36 +502,44 @@ const BookingCalendar = () => {
                                     name="serviceMode"
                                     control={control}
                                     rules={{ required: 'Service Mode is required' }}
-                                    render={({ field }) => (
-                                        <div>
-                                            <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
-                                                Service Mode
-                                            </label>
-                                            <div className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto pb-2">
-                                                {serviceModeOptions.map((option) => (
-                                                    <label key={option.value} className={`flex items-center whitespace-nowrap flex-shrink-0 ${field.value === option.value ? 'cursor-default' : 'cursor-not-allowed opacity-50'}`}>
-                                                        <div className="relative flex items-center">
-                                                            <input
-                                                                type="radio"
-                                                                name="serviceMode"
-                                                                value={option.value}
-                                                                checked={field.value === option.value}
-                                                                onChange={() => { }} // Disabled - no onChange action
-                                                                disabled={true} // Disable all radio buttons
-                                                                className="absolute opacity-0 w-0 h-0"
-                                                            />
-                                                            <span className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center transition-colors ${field.value === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
-                                                                {field.value === option.value && (
-                                                                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#FF8835] rounded-full"></span>
-                                                                )}
-                                                            </span>
-                                                        </div>
-                                                        <span className={`ml-1.5 sm:ml-2 text-xs sm:text-sm ${field.value === option.value ? 'text-gray-700 font-medium' : 'text-gray-400'}`}>{option.label}</span>
-                                                    </label>
-                                                ))}
+                                    render={({ field }) => {
+                                        const availableServiceTypes = selectedService?.serviceType || [];
+                                        
+                                        return (
+                                            <div>
+                                                <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
+                                                    Service Mode
+                                                </label>
+                                                <div className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto pb-2">
+                                                    {serviceModeOptions.map((option) => {
+                                                        const isAvailable = availableServiceTypes.includes(option.value);
+                                                        
+                                                        return (
+                                                            <label key={option.value} className={`flex items-center whitespace-nowrap flex-shrink-0 ${isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
+                                                                <div className="relative flex items-center">
+                                                                    <input
+                                                                        type="radio"
+                                                                        name="serviceMode"
+                                                                        value={option.value}
+                                                                        checked={field.value === option.value}
+                                                                        onChange={() => isAvailable && field.onChange(option.value)}
+                                                                        disabled={!isAvailable}
+                                                                        className="absolute opacity-0 w-0 h-0"
+                                                                    />
+                                                                    <span className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center transition-colors ${field.value === option.value ? 'border-[#FF8835]' : 'border-[#E2E8F0]'}`}>
+                                                                        {field.value === option.value && (
+                                                                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#FF8835] rounded-full"></span>
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                                <span className={`ml-1.5 sm:ml-2 text-xs sm:text-sm ${isAvailable ? (field.value === option.value ? 'text-gray-700 font-medium' : 'text-gray-600') : 'text-gray-400'}`}>{option.label}</span>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        );
+                                    }}
                                 />
                                 {errors.serviceMode && (
                                     <p className="text-red-500 text-sm mt-1">{errors.serviceMode.message}</p>
@@ -724,9 +741,24 @@ const BookingCalendar = () => {
 
                                 {/* Address section - only show for "For Self" */}
                                 {watchedBookingType === 'self' && (
-                                    <div className="mt-6">
+                                    <div 
+                                        className="mt-6"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                    >
                                         <h2 className="text-lg font-semibold mb-2">Address</h2>
-                                        <ServiceAddressSelector />
+                                        <div 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }}
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }}
+                                        >
+                                            <ServiceAddressSelector />
+                                        </div>
                                     </div>
                                 )}
                             </div>
