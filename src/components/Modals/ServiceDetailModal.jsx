@@ -43,17 +43,46 @@ const getStatusInfo = (status) => {
     return statusMap[status?.toLowerCase()] || { text: 'Session Status', shortText: 'Status', textColor: 'text-gray-800', bgColor: 'bg-gray-300' };
 };
 
+const convertToWebZoomUrl = (zoomUrl) => {
+    if (!zoomUrl) return null;
+
+    try {
+        const url = new URL(zoomUrl);
+        const meetingId = url.pathname.split('/j/')[1]?.split('?')[0];
+        const params = new URLSearchParams(url.search);
+
+        if (meetingId) {
+            const webUrl = new URL(`https://app.zoom.us/wc/join/${meetingId}`);
+            webUrl.searchParams.set('fromPWA', '1');
+
+            if (params.get('uname')) {
+                webUrl.searchParams.set('uname', params.get('uname'));
+            }
+            if (params.get('pwd')) {
+                webUrl.searchParams.set('pwd', params.get('pwd'));
+            }
+
+            return webUrl.toString();
+        }
+    } catch (error) {
+        console.error('Error converting Zoom URL:', error);
+    }
+
+    return zoomUrl;
+};
+
 const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loadingReviews }) => {
     const [editingReviewId, setEditingReviewId] = useState(null);
     const details = [
         { icon: FaClock, text: 'Duration:', value: `${serviceData.serviceDuration || serviceData.durationInMinutes || 30} min` },
         { icon: FaCalendarAlt, text: 'Date:', value: formatDate(serviceData.bookingDate) },
+        { icon: FaClock, text: 'Time:', value: `${formatTime(serviceData.startTime)} - ${formatTime(serviceData.endTime)}` },
         { icon: FaDesktop, text: 'Mode:', value: getServiceModeLabel(serviceData.serviceType) }
     ];
     const statusInfo = getStatusInfo(serviceData?.bookingStatus);
 
     // Astrologer details
-    const astrologerName = `${serviceData.astrologerFirstName || ''} ${serviceData.astrologerLastName || ''}`.trim();
+    const astrologerName = serviceData.astrologerName || `${serviceData.astrologerFirstName || ''} ${serviceData.astrologerLastName || ''}`.trim();
 
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -66,9 +95,9 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                     imgClassName="w-full h-full object-cover"
                     fallbackClassName="w-full h-full flex items-center justify-center bg-gray-100"
                     fallbackContent={
-                        <img 
-                            src={fallbackServiceImage} 
-                            alt="Fallback Service" 
+                        <img
+                            src={fallbackServiceImage}
+                            alt="Fallback Service"
                             className="w-full h-full object-cover"
                         />
                     }
@@ -91,6 +120,27 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
 
                     {/* Service Info */}
                     <div className="space-y-1.5 text-xs">
+                        {/* Customer Details */}
+                        {serviceData.cust && (
+                            <div className="bg-gray-50 p-2 rounded-md mb-2">
+                                <h5 className="font-medium text-gray-800 mb-1">Customer Details</h5>
+                                <div className="space-y-1">
+                                    <div className="flex items-start gap-1.5">
+                                        <span className="text-gray-600">Name: </span>
+                                        <span className="font-medium text-gray-900">{`${serviceData.cust.firstName} ${serviceData.cust.lastName}`.trim()}</span>
+                                    </div>
+                                    <div className="flex items-start gap-1.5">
+                                        <span className="text-gray-600">Email: </span>
+                                        <span className="font-medium text-gray-900">{serviceData.cust.email}</span>
+                                    </div>
+                                    <div className="flex items-start gap-1.5">
+                                        <span className="text-gray-600">Phone: </span>
+                                        <span className="font-medium text-gray-900">{serviceData.cust.phone}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Astrologer Details */}
                         {astrologerName && (
                             <div className="bg-gray-50 p-2 rounded-md mb-2">
@@ -100,12 +150,6 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                                         <span className="text-gray-600">Name: </span>
                                         <span className="font-medium text-gray-900">{astrologerName}</span>
                                     </div>
-                                    {serviceData.astrologerMobileNo && (
-                                        <div className="flex items-start gap-1.5">
-                                            <span className="text-gray-600">Mobile: </span>
-                                            <span className="font-medium text-gray-900">{serviceData.astrologerMobileNo}</span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}
@@ -121,14 +165,7 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                                     </span>
                                 </div>
                             ))}
-                            {serviceData.zoomLink && (
-                                <div className="flex items-start gap-1.5">
-                                    <FaVideo className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                                    <span className="text-gray-700 break-all">
-                                        {serviceData.zoomLink}
-                                    </span>
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 </div>
@@ -186,19 +223,15 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
             setLoading(true);
             setError(null);
             const response = await getSingleServiceOrder(service.orderId);
-            if (response.success && response.orderData?.[0]?.items?.length > 0) {
-                // Map the items data to the expected format
-                const orderData = {
-                    ...response.orderData[0].orderData,
-                    services: response.orderData[0].items
-                };
+            if (response.success && response.data?.[0]?.services?.length > 0) {
+                const orderData = response.data[0];
                 setOrderData(orderData);
 
                 // Fetch reviews for all services in the order
                 if (orderData.services && userId) {
                     orderData.services.forEach(serviceData => {
-                        if (serviceData._id) {  // Using _id as serviceId
-                            fetchServiceReviews(serviceData._id);
+                        if (serviceData.serviceId) {
+                            fetchServiceReviews(serviceData.serviceId);
                         }
                     });
                 }

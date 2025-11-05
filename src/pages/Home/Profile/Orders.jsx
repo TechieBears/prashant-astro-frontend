@@ -346,10 +346,18 @@ const Orders = () => {
             Mode: <span className="font-medium text-gray-800">{service.mode}</span>
           </span>
         </div>
-        {service.mode === 'Online' && (
+        {service.zoomLink && service.zoomLink.includes('zoom.us') && (
           <div className="flex items-start gap-2">
-            <FaVideo className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-            <span className="text-xs sm:text-sm text-gray-600 break-all">{service.zoomLink}</span>
+            <FaVideo className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(`/meeting?zoomUrl=${encodeURIComponent(service.zoomLink)}`, '_blank');
+              }}
+              className="text-blue-600 hover:text-blue-800 underline font-medium text-xs sm:text-sm transition-colors bg-transparent border-none cursor-pointer"
+            >
+              Join Meeting
+            </button>
           </div>
         )}
       </div>
@@ -371,7 +379,7 @@ const Orders = () => {
             {service.paymentStatus || 'Unknown'}
           </span>
         </div>
-        <div className="flex flex-wrap gap-2 text-xs">
+        <div className="flex flex-wrap gap-2 text-xs mb-3">
           {service.astrologerStatus && (
             <span className={`px-2 py-1 rounded-full ${service.astrologerStatus === 'accepted' ? 'bg-blue-100 text-blue-800' :
               service.astrologerStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
@@ -387,6 +395,18 @@ const Orders = () => {
             </span>
           )}
         </div>
+        {service.zoomLink && service.zoomLink.includes('zoom.us') && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(`/meeting?zoomUrl=${encodeURIComponent(service.zoomLink)}`, '_blank');
+            }}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+          >
+            <FaVideo className="w-4 h-4" />
+            Join Meeting
+          </button>
+        )}
       </div>
     </div>
   );

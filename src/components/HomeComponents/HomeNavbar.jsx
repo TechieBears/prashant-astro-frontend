@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/astroguid logo.png";
 import logoText from "../../assets/astroguid logo text.png";
 import { formBtn1 } from "../../utils/CustomClass";
@@ -33,6 +33,10 @@ const HomeNavbar = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const location = useLocation();
+    
+    // Check if current page is meeting page
+    const isMeetingPage = location.pathname === '/meeting';
 
     // Calculate total cart items count
     const totalCartItems = useMemo(() => {
@@ -136,6 +140,30 @@ const HomeNavbar = () => {
         }
     };
 
+
+    // If it's meeting page, show only logo
+    if (isMeetingPage) {
+        return (
+            <nav className="navbar fixed top-0 left-0 z-[900] w-full bg-white shadow transition-all duration-500">
+                <div className="flex items-center justify-center w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-3">
+                    <button
+                        onClick={() => {
+                            navigate("/");
+                            window.scrollTo(0, 0, { behavior: "smooth" });
+                        }}
+                        className="flex items-center gap-2"
+                    >
+                        <img src={logo} alt="logo" className="h-10 md:h-12" />
+                        <img
+                            src={logoText}
+                            alt="Pandit Prashant"
+                            className="block h-6 md:h-7 mt-1 object-contain"
+                        />
+                    </button>
+                </div>
+            </nav>
+        );
+    }
 
     return (
         <>
