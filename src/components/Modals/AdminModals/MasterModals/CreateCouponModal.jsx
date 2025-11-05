@@ -23,23 +23,25 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => {
         setOpen(!open);
-        reset({
-            couponName: '',
-            couponCode: '',
-            couponType: '',
-            applicableType: '',
-            discountIn: '',
-            discount: '',
-            activationDate: '',
-            expiryDate: '',
-            redemptionPerUser: '',
-            totalRedemptions: '',
-            services: [],
-            serviceCategories: [],
-            products: [],
-            productCategories: [],
-            productSubcategories: []
-        });
+        if (!edit) {
+            reset({
+                couponName: '',
+                couponCode: '',
+                couponType: '',
+                applicableType: '',
+                discountIn: '',
+                discount: '',
+                activationDate: '',
+                expiryDate: '',
+                redemptionPerUser: '',
+                totalRedemptions: '',
+                services: [],
+                serviceCategories: [],
+                products: [],
+                productCategories: [],
+                productSubcategories: []
+            });
+        }
     };
     const [loader, setLoader] = useState(false);
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
@@ -147,27 +149,26 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
 
 
     useEffect(() => {
-        if (edit && userData && open && services.length > 0) {
-            setValue('couponName', userData?.couponName);
-            setValue('couponCode', userData?.couponCode);
-            setValue('couponType', userData?.couponType);
-            setValue('applicableType', userData?.applicableType || '');
-            setValue('discountIn', userData?.discountIn);
-            setValue('discount', userData?.discount);
-            setValue('activationDate', userData?.activationDate?.split('T')[0]);
-            setValue('expiryDate', userData?.expiryDate?.split('T')[0]);
-            setValue('redemptionPerUser', userData?.redemptionPerUser);
-            setValue('totalRedemptions', userData?.totalRedemptions);
-
-            setValue('services', userData?.applicableServices || []);
-            setValue('serviceCategories', userData?.applicableServiceCategories || []);
-            setValue('products', userData?.applicableProducts || []);
-            setValue('productCategories', userData?.applicableProductCategories || []);
-            setValue('productSubcategories', userData?.applicableProductSubcategories || []);
-        } else if (!edit) {
-            reset();
+        if (edit && userData && open) {
+            reset({
+                couponName: userData?.couponName || '',
+                couponCode: userData?.couponCode || '',
+                couponType: userData?.couponType || '',
+                applicableType: userData?.applicableType || '',
+                discountIn: userData?.discountIn || '',
+                discount: userData?.discount || '',
+                activationDate: userData?.activationDate?.split('T')[0] || '',
+                expiryDate: userData?.expiryDate?.split('T')[0] || '',
+                redemptionPerUser: userData?.redemptionPerUser || '',
+                totalRedemptions: userData?.totalRedemptions || '',
+                services: userData?.applicableServices || [],
+                serviceCategories: userData?.applicableServiceCategories || [],
+                products: userData?.applicableProducts || [],
+                productCategories: userData?.applicableProductCategories || [],
+                productSubcategories: userData?.applicableProductSubcategories || []
+            });
         }
-    }, [edit, userData, open, reset, setValue, services, serviceCategories, allProducts, productCategories, productSubcategories]);
+    }, [edit, userData, open, reset]);
 
     return (
         <>

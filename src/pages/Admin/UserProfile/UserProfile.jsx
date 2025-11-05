@@ -99,7 +99,14 @@ const AdminProfile = () => {
                 if (response?.success) {
                     toast.success('Profile updated successfully!');
                     setIsEditing(false);
-                    dispatch(setUserDetails(response?.data?.user))
+                    const updatedUser = {
+                        ...user,
+                        ...response?.data,
+                        ...response?.data?.profile,
+                        _id: user._id,
+                        role: user.role
+                    };
+                    dispatch(setUserDetails(updatedUser))
                     setLoading(false);
                 } else {
                     toast.error(response?.message || 'Failed to update profile');
@@ -111,7 +118,14 @@ const AdminProfile = () => {
                 if (response?.success) {
                     toast.success('Profile updated successfully!');
                     setIsEditing(false);
-                    dispatch(setUserDetails(response?.data?.user))
+                    const updatedUser = {
+                        ...user,
+                        ...response?.data,
+                        ...response?.data?.profile,
+                        _id: user._id,
+                        role: user.role
+                    };
+                    dispatch(setUserDetails(updatedUser))
                     setLoading(false);
                 } else {
                     toast.error(response?.message || 'Failed to update profile');

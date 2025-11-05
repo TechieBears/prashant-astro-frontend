@@ -2107,7 +2107,7 @@ export const astrologerSlots = async (sdate, edate, astrologerId) => {
 };
 
 export const getSingleServiceOrder = async (orderId) => {
-    const url = `${environment.baseUrl}service-order/order/get-single?id=${orderId}`;
+    const url = `${environment.baseUrl}service-order/public/get-single?id=${orderId}`;
     try {
         const response = await axios.get(url);
         return response.data;

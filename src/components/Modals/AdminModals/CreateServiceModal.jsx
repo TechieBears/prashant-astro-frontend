@@ -121,7 +121,15 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
         }
 
         <Transition appear show={open} as={Fragment}>
-            <Dialog as="div" className="relative z-[1000]" onClose={() => toggle()}>
+            <Dialog as="div" className="relative z-[1000]" onClose={(value) => {
+                // Prevent closing when clicking on JoditEditor elements
+                const joditElements = document.querySelectorAll('.jodit-container, .jodit-toolbar, .jodit-workplace, .jodit-popup, .jodit-dialog');
+                const clickedOnJodit = Array.from(joditElements).some(el => el.contains(document.activeElement) || el.contains(event?.target));
+                
+                if (!clickedOnJodit) {
+                    toggle();
+                }
+            }}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"

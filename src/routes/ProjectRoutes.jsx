@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from '../components/Sidebar/Sidebar';
 import Dashboard from '../pages/Admin/Dashboard/Dashboard';
 import { useSelector } from 'react-redux';
@@ -54,10 +54,13 @@ import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 import ProtectedRoute from '../components/ProtectedRoute'
 import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
 import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
+import ZoomMeeting from '../pages/Meeting/ZoomMeeting';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
     const user = useSelector((state) => state.user.userDetails);
+    const location = useLocation();
+    const isMeetingPage = location.pathname === '/meeting';
 
     // const login = true;
     // const user = { user: { role: "admin" } };
@@ -256,7 +259,7 @@ const ProjectRoutes = () => {
             ) : (
                 <main className="flex flex-col min-h-screen">
                     <HomeNavbar />
-                    <div className="flex-1 pt-0 lg:pt-28">
+                    <div className={`flex-1 ${isMeetingPage ? 'pt-16' : 'pt-0 lg:pt-28'}`}>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/about" element={<AboutPage />} />
@@ -321,6 +324,7 @@ const ProjectRoutes = () => {
                                     </ProtectedRoute>
                                 }
                             />
+                            <Route path="/meeting" element={<ZoomMeeting />} />
 
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
