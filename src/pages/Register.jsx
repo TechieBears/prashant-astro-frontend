@@ -9,7 +9,7 @@ import TextInput from "../components/TextInput/TextInput";
 import SelectTextInput from "../components/TextInput/SelectTextInput";
 import LoadBox from "../components/Loader/LoadBox";
 import { registerUser } from "../api";
-import { loginSuccess, registerSuccess } from "../redux/Slices/loginSlice";
+import { loginSuccess, registerSuccess, setIsRegistered } from "../redux/Slices/loginSlice";
 import {
     validateEmail,
     validatePassword,
@@ -20,6 +20,7 @@ import { useCart } from "../hooks/useCart";
 
 const Register = () => {
     const [loader, setLoader] = useState(false);
+
     const {
         register,
         handleSubmit,
@@ -35,6 +36,7 @@ const Register = () => {
     const { fetchCartData } = useCart();
 
 
+
     const onSubmit = async (data) => {
         const playload = {
             ...data,
@@ -42,18 +44,24 @@ const Register = () => {
         };
         try {
             setLoader(true);
+            console.log('🚀 Before register API call - isRegistered: false');
             const response = await registerUser(playload);
 
             if (
                 response?.message === "User created successfully" ||
                 response?.success
             ) {
+
+                console.log('🔍 Registration Response:', response);
+                console.log('🔍 User Data Being Stored in Redux:', response.data.user);
+                console.log('🔍 Gender in Response:', response.data.user?.gender);
                 dispatch(registerSuccess(response));
                 dispatch(loginSuccess({
                     user: response.data.user,
                     token: response.data.token,
                     role: response.data.user.role
                 }));
+                dispatch(setIsRegistered(true));
                 try {
                     await fetchCartData();
                 } catch (error) {
@@ -258,24 +266,19 @@ const Register = () => {
                         >
                             Gender *
                         </label>
-                        <SelectTextInput
-                            label="Select Gender"
-                            placeholder="Select Gender"
-                            registerName="gender"
-                            options={[
-                                { value: "male", label: "Male" },
-                                { value: "female", label: "Female" },
-                                { value: "other", label: "Other" },
-                            ]}
-                            props={{
-                                ...register("gender", { required: "Gender is required" }),
-                                onChange: (e) => {
-                                    setValue("gender", e.target.value);
-                                },
-                                value: watch("gender") || "",
-                            }}
-                            errors={errors.gender}
-                        />
+                        <select
+                            id="gender"
+                            name="gender"
+                            defaultValue=""
+                            className={`h-[55px] w-full outline-none px-4 text-base font-tbLex text-black rounded-md bg-slate-100 border-[1.5px] ${errors.gender ? 'border-red-500' : 'border-transparent'}`}
+                            {...register("gender", { required: "Gender is required" })}
+                        >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Others</option>
+                        </select>
+                        {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
                     </div>
 
                     {/* Password */}
@@ -351,6 +354,7 @@ const Register = () => {
                     </p>
                 </div>
             </div>
+
         </div>
     );
 };

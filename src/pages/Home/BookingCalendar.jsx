@@ -741,24 +741,9 @@ const BookingCalendar = () => {
 
                                 {/* Address section - only show for "For Self" */}
                                 {watchedBookingType === 'self' && (
-                                    <div 
-                                        className="mt-6"
-                                        onClick={(e) => e.stopPropagation()}
-                                        onMouseDown={(e) => e.stopPropagation()}
-                                    >
+                                    <div className="mt-6">
                                         <h2 className="text-lg font-semibold mb-2">Address</h2>
-                                        <div 
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
-                                        >
-                                            <ServiceAddressSelector />
-                                        </div>
+                                        <ServiceAddressSelector />
                                     </div>
                                 )}
                             </div>

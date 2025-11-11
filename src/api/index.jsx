@@ -1772,11 +1772,11 @@ export const logoutUser = async () => {
     }
 };
 
-export const registerUser = async ({ title, firstName, lastName, email, password, mobileNo, registerType = "normal" }) => {
+export const registerUser = async (data) => {
     try {
         const response = await axios.post(
             `${environment.baseUrl}customer-users/register`,
-            { title, firstName, lastName, email, password, mobileNo, registerType },
+            data,
             { headers: { "Content-type": "application/json" } }
         );
         return response.data;
