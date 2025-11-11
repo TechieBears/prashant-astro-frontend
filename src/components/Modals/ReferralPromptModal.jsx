@@ -9,10 +9,10 @@ import { validateAlphabets } from '../../utils/validateFunction';
 import { X, CheckCircle, Gift, User, Phone, Users, CheckSquare, Square } from 'lucide-react';
 import LoadBox from '../Loader/LoadBox';
 import SelectTextInput from '../TextInput/SelectTextInput';
-import { setUserDetails } from '../../redux/Slices/loginSlice';
+import { setUserDetails, setIsRegistered } from '../../redux/Slices/loginSlice';
 
 
-function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
+function ReferralPromptModal({ open, toggle, forceProfileScreen = false, onModalClose }) {
     const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm({
         defaultValues: {
             firstName: '',
@@ -23,9 +23,13 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
         }
     });
     const user = useSelector(state => state.user.userDetails);
+    const isRegistered = useSelector(state => state.user.isRegistered);
+    console.log('🔍 Redux User Data:', user);
+    console.log('🔍 User Gender from Redux:', user?.gender);
+    console.log('🔍 isRegistered from Redux:', isRegistered);
     const dispatch = useDispatch();
     const [loader, setLoader] = useState(false);
-    const [showOnlyReferral, setShowOnlyReferral] = useState(false);
+    const [showOnlyReferral, setShowOnlyReferral] = useState(true);
     const [dontShowAgain, setDontShowAgain] = useState(false);
 
     const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
@@ -43,6 +47,8 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
             reset(formData);
             if (forceProfileScreen) {
                 setShowOnlyReferral(false);
+            } else {
+                setShowOnlyReferral(true);
             }
         }
     }, [open, user, reset, forceProfileScreen]);
@@ -79,21 +85,29 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
             if (res?.success) {
                 dispatch(setUserDetails(res?.data?.user || res?.data));
 
-                if (!showOnlyReferral) {
-                    console.log('Moving to referral screen');
-                    toast.success('Profile updated successfully! Now enter your referral code.');
-                    // Use setTimeout to ensure state change happens after render
-                    setTimeout(() => {
-                        setShowOnlyReferral(true);
-                    }, 100);
-                } else {
-                    // Referral submission - close modal
-                    console.log('Closing modal after referral submission');
-                    if (dontShowAgain) {
-                        localStorage.setItem(`dontShowReferralModal_${user?._id}`, 'true');
+                if (showOnlyReferral) {
+                    // Check if profile is complete, if yes, close modal directly
+                    if (isProfileComplete) {
+                        console.log('Profile already complete, closing modal');
+                        dispatch(setIsRegistered(false));
+                        onModalClose?.();
+                        toggle();
+                        toast.success('Referral code added successfully!');
+                        reset();
+                    } else {
+                        console.log('Moving to profile screen');
+                        toast.success('Referral code added! Now complete your profile.');
+                        setTimeout(() => {
+                            setShowOnlyReferral(false);
+                        }, 100);
                     }
+                } else {
+                    // Profile completion - close modal
+                    console.log('Closing modal after profile completion');
+                    dispatch(setIsRegistered(false));
+                    onModalClose?.();
                     toggle();
-                    toast.success(res?.message || 'Referral code added successfully!');
+                    toast.success('Profile completed successfully!');
                     reset();
                 }
             } else {
@@ -110,7 +124,7 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
 
     useEffect(() => {
         if (!open) {
-            setShowOnlyReferral(false);
+            setShowOnlyReferral(true);
             setDontShowAgain(false);
         }
     }, [open]);
@@ -120,6 +134,11 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
         const phoneRegex = /^[0-9]{10}$/;
         return phoneRegex.test(value) || 'Phone number must be 10 digits';
     };
+
+    // Don't show modal if isRegistered is false
+    if (!isRegistered) {
+        return null;
+    }
 
     return (
         <>
@@ -152,7 +171,11 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
                                     {/* Header */}
                                     <div className="relative bg-button-gradient-orange px-6 py-8">
                                         <button
-                                            onClick={toggle}
+                                            onClick={() => {
+                                                dispatch(setIsRegistered(false));
+                                                onModalClose?.();
+                                                toggle();
+                                            }}
                                             className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-all"
                                         >
                                             <X size={24} className="text-white" />
@@ -199,7 +222,44 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
                                         )}
 
                                         <form onSubmit={handleSubmit(formSubmit)}>
-                                            {!showOnlyReferral ? (
+                                            {showOnlyReferral ? (
+                                                // Referral Code First Screen
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                            <Gift size={16} className="inline mr-2 text-yellow-500" />
+                                                            Referral Code <span className="text-gray-400">(Optional)</span>
+                                                        </label>
+                                                        <TextInput
+                                                            placeholder="Enter a referral code to earn rewards"
+                                                            type="text"
+                                                            registerName="referralCode"
+                                                            props={{
+                                                                ...register('referralCode'),
+                                                                className: "w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary-light transition-all uppercase"
+                                                            }}
+                                                            errors={errors.referralCode}
+                                                        />
+                                                    </div>
+
+                                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setDontShowAgain(!dontShowAgain)}
+                                                            className="flex items-center gap-3 w-full text-left hover:bg-amber-100/50 p-2 rounded transition-colors"
+                                                        >
+                                                            {dontShowAgain ? (
+                                                                <CheckSquare size={20} className="text-primary flex-shrink-0" />
+                                                            ) : (
+                                                                <Square size={20} className="text-gray-400 flex-shrink-0" />
+                                                            )}
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                Don't show this again
+                                                            </span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
                                                 // Profile Completion Form
                                                 <div className="space-y-6">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -303,50 +363,6 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
                                                         </p>
                                                     </div>
                                                 </div>
-                                            ) : (
-                                                // Referral Code Only Form
-                                                <div className="space-y-6">
-                                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded">
-                                                        <p className="text-sm text-green-900 font-semibold">
-                                                            <CheckCircle size={16} className="inline mr-2 text-green-500" />
-                                                            Your profile is complete!
-                                                        </p>
-                                                    </div>
-
-                                                    <div>
-                                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                            <Gift size={16} className="inline mr-2 text-yellow-500" />
-                                                            Referral Code <span className="text-gray-400">(Optional)</span>
-                                                        </label>
-                                                        <TextInput
-                                                            placeholder="Enter a referral code to earn rewards"
-                                                            type="text"
-                                                            registerName="referralCode"
-                                                            props={{
-                                                                ...register('referralCode'),
-                                                                className: "w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary-light transition-all uppercase"
-                                                            }}
-                                                            errors={errors.referralCode}
-                                                        />
-                                                    </div>
-
-                                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setDontShowAgain(!dontShowAgain)}
-                                                            className="flex items-center gap-3 w-full text-left hover:bg-amber-100/50 p-2 rounded transition-colors"
-                                                        >
-                                                            {dontShowAgain ? (
-                                                                <CheckSquare size={20} className="text-primary flex-shrink-0" />
-                                                            ) : (
-                                                                <Square size={20} className="text-gray-400 flex-shrink-0" />
-                                                            )}
-                                                            <span className="text-sm font-medium text-gray-700">
-                                                                Don't show this again
-                                                            </span>
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             )}
 
                                             <div className="flex gap-3 pt-10">
@@ -356,6 +372,8 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
                                                         if (showOnlyReferral && dontShowAgain) {
                                                             localStorage.setItem(`dontShowReferralModal_${user?._id}`, 'true');
                                                         }
+                                                        dispatch(setIsRegistered(false));
+                                                        onModalClose?.();
                                                         toggle();
                                                     }}
                                                     className="flex-1 px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
@@ -369,14 +387,14 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false }) {
                                                 ) : (
                                                     <button
                                                         type='submit'
-                                                        disabled={showOnlyReferral && !watch('referralCode')?.trim()}
+                                                        disabled={showOnlyReferral && !watch('referralCode')?.trim() && !isProfileComplete}
                                                         className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all shadow-md ${
                                                             showOnlyReferral && !watch('referralCode')?.trim()
                                                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                                                 : 'text-white bg-button-gradient-orange hover:opacity-90 hover:shadow-lg active:scale-95 cursor-pointer'
                                                         }`}
                                                     >
-                                                        {showOnlyReferral ? 'Submit' : 'Complete Profile'}
+                                                        {showOnlyReferral ? 'Continue' : 'Complete Profile'}
                                                     </button>
                                                 )}
                                             </div>
