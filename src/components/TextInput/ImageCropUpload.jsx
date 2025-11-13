@@ -122,11 +122,14 @@ const ImageCropUpload = ({
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
 
-        if (!crop || !canvas || !ctx) return;
+        if (!crop || !canvas || !ctx || crop.width === 0 || crop.height === 0) {
+            console.error('Invalid crop parameters');
+            return Promise.resolve(null);
+        }
 
         const scaleX = image.naturalWidth / image.width;
         const scaleY = image.naturalHeight / image.height;
-        const pixelRatio = window.devicePixelRatio;
+        const pixelRatio = window.devicePixelRatio || 1;
 
         canvas.width = crop.width * pixelRatio;
         canvas.height = crop.height * pixelRatio;
@@ -147,16 +150,31 @@ const ImageCropUpload = ({
         );
 
         return new Promise((resolve) => {
-            canvas.toBlob(resolve, "image/jpeg", 0.9);
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    console.error('Canvas toBlob failed');
+                    resolve(null);
+                } else {
+                    resolve(blob);
+                }
+            }, "image/jpeg", 0.9);
         });
     }, []);
 
     const handleCropComplete = async () => {
-        if (!completedCrop || !imgRef.current) return;
+        const currentCrop = completedCrop || crop;
+        if (!currentCrop || !imgRef.current || currentCrop.width === 0 || currentCrop.height === 0) {
+            console.error('Invalid crop dimensions');
+            return;
+        }
 
         setIsUploading(true);
         try {
-            const croppedBlob = await getCroppedImg(imgRef.current, completedCrop);
+            const croppedBlob = await getCroppedImg(imgRef.current, currentCrop);
+            if (!croppedBlob) {
+                throw new Error('Failed to create cropped image');
+            }
+            
             const croppedFile = new File([croppedBlob], selectedImage.name, {
                 type: "image/jpeg",
             });
@@ -360,8 +378,8 @@ const ImageCropUpload = ({
                                         <button
                                             type="button"
                                             onClick={handleCropComplete}
-                                            disabled={isUploading}
-                                            className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 disabled:opacity-50"
+                                            disabled={isUploading || !selectedImage}
+                                            className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isUploading ? "Uploading..." : "Crop & Upload"}
                                         </button>
