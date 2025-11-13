@@ -247,26 +247,38 @@ function TestimonialModal({ open, setOpen }) {
                                         {/* Write Testimonials For */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Write Testimonials for (Optional)
+                                                Write Testimonials for <span className="text-red-500">*</span>
                                             </label>
                                             <select
-                                                {...register('testimonial_for')}
+                                                {...register('testimonial_for', {
+                                                    required: 'Please select what you want to write testimonials for'
+                                                })}
                                                 className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                                             >
                                                 <option value="">-- Select Type --</option>
                                                 <option value="service">Service</option>
                                                 <option value="product">Product</option>
                                             </select>
+                                            {errors.testimonial_for && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.testimonial_for.message}</p>
+                                            )}
                                         </div>
 
                                         {/* Service Selection - Show only if 'service' is selected */}
                                         {testimonialFor === 'service' && (
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Select Service
+                                                    Select Service <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    {...register('service_id')}
+                                                    {...register('service_id', {
+                                                        validate: (value) => {
+                                                            if (testimonialFor === 'service' && !value) {
+                                                                return 'Please select a service';
+                                                            }
+                                                            return true;
+                                                        }
+                                                    })}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                                                 >
                                                     <option value="">-- Select a Service --</option>
@@ -276,6 +288,9 @@ function TestimonialModal({ open, setOpen }) {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {errors.service_id && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.service_id.message}</p>
+                                                )}
                                             </div>
                                         )}
 
@@ -283,10 +298,17 @@ function TestimonialModal({ open, setOpen }) {
                                         {testimonialFor === 'product' && (
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Select Product
+                                                    Select Product <span className="text-red-500">*</span>
                                                 </label>
                                                 <select
-                                                    {...register('product_id')}
+                                                    {...register('product_id', {
+                                                        validate: (value) => {
+                                                            if (testimonialFor === 'product' && !value) {
+                                                                return 'Please select a product';
+                                                            }
+                                                            return true;
+                                                        }
+                                                    })}
                                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
                                                 >
                                                     <option value="">-- Select a Product --</option>
@@ -296,6 +318,9 @@ function TestimonialModal({ open, setOpen }) {
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {errors.product_id && (
+                                                    <p className="mt-1 text-sm text-red-600">{errors.product_id.message}</p>
+                                                )}
                                             </div>
                                         )}
 

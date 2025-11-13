@@ -32,6 +32,7 @@ import aboutusElement from '../../assets/elements/aboutusEl.svg'
 import omElement from '../../assets/elements/om.svg'
 import whyChooseElement from '../../assets/elements/whychooseEl.svg'
 import servicesElement from '../../assets/elements/servicesEl.svg'
+import ReferralPromptModal from "../../components/Modals/ReferralPromptModal";
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -44,6 +45,25 @@ const HomePage = () => {
     const [productsLoading, setProductsLoading] = useState(true);
     const [servicesData, setServicesData] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(true);
+    const [open, setOpen] = useState(false);
+    const user = useSelector(state => state.user.userDetails);
+
+    const toggle = () => setOpen(!open);
+
+    // Auto-show modal when user logs in
+    useEffect(() => {
+        if (isLogged && user) {
+            const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
+            const dontShow = localStorage.getItem(`dontShowReferralModal_${user._id}`);
+            
+            // Only show modal if profile is incomplete OR if profile is complete but user hasn't opted out of referral modal
+            if (!isProfileComplete || (!dontShow && isProfileComplete)) {
+                setOpen(true);
+            }
+        }
+    }, [isLogged, user]);
+
+    const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
 
     useEffect(() => {
         const fetchSlides = async () => {
@@ -764,6 +784,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </section>
+            {isLogged && <ReferralPromptModal open={open} toggle={toggle} forceProfileScreen={!isProfileComplete} />}
         </div>
     );
 };

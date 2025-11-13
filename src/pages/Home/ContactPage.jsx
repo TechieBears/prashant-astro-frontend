@@ -230,7 +230,7 @@ const ContactPage = () => {
                                         {...register("subject", { required: "Subject is required" })}
                                         className={`w-full px-4 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors ${errors.subject ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'}`}
                                     >
-                                        <option value="" disabled>Select a subject</option>
+                                        <option value="" disabled selected>Select a subject</option>
                                         <option value="Feedback">Feedback</option>
                                         <option value="Complaint">Complaint</option>
                                         <option value="Other">Other</option>

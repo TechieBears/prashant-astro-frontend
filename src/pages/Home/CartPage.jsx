@@ -70,6 +70,7 @@ const CartPage = () => {
     const [pendingUpdates, setPendingUpdates] = useState({});
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedServiceForEdit, setSelectedServiceForEdit] = useState(null);
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
 
     const debounceTimeouts = useRef({});
 
@@ -321,8 +322,11 @@ const CartPage = () => {
 
             const serviceOrderData = transformServiceCartToOrderData(
                 serviceCartItems,
-                requiresAddress ? defaultAddress._id : null
+                requiresAddress ? defaultAddress._id : null,
+                appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
             );
+
+            console.log('Service Order Data:', JSON.stringify(serviceOrderData, null, 2));
 
             // Set loading state
             setIsCreatingOrder(true);
@@ -363,7 +367,7 @@ const CartPage = () => {
         } finally {
             setIsCreatingOrder(false);
         }
-    }, [serviceCartItems, defaultAddress, navigate]);
+    }, [serviceCartItems, defaultAddress, navigate, appliedCoupon]);
 
     const handleProductsCheckout = useCallback(async () => {
         try {
@@ -385,7 +389,8 @@ const CartPage = () => {
                 paymentDetails: {
                     status: 'SUCCESS',
                     paidAt: new Date().toISOString()
-                }
+                },
+                couponId: appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
             });
 
             // Set loading state
@@ -396,6 +401,7 @@ const CartPage = () => {
             const response = await createProductOrder(orderData);
 
             if (response.success) {
+                setAppliedCoupon(null);
                 toast.dismiss();
                 toast.success('Product order created successfully!');
 
@@ -429,7 +435,7 @@ const CartPage = () => {
         } finally {
             setIsCreatingOrder(false);
         }
-    }, [cartItems, defaultAddress, navigate]);
+    }, [cartItems, defaultAddress, navigate, appliedCoupon]);
 
     // Memoized tab component
     const TabComponent = useMemo(() => {
@@ -523,6 +529,8 @@ const CartPage = () => {
                             isRemoving={isRemovingItem}
                             isCreatingOrder={isCreatingOrder}
                             activeTab={activeTab}
+                            appliedCoupon={appliedCoupon}
+                            onApplyCoupon={setAppliedCoupon}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -544,6 +552,8 @@ const CartPage = () => {
                         isRemoving={isRemovingItem}
                         isCreatingOrder={isCreatingOrder}
                         activeTab={activeTab}
+                        appliedCoupon={appliedCoupon}
+                        onApplyCoupon={setAppliedCoupon}
                     />
                 )}
             </div>

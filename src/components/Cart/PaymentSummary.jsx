@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import AddressSelector from '../Address/AddressSelector';
 import { useAddress } from '../../context/AddressContext';
 import UserCouponModal from '../Modals/CouponModal/UserCouponModal';
-import { getUserCoupons } from '../../api';
+import { getUserCoupons, applyProductCoupon, applyServiceCoupon } from '../../api';
+
+
 const PaymentSummary = ({
     itemCount = 0,
     subtotal = 0,
@@ -11,13 +13,20 @@ const PaymentSummary = ({
     buttonText = 'Continue to pay',
     onCheckout = () => { },
     isCreatingOrder = false,
-    activeTab
+    activeTab,
+    serviceIds = [],
+    appliedCoupon,
+    onApplyCoupon,
+    cartItems = []
 }) => {
     const { defaultAddress } = useAddress();
 
     const [showCouponModal, setShowCouponModal] = useState(false);
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [coupons, setCoupons] = useState([]);
+
+    // Extract product IDs for coupon API
+    const productIdsForCoupon = cartItems.map(item => item.productId || item._id || item.id);
+
 
     useEffect(() => {
         const fetchCoupons = async () => {
@@ -65,7 +74,7 @@ const PaymentSummary = ({
                         <div className="text-sm text-green-700">
                             Applied: <strong>{appliedCoupon.couponName}</strong> - {appliedCoupon.couponCode}
                             <button
-                                onClick={() => setAppliedCoupon(null)}
+                                onClick={() => onApplyCoupon(null)}
                                 className="ml-2 text-red-500 underline text-xs"
                             >
                                 Remove
@@ -114,17 +123,19 @@ const PaymentSummary = ({
                     </div>
                 </div>
 
-                {/* Address Selection */}
-                <div className="mb-4">
-                    <h4 className="font-medium text-gray-900 text-sm md:text-base mb-2">Delivery Address</h4>
-                    <AddressSelector />
-                </div>
+                {/* Address Selection - Only for products */}
+                {activeTab === 'products' && (
+                    <div className="mb-4">
+                        <h4 className="font-medium text-gray-900 text-sm md:text-base mb-2">Delivery Address</h4>
+                        <AddressSelector />
+                    </div>
+                )}
 
                 {/* Continue to Pay Button */}
                 <button
                     onClick={onCheckout}
-                    disabled={isCreatingOrder || !defaultAddress}
-                    className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium transition-opacity shadow-md text-sm md:text-base ${isCreatingOrder || !defaultAddress
+                    disabled={isCreatingOrder || (activeTab === 'products' && !defaultAddress)}
+                    className={`w-full py-2.5 md:py-3 px-4 md:px-6 rounded-sm font-medium transition-opacity shadow-md text-sm md:text-base ${isCreatingOrder || (activeTab === 'products' && !defaultAddress)
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                         : 'bg-button-diagonal-gradient-orange text-white hover:opacity-90'
                         }`}
@@ -144,9 +155,12 @@ const PaymentSummary = ({
             {showCouponModal && (
                 <UserCouponModal
                     onClose={() => setShowCouponModal(false)}
-                    onApply={setAppliedCoupon}
+                    onApply={onApplyCoupon}
                     coupons={coupons}
                     amount={subtotal}
+                    serviceIds={serviceIds}
+                    products={activeTab === 'products' ? productIdsForCoupon : []}
+                    applyFn={activeTab === 'products' ? applyProductCoupon : applyServiceCoupon}
                 />
             )}
         </div>

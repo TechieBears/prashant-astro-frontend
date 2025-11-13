@@ -1,7 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { validateAlphabets } from '../../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import { editBanner } from '../../../../api';
@@ -12,7 +11,7 @@ import TextInput from '../../../TextInput/TextInput';
 import SelectTextInput from '../../../TextInput/SelectTextInput';
 import CustomTextArea from '../../../TextInput/CustomTextArea';
 import { TableTitle } from '../../../../helper/Helper';
-import ImageUploadInput from '../../../TextInput/ImageUploadInput';
+import ImageCropUpload from '../../../../components/TextInput/ImageCropUpload';
 
 function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
@@ -123,7 +122,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                         >
                                                             Banner Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
-                                                        <ImageUploadInput
+                                                        <ImageCropUpload
                                                             label="Upload Banner Image"
                                                             multiple={false}
                                                             registerName="image"
@@ -133,6 +132,9 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             setValue={setValue}
                                                             control={control}
                                                             defaultValue={userData?.image}
+                                                            cropAspectRatio={1}
+                                                            cropHeight={250}
+                                                            cropWidth={600}
                                                         />
 
                                                     </div>
@@ -201,7 +203,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Position <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            Position (Number)<span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
                                                         <TextInput
                                                             label="Enter Position"

@@ -95,18 +95,16 @@ const AllServices = () => {
     );
 
     const serviceTypeBody = (row) => {
-        const typeColors = {
-            'online': 'bg-blue-100 text-blue-800',
-            'pooja_at_home': 'bg-green-100 text-green-800',
-            'pandit_center': 'bg-purple-100 text-purple-800'
-        };
-        const displayType = row?.serviceType?.replace(/_/g, ' ') || "---- -----";
-        const colorClass = typeColors[row?.serviceType] || 'bg-gray-100 text-gray-800';
-
         return (
-            <span className={`px-4 py-2 rounded-full text-xs font-tbLex tracking-tight font-medium capitalize ${colorClass}`}>
-                {displayType}
-            </span>
+            <div className="space-y-1">
+                <div className="flex flex-wrap gap-1">
+                    {row?.serviceType?.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full capitalize">
+                            {skill}
+                        </span>
+                    ))}
+                </div>
+            </div>
         );
     };
 

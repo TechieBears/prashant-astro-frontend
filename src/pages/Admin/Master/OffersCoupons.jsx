@@ -21,6 +21,7 @@ function OffersCoupons() {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+
     const combinedFilters = useMemo(() => ({
         ...filterCriteria,
         refresh: refreshTrigger

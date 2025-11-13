@@ -269,7 +269,7 @@ const Employees = () => {
             header: 'Profile',
             body: profileImageBody,
             style: true,
-            sortable: false
+            sortable: true
         },
         {
             field: '_id',

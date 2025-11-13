@@ -343,6 +343,14 @@ body::-webkit-scrollbar-thumb {
     color: #000;
 }
 
+.text-p {
+    background: linear-gradient(to right, #EB5E3A, #FA944D, #FF3F3F, #EB5E3A);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.4s ease-in-out;
+}
+
 /* =============signin background ================== */
 /* .bgbackground {
     background: url('./assets/Background.png');

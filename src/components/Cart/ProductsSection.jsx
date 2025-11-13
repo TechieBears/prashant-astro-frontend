@@ -17,7 +17,9 @@ const ProductsSection = ({
     isUpdating = false,
     isRemoving = null,
     isCreatingOrder = false,
-    activeTab
+    activeTab,
+    appliedCoupon,
+    onApplyCoupon
 }) => {
     const navigate = useNavigate();
 
@@ -105,6 +107,9 @@ const ProductsSection = ({
                             onCheckout={onCheckout}
                             isCreatingOrder={isCreatingOrder}
                             activeTab={activeTab}
+                            appliedCoupon={appliedCoupon}
+                            onApplyCoupon={onApplyCoupon}
+                            cartItems={cartItems}
                         />
                     </div>
                 </div>

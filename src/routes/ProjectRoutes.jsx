@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from '../components/Sidebar/Sidebar';
 import Dashboard from '../pages/Admin/Dashboard/Dashboard';
 import { useSelector } from 'react-redux';
@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import HomePage from '../pages/Home/HomePage';
 import ServicesPage from '../pages/Home/ServicesPage';
 import ServiceDetail from '../pages/Home/ServiceDetail';
-import BookingCalendar from '../pages/Home/BookingCalendar';
+import BookingCalendarUser from '../pages/Home/BookingCalendar';
 import ProductsPage from '../pages/Home/ProductsPage';
 import HomeNavbar from '../components/HomeComponents/HomeNavbar';
 import ErrorPage from './ErrorPage';
@@ -53,12 +53,14 @@ import CustomerFeedback from '../pages/Admin/CustomerFeedback/CustomerFeedback';
 import AdminProfile from '../pages/Admin/UserProfile/UserProfile';
 import ProtectedRoute from '../components/ProtectedRoute'
 import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
+import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
+import ZoomMeeting from '../pages/Meeting/ZoomMeeting';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
-    const login = useSelector(state => state.user.isLogged);
-    const userDetails = useSelector(state => state.user.userDetails);
-    const role = userDetails?.role;
+    const user = useSelector((state) => state.user.userDetails);
+    const location = useLocation();
+    const isMeetingPage = location.pathname === '/meeting';
 
     // const login = true;
     // const user = { user: { role: "admin" } };
@@ -82,85 +84,6 @@ const ProjectRoutes = () => {
         };
     }, []);
 
-    // ====== Derived booleans & shared UI blocks ======
-    const isAdminOrEmployee = !!(login && role && (role === "admin" || role === "superadmin" || role === "employee" || role === "astrologer"));
-
-    const PublicSite = () => (
-        <main className="flex flex-col min-h-screen">
-            <HomeNavbar />
-            <div className="flex-1 pt-0 lg:pt-28">
-                <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/products" element={<ProductsPage />} />
-                    <Route path="/products/:id" element={<ProductDetail />} />
-                    <Route
-                        path="/cart"
-                        element={
-                            <ProtectedRoute>
-                                <AddressProvider>
-                                    <CartPage />
-                                </AddressProvider>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route
-                        path="/buy-now"
-                        element={
-                            <ProtectedRoute>
-                                <AddressProvider>
-                                    <BuyNowPage />
-                                </AddressProvider>
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/services/:id" element={<ServiceDetail />} />
-                    <Route path="/booking-calendar/:id" element={<BookingCalendar />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/forget-password" element={<ForgetPassword />} />
-                    <Route path="/password/reset/:token" element={<ResetPassword />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/profile" element={
-                        <ProtectedRoute>
-                            <AddressProvider>
-                                <ProfileLayout />
-                            </AddressProvider>
-                        </ProtectedRoute>
-                    }>
-                        <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
-                        <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
-                        <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-                        <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
-                        <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
-                    </Route>
-                    <Route path="/terms-conditions" element={<TermsConditions />} />
-                    <Route
-                        path="/payment-success"
-                        element={
-                            <ProtectedRoute>
-                                <PaymentSuccess />
-                            </ProtectedRoute>
-                        }
-                    />
-
-                    <Route path='*' element={<ErrorPage />} />
-                </Routes>
-            </div>
-            <HomeFooter />
-            <a
-                href={`https://wa.me/${8693000900}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
-            >
-                <WhatsappIcon size={30} />
-            </a>
-        </main>
-    );
 
     return (
         <div className='min-h-screen transition-all duration-300'>
@@ -168,15 +91,13 @@ const ProjectRoutes = () => {
                 <div className="relative">
                     <Preloaders />
                 </div>
-            ) : isAdminOrEmployee ? (
+            ) : user?.role == "admin" || user?.role == "employee" || user?.role == "astrologer" ? (
                 <Sidebar>
                     <Routes>
                         <Route
                             path="/"
                             element={
-                                <ProtectedRoute>
-                                    <Dashboard />
-                                </ProtectedRoute>
+                                <Dashboard />
                             }
                         />
                         <Route
@@ -336,7 +257,88 @@ const ProjectRoutes = () => {
                 </Sidebar>
 
             ) : (
-                <PublicSite />
+                <main className="flex flex-col min-h-screen">
+                    <HomeNavbar />
+                    <div className={`flex-1 ${isMeetingPage ? 'pt-16' : 'pt-0 lg:pt-28'}`}>
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/products" element={<ProductsPage />} />
+                            <Route path="/products/:id" element={<ProductDetail />} />
+                            <Route
+                                path="/cart"
+                                element={
+                                    <ProtectedRoute>
+                                        <AddressProvider>
+                                            <CartPage />
+                                        </AddressProvider>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route
+                                path="/buy-now"
+                                element={
+                                    <ProtectedRoute>
+                                        <AddressProvider>
+                                            <BuyNowPage />
+                                        </AddressProvider>
+                                    </ProtectedRoute>
+                                }
+                            />
+
+                            <Route path="/services" element={<ServicesPage />} />
+                            <Route path="/services/:id" element={<ServiceDetail />} />
+                            <Route path="/booking-calendar/:id" element={
+                                <ProtectedRoute>
+                                    <AddressProvider>
+                                        <BookingCalendarUser />
+                                    </AddressProvider>
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/forget-password" element={<ForgetPassword />} />
+                            <Route path="/password/reset/:token" element={<ResetPassword />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/profile" element={
+                                <ProtectedRoute>
+                                    <AddressProvider>
+                                        <ProfileLayout />
+                                    </AddressProvider>
+                                </ProtectedRoute>
+                            }>
+                                <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+                                <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
+                                <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                                <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
+                                <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
+                                <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
+                            </Route>
+                            <Route path="/terms-conditions" element={<TermsConditions />} />
+                            <Route
+                                path="/payment-success"
+                                element={
+                                    <ProtectedRoute>
+                                        <PaymentSuccess />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route path="/meeting" element={<ZoomMeeting />} />
+
+                            <Route path='*' element={<ErrorPage />} />
+                        </Routes>
+                    </div>
+                    <HomeFooter />
+                    <a
+                        href={`https://wa.me/${8693000900}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
+                    >
+                        <WhatsappIcon size={30} />
+                    </a>
+                </main>
             )}
 
         </div>

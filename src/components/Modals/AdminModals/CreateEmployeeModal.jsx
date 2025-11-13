@@ -11,8 +11,9 @@ import { addEmployee, editEmployee, getPublicServicesDropdown } from '../../../a
 import { TableTitle } from '../../../helper/Helper';
 import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 import { Controller } from 'react-hook-form';
-import ImageUploadInput from '../../TextInput/ImageUploadInput';
+// import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
+import ImageCropUpload from '../../TextInput/ImageCropUpload';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, setValue, formState: { errors } } = useForm();
@@ -213,7 +214,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     >
                                                         Employee Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
-                                                    <ImageUploadInput
+                                                    <ImageCropUpload
                                                         label="Upload Employee Image"
                                                         multiple={false}
                                                         registerName="profileImage"
@@ -223,6 +224,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         setValue={setValue}
                                                         control={control}
                                                         defaultValue={userData?.profileImage}
+                                                        cropAspectRatio={1}
+                                                        cropHeight={400}
+                                                        cropWidth={400}
                                                     />
                                                 </div>
                                                 <div className="">

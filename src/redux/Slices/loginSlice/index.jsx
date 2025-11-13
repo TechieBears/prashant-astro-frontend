@@ -8,7 +8,8 @@ const initialState = {
     userDetails: {},
     loading: false,
     error: null,
-    message: null
+    message: null,
+    isRegistered: false
 }
 
 const loginSlice = createSlice({
@@ -111,6 +112,10 @@ const loginSlice = createSlice({
 
         setUserDetails: (state, action) => {
             state.userDetails = action.payload;
+        },
+
+        setIsRegistered: (state, action) => {
+            state.isRegistered = action.payload;
         }
     }
 })
@@ -130,7 +135,8 @@ export const {
     setRoleIs,
     setLoggedUserDetails,
     setRegisterFormDetails,
-    setUserDetails
+    setUserDetails,
+    setIsRegistered
 } = loginSlice.actions;
 
 export default loginSlice.reducer;

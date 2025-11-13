@@ -25,11 +25,13 @@ const MyAccount = () => {
             lastName: "",
             email: "",
             phone: "",
+            gender: "",
             profileImage: null
         }
     });
 
     const title = watch("title");
+    const gender = watch("gender");
     const profileImage = watch("profileImage");
 
     useEffect(() => {
@@ -42,6 +44,7 @@ const MyAccount = () => {
                 setValue("lastName", userData.lastName || "");
                 setValue("email", userData.email || "");
                 setValue("phone", userData.mobileNo || userData.phone || "");
+                setValue("gender", userData.gender || "");
             }
         }
     }, [userDetails, loggedUserDetails, setValue]);
@@ -70,6 +73,7 @@ const MyAccount = () => {
                 lastName: data.lastName,
                 email: data.email,
                 mobileNo: data.phone,
+                gender: data.gender,
                 isActive: true
             };
 
@@ -223,6 +227,22 @@ const MyAccount = () => {
                         />
                         {errors.phone && (
                             <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+                        )}
+                    </div>
+
+                    <div>
+                        <label className="block mb-1 font-medium text-sm">Gender</label>
+                        <select
+                            className={`w-full rounded-lg px-3 py-2 focus:outline-none bg-[#F8FAFC] h-12 text-base ${errors.gender ? "border border-red-500" : ""}`}
+                            {...register("gender", { required: "Gender is required" })}
+                        >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Others</option>
+                        </select>
+                        {errors.gender && (
+                            <p className="text-red-500 text-xs mt-1">{errors.gender.message}</p>
                         )}
                     </div>
 

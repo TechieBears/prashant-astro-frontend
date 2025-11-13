@@ -6,7 +6,7 @@ import LoadBox from '../../Loader/LoadBox';
 import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
-import ImageUploadInput from '../../TextInput/ImageUploadInput';
+import ImageCropUpload from '../../../components/TextInput/ImageCropUpload';
 import { addProductCategory, editProductCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
@@ -132,7 +132,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                         >
                                                             Category Image <span className="text-red-500 text-xs font-tbLex">*</span>
                                                         </h4>
-                                                        <ImageUploadInput
+                                                        <ImageCropUpload
                                                             label="Upload Category Image"
                                                             multiple={false}
                                                             registerName="image"
@@ -142,6 +142,9 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                                                             register={register}
                                                             setValue={setValue}
                                                             control={control}
+                                                            cropAspectRatio={1}
+                                                            cropWidth={300}
+                                                            cropHeight={300}
                                                         />
 
                                                     </div>

@@ -225,18 +225,18 @@ const ServiceDetail = () => {
                     {/* Right Column - Service Details */}
                     <div className="lg:col-span-2">
                         {/* Service Image and Book Your Session - Side by Side */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6 items-start">
+                        <div className="flex flex-col md:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
                             {/* Main Service Image */}
-                            <div style={{ height: cardHeight ? `${cardHeight}px` : 'auto' }}>
+                            <div className="w-full md:w-[230px] lg:w-[280px] xl:w-[320px] flex-shrink-0 h-fit">
                                 <img
                                     src={selectedService.image}
                                     alt={selectedService.name}
-                                    className="w-full h-full object-cover rounded-lg shadow-lg"
+                                    className="w-full h-auto max-h-[300px] object-cover rounded-lg shadow-lg"
                                 />
                             </div>
 
                             {/* Book Your Session Card */}
-                            <div ref={cardRef} className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6 flex flex-col justify-center">
+                            <div ref={cardRef} className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6 flex-1 min-w-0">
                                 <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 bg-button-gradient-orange bg-clip-text text-transparent">
                                     Book Your Session
                                 </h2>
