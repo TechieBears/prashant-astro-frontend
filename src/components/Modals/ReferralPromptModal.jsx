@@ -24,9 +24,6 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false, onModal
     });
     const user = useSelector(state => state.user.userDetails);
     const isRegistered = useSelector(state => state.user.isRegistered);
-    console.log('🔍 Redux User Data:', user);
-    console.log('🔍 User Gender from Redux:', user?.gender);
-    console.log('🔍 isRegistered from Redux:', isRegistered);
     const dispatch = useDispatch();
     const [loader, setLoader] = useState(false);
     const [showOnlyReferral, setShowOnlyReferral] = useState(true);
@@ -388,11 +385,10 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false, onModal
                                                     <button
                                                         type='submit'
                                                         disabled={showOnlyReferral && !watch('referralCode')?.trim() && !isProfileComplete}
-                                                        className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all shadow-md ${
-                                                            showOnlyReferral && !watch('referralCode')?.trim()
-                                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                                : 'text-white bg-button-gradient-orange hover:opacity-90 hover:shadow-lg active:scale-95 cursor-pointer'
-                                                        }`}
+                                                        className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all shadow-md ${showOnlyReferral && !watch('referralCode')?.trim()
+                                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                            : 'text-white bg-button-gradient-orange hover:opacity-90 hover:shadow-lg active:scale-95 cursor-pointer'
+                                                            }`}
                                                     >
                                                         {showOnlyReferral ? 'Continue' : 'Complete Profile'}
                                                     </button>
