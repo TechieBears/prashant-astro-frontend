@@ -55,6 +55,9 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
 import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
 import ZoomMeeting from '../pages/Meeting/ZoomMeeting';
+import TalkWithAstrologer from '../pages/Home/TalkWithAstrologer';
+import AstrologerDetail from '../pages/Home/AstrologerDetail';
+import Wallet from '../pages/Wallet/Wallet';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -265,6 +268,9 @@ const ProjectRoutes = () => {
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/contact" element={<ContactPage />} />
                             <Route path="/products" element={<ProductsPage />} />
+                            <Route path="/talk-with-astrologer" element={<TalkWithAstrologer />} />
+                            <Route path="/astrologer/:id" element={<AstrologerDetail />} />
+                            <Route path="/wallet" element={<Wallet />} />
                             <Route path="/products/:id" element={<ProductDetail />} />
                             <Route
                                 path="/cart"

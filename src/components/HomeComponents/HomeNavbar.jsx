@@ -34,7 +34,7 @@ const HomeNavbar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-    
+
     // Check if current page is meeting page
     const isMeetingPage = location.pathname === '/meeting';
 
@@ -70,6 +70,10 @@ const HomeNavbar = () => {
                 name: 'Products',
                 path: '/products',
                 dropdown: productsDropdown,
+            },
+            {
+                name: 'Talk With Astrologer',
+                path: '/talk-with-astrologer',
             },
             { name: 'Contact', path: '/contact' },
         ].filter(Boolean);
