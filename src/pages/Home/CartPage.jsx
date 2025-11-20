@@ -9,6 +9,7 @@ import ServicesSection from '../../components/Cart/ServicesSection';
 import ProductsSection from '../../components/Cart/ProductsSection';
 import EditServiceModal from '../../components/Modals/EditServiceModal';
 import Preloaders from '../../components/Loader/Preloaders';
+import Tabs from '../../components/Common/Tabs';
 import { createOrderData, transformServiceCartToOrderData } from '../../utils/orderUtils';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import {
@@ -439,36 +440,15 @@ const CartPage = () => {
 
     // Memoized tab component
     const TabComponent = useMemo(() => {
-        const tabProps = {
-            activeTab,
-            onTabChange: handleTabChange,
-            tabs: [
-                { id: 'services', label: 'Services' },
-                { id: 'products', label: 'Products' }
-            ]
-        };
-
         return (
-            <div className="flex bg-white rounded-full p-1 border border-gray-200 shadow-sm">
-                <button
-                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'services'
-                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                        : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    onClick={() => handleTabChange('services')}
-                >
-                    Services
-                </button>
-                <button
-                    className={`px-6 py-2 rounded-full transition-colors text-sm ${activeTab === 'products'
-                        ? 'bg-button-gradient-orange text-white hover:opacity-90'
-                        : 'text-gray-600 hover:bg-gray-50'
-                        }`}
-                    onClick={() => handleTabChange('products')}
-                >
-                    Products
-                </button>
-            </div>
+            <Tabs
+                tabs={[
+                    { id: 'services', label: 'Services' },
+                    { id: 'products', label: 'Products' }
+                ]}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+            />
         );
     }, [activeTab, handleTabChange]);
 
