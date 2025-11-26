@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { parseZoomUrl, buildWebClientUrl } from '../../utils/zoomUtils';
-import ZoomMeetingEmbed from '../../components/ZoomMeeting/ZoomMeetingEmbed';
+import { parseZoomUrl } from '../../utils/zoomUtils';
+import ZoomSDKEmbed from '../../components/ZoomMeeting/ZoomSDKEmbed';
 
 const ZoomMeeting = () => {
     const [searchParams] = useSearchParams();
@@ -16,11 +16,10 @@ const ZoomMeeting = () => {
         const userName = searchParams.get('userName') || 'Guest';
 
         if (zoomUrl) {
-            // Use the web client URL directly for iframe
-            const webClientUrl = buildWebClientUrl(zoomUrl);
+            // Parse Zoom URL for SDK
             const parsed = parseZoomUrl(zoomUrl);
             if (parsed.isValid) {
-                setMeetingData({ ...parsed, webClientUrl });
+                setMeetingData(parsed);
             } else {
                 setError('Invalid Zoom meeting URL');
             }
@@ -67,13 +66,14 @@ const ZoomMeeting = () => {
     }
 
     return (
-        <ZoomMeetingEmbed
-            meetingId={meetingData.meetingId}
-            password={meetingData.password}
-            userName={meetingData.userName}
-            webClientUrl={meetingData.webClientUrl}
-            onMeetingEnd={handleMeetingEnd}
-        />
+        <div className="w-full h-screen">
+            <ZoomSDKEmbed
+                key={meetingData.meetingId}
+                meetingNumber={meetingData.meetingId}
+                password={meetingData.password}
+                userName={meetingData.userName}
+            />
+        </div>
     );
 };
 
