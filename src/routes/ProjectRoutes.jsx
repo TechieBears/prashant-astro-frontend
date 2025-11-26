@@ -255,6 +255,7 @@ const ProjectRoutes = () => {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route path="/meeting" element={<ZoomMeeting />} />
                         <Route path="*" element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>

@@ -1,5 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TableTitle } from '../../../helper/Helper';
 import { Video, TickCircle, CloseCircle } from 'iconsax-reactjs';
 import moment from 'moment';
@@ -9,7 +10,7 @@ import { formBtn1 } from '../../../utils/CustomClass';
 import Preloaders from '../../Loader/Preloaders';
 
 function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
-
+    const navigate = useNavigate();
     const [bookingData, setBookingData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [Loading, setLoading] = useState(true);
@@ -372,14 +373,16 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                                                                 <Video className="text-emerald-600" size={14} />
                                                                 <span className="text-xs font-medium text-gray-600 font-tbLex">Zoom Meeting Link</span>
                                                             </div>
-                                                            <a
-                                                                href={bookingData?.item?.zoomLink}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="text-sm text-emerald-600 hover:text-emerald-700 underline font-tbPop"
+                                                            <button
+                                                                onClick={() => {
+                                                                    const zoomUrl = encodeURIComponent(bookingData?.item?.zoomLink);
+                                                                    window.open(`/meeting?zoomUrl=${zoomUrl}`, '_blank');
+                                                                    toggle();
+                                                                }}
+                                                                className="text-sm text-emerald-600 hover:text-emerald-700 underline font-tbPop bg-transparent border-none cursor-pointer"
                                                             >
                                                                 Join Session
-                                                            </a>
+                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>

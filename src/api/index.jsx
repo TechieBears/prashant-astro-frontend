@@ -2245,6 +2245,25 @@ export const clearProductCart = async () => {
     }
 }
 
+export const clearServiceCart = async () => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.delete(
+            `${environment.baseUrl}service-cart/public/clear`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (err) {
+        console.error('Error clearing service cart:', err);
+        return err?.response?.data || { success: false, message: 'Failed to clear service cart' };
+    }
+}
+
 // get all coupons list for user
 export const getUserCoupons = async (type) => {
     const url = `${environment.baseUrl}coupon/public/get-all?couponType=${type}`;
@@ -2422,3 +2441,31 @@ export const getDashboardInsights = async (astrologerId) => {
         return err?.response?.data;
     }
 }
+export const getZoomSignature = async (meetingNumber, role = 0) => {
+    try {
+        const response = await axios.get(
+            `${environment.baseUrl}zoom/get-meeting-sdk-jwt`,
+            {
+                params: {
+                    meetingNumber: meetingNumber.toString(),
+                    role
+                }
+            }
+        );
+        
+        if (response.data.success) {
+            return {
+                signature: response.data.data.jwt,
+                sdkKey: response.data.data.sdkKey
+            };
+        } else {
+            throw new Error(response.data.message || 'Failed to get JWT');
+        }
+    } catch (error) {
+        console.error('Error getting Zoom signature:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || 'Failed to get Zoom signature'
+        };
+    }
+};
