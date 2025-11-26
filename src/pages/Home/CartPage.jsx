@@ -30,7 +30,8 @@ import {
     updateServiceCartItem,
     createProductOrder,
     createServiceOrder,
-    clearProductCart
+    clearProductCart,
+    clearServiceCart
 } from '../../api';
 import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
@@ -339,6 +340,15 @@ const CartPage = () => {
             if (response.success) {
                 toast.dismiss();
                 toast.success('Service order created successfully!');
+
+                // Clear service cart
+                try {
+                    await clearServiceCart();
+                    dispatch(clearCart());
+                    console.log('Service cart cleared successfully');
+                } catch (clearError) {
+                    console.error('Error clearing service cart:', clearError);
+                }
 
                 // Navigate immediately without delay
                 try {
