@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import UserReviews from '../../components/Common/UserReviews';
+import CallButton from '../../components/Common/CallButton';
+import WalletModal from '../../components/Modals/WalletModal';
 import { getFilteredReviews } from '../../api';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 
@@ -20,7 +22,8 @@ const AstrologerDetail = () => {
     const [totalReviews, setTotalReviews] = useState(0);
     const [editingReviewId, setEditingReviewId] = useState(null);
     const [showLowBalance, setShowLowBalance] = useState(false);
-    const [userBalance] = useState(100); // Mock balance - replace with actual balance from API
+    const [showWalletModal, setShowWalletModal] = useState(false);
+    const [userBalance] = useState(200); // Mock balance - set lower to test modal
 
     const incrementTime = (amount) => {
         setCallTime((prev) => Math.max(5, prev + amount));
@@ -32,14 +35,10 @@ const AstrologerDetail = () => {
 
     const handleCallRequired = () => {
         const requiredAmount = callTime * 10; // Assuming ₹10 per minute
+        console.log('Button clicked! Balance:', userBalance, 'Required:', requiredAmount);
         if (userBalance < requiredAmount) {
-            navigate('/wallet', { 
-                state: { 
-                    requiredAmount: requiredAmount - userBalance,
-                    callTime,
-                    astrologerName: astrologer.name 
-                } 
-            });
+            console.log('Opening wallet modal...');
+            setShowWalletModal(true);
         } else {
             // Proceed with call
             console.log('Call initiated');
@@ -274,6 +273,25 @@ const AstrologerDetail = () => {
                                         </button>
                                     </div>
 
+                                    {/* Balance and Price Display */}
+                                    <div className="bg-gray-50 rounded-lg">
+                                        <div className="text-xs flex justify-between items-center">
+                                            <div>
+                                                <span className="text-slate-600">Wallet Balance: </span>
+                                                <span className={`font-semibold ${userBalance < callTime * 10 ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-slate-600">Call Price: </span>
+                                                <span className="font-semibold text-orange-600">₹{callTime * 10}</span>
+                                            </div>
+                                        </div>
+                                        {userBalance < callTime * 10 && (
+                                            <p className="text-red-500 text-xs font-medium text-center mt-2">
+                                                You don't have enough balance
+                                            </p>
+                                        )}
+                                    </div>
+
                                     {/* Low Balance Message and Recharge Section */}
                                     {showLowBalance && (
                                         <>
@@ -299,16 +317,14 @@ const AstrologerDetail = () => {
                                     )}
 
                                     {/* Call Required Button */}
-                                    <button
+                                    <CallButton
+                                        status={userBalance < callTime * 10 ? 'Busy' : 'Online'}
                                         onClick={handleCallRequired}
-                                        className={`w-full py-[9px] rounded-[10px] font-poppins text-lg font-medium text-center transition-opacity focus:outline-none focus:ring-2 ${showLowBalance
-                                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                                            : 'bg-gradient-to-b from-[#FFBF12] via-[#FF8835] to-[#FF5858] text-white hover:opacity-90 focus:ring-orange-400'
-                                            }`}
-                                        disabled={showLowBalance}
+                                        allowClickWhenBusy={true}
+                                        className="py-[9px] font-poppins text-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400"
                                     >
-                                        Call Required
-                                    </button>
+                                        {userBalance < callTime * 10 ? 'Recharge' : 'Call Required'}
+                                    </CallButton>
                                 </div>
                             </div>
                         </div>
@@ -316,7 +332,14 @@ const AstrologerDetail = () => {
                 </div>
             </div>
 
-
+            {/* Wallet Modal */}
+            <WalletModal
+                isOpen={showWalletModal}
+                onClose={() => setShowWalletModal(false)}
+                requiredAmount={callTime * 10 - userBalance}
+                callTime={callTime}
+                astrologerName={astrologer.name}
+            />
         </div>
     );
 };

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import AstrologerFilterSidebar from '../../components/Astrologer/AstrologerFilterSidebar';
+import CallButton from '../../components/Common/CallButton';
 import Tabs from '../../components/Common/Tabs';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 
@@ -193,7 +194,13 @@ const TalkWithAstrologer = () => {
                         {/* Astrologers Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {astrologers.map((astrologer) => (
-                                <div key={astrologer.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                <div key={astrologer.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden">
+                                    {/* Requested Ribbon */}
+                                    {astrologer.status === 'Call Requested' && (
+                                        <div className="absolute -top-2 -left-8 bg-blue-500 text-white text-xs font-medium px-8 py-1 rotate-[-45deg] transform origin-center">
+                                            Requested
+                                        </div>
+                                    )}
                                     {/* Header with centered profile and status */}
                                     <div className="relative mb-3">
                                         {/* Status - positioned absolute top right */}
@@ -239,14 +246,11 @@ const TalkWithAstrologer = () => {
                                     </div>
 
                                     {/* Call button */}
-                                    <button
-                                        className={`w-full py-2.5 px-4 rounded-lg font-normal text-sm transition-all ${buttonColors[astrologer.status]
-                                            }`}
-                                        disabled={astrologer.status === 'Busy'}
+                                    <CallButton
+                                        status={astrologer.status}
+                                        rate={astrologer.rate}
                                         onClick={() => handleAstrologerClick(astrologer.id)}
-                                    >
-                                        <span className="font-normal">{astrologer.rate}</span> <span className="font-bold">Call Now</span>
-                                    </button>
+                                    />
                                 </div>
                             ))}
                         </div>
