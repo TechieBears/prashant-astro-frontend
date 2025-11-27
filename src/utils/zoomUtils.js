@@ -6,17 +6,12 @@ export const parseZoomUrl = (zoomUrl) => {
 
         const url = new URL(decodedUrl);
         const meetingId = url.pathname.split('/wc/join/')[1];
-        let password = url.searchParams.get('pwd');
-        
-        // Remove the .1 suffix from password if present
-        if (password && password.endsWith('.1')) {
-            password = password.slice(0, -2);
-        }
-        
+        const password = url.searchParams.get('pwd');
+
         const userName = url.searchParams.get('uname') ? decodeURIComponent(url.searchParams.get('uname')) : 'Guest';
-        
+
         console.log('Parsed password:', password);
-        
+
         return {
             meetingId,
             password,
@@ -34,10 +29,10 @@ export const buildWebClientUrl = (zoomUrl) => {
         let decodedUrl = zoomUrl.replace(/&amp;/g, '&');
         decodedUrl = decodeURIComponent(decodeURIComponent(decodedUrl));
         decodedUrl = decodedUrl.replace('/j/', '/wc/join/');
-        
+
         console.log('Original URL:', zoomUrl);
         console.log('Final URL:', decodedUrl);
-        
+
         return decodedUrl;
     } catch (error) {
         console.error('Error building web client URL:', error);

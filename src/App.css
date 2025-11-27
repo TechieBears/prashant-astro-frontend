@@ -24,3 +24,17 @@
 .animate-fadeIn {
     animation: fadeIn 0.3s ease-out forwards;
 }
+
+/* Zoom Meeting Embedded Styles */
+#meetingSDKElement {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.meeting-app,
+.meeting-client {
+    position: relative !important;
+    height: 100% !important;
+    width: 100% !important;
+}

@@ -358,7 +358,7 @@ const UserReviews = ({
                         <div className="bg-white rounded-xl p-4 shadow-sm mb-4">
                             <div className="flex items-center justify-between gap-4">
                                 <h3 className="text-lg font-bold text-gray-900">
-                                    Customer Reviews
+                                    Reviews
                                     <span className="ml-2 text-sm font-normal text-gray-400">(0)</span>
                                 </h3>
                                 {isLogged ? (

@@ -55,7 +55,7 @@ const HomePage = () => {
         if (isLogged && user) {
             const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
             const dontShow = localStorage.getItem(`dontShowReferralModal_${user._id}`);
-            
+
             // Only show modal if profile is incomplete OR if profile is complete but user hasn't opted out of referral modal
             if (!isProfileComplete || (!dontShow && isProfileComplete)) {
                 setOpen(true);
@@ -750,18 +750,11 @@ const HomePage = () => {
                     /> */}
                     <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-10 h-full">
                         <div className="flex-1 flex flex-col items-center justify-center h-full text-center order-2 lg:order-1">
-                            <div className="flex flex-col items-center justify-center">
-                                <SectionHeader
-                                    prefix="Mobile app coming soon"
-                                    prefixClass="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl whitespace-normal -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
-                                    showImage={false}
-                                />
-                                <SectionHeader
-                                    prefix="stay tuned."
-                                    prefixClass="text-center text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl whitespace-normal -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 mt-1 sm:mt-2"
-                                    showImage={false}
-                                />
-                            </div>
+                            <SectionHeader
+                                prefix={<>Mobile app coming soon<br />stay tuned.</>}
+                                prefixClass="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
+                                showImage={false}
+                            />
                             {/* <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
                                 For seamless experience, download our apps on your phone
                             </p> */}

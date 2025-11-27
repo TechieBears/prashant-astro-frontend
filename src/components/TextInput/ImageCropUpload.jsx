@@ -21,6 +21,7 @@ const ImageCropUpload = ({
     cropAspectRatio = 5 / 3,
     cropWidth = 500,
     cropHeight = 300,
+    onDelete,
 }) => {
     const [fileName, setFileName] = useState("");
     const [files, setFiles] = useState([]);
@@ -179,19 +180,17 @@ const ImageCropUpload = ({
                 type: "image/jpeg",
             });
 
-            const url = await uploadToCloudinary(croppedFile);
-
             const previewFile = {
                 file: croppedFile,
                 name: selectedImage.name,
-                url: url,
+                url: URL.createObjectURL(croppedBlob),
             };
 
             if (multiple) {
                 const newFiles = [...files, previewFile];
                 setFiles(newFiles);
                 setFileName(`${newFiles.length} files selected`);
-                setValue(registerName, newFiles.map(f => f.url));
+                setValue(registerName, newFiles.map(f => f.file));
 
                 if (selectedImage.remainingFiles && selectedImage.remainingFiles.length > 0) {
                     setShowCropModal(false);
@@ -203,7 +202,7 @@ const ImageCropUpload = ({
             } else {
                 setFiles([previewFile]);
                 setFileName(selectedImage.name);
-                setValue(registerName, url);
+                setValue(registerName, croppedFile);
                 setShowCropModal(false);
                 setSelectedImage(null);
             }
@@ -211,7 +210,7 @@ const ImageCropUpload = ({
             const fileInput = document.getElementById(registerName);
             if (fileInput) fileInput.value = '';
         } catch (error) {
-            console.error("Upload failed:", error);
+            console.error("Crop failed:", error);
         } finally {
             setIsUploading(false);
         }
@@ -395,6 +394,19 @@ const ImageCropUpload = ({
                 isOpen={showImageModal}
                 toggle={() => setShowImageModal(false)}
                 files={files}
+                onDelete={onDelete ? (url) => {
+                    const updatedFiles = files.filter(f => f.url !== url);
+                    setFiles(updatedFiles);
+                    if (multiple) {
+                        setValue(registerName, updatedFiles.map(f => f.file || f.url));
+                    } else {
+                        setValue(registerName, updatedFiles[0]?.file || updatedFiles[0]?.url || '');
+                    }
+                    setFileName(updatedFiles.length > 0 ? (updatedFiles.length === 1 ? updatedFiles[0].name : `${updatedFiles.length} files selected`) : '');
+                    if (typeof url === 'string' && url.startsWith('http')) {
+                        onDelete(url);
+                    }
+                } : undefined}
             />
 
 

@@ -1,8 +1,9 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react';
 import { formBtn1 } from '../../../utils/CustomClass';
+import { Trash } from 'iconsax-reactjs';
 
-const ImageView = ({ isOpen, toggle, files }) => {
+const ImageView = ({ isOpen, toggle, files, onDelete }) => {
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-[100000]" onClose={() => toggle()}>
@@ -38,13 +39,22 @@ const ImageView = ({ isOpen, toggle, files }) => {
                                 <div className=" bg-slate1 ">
                                     <div className="p-4 overflow-y-scroll scrollbars h-[24rem] lg:h-[30rem] grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-wrap" >
                                         {files.map((file, index) => (
-                                            <div key={index} className="bg-white rounded-xl p-1 h-[17.50rem] ">
+                                            <div key={index} className="bg-white rounded-xl p-1 h-[17.50rem] relative">
                                                 <img
                                                     src={file?.url || (file instanceof File ? URL.createObjectURL(file) : '')}
                                                     alt={`Preview ${index}`}
                                                     className="w-full h-[15rem] object-contain bg-slate1 rounded-xl"
                                                 />
                                                 <h6 className=" text-sm truncate p-2 font-tbPop">{file.name}</h6>
+                                                {onDelete && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onDelete(file.url)}
+                                                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
