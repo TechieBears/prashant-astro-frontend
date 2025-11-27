@@ -7,6 +7,7 @@ import { getWalletBalance } from "../../../api";
 
 const ReferAndEarn = () => {
     const [copied, setCopied] = useState(false);
+    const [linkCopied, setLinkCopied] = useState(false);
     const user = useSelector((state) => state.user.userDetails);
     const referralCode = user?.referralCode || "----- -----";
     const [walletBalance, setWalletBalance] = useState(0);
@@ -44,8 +45,8 @@ const ReferAndEarn = () => {
     const shareLink = () => {
         const link = `https://soulplan.net/register?referralCode=${referralCode}`;
         navigator.clipboard.writeText(link);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setLinkCopied(true);
+        setTimeout(() => setLinkCopied(false), 2000);
     };
 
     return (
@@ -165,8 +166,8 @@ const ReferAndEarn = () => {
                                 Invite on WhatsApp
                             </button>
                             <button onClick={shareLink} className="flex items-center justify-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-tbPop  font-bold px-5 sm:px-6 py-3 sm:py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base active:scale-95">
-                                <FaLink size={18} className="sm:w-5 sm:h-5" />
-                                Share Link
+                                {linkCopied ? <FaCheck size={18} className="sm:w-5 sm:h-5" /> : <FaLink size={18} className="sm:w-5 sm:h-5" />}
+                                {linkCopied ? "Link Copied!" : "Share Link"}
                             </button>
                         </div>
                     </div>
