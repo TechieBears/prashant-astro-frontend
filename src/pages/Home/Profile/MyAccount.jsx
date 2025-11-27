@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
-import { updateCustomerProfile, uploadToCloudinary } from "../../../api";
+import { updateCustomerProfile } from "../../../api";
 import { setUserDetails, setLoggedUserDetails } from "../../../redux/Slices/loginSlice";
 import toast from "react-hot-toast";
 import Preloaders from "../../../components/Loader/Preloaders";
@@ -55,33 +55,20 @@ const MyAccount = () => {
         const toastId = toast.loading('Updating profile...');
 
         try {
+            const formData = new FormData();
+            formData.append('title', data.title);
+            formData.append('firstName', data.firstName);
+            formData.append('lastName', data.lastName);
+            formData.append('email', data.email);
+            formData.append('mobileNo', data.phone);
+            formData.append('gender', data.gender);
+            formData.append('isActive', true);
+
             if (data.profileImage instanceof File) {
-                try {
-                    const imageUrl = await uploadToCloudinary(data.profileImage);
-                    data.profileImage = imageUrl;
-                } catch (err) {
-                    console.error('Error uploading image:', err);
-                    throw new Error('Failed to upload profile image');
-                }
-            } else if (data.profileImage === null) {
-                delete data.profileImage;
+                formData.append('image', data.profileImage);
             }
 
-            const payload = {
-                title: data.title,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                email: data.email,
-                mobileNo: data.phone,
-                gender: data.gender,
-                isActive: true
-            };
-
-            if (data.profileImage) {
-                payload.profileImage = data.profileImage;
-            }
-
-            const response = await updateCustomerProfile(payload);
+            const response = await updateCustomerProfile(formData);
 
             if (response?.success) {
                 const updatedUserData = response.data.user;
