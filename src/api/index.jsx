@@ -2452,7 +2452,7 @@ export const getZoomSignature = async (meetingNumber, role = 0) => {
                 }
             }
         );
-        
+
         if (response.data.success) {
             return {
                 signature: response.data.data.jwt,
@@ -2469,3 +2469,15 @@ export const getZoomSignature = async (meetingNumber, role = 0) => {
         };
     }
 };
+
+export const getAllAstrologerCalls = async () => {
+    try {
+        const url = `${environment.baseUrl}call/public/get-all`;
+        const response = await axios.get(url);
+        return response.data;
+
+    } catch (err) {
+        console.log("==========error in getAllAstrologerCalls api", err);
+        return err?.response?.data;
+    }
+}

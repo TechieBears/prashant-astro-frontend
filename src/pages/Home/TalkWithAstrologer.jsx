@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import AstrologerFilterSidebar from '../../components/Astrologer/AstrologerFilterSidebar';
 import CallButton from '../../components/Common/CallButton';
 import Tabs from '../../components/Common/Tabs';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
+import { getAllAstrologerCalls } from '../../api';
 
 const TalkWithAstrologer = () => {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ const TalkWithAstrologer = () => {
     const [selectedExperience, setSelectedExperience] = useState([]);
     const [price, setPrice] = useState([500, 3000]);
     const [activeTab, setActiveTab] = useState('all');
+    const [calls, setCalls] = useState([]);
 
     // Static data as requested
     const languages = ['Hindi', 'English', 'Telugu', 'Marathi'];
@@ -104,6 +106,20 @@ const TalkWithAstrologer = () => {
     const handleAstrologerClick = (astrologerId) => {
         navigate(`/astrologer/${astrologerId}`);
     };
+
+    const fetchAstrologerCalls = async () => {
+        try {
+            const response = await getAllAstrologerCalls();
+            console.log("response in astrologer calls api", response);
+
+        } catch (error) {
+        }
+
+    };
+
+    useEffect(() => {
+        fetchAstrologerCalls();
+    }, [])
 
     return (
         <div className='bg-slate1'>
