@@ -23,14 +23,13 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                name: data?.name,
-                categoryId: data?.categoryId,
-                image: data?.image
-            }
+            const formData = new FormData();
+            formData.append('name', data?.name);
+            formData.append('categoryId', data?.categoryId);
+            formData.append('image', data?.image);
 
             if (edit) {
-                await editProductSubCategory(userData?._id, updatedData).then(res => {
+                await editProductSubCategory(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -43,7 +42,7 @@ function ProductSubCategoriesModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addProductSubCategory(updatedData).then(res => {
+                await addProductSubCategory(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();

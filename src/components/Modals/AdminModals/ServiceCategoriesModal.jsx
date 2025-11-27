@@ -31,13 +31,14 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                name: data?.name,
-                image: data?.image,
-                description: data?.description,
-            };
+            const formData = new FormData();
+            formData.append("name", data?.name);
+            formData.append("image", data?.image);
+            if (data?.description) {
+                formData.append("description", data?.description);
+            }
             if (edit) {
-                await editServiceCategory(userData?._id, updatedData).then((res) => {
+                await editServiceCategory(userData?._id, formData).then((res) => {
                     if (res?.success) {
                         toast.success(res?.message);
                         setLoader(false);
@@ -50,7 +51,7 @@ function ServiceCategoriesModal({ edit, userData, setRefreshTrigger }) {
                     }
                 });
             } else {
-                await addServiceCategory(updatedData).then((res) => {
+                await addServiceCategory(formData).then((res) => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
