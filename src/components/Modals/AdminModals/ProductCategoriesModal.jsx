@@ -7,6 +7,7 @@ import TextInput from '../../TextInput/TextInput';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
 import ImageCropUpload from '../../../components/TextInput/ImageCropUpload';
+
 import { addProductCategory, editProductCategory } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrigger }) {
@@ -17,12 +18,13 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                name: data?.name,
-                image: data?.image
-            }
+
+            const formData = new FormData();
+            formData.append('name', data?.name);
+            formData.append('image', data?.image);
+
             if (edit) {
-                await editProductCategory(userData?._id, updatedData).then(res => {
+                await editProductCategory(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -35,7 +37,7 @@ function ProductCategoriesModal({ edit, userData, setRefreshTrigger, refreshTrig
                     }
                 })
             } else {
-                await addProductCategory(updatedData).then(res => {
+                await addProductCategory(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
