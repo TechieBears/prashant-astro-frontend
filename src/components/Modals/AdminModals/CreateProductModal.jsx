@@ -26,8 +26,9 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const productCategories = useSelector(state => state.appRoot?.productCategories || []);
     const [productSubCategories, setProductSubCategories] = useState([]);
     const [open, setOpen] = useState(false);
-    const toggle = () => { setOpen(!open), reset() };
+    const toggle = () => { setOpen(!open), reset(), setDeletedImages([]) };
     const [loader, setLoader] = useState(false);
+    const [deletedImages, setDeletedImages] = useState([]);
     const { fields, append, remove } = useFieldArray({
         control,
         name: "specification"
@@ -44,8 +45,28 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
             }
 
             setLoader(true);
+            const formData = new FormData();
+            formData.append('name', data?.name);
+            formData.append('category', data?.category);
+            formData.append('subcategory', data?.subcategory);
+            formData.append('description', data?.description);
+            formData.append('additionalInfo', data?.additionalInfo || '');
+            formData.append('stock', data?.stock);
+            formData.append('sellingPrice', data?.sellingPrice);
+            formData.append('mrpPrice', data?.mrpPrice);
+            formData.append('specification', JSON.stringify(data?.specification || []));
+            formData.append('deletedImages', JSON.stringify(deletedImages));
+            
+            if (Array.isArray(data.images)) {
+                data.images.forEach((image) => {
+                    if (image instanceof File) {
+                        formData.append('images', image);
+                    }
+                });
+            }
+
             if (edit) {
-                await editProduct(userData?._id, data).then(res => {
+                await editProduct(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -58,7 +79,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addProduct(data).then(res => {
+                await addProduct(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
@@ -263,6 +284,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                             register={register}
                                                             setValue={setValue}
                                                             defaultValue={edit ? userData?.images : []}
+                                                            onDelete={(url) => setDeletedImages(prev => [...prev, url])}
                                                         />
                                                         {errors.images && <Error message="Product images are required" />}
                                                     </div>

@@ -35,8 +35,28 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
+            const formData = new FormData();
+            formData.append('category', data?.category);
+            formData.append('name', data?.name);
+            formData.append('title', data?.title);
+            formData.append('subTitle', data?.subTitle);
+            formData.append('price', data?.price);
+            formData.append('durationInMinutes', data?.durationInMinutes);
+            formData.append('htmlContent', data?.htmlContent);
+            if (data?.image instanceof File) {
+                formData.append('image', data?.image);
+            }
+            if (data?.serviceType) {
+                formData.append('serviceType', JSON.stringify(data?.serviceType));
+            }
+            if (data?.description) {
+                formData.append('description', data?.description);
+            }
+            if (data?.videoUrl && data?.videoUrl.length > 0) {
+                formData.append('videoUrl', JSON.stringify(data?.videoUrl));
+            }
             if (edit) {
-                await editService(userData?._id, data).then(res => {
+                await editService(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -49,7 +69,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addService(data).then(res => {
+                await addService(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
