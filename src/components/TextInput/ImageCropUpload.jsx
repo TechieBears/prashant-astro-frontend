@@ -3,7 +3,6 @@ import Error from "../Errors/Error";
 import { useState, useEffect, useRef, useCallback, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { X } from "@phosphor-icons/react";
-import { uploadToCloudinary } from "../../api";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import ImageView from "../Modals/ImageView/ImageView";
@@ -21,6 +20,7 @@ const ImageCropUpload = ({
     cropAspectRatio = 5 / 3,
     cropWidth = 500,
     cropHeight = 300,
+    onDelete,
 }) => {
     const [fileName, setFileName] = useState("");
     const [files, setFiles] = useState([]);
@@ -110,18 +110,30 @@ const ImageCropUpload = ({
     const onImageLoad = useCallback(
         (e) => {
             const { width, height } = e.currentTarget;
+            
+            // Calculate scale to fit crop dimensions
+            const scaleX = width / cropWidth;
+            const scaleY = height / cropHeight;
+            const minScale = Math.min(scaleX, scaleY);
+            
+            // If image is smaller than crop dimensions, zoom in
+            if (minScale < 1) {
+                setZoom(1 / minScale);
+            } else {
+                setZoom(1);
+            }
+            
             const centerX = Math.max(0, (width - cropWidth) / 2);
             const centerY = Math.max(0, (height - cropHeight) / 2);
             const initialCrop = {
                 unit: "px",
-                width: cropWidth,
-                height: cropHeight,
+                width: Math.min(cropWidth, width),
+                height: Math.min(cropHeight, height),
                 x: centerX,
                 y: centerY,
             };
             setCrop(initialCrop);
             setCompletedCrop(initialCrop);
-            setZoom(1);
         },
         [cropWidth, cropHeight]
     );
@@ -184,12 +196,12 @@ const ImageCropUpload = ({
                 type: "image/jpeg",
             });
 
-            const url = await uploadToCloudinary(croppedFile);
+            const previewUrl = URL.createObjectURL(croppedBlob);
 
             const previewFile = {
                 file: croppedFile,
                 name: selectedImage.name,
-                url: url,
+                url: previewUrl,
             };
 
             if (multiple) {
@@ -198,7 +210,7 @@ const ImageCropUpload = ({
                 setFileName(`${newFiles.length} files selected`);
                 setValue(
                     registerName,
-                    newFiles.map((f) => f.url)
+                    newFiles.map((f) => f.file)
                 );
 
                 if (
@@ -214,7 +226,7 @@ const ImageCropUpload = ({
             } else {
                 setFiles([previewFile]);
                 setFileName(selectedImage.name);
-                setValue(registerName, url);
+                setValue(registerName, croppedFile);
                 setShowCropModal(false);
                 setSelectedImage(null);
             }
@@ -222,7 +234,7 @@ const ImageCropUpload = ({
             const fileInput = document.getElementById(registerName);
             if (fileInput) fileInput.value = "";
         } catch (error) {
-            console.error("Upload failed:", error);
+            console.error("Crop failed:", error);
         } finally {
             setIsUploading(false);
         }
@@ -237,6 +249,23 @@ const ImageCropUpload = ({
 
         const fileInput = document.getElementById(registerName);
         if (fileInput) fileInput.value = "";
+    };
+
+    const handleDelete = (url) => {
+        const updatedFiles = files.filter(file => file.url !== url);
+        setFiles(updatedFiles);
+        
+        if (updatedFiles.length === 0) {
+            setFileName("");
+            setValue(registerName, multiple ? [] : null);
+        } else {
+            setFileName(updatedFiles.length === 1 ? updatedFiles[0].name : `${updatedFiles.length} files selected`);
+            setValue(registerName, multiple ? updatedFiles.map(f => f.file) : updatedFiles[0].file);
+        }
+        
+        if (onDelete) {
+            onDelete(url);
+        }
     };
 
     return (
@@ -397,8 +426,8 @@ const ImageCropUpload = ({
 
                                         <input
                                             type="range"
-                                            min="0.5"
-                                            max="3"
+                                            min="0.1"
+                                            max="5"
                                             step="0.1"
                                             value={zoom}
                                             onChange={(e) => setZoom(parseFloat(e.target.value))}
@@ -436,7 +465,7 @@ const ImageCropUpload = ({
                                                 disabled={isUploading}
                                                 className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md"
                                             >
-                                                {isUploading ? "Uploading..." : "Crop & Upload"}
+                                                {isUploading ? "Processing..." : "Crop & Save"}
                                             </button>
                                         </div>
                                     </div>
@@ -451,6 +480,7 @@ const ImageCropUpload = ({
                 isOpen={showImageModal}
                 toggle={() => setShowImageModal(false)}
                 files={files}
+                onDelete={handleDelete}
             />
             <canvas ref={canvasRef} style={{ display: "none" }} />
         </>
