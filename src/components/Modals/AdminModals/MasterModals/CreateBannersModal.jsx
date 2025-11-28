@@ -22,12 +22,33 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            if (data.type !== 'app') {
-                delete data.bannerFor;
+            
+            const formData = new FormData();
+            
+            // Append all fields to FormData
+            formData.append('title', data.title);
+            formData.append('description', data.description);
+            formData.append('type', data.type);
+            formData.append('position', data.position);
+            formData.append('startDate', data.startDate);
+            formData.append('endDate', data.endDate);
+            
+            if (data.type === 'app' && data.bannerFor) {
+                formData.append('bannerFor', data.bannerFor);
             }
+            
+            // Append image with key "image"
+            if (data.image) {
+                if (data.image instanceof File) {
+                    formData.append('image', data.image);
+                } else if (typeof data.image === 'string') {
+                    formData.append('image', data.image);
+                }
+            }
+            
             if (edit) {
-                console.log("FINAL PAYLOAD SENT ===>", data);
-                await editBanner(userData?._id, data).then(res => {
+                console.log("FINAL PAYLOAD SENT ===>", formData);
+                await editBanner(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -40,7 +61,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addBanner(data).then(res => {
+                await addBanner(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
