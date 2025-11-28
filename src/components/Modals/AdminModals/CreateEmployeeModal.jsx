@@ -26,14 +26,40 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const employeeType = watch('employeeType');
 
     const formSubmit = async (data) => {
+        console.log('Form data:', data);
+        console.log('Form errors:', errors);
         try {
             setLoader(true);
-            const payload = {
-                ...data,
-                "preBooking": true
+            const formData = new FormData();
+            formData.append('preBooking', true);
+            formData.append('employeeType', data?.employeeType);
+            formData.append('firstName', data?.firstName);
+            formData.append('lastName', data?.lastName);
+            formData.append('email', data?.email);
+            formData.append('mobileNo', data?.mobileNo);
+            if (data?.profileImage instanceof File) {
+                formData.append('image', data?.profileImage);
+            }
+            if (data?.skills && data?.skills.length > 0) {
+                formData.append('skills', JSON.stringify(data?.skills));
+            }
+            if (data?.languages && data?.languages.length > 0) {
+                formData.append('languages', JSON.stringify(data?.languages));
+            }
+            if (data?.experience) {
+                formData.append('experience', data?.experience);
+            }
+            if (data?.days && data?.days.length > 0) {
+                formData.append('days', JSON.stringify(data?.days));
+            }
+            if (data?.startTime) {
+                formData.append('startTime', data?.startTime);
+            }
+            if (data?.endTime) {
+                formData.append('endTime', data?.endTime);
             }
             if (edit) {
-                await editEmployee(userData?._id, payload).then(res => {
+                await editEmployee(userData?._id, formData).then(res => {
                     if (res?.success) {
                         toast.success(res?.message)
                         setLoader(false);
@@ -46,7 +72,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                     }
                 })
             } else {
-                await addEmployee(payload).then(res => {
+                await addEmployee(formData).then(res => {
                     if (res?.success) {
                         setLoader(false);
                         reset();
@@ -151,7 +177,10 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                     />
                                     <div className=" bg-white">
                                         {/* React Hook Form */}
-                                        <form onSubmit={handleSubmit(formSubmit)} >
+                                        <form onSubmit={handleSubmit(formSubmit, (errors) => {
+                                            console.log('Validation errors:', errors);
+                                            toast.error('Please fill all required fields');
+                                        })} >
                                             <div className='p-5 py-8  grid grid-cols-3 gap-x-3 gap-y-5 ' >
                                                 <div className="">
                                                     <h4
@@ -219,11 +248,11 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         multiple={false}
                                                         registerName="profileImage"
                                                         errors={errors.profileImage}
-                                                        {...register("profileImage", { required: "Employee Image is required" })}
+                                                        {...register("profileImage", { required: edit ? false : "Employee Image is required" })}
                                                         register={register}
                                                         setValue={setValue}
                                                         control={control}
-                                                        defaultValue={userData?.profileImage}
+                                                        defaultValue={userData?.profile?.profileImage}
                                                         cropAspectRatio={1}
                                                         cropHeight={400}
                                                         cropWidth={400}
@@ -241,7 +270,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         type="text"
                                                         disabled={edit}
                                                         registerName="email"
-                                                        props={{ ...register('email'), valdate: validateEmail, required: "Email is required" }}
+                                                        props={{ ...register('email', { required: "Email is required", validate: validateEmail }) }}
                                                         errors={errors.email}
                                                     />
                                                 </div>
@@ -388,8 +417,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         registerName="startTime"
                                                         props={{
                                                             ...register("startTime", {
-                                                                required: "Start time is required",
+                                                                required: employeeType === 'astrologer' ? "Start time is required" : false,
                                                                 validate: (value) => {
+                                                                    if (!value || employeeType !== 'astrologer') return true;
                                                                     const minutes = new Date(`1970-01-01T${value}:00`).getMinutes();
                                                                     return [0, 30].includes(minutes) || "Only 00 or 30 minutes allowed";
                                                                 },
@@ -411,8 +441,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             registerName="endTime"
                                                             props={{
                                                                 ...register("endTime", {
-                                                                    required: "End time is required",
+                                                                    required: employeeType === 'astrologer' ? "End time is required" : false,
                                                                     validate: (value) => {
+                                                                        if (!value || employeeType !== 'astrologer') return true;
                                                                         const minutes = new Date(`1970-01-01T${value}:00`).getMinutes();
                                                                         return [0, 30].includes(minutes) || "Only 00 or 30 minutes allowed";
                                                                     },
