@@ -111,16 +111,17 @@ const ImageCropUpload = ({
         (e) => {
             const { width, height } = e.currentTarget;
 
-            // Calculate scale to fit crop dimensions
-            const scaleX = width / cropWidth;
-            const scaleY = height / cropHeight;
-            const minScale = Math.min(scaleX, scaleY);
-
-            // If image is smaller than crop dimensions, zoom in
-            if (minScale < 1) {
-                setZoom(1 / minScale);
+            // Calculate crop dimensions based on aspect ratio
+            let calculatedWidth, calculatedHeight;
+            
+            if (width / height > cropAspectRatio) {
+                // Image is wider than crop ratio
+                calculatedHeight = Math.min(height, cropHeight);
+                calculatedWidth = calculatedHeight * cropAspectRatio;
             } else {
-                setZoom(1);
+                // Image is taller than crop ratio
+                calculatedWidth = Math.min(width, cropWidth);
+                calculatedHeight = calculatedWidth / cropAspectRatio;
             }
 
             const centerX = Math.max(0, (width - calculatedWidth) / 2);
