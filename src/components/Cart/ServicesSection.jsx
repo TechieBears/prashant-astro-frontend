@@ -8,7 +8,6 @@ const ServicesSection = ({
     onEditService,
     onCheckout,
     subtotal,
-    gstAmount,
     total,
     isRemoving = null,
     activeTab,
@@ -98,7 +97,6 @@ const ServicesSection = ({
                                 <PaymentSummary
                                     itemCount={services.length}
                                     subtotal={subtotal}
-                                    gstAmount={gstAmount}
                                     total={total}
                                     onCheckout={onCheckout}
                                     activeTab={activeTab}
