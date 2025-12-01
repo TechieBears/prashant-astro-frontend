@@ -1,0 +1,71 @@
+/* Make the Zoom widget larger and fully visible */
+[aria-label="Zoom app container"] .react-resizable {
+    min-height: 650px !important;
+    height: auto !important;
+    width: 800px !important;
+    max-width: 95vw !important;
+}
+
+[aria-label="Zoom app container"] .css-1nwgrc8 {
+    min-height: 650px !important;
+    height: auto !important;
+    width: 800px !important;
+    max-width: 95vw !important;
+}
+
+/* Override the main widget paper */
+[aria-label="Zoom Web SDK Widget"] {
+    min-height: 650px !important;
+    height: auto !important;
+    width: 800px !important;
+    max-width: 95vw !important;
+}
+
+/* Adjust the video container with inline attributes */
+[aria-label="Zoom app container"] .css-1op03nt {
+    height: 500px !important;
+    width: 800px !important;
+    max-width: 95vw !important;
+}
+
+/* Override inline width/height attributes */
+[aria-label="Zoom app container"] div[width],
+[aria-label="Zoom app container"] div[height] {
+    width: 800px !important;
+    max-width: 95vw !important;
+    height: 500px !important;
+}
+
+/* Ensure the widget is centered and visible */
+[aria-label="Zoom app container"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
+    overflow: visible !important;
+}
+
+/* Prevent clipping of panels */
+[aria-label="Zoom app container"] .react-draggable {
+    overflow: visible !important;
+}
+
+/* Ensure all Zoom panels are visible */
+.zoom-MuiPopover-root,
+.zoom-MuiModal-root,
+.zoom-MuiDrawer-root,
+.zoom-MuiPopper-root {
+    position: fixed !important;
+    z-index: 9999 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+
+/* Increase video participant item size */
+.zoom-MuiListItem-root.css-12idwbr {
+    min-width: 200px !important;
+    min-height: 150px !important;
+    width: auto !important;
+    height: auto !important;
+}

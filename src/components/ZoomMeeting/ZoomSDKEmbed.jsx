@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ZoomMtgEmbedded from '@zoom/meetingsdk/embedded';
 import { getZoomSignature } from '../../api/index';
+import './ZoomSDKEmbed.css';
 
 const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
     const [loading, setLoading] = useState(true);
@@ -94,9 +95,9 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
     }, [meetingNumber, password, userName]);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full">
             {loading && (
-                <div className="flex items-center justify-center h-full bg-gray-100">
+                <div className="flex items-center justify-center min-h-screen bg-gray-100">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading Zoom meeting...</p>
@@ -104,7 +105,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
                 </div>
             )}
             {error && (
-                <div className="flex items-center justify-center h-full bg-gray-100">
+                <div className="flex items-center justify-center min-h-screen bg-gray-100">
                     <div className="text-center">
                         <div className="text-red-500 text-xl mb-4">⚠️</div>
                         <p className="text-red-600 mb-4">{error}</p>
@@ -117,7 +118,15 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
                     </div>
                 </div>
             )}
-            <div ref={meetingSDKElement} className="w-full h-full" style={{ display: loading || error ? 'none' : 'block' }}></div>
+            <div 
+                ref={meetingSDKElement} 
+                className="w-full" 
+                style={{ 
+                    display: loading || error ? 'none' : 'block',
+                    minHeight: '800px',
+                    marginBottom: '60px'
+                }}
+            ></div>
         </div>
     );
 };
