@@ -111,31 +111,45 @@ const ImageCropUpload = ({
         (e) => {
             const { width, height } = e.currentTarget;
             
-            // Calculate scale to fit crop dimensions
-            const scaleX = width / cropWidth;
-            const scaleY = height / cropHeight;
-            const minScale = Math.min(scaleX, scaleY);
+            let calculatedWidth, calculatedHeight;
             
-            // If image is smaller than crop dimensions, zoom in
-            if (minScale < 1) {
-                setZoom(1 / minScale);
+            if (cropAspectRatio <= 1) {
+                // Portrait or square (height >= width)
+                const maxHeight = Math.min(height * 0.8, cropHeight);
+                calculatedHeight = maxHeight;
+                calculatedWidth = maxHeight * cropAspectRatio;
+                
+                if (calculatedWidth > width * 0.8) {
+                    calculatedWidth = width * 0.8;
+                    calculatedHeight = calculatedWidth / cropAspectRatio;
+                }
             } else {
-                setZoom(1);
+                // Landscape (width > height)
+                const maxWidth = Math.min(width * 0.8, cropWidth);
+                calculatedWidth = maxWidth;
+                calculatedHeight = maxWidth / cropAspectRatio;
+                
+                if (calculatedHeight > height * 0.8) {
+                    calculatedHeight = height * 0.8;
+                    calculatedWidth = calculatedHeight * cropAspectRatio;
+                }
             }
             
-            const centerX = Math.max(0, (width - cropWidth) / 2);
-            const centerY = Math.max(0, (height - cropHeight) / 2);
+            const centerX = Math.max(0, (width - calculatedWidth) / 2);
+            const centerY = Math.max(0, (height - calculatedHeight) / 2);
+            
             const initialCrop = {
                 unit: "px",
-                width: Math.min(cropWidth, width),
-                height: Math.min(cropHeight, height),
+                width: calculatedWidth,
+                height: calculatedHeight,
                 x: centerX,
                 y: centerY,
             };
             setCrop(initialCrop);
             setCompletedCrop(initialCrop);
+            setZoom(1);
         },
-        [cropWidth, cropHeight]
+        [cropWidth, cropHeight, cropAspectRatio]
     );
 
     const getCroppedImg = useCallback(

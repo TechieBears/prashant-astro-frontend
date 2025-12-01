@@ -380,10 +380,9 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         setValue={setValue}
                                                         control={control}
                                                         defaultValue={userData?.image}
-                                                        cropAspectRatio={1}
-                                                        cropWidth={500}
-                                                        cropHeight={300}
-
+                                                        cropAspectRatio={2/3}
+                                                        cropWidth={800}
+                                                        cropHeight={1200}
                                                     />
 
                                                 </div>

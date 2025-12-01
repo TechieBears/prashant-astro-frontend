@@ -163,9 +163,9 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             setValue={setValue}
                                                             control={control}
                                                             defaultValue={userData?.image}
-                                                            cropAspectRatio={1}
-                                                            cropHeight={250}
-                                                            cropWidth={600}
+                                                            cropAspectRatio={21/9}
+                                                            cropWidth={2560}
+                                                            cropHeight={1080}
                                                         />
 
                                                     </div>
