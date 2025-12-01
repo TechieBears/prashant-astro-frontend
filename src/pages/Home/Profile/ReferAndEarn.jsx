@@ -165,10 +165,10 @@ const ReferAndEarn = () => {
                                 <FaWhatsapp size={18} className="sm:w-6 sm:h-6" />
                                 Invite on WhatsApp
                             </button>
-                            <button onClick={shareLink} className="flex items-center justify-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-tbPop  font-bold px-5 sm:px-6 py-3 sm:py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base active:scale-95">
+                            {/* <button onClick={shareLink} className="flex items-center justify-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-tbPop  font-bold px-5 sm:px-6 py-3 sm:py-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base active:scale-95">
                                 {linkCopied ? <FaCheck size={18} className="sm:w-5 sm:h-5" /> : <FaLink size={18} className="sm:w-5 sm:h-5" />}
                                 {linkCopied ? "Link Copied!" : "Share Link"}
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </div>
