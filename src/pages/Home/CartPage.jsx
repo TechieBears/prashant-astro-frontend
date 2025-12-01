@@ -52,16 +52,12 @@ const CartPage = () => {
     // Calculate totals manually since we removed the complex selectors
     const productCalculations = useMemo(() => {
         const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const gstAmount = subtotal * 0.18; // 18% GST
-        const total = subtotal + gstAmount;
-        return { subtotal, gstAmount, total };
+        return { subtotal };
     }, [cartItems]);
 
     const serviceCalculations = useMemo(() => {
         const subtotal = serviceCartItems.reduce((sum, item) => sum + item.originalPrice, 0);
-        const gstAmount = subtotal * 0.18; // 18% GST
-        const total = subtotal + gstAmount;
-        return { subtotal, gstAmount, total };
+        return { subtotal };
     }, [serviceCartItems]);
 
 
@@ -514,7 +510,6 @@ const CartPage = () => {
                             onEditService={handleEditService}
                             onCheckout={handleServicesCheckout}
                             subtotal={serviceCalculations.subtotal}
-                            gstAmount={serviceCalculations.gstAmount}
                             total={serviceCalculations.total}
                             isRemoving={isRemovingItem}
                             isCreatingOrder={isCreatingOrder}
@@ -536,7 +531,6 @@ const CartPage = () => {
                         onRemoveItem={removeItem}
                         onCheckout={handleProductsCheckout}
                         subtotal={productCalculations.subtotal}
-                        gstAmount={productCalculations.gstAmount}
                         total={productCalculations.total}
                         isUpdating={isUpdatingQuantity}
                         isRemoving={isRemovingItem}

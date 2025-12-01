@@ -119,6 +119,12 @@ function ServiceBookingViewModal({ bookingData }) {
                                                                 {bookingData?.customer?.name}
                                                             </span>
                                                         </div>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Email:</span>
+                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop capitalize">
+                                                                {bookingData?.customer?.email}
+                                                            </span>
+                                                        </div>
 
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-sm font-medium text-gray-600 font-tbLex">Phone:</span>
@@ -192,60 +198,62 @@ function ServiceBookingViewModal({ bookingData }) {
                                                 </div>
 
                                                 {/* Address Information */}
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <div className="p-2 bg-green-50 rounded-lg">
-                                                            <MapPin className="text-green-600" size={20} />
+                                                {bookingData?.services?.[0]?.address && (
+                                                    <div>
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <div className="p-2 bg-green-50 rounded-lg">
+                                                                <MapPin className="text-green-600" size={20} />
+                                                            </div>
+                                                            <h3 className="text-base font-medium font-tbLex text-black">
+                                                                Address Information
+                                                            </h3>
                                                         </div>
-                                                        <h3 className="text-base font-medium font-tbLex text-black">
-                                                            Address Information
-                                                        </h3>
+
+                                                        <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">Address Type:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop capitalize">
+                                                                    {bookingData?.services?.[0]?.address?.addressType}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-start">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">Address:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop text-right max-w-[60%]">
+                                                                    {bookingData?.services?.[0]?.address?.address}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">City:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop">
+                                                                    {bookingData?.services?.[0]?.address?.city}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">State:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop">
+                                                                    {bookingData?.services?.[0]?.address?.state}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">Postal Code:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop">
+                                                                    {bookingData?.services?.[0]?.address?.postalCode}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-sm font-medium text-gray-600 font-tbLex">Country:</span>
+                                                                <span className="text-sm font-semibold text-gray-800 font-tbPop">
+                                                                    {bookingData?.services?.[0]?.address?.country}
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-
-                                                    <div className="bg-slate-50 rounded-lg p-4 space-y-3">
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Address Type:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop capitalize">
-                                                                {bookingData?.address?.addressType}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex justify-between items-start">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Address:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop text-right max-w-[60%]">
-                                                                {bookingData?.address?.address}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">City:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.city}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">State:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.state}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Postal Code:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.postalCode}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Country:</span>
-                                                            <span className="text-sm font-semibold text-gray-800 font-tbPop">
-                                                                {bookingData?.address?.country}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
 
                                             {/* Right Column */}
