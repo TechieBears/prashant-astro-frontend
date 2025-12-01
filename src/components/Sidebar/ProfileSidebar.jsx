@@ -21,7 +21,6 @@ const ProfileSidebar = () => {
     { name: "Refer & Earn", path: "/profile/refer-and-earn" },
     { name: "My Address", path: "/profile/address" },
     { name: "Customer Support", path: "/profile/customer-support" },
-    { name: "Privacy Policy", path: "/profile/privacy-policy" },
   ];
 
   const handleLogout = async () => {
