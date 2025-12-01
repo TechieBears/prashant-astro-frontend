@@ -54,7 +54,7 @@ const PaymentSummary = ({
         }
     }
 
-    const finalTotal = Math.max(total - discountAmount, 0).toFixed(2);
+    const finalTotal = Math.max(subtotal - discountAmount, 0).toFixed(2);
 
     return (
         <div className="lg:col-span-5">
@@ -97,12 +97,12 @@ const PaymentSummary = ({
                         </span>
                     </div>
 
-                    <div className="flex justify-between items-center">
+                    {/* <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm md:text-base">GST (18%)</span>
                         <span className="font-medium text-sm md:text-base">
                             ₹ {(gstAmount || 0).toFixed(2)}
                         </span>
-                    </div>
+                    </div> */}
 
                     {appliedCoupon && (
                         <div className="flex justify-between items-center text-green-700">

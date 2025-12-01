@@ -12,7 +12,6 @@ const ProductsSection = ({
     onRemoveItem,
     onCheckout,
     subtotal = 0,
-    gstAmount = 0,
     total = 0,
     isUpdating = false,
     isRemoving = null,
@@ -101,7 +100,6 @@ const ProductsSection = ({
                         <PaymentSummary
                             itemCount={cartItems.reduce((total, item) => total + (item.quantity || 0), 0)}
                             subtotal={subtotal}
-                            gstAmount={gstAmount}
                             total={total}
                             buttonText="Proceed to Checkout"
                             onCheckout={onCheckout}
