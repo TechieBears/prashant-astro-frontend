@@ -253,9 +253,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         setValue={setValue}
                                                         control={control}
                                                         defaultValue={userData?.profile?.profileImage}
-                                                        cropAspectRatio={1}
-                                                        cropHeight={400}
-                                                        cropWidth={400}
+                                                        cropAspectRatio={2/3}
+                                                        cropWidth={800}
+                                                        cropHeight={1200}
                                                     />
                                                 </div>
                                                 <div className="">

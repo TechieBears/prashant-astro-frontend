@@ -110,23 +110,23 @@ const ImageCropUpload = ({
     const onImageLoad = useCallback(
         (e) => {
             const { width, height } = e.currentTarget;
-            
+
             // Calculate crop dimensions based on aspect ratio
             let calculatedWidth, calculatedHeight;
             
-            if (cropAspectRatio < 1) {
-                // Portrait orientation (e.g., 2:3 = 0.666)
-                calculatedHeight = Math.min(height * 0.8, cropHeight);
+            if (width / height > cropAspectRatio) {
+                // Image is wider than crop ratio
+                calculatedHeight = Math.min(height, cropHeight);
                 calculatedWidth = calculatedHeight * cropAspectRatio;
             } else {
-                // Landscape orientation
-                calculatedWidth = Math.min(width * 0.8, cropWidth);
+                // Image is taller than crop ratio
+                calculatedWidth = Math.min(width, cropWidth);
                 calculatedHeight = calculatedWidth / cropAspectRatio;
             }
-            
+
             const centerX = Math.max(0, (width - calculatedWidth) / 2);
             const centerY = Math.max(0, (height - calculatedHeight) / 2);
-            
+
             const initialCrop = {
                 unit: "px",
                 width: calculatedWidth,
@@ -257,7 +257,7 @@ const ImageCropUpload = ({
     const handleDelete = (url) => {
         const updatedFiles = files.filter(file => file.url !== url);
         setFiles(updatedFiles);
-        
+
         if (updatedFiles.length === 0) {
             setFileName("");
             setValue(registerName, multiple ? [] : null);
@@ -265,7 +265,7 @@ const ImageCropUpload = ({
             setFileName(updatedFiles.length === 1 ? updatedFiles[0].name : `${updatedFiles.length} files selected`);
             setValue(registerName, multiple ? updatedFiles.map(f => f.file) : updatedFiles[0].file);
         }
-        
+
         if (onDelete) {
             onDelete(url);
         }

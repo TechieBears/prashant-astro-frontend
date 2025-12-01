@@ -48,7 +48,9 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
             const formData = new FormData();
             formData.append('name', data?.name);
             formData.append('category', data?.category);
-            formData.append('subcategory', data?.subcategory);
+            if (data?.subcategory) {
+                formData.append('subcategory', data?.subcategory);
+            }
             formData.append('description', data?.description);
             formData.append('additionalInfo', data?.additionalInfo || '');
             formData.append('stock', data?.stock);
@@ -56,7 +58,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
             formData.append('mrpPrice', data?.mrpPrice);
             formData.append('specification', JSON.stringify(data?.specification || []));
             formData.append('deletedImages', JSON.stringify(deletedImages));
-            
+
             if (Array.isArray(data.images)) {
                 data.images.forEach((image) => {
                     if (image instanceof File) {
@@ -236,7 +238,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                         <h4
                                                             className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                         >
-                                                            Product Sub Category <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                            Product Sub Category
                                                         </h4>
                                                         <div className="">
                                                             <SelectTextInput
@@ -245,7 +247,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                 options={productSubCategories}
                                                                 placeholder="Select Product Sub Category "
                                                                 props={{
-                                                                    ...register('subcategory', { required: true }),
+                                                                    ...register('subcategory'),
                                                                     value: watch('subcategory') || '',
                                                                 }}
                                                                 errors={errors.subcategory}
