@@ -122,7 +122,6 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
         }
     }, [edit, userData, reset, setValue, open]);
 
-
     useEffect(() => {
         const apiCall = async () => {
             const response = await getServiceCategoriesDropdown();
@@ -145,7 +144,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                 // Prevent closing when clicking on JoditEditor elements
                 const joditElements = document.querySelectorAll('.jodit-container, .jodit-toolbar, .jodit-workplace, .jodit-popup, .jodit-dialog');
                 const clickedOnJodit = Array.from(joditElements).some(el => el.contains(document.activeElement) || el.contains(event?.target));
-                
+
                 if (!clickedOnJodit) {
                     toggle();
                 }
@@ -380,7 +379,7 @@ function CreateServiceModal({ edit, userData, setRefreshTrigger }) {
                                                         setValue={setValue}
                                                         control={control}
                                                         defaultValue={userData?.image}
-                                                        cropAspectRatio={2/3}
+                                                        cropAspectRatio={2 / 3}
                                                         cropWidth={800}
                                                         cropHeight={1200}
                                                     />
