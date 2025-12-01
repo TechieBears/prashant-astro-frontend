@@ -74,7 +74,7 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
           />
 
           <div
-            className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer"
+            className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer touch-none"
             style={{
               left: `${minP}%`,
               top: '50%',
@@ -105,10 +105,35 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
             }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              const startX = e.touches[0].clientX;
+              const startValue = value[0];
+              const range = effectiveMax - min;
+              const sliderWidth = e.currentTarget.parentElement.offsetWidth;
+
+              const handleTouchMove = (moveEvent) => {
+                const deltaX = moveEvent.touches[0].clientX - startX;
+                const deltaValue = (deltaX / sliderWidth) * range;
+                const newValue = Math.min(
+                  Math.max(min, startValue + deltaValue),
+                  value[1] - 1
+                );
+                onChange([Math.round(newValue), value[1]]);
+              };
+
+              const handleTouchEnd = () => {
+                document.removeEventListener('touchmove', handleTouchMove);
+                document.removeEventListener('touchend', handleTouchEnd);
+              };
+
+              document.addEventListener('touchmove', handleTouchMove);
+              document.addEventListener('touchend', handleTouchEnd);
+            }}
           />
 
           <div
-            className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer"
+            className="absolute w-4 h-4 bg-orange-500 rounded-full -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer touch-none"
             style={{
               left: `${Math.min(maxP, 100)}%`,
               top: '50%',
@@ -147,6 +172,40 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
 
               document.addEventListener('mousemove', handleMouseMove);
               document.addEventListener('mouseup', handleMouseUp);
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              const range = effectiveMax - min;
+              const sliderElement = e.currentTarget.parentElement;
+              const sliderWidth = sliderElement.offsetWidth;
+
+              const handleTouchMove = (moveEvent) => {
+                const sliderRect = sliderElement.getBoundingClientRect();
+                const relativeX = moveEvent.touches[0].clientX - sliderRect.left;
+                const percentage = Math.max(0, Math.min(100, (relativeX / sliderWidth) * 100));
+
+                let newValue;
+                if (percentage >= 99.5) {
+                  newValue = effectiveMax;
+                } else {
+                  newValue = Math.round(min + (percentage / 100) * range);
+                }
+
+                const clampedValue = Math.max(
+                  Math.min(effectiveMax, newValue),
+                  value[0] + 1
+                );
+
+                onChange([value[0], clampedValue]);
+              };
+
+              const handleTouchEnd = () => {
+                document.removeEventListener('touchmove', handleTouchMove);
+                document.removeEventListener('touchend', handleTouchEnd);
+              };
+
+              document.addEventListener('touchmove', handleTouchMove);
+              document.addEventListener('touchend', handleTouchEnd);
             }}
           />
         </div>
