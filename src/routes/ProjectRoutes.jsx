@@ -320,8 +320,8 @@ const ProjectRoutes = () => {
                                 <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
                                 <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
                                 <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
-                                <Route path="privacy-policy" element={<ProtectedRoute><Policy /></ProtectedRoute>} />
                             </Route>
+                            <Route path="/privacy-policy" element={<Policy />} />
                             <Route path="/terms-conditions" element={<TermsConditions />} />
                             <Route
                                 path="/payment-success"

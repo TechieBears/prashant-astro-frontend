@@ -18,8 +18,8 @@ const ImageCropUpload = ({
     style,
     disabled,
     cropAspectRatio = 5 / 3,
-    cropWidth = 500,
-    cropHeight = 300,
+    cropWidth = 400,
+    cropHeight = 600,
     onDelete,
 }) => {
     const [fileName, setFileName] = useState("");
@@ -110,34 +110,22 @@ const ImageCropUpload = ({
     const onImageLoad = useCallback(
         (e) => {
             const { width, height } = e.currentTarget;
-            
-            let calculatedWidth, calculatedHeight;
-            
-            if (cropAspectRatio <= 1) {
-                // Portrait or square (height >= width)
-                const maxHeight = Math.min(height * 0.8, cropHeight);
-                calculatedHeight = maxHeight;
-                calculatedWidth = maxHeight * cropAspectRatio;
-                
-                if (calculatedWidth > width * 0.8) {
-                    calculatedWidth = width * 0.8;
-                    calculatedHeight = calculatedWidth / cropAspectRatio;
-                }
+
+            // Calculate scale to fit crop dimensions
+            const scaleX = width / cropWidth;
+            const scaleY = height / cropHeight;
+            const minScale = Math.min(scaleX, scaleY);
+
+            // If image is smaller than crop dimensions, zoom in
+            if (minScale < 1) {
+                setZoom(1 / minScale);
             } else {
-                // Landscape (width > height)
-                const maxWidth = Math.min(width * 0.8, cropWidth);
-                calculatedWidth = maxWidth;
-                calculatedHeight = maxWidth / cropAspectRatio;
-                
-                if (calculatedHeight > height * 0.8) {
-                    calculatedHeight = height * 0.8;
-                    calculatedWidth = calculatedHeight * cropAspectRatio;
-                }
+                setZoom(1);
             }
-            
+
             const centerX = Math.max(0, (width - calculatedWidth) / 2);
             const centerY = Math.max(0, (height - calculatedHeight) / 2);
-            
+
             const initialCrop = {
                 unit: "px",
                 width: calculatedWidth,
@@ -268,7 +256,7 @@ const ImageCropUpload = ({
     const handleDelete = (url) => {
         const updatedFiles = files.filter(file => file.url !== url);
         setFiles(updatedFiles);
-        
+
         if (updatedFiles.length === 0) {
             setFileName("");
             setValue(registerName, multiple ? [] : null);
@@ -276,7 +264,7 @@ const ImageCropUpload = ({
             setFileName(updatedFiles.length === 1 ? updatedFiles[0].name : `${updatedFiles.length} files selected`);
             setValue(registerName, multiple ? updatedFiles.map(f => f.file) : updatedFiles[0].file);
         }
-        
+
         if (onDelete) {
             onDelete(url);
         }
