@@ -66,7 +66,7 @@ const ZoomMeeting = () => {
     }
 
     return (
-        <div className="w-full h-screen">
+        <div className="w-full min-h-screen py-8" style={{ overflow: 'visible' }}>
             <ZoomSDKEmbed
                 key={meetingData.meetingId}
                 meetingNumber={meetingData.meetingId}
