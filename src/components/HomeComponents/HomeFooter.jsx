@@ -32,7 +32,7 @@ const footerData = {
     },
     copyright: "© 2025 Pandit Prashant Suryavanshi. All rights reserved.",
     legalLinks: [
-        { label: "Privacy Policy", path: "/profile/privacy-policy" },
+        { label: "Privacy Policy", path: "/privacy-policy" },
         { label: "Terms of Service", path: "/terms-conditions" },
     ]
 };
