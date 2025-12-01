@@ -18,8 +18,8 @@ const ImageCropUpload = ({
     style,
     disabled,
     cropAspectRatio = 5 / 3,
-    cropWidth = 500,
-    cropHeight = 300,
+    cropWidth = 400,
+    cropHeight = 600,
     onDelete,
 }) => {
     const [fileName, setFileName] = useState("");
@@ -111,31 +111,34 @@ const ImageCropUpload = ({
         (e) => {
             const { width, height } = e.currentTarget;
             
-            // Calculate scale to fit crop dimensions
-            const scaleX = width / cropWidth;
-            const scaleY = height / cropHeight;
-            const minScale = Math.min(scaleX, scaleY);
+            // Calculate crop dimensions based on aspect ratio
+            let calculatedWidth, calculatedHeight;
             
-            // If image is smaller than crop dimensions, zoom in
-            if (minScale < 1) {
-                setZoom(1 / minScale);
+            if (cropAspectRatio < 1) {
+                // Portrait orientation (e.g., 2:3 = 0.666)
+                calculatedHeight = Math.min(height * 0.8, cropHeight);
+                calculatedWidth = calculatedHeight * cropAspectRatio;
             } else {
-                setZoom(1);
+                // Landscape orientation
+                calculatedWidth = Math.min(width * 0.8, cropWidth);
+                calculatedHeight = calculatedWidth / cropAspectRatio;
             }
             
-            const centerX = Math.max(0, (width - cropWidth) / 2);
-            const centerY = Math.max(0, (height - cropHeight) / 2);
+            const centerX = Math.max(0, (width - calculatedWidth) / 2);
+            const centerY = Math.max(0, (height - calculatedHeight) / 2);
+            
             const initialCrop = {
                 unit: "px",
-                width: Math.min(cropWidth, width),
-                height: Math.min(cropHeight, height),
+                width: calculatedWidth,
+                height: calculatedHeight,
                 x: centerX,
                 y: centerY,
             };
             setCrop(initialCrop);
             setCompletedCrop(initialCrop);
+            setZoom(1);
         },
-        [cropWidth, cropHeight]
+        [cropWidth, cropHeight, cropAspectRatio]
     );
 
     const getCroppedImg = useCallback(
