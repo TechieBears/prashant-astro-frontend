@@ -58,6 +58,7 @@ import ZoomMeeting from '../pages/Meeting/ZoomMeeting';
 import TalkWithAstrologer from '../pages/Home/TalkWithAstrologer';
 import AstrologerDetail from '../pages/Home/AstrologerDetail';
 import Wallet from '../pages/Wallet/Wallet';
+import CallHistory from '../pages/Home/Profile/CallHistory';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -318,6 +319,7 @@ const ProjectRoutes = () => {
                                 <Route index element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                                 <Route path="address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
                                 <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                                <Route path="call-history" element={<ProtectedRoute><CallHistory /></ProtectedRoute>} />
                                 <Route path="refer-and-earn" element={<ProtectedRoute><ReferAndEarn /></ProtectedRoute>} />
                                 <Route path="customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
                             </Route>
@@ -341,7 +343,7 @@ const ProjectRoutes = () => {
                         href={`https://wa.me/${8693000900}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
+                        className="fixed bottom-6 right-6 z-40 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300"
                     >
                         <WhatsappIcon size={30} />
                     </a>

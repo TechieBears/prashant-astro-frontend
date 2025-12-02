@@ -289,14 +289,15 @@ function ServiceBookingViewModal({ bookingData }) {
                                                                 {service?.zoomLink && (
                                                                     <div className="flex justify-between items-center mt-2">
                                                                         <span className="text-sm font-medium text-gray-600 font-tbLex">Zoom Link:</span>
-                                                                        <a
-                                                                            href={service?.zoomLink}
-                                                                            target="_blank"
-                                                                            rel="noreferrer"
-                                                                            className="text-sm font-semibold text-blue-600 font-tbPop hover:text-blue-800"
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                const zoomUrl = encodeURIComponent(service?.zoomLink);
+                                                                                window.open(`/meeting?zoomUrl=${zoomUrl}`, '_blank');
+                                                                            }}
+                                                                            className="text-sm text-blue-600 hover:text-blue-800 underline font-tbPop bg-transparent border-none cursor-pointer"
                                                                         >
                                                                             Join Session
-                                                                        </a>
+                                                                        </button>
                                                                     </div>
                                                                 )}
                                                             </div>

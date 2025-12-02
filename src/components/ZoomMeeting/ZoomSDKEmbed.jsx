@@ -3,8 +3,9 @@ import ZoomMtgEmbedded from '@zoom/meetingsdk/embedded';
 import { getZoomSignature } from '../../api/index';
 import './ZoomSDKEmbed.css';
 
-const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
+const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
     const [loading, setLoading] = useState(true);
+    const [leaving, setLeaving] = useState(false);
     const [error, setError] = useState(null);
     const meetingSDKElement = useRef(null);
     const clientRef = useRef(null);
@@ -70,6 +71,21 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
 
                 console.log('Joined meeting successfully');
                 if (mounted) setLoading(false);
+
+                // Listen for all meeting end events
+                const handleMeetingEnd = () => {
+                    console.log('Meeting ended - redirecting');
+                    setLeaving(true);
+                    setTimeout(() => {
+                        if (onMeetingEnd) onMeetingEnd();
+                    }, 1500);
+                };
+
+                client.on('meeting-ended', handleMeetingEnd);
+                client.on('connection-change', (payload) => {
+                    console.log('Connection change:', payload);
+                    if (payload.state === 'Closed') handleMeetingEnd();
+                });
             } catch (err) {
                 console.error('Error initializing Zoom:', err);
                 if (mounted) {
@@ -96,7 +112,15 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
 
     return (
         <div className="w-full">
-            {loading && (
+            {leaving && (
+                <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Meeting ended. Redirecting...</p>
+                    </div>
+                </div>
+            )}
+            {loading && !leaving && (
                 <div className="flex items-center justify-center min-h-screen bg-gray-100">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -122,7 +146,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName }) => {
                 ref={meetingSDKElement} 
                 className="w-full" 
                 style={{ 
-                    display: loading || error ? 'none' : 'block',
+                    display: loading || error || leaving ? 'none' : 'block',
                     minHeight: '800px',
                     marginBottom: '60px'
                 }}
