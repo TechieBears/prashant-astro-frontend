@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { parseZoomUrl } from '../../utils/zoomUtils';
 import ZoomSDKEmbed from '../../components/ZoomMeeting/ZoomSDKEmbed';
 
 const ZoomMeeting = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { roleIs } = useSelector((state) => state.user);
     const [meetingData, setMeetingData] = useState(null);
     const [error, setError] = useState(null);
 
@@ -37,7 +39,15 @@ const ZoomMeeting = () => {
     }, [searchParams]);
 
     const handleMeetingEnd = () => {
-        navigate('/');
+        const role = roleIs || localStorage.getItem('role');
+
+        if (role === 'admin') {
+            navigate('/service-bookings');
+        } else if (role === 'employee') {
+            navigate('/service-bookings');
+        } else {
+            navigate('/profile/orders');
+        }
     };
 
     if (error) {
@@ -46,8 +56,8 @@ const ZoomMeeting = () => {
                 <div className="text-center">
                     <div className="text-red-500 text-xl mb-4">⚠️</div>
                     <p className="text-red-600 mb-4">{error}</p>
-                    <button 
-                        onClick={() => navigate('/')} 
+                    <button
+                        onClick={() => navigate('/')}
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                     >
                         Go Home
@@ -72,6 +82,7 @@ const ZoomMeeting = () => {
                 meetingNumber={meetingData.meetingId}
                 password={meetingData.password}
                 userName={meetingData.userName}
+                onMeetingEnd={handleMeetingEnd}
             />
         </div>
     );

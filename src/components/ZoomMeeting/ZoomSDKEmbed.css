@@ -1,31 +1,59 @@
 /* Make the Zoom widget larger and fully visible */
 [aria-label="Zoom app container"] .react-resizable {
-    min-height: 650px !important;
-    height: auto !important;
+    min-height: 600px !important;
+    height: 600px !important;
     width: 800px !important;
     max-width: 95vw !important;
 }
 
 [aria-label="Zoom app container"] .css-1nwgrc8 {
-    min-height: 650px !important;
-    height: auto !important;
+    min-height: 600px !important;
+    height: 600px !important;
     width: 800px !important;
     max-width: 95vw !important;
 }
 
 /* Override the main widget paper */
 [aria-label="Zoom Web SDK Widget"] {
-    min-height: 650px !important;
-    height: auto !important;
+    min-height: 600px !important;
+    height: 600px !important;
     width: 800px !important;
     max-width: 95vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
 }
 
-/* Adjust the video container with inline attributes */
+.css-108w4cc {
+    min-height: 600px !important;
+    height: 600px !important;
+}
+
+/* Fix bottom control bar */
+.css-v6vlpu {
+    position: relative !important;
+    bottom: auto !important;
+    margin-top: 10px !important;
+}
+
+/* Fix main gallery container */
 [aria-label="Zoom app container"] .css-1op03nt {
-    height: 500px !important;
-    width: 800px !important;
-    max-width: 95vw !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.css-1op03nt>* {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* Override inline width/height attributes */
@@ -50,22 +78,125 @@
     overflow: visible !important;
 }
 
+/* Fix draggable chat card */
+.react-draggable {
+    overflow: visible !important;
+}
+
+.react-draggable > div {
+    overflow: visible !important;
+}
+
 /* Ensure all Zoom panels are visible */
 .zoom-MuiPopover-root,
 .zoom-MuiModal-root,
-.zoom-MuiDrawer-root,
-.zoom-MuiPopper-root {
+.zoom-MuiDrawer-root {
     position: fixed !important;
     z-index: 9999 !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
 }
 
+/* Fix leave dialog positioning */
+.zoom-MuiPopper-root[aria-label*="Leave"] {
+    position: absolute !important;
+    z-index: 9999 !important;
+}
 
-/* Increase video participant item size */
-.zoom-MuiListItem-root.css-12idwbr {
-    min-width: 200px !important;
-    min-height: 150px !important;
-    width: auto !important;
+[aria-label="Zoom app container"] .zoom-MuiPopper-root {
+    position: absolute !important;
+}
+
+/* Fix Popper alignment to prevent cutoff */
+.zoom-MuiPopper-root.css-0 {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    max-width: 90vw !important;
+    max-height: 90vh !important;
+    overflow: visible !important;
+    z-index: 99999 !important;
+}
+
+/* Fix chat card dragging - remove scrollers */
+.zoom-MuiPopper-root.css-0 .zoom-MuiPaper-root {
+    overflow: visible !important;
+}
+
+.zoom-MuiPopper-root.css-0 * {
+    overflow-x: visible !important;
+}
+
+
+/* Fix participant video items */
+.zoom-MuiListItem-root.css-12idwbr,
+.zoom-MuiListItem-root.css-uoiue8 {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #1a1a1a !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+}
+
+/* Fix video-player-container alignment */
+video-player-container {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 450px !important;
+    height: 250px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+video-player-container>div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Gallery view inner positioning */
+.css-1op03nt>div[style*="position: relative"] {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 600px !important;
     height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+.css-1op03nt>div[style*="position: relative"]>video-player-container {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+.css-1op03nt>div[style*="position: relative"]>video-player-container:first-of-type {
+    margin-bottom: 0 !important;
+}
+
+.css-1op03nt>div[style*="position: relative"]>video-player-container:last-of-type {
+    margin-top: 0 !important;
+}
+
+/* Ensure video containers fill their space properly */
+.css-1hyfx7x {
+    width: 100% !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Fix participant list items */
+.zoom-MuiListItem-root {
+    border-radius: 8px !important;
+    overflow: hidden !important;
 }
