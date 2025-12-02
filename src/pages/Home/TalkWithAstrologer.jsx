@@ -6,6 +6,12 @@ import CallButton from '../../components/Common/CallButton';
 import Tabs from '../../components/Common/Tabs';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getAllAstrologerCalls } from '../../api';
+import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
+import astrologer2 from '../../assets/Astrologer/panditcall2.jpg';
+import astrologer3 from '../../assets/Astrologer/panditcall3.jpg';
+import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
+import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
+import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
 
 const TalkWithAstrologer = () => {
     const navigate = useNavigate();
@@ -27,7 +33,7 @@ const TalkWithAstrologer = () => {
         {
             id: 1,
             name: 'Tarott Chandni',
-            image: '/src/assets/Astrologer/panditcall (1).jpg',
+            image: astrologer1,
             status: 'Online',
             skills: 'Vedic Astrology, Vastu Shastra, Tarot Reading, Yoga & Meditation...',
             languages: 'Hindi, Marathi, English, Telugu',
@@ -37,7 +43,7 @@ const TalkWithAstrologer = () => {
         {
             id: 2,
             name: 'Tarott Chandni',
-            image: '/src/assets/Astrologer/panditcall (2).jpg',
+            image: astrologer2,
             status: 'Busy',
             skills: 'Vedic Astrology, Vastu Shastra, Tarot Reading, Yoga & Meditation...',
             languages: 'Hindi, Marathi, English, Telugu',
@@ -47,7 +53,7 @@ const TalkWithAstrologer = () => {
         {
             id: 3,
             name: 'Tarott Chandni',
-            image: '/src/assets/Astrologer/panditcall (3).jpg',
+            image: astrologer3,
             status: 'Online',
             skills: 'Vedic Astrology, Vastu Shastra, Tarot Reading, Yoga & Meditation...',
             languages: 'Hindi, Marathi, English, Telugu',
@@ -239,7 +245,7 @@ const TalkWithAstrologer = () => {
 
                                     {/* Skills with star icon */}
                                     <div className="flex items-start gap-2 mb-2">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (1).png" alt="Skills" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge1} alt="Skills" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[12px] text-[#62748E] leading-relaxed">
                                             {astrologer.skills}
                                         </p>
@@ -247,7 +253,7 @@ const TalkWithAstrologer = () => {
 
                                     {/* Languages with icon */}
                                     <div className="flex items-start gap-2 mb-2">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (2).png" alt="Languages" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge2} alt="Languages" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[12px] text-[#62748E]">
                                             {astrologer.languages}
                                         </p>
@@ -255,7 +261,7 @@ const TalkWithAstrologer = () => {
 
                                     {/* Experience with icon */}
                                     <div className="flex items-start gap-2 mb-4">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (3).png" alt="Experience" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge3} alt="Experience" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[12px] text-[#62748E]">
                                             {astrologer.experience}
                                         </p>

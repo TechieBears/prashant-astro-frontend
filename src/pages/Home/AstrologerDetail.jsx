@@ -6,8 +6,13 @@ import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import UserReviews from '../../components/Common/UserReviews';
 import CallButton from '../../components/Common/CallButton';
 import WalletModal from '../../components/Modals/WalletModal';
+import TalkSessionModal from '../../components/Modals/TalkSessionModal';
 import { getFilteredReviews } from '../../api';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
+import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
+import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
+import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
+import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
 
 const AstrologerDetail = () => {
     const { id } = useParams();
@@ -23,6 +28,7 @@ const AstrologerDetail = () => {
     const [editingReviewId, setEditingReviewId] = useState(null);
     const [showLowBalance, setShowLowBalance] = useState(false);
     const [showWalletModal, setShowWalletModal] = useState(false);
+    const [showTalkSessionModal, setShowTalkSessionModal] = useState(false);
     const [userBalance] = useState(200); // Mock balance - set lower to test modal
 
     const incrementTime = (amount) => {
@@ -40,8 +46,7 @@ const AstrologerDetail = () => {
             console.log('Opening wallet modal...');
             setShowWalletModal(true);
         } else {
-            // Proceed with call
-            console.log('Call initiated');
+            setShowTalkSessionModal(true);
         }
     };
 
@@ -74,7 +79,7 @@ const AstrologerDetail = () => {
     const astrologer = {
         id: id,
         name: 'Tarott Chandni',
-        image: '/src/assets/Astrologer/panditcall (1).jpg',
+        image: astrologer1,
         status: 'Online',
         skills: 'Vedic Astrology, Vastu Shastra, Tarot Reading, Yoga & Meditation, Numerology, Palmistry',
         languages: 'Hindi, Marathi, English, Telugu',
@@ -144,7 +149,7 @@ const AstrologerDetail = () => {
 
                                     {/* Skills with icon */}
                                     <div className="flex items-start gap-2 mb-4">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (1).png" alt="Skills" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge1} alt="Skills" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[14px] text-[#62748E] leading-relaxed">
                                             {astrologer.skills}
                                         </p>
@@ -152,7 +157,7 @@ const AstrologerDetail = () => {
 
                                     {/* Languages with icon */}
                                     <div className="flex items-start gap-2 mb-4">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (2).png" alt="Languages" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge2} alt="Languages" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[14px] text-[#62748E]">
                                             {astrologer.languages}
                                         </p>
@@ -160,7 +165,7 @@ const AstrologerDetail = () => {
 
                                     {/* Experience with icon */}
                                     <div className="flex items-start gap-2 mb-6">
-                                        <img src="/src/assets/Astrologer/Astrologerbadges (3).png" alt="Experience" className="w-4 h-4 mt-0.5" />
+                                        <img src={badge3} alt="Experience" className="w-4 h-4 mt-0.5" />
                                         <p className="text-[14px] text-[#62748E]">
                                             {astrologer.experience}
                                         </p>
@@ -177,24 +182,7 @@ const AstrologerDetail = () => {
                             </div>
                         </div>
 
-                        {/* Reviews Section */}
-                        <div className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6">
-                            <UserReviews
-                                reviews={reviews.filter(review => review.isActive === true)}
-                                loadingReviews={loadingReviews}
-                                onReviewUpdate={fetchAstrologerReviews}
-                                editingReviewId={editingReviewId}
-                                setEditingReviewId={setEditingReviewId}
-                                variant="detailed"
-                                currentUserId={userId}
-                                showEmptyState={true}
-                                showWriteReview={true}
-                                productId={null}
-                                serviceId={id}
-                                isLogged={isLogged}
-                                onLoginClick={() => navigate('/login')}
-                            />
-                        </div>
+
                     </div>
 
                     {/* Right Column - Call Setup Panel */}
@@ -337,6 +325,14 @@ const AstrologerDetail = () => {
                 isOpen={showWalletModal}
                 onClose={() => setShowWalletModal(false)}
                 requiredAmount={callTime * 10 - userBalance}
+                callTime={callTime}
+                astrologerName={astrologer.name}
+            />
+
+            {/* Talk Session Modal */}
+            <TalkSessionModal
+                isOpen={showTalkSessionModal}
+                onClose={() => setShowTalkSessionModal(false)}
                 callTime={callTime}
                 astrologerName={astrologer.name}
             />
