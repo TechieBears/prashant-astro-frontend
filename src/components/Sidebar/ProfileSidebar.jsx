@@ -18,6 +18,7 @@ const ProfileSidebar = () => {
   const menuItems = [
     { name: "My Account", path: "/profile" },
     { name: "My Orders", path: "/profile/orders" },
+    { name: "Call History", path: "/profile/call-history" },
     { name: "Refer & Earn", path: "/profile/refer-and-earn" },
     { name: "My Address", path: "/profile/address" },
     { name: "Customer Support", path: "/profile/customer-support" },
