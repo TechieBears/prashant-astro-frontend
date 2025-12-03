@@ -12,7 +12,6 @@ import {
     addProduct,
     editProduct,
     getProductCategoriesDropdown,
-    getProductSubCategoriesByCategory,
 } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import CustomTextArea from '../../TextInput/CustomTextArea';
@@ -24,7 +23,6 @@ import ImageCropUpload from '../../TextInput/ImageCropUpload';
 function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, formState: { errors }, setValue } = useForm();
     const productCategories = useSelector(state => state.appRoot?.productCategories || []);
-    const [productSubCategories, setProductSubCategories] = useState([]);
     const [open, setOpen] = useState(false);
     const toggle = () => { setOpen(!open), reset(), setDeletedImages([]) };
     const [loader, setLoader] = useState(false);
@@ -48,9 +46,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
             const formData = new FormData();
             formData.append('name', data?.name);
             formData.append('category', data?.category);
-            if (data?.subcategory) {
-                formData.append('subcategory', data?.subcategory);
-            }
             formData.append('description', data?.description);
             formData.append('additionalInfo', data?.additionalInfo || '');
             formData.append('stock', data?.stock);
@@ -106,7 +101,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
             reset({
                 name: userData?.name,
                 category: userData?.category?._id,
-                subcategory: userData?.subcategory?._id,
                 description: userData?.description,
                 highlights: userData?.highlights,
                 additionalInfo: userData?.additionalInfo,
@@ -116,18 +110,9 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 mrpPrice: userData?.mrpPrice,
                 specification: userData?.specification || []
             });
-
-            if (userData?.category?._id) {
-                const loadSubcategories = async () => {
-                    const response = await getProductSubCategoriesByCategory(userData?.category?._id);
-                    setProductSubCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name })));
-                };
-                loadSubcategories();
-            }
         } else {
             reset({
                 category: '',
-                subcategory: '',
                 name: '',
                 description: '',
                 highlights: '',
@@ -141,7 +126,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
         }
     }, [edit, userData, reset, setValue, open]);
 
-    const watchCategory = watch('category');
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -151,21 +135,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
         }
         apiCall();
     }, []);
-
-    useEffect(() => {
-        if (watchCategory) {
-            setValue('subcategory', '');
-
-            const apiCall = async () => {
-                const response = await getProductSubCategoriesByCategory(watchCategory);
-                setProductSubCategories(response?.data?.map(item => ({ value: item?._id, label: item?.name })));
-            }
-            apiCall();
-        } else {
-            setProductSubCategories([]);
-            setValue('subcategory', '');
-        }
-    }, [watchCategory, setValue]);
 
     return (
         <>
@@ -231,26 +200,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                                     }
                                                                 }}
                                                                 errors={errors.category}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className="">
-                                                        <h4
-                                                            className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
-                                                        >
-                                                            Product Sub Category
-                                                        </h4>
-                                                        <div className="">
-                                                            <SelectTextInput
-                                                                label="Select Product Sub Category"
-                                                                registerName="subcategory"
-                                                                options={productSubCategories}
-                                                                placeholder="Select Product Sub Category "
-                                                                props={{
-                                                                    ...register('subcategory'),
-                                                                    value: watch('subcategory') || '',
-                                                                }}
-                                                                errors={errors.subcategory}
                                                             />
                                                         </div>
                                                     </div>

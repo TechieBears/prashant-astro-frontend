@@ -80,13 +80,10 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
         { icon: FaDesktop, text: 'Mode:', value: getServiceModeLabel(serviceData.serviceType) }
     ];
     const statusInfo = getStatusInfo(serviceData?.bookingStatus);
-
-    // Astrologer details
     const astrologerName = serviceData.astrologerName || `${serviceData.astrologerFirstName || ''} ${serviceData.astrologerLastName || ''}`.trim();
 
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-            {/* Service Image - Small */}
             <div className="relative h-28 sm:h-32 bg-gray-100">
                 <ProductImage
                     images={serviceData.serviceImage}
@@ -106,21 +103,15 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                     {statusInfo.shortText}
                 </div>
             </div>
-
-            {/* Service Details */}
             <div className="p-2.5 sm:p-3">
                 <div className="space-y-2 mb-3">
                     <h4 className="font-semibold text-gray-800 text-xs sm:text-sm line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
                         {serviceData.serviceName || 'Service'}
                     </h4>
-
                     <div className="text-sm sm:text-base font-bold bg-clip-text text-transparent bg-button-gradient-orange">
                         ₹{(serviceData.total || serviceData.servicePrice)?.toLocaleString()}
                     </div>
-
-                    {/* Service Info */}
                     <div className="space-y-1.5 text-xs">
-                        {/* Customer Details */}
                         {serviceData.cust && (
                             <div className="bg-gray-50 p-2 rounded-md mb-2">
                                 <h5 className="font-medium text-gray-800 mb-1">Customer Details</h5>
@@ -140,8 +131,6 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                                 </div>
                             </div>
                         )}
-
-                        {/* Astrologer Details */}
                         {astrologerName && (
                             <div className="bg-gray-50 p-2 rounded-md mb-2">
                                 <h5 className="font-medium text-gray-800 mb-1">Astrologer Details</h5>
@@ -153,8 +142,6 @@ const ServiceItem = ({ serviceData, index, handleReviewSuccess, reviews, loading
                                 </div>
                             </div>
                         )}
-
-                        {/* Service Details */}
                         <div className="space-y-1">
                             {details.map(({ icon: Icon, text, value }, i) => (
                                 <div key={i} className="flex items-start gap-1.5">
