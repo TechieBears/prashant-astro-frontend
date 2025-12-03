@@ -9,8 +9,7 @@ import {
     getPublicServicesDropdown,
     getServiceCategoriesDropdown,
     getProductsDropdown,
-    getProductCategoriesDropdown,
-    getProductSubCategoriesDropdown
+    getProductCategoriesDropdown
 } from '../../../../api';
 import { formBtn1, tableBtn } from '../../../../utils/CustomClass';
 import LoadBox from '../../../Loader/LoadBox';
@@ -38,8 +37,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 services: [],
                 serviceCategories: [],
                 products: [],
-                productCategories: [],
-                productSubcategories: []
+                productCategories: []
             });
         }
     };
@@ -51,12 +49,10 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
     const [allProducts, setAllProducts] = useState([]);
     const [products, setProducts] = useState([]);
     const [productCategories, setProductCategories] = useState([]);
-    const [productSubcategories, setProductSubcategories] = useState([]);
 
     const couponType = watch('couponType');
     const applicableType = watch('applicableType');
     const selectedProductCategories = watch('productCategories');
-    const selectedProductSubcategories = watch('productSubcategories');
 
     const formSubmit = async (data) => {
         try {
@@ -76,8 +72,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 applicableServices: data.services || [],
                 applicableServiceCategories: data.serviceCategories || [],
                 applicableProducts: data.products || [],
-                applicableProductCategories: data.productCategories || [],
-                applicableProductSubcategories: data.productSubcategories || []
+                applicableProductCategories: data.productCategories || []
             };
 
             const apiCall = edit
@@ -111,12 +106,11 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
 
     const fetchDropdownData = async () => {
         try {
-            const [servicesRes, serviceCategoriesRes, productsRes, productCategoriesRes, productSubcategoriesRes] = await Promise.all([
+            const [servicesRes, serviceCategoriesRes, productsRes, productCategoriesRes] = await Promise.all([
                 getPublicServicesDropdown(),
                 getServiceCategoriesDropdown(),
                 getProductsDropdown(),
-                getProductCategoriesDropdown(),
-                getProductSubCategoriesDropdown()
+                getProductCategoriesDropdown()
             ]);
 
             if (servicesRes?.success && servicesRes?.data) {
@@ -135,12 +129,6 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
             }
             if (productCategoriesRes?.success && productCategoriesRes?.data) {
                 setProductCategories(productCategoriesRes.data.map(item => ({ value: item._id, label: item.name })));
-            }
-            if (productSubcategoriesRes?.success && productSubcategoriesRes?.data) {
-                setProductSubcategories(productSubcategoriesRes.data.map(item => ({
-                    value: item._id,
-                    label: item.name
-                })));
             }
         } catch (error) {
             console.error('Error fetching dropdown data:', error);
@@ -164,8 +152,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 services: userData?.applicableServices || [],
                 serviceCategories: userData?.applicableServiceCategories || [],
                 products: userData?.applicableProducts || [],
-                productCategories: userData?.applicableProductCategories || [],
-                productSubcategories: userData?.applicableProductSubcategories || []
+                productCategories: userData?.applicableProductCategories || []
             });
         }
     }, [edit, userData, open, reset]);
@@ -272,7 +259,6 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                                         ? [
                                                                             { value: 'product', label: 'Select Product' },
                                                                             { value: 'category', label: 'Select Category' },
-                                                                            { value: 'subcategory', label: 'Select Subcategory' },
                                                                         ]
                                                                         : [
                                                                             { value: 'service', label: 'Service' },
@@ -340,26 +326,6 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                                         value={Array.isArray(value) ? value : []}
                                                                         onChange={onChange}
                                                                         errors={errors.productCategories}
-                                                                    />
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    )}
-
-                                                    {couponType === 'products' && applicableType === 'subcategory' && (
-                                                        <div>
-                                                            <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Subcategories</h4>
-                                                            <Controller
-                                                                name="productSubcategories"
-                                                                control={control}
-                                                                defaultValue={[]}
-                                                                render={({ field: { onChange, value } }) => (
-                                                                    <MultiSelectTextInput
-                                                                        label="Select Product Subcategories"
-                                                                        options={productSubcategories}
-                                                                        value={Array.isArray(value) ? value : []}
-                                                                        onChange={onChange}
-                                                                        errors={errors.productSubcategories}
                                                                     />
                                                                 )}
                                                             />
