@@ -130,6 +130,9 @@ const Orders = () => {
       createdAt: order.createdAt || new Date().toISOString(),
       totalAmount: order.totalAmount || 0,
       finalAmount: order.finalAmount || 0,
+      payingAmount: order.payingAmount || order.finalAmount || 0,
+      discountPercent: order.discountPercent || 0,
+      gst: order.amount?.gst || 0,
       itemCount: order.items?.length || 0
     }));
   }, [orders]);
@@ -153,6 +156,8 @@ const Orders = () => {
           paymentStatus: order.paymentStatus || 'PENDING',
           totalAmount: order.totalAmount || 0,
           finalAmount: order.finalAmount || 0,
+          payingAmount: order.payingAmount || order.finalAmount || 0,
+          discountPercent: order.discountPercent || 0,
           createdAt: order.createdAt || new Date().toISOString(),
           astrologerName: service.astrologerName,
           bookingStatus: service.bookingStatus,
@@ -290,19 +295,40 @@ const Orders = () => {
       </div>
 
       {/* Order Footer */}
-      <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-        <div className="text-xs sm:text-sm">
-          <span className="text-gray-600">Total Amount: </span>
-          <span className="font-bold text-gray-900">₹{(order.finalAmount || order.totalAmount)?.toLocaleString()}</span>
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200">
+        <div className="bg-white rounded p-2 mb-2 space-y-1">
+          <div className="flex justify-between text-xs text-gray-600">
+            <span>Subtotal:</span>
+            <span className="font-medium">₹{order.totalAmount.toLocaleString()}</span>
+          </div>
+          {order.gst > 0 && (
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>GST:</span>
+              <span className="font-medium">₹{order.gst.toLocaleString()}</span>
+            </div>
+          )}
+          {order.discountPercent > 0 && (
+            <div className="flex justify-between text-xs text-green-600">
+              <span>Discount ({order.discountPercent}%):</span>
+              <span className="font-medium">-₹{(order.totalAmount + order.gst - order.payingAmount).toLocaleString()}</span>
+            </div>
+          )}
+          <div className="border-t border-gray-300 pt-1 flex justify-between text-xs font-semibold text-gray-900">
+            <span>Total Paid:</span>
+            <span>₹{(order.payingAmount || order.finalAmount).toLocaleString()}</span>
+          </div>
         </div>
-        <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-          order.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-            order.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-              order.orderStatus === 'SHIPPED' || order.orderStatus === 'DISPATCHED' ? 'bg-blue-100 text-blue-800' :
-                'bg-gray-100 text-gray-800'
-          }`}>
-          {order.orderStatus}
-        </span>
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-600">Order Status:</span>
+          <span className={`px-2 py-1 rounded text-xs font-medium ${order.orderStatus === 'DELIVERED' || order.orderStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+            order.orderStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+              order.orderStatus === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                order.orderStatus === 'SHIPPED' || order.orderStatus === 'DISPATCHED' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+            }`}>
+            {order.orderStatus}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -363,6 +389,22 @@ const Orders = () => {
       </div>
 
       <div className="pt-3 border-t border-gray-200">
+        <div className="bg-gray-50 rounded p-2 mb-2 space-y-1">
+          <div className="flex justify-between text-xs text-gray-600">
+            <span>Subtotal:</span>
+            <span className="font-medium">₹{service.totalAmount.toLocaleString()}</span>
+          </div>
+          {service.discountPercent > 0 && (
+            <div className="flex justify-between text-xs text-green-600">
+              <span>Discount ({service.discountPercent}%):</span>
+              <span className="font-medium">-₹{(service.totalAmount - service.payingAmount).toLocaleString()}</span>
+            </div>
+          )}
+          <div className="border-t border-gray-300 pt-1 flex justify-between text-xs font-semibold text-gray-900">
+            <span>Total Paid:</span>
+            <span>₹{service.payingAmount.toLocaleString()}</span>
+          </div>
+        </div>
         <div className="flex justify-between items-center text-sm mb-2">
           <div className="flex items-center gap-1.5">
             <span className="text-gray-600">Order ID:</span>
