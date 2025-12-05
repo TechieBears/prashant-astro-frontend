@@ -47,6 +47,11 @@ const HomeNavbar = () => {
 
 
     const navLinks = useMemo(() => {
+        // Filter products dropdown to only show categories with products
+        const filteredProductsDropdown = productsDropdown?.filter(
+            category => category.products && category.products.length > 0
+        );
+
         return [
             login && {
                 name: 'Profile',
@@ -69,7 +74,7 @@ const HomeNavbar = () => {
             {
                 name: 'Products',
                 path: '/products',
-                dropdown: productsDropdown,
+                dropdown: filteredProductsDropdown,
             },
             {
                 name: 'Talk With Astrologer',
@@ -280,13 +285,13 @@ const HomeNavbar = () => {
                                                     </span>
                                                 </NavLink>
 
-                                                {link.name === 'Products' && isProductsHovered && productsDropdown && productsDropdown.length > 0 && (
+                                                {link.name === 'Products' && isProductsHovered && link.dropdown && link.dropdown.length > 0 && (
                                                     <div
                                                         className="absolute left-0 mt-1 bg-primary shadow-lg rounded-b-md w-max z-50 py-1"
                                                         onMouseEnter={() => setIsProductsHovered(true)}
                                                         onMouseLeave={handleMouseLeave}
                                                     >
-                                                        {productsDropdown.map((category, idx) => {
+                                                        {link.dropdown.map((category, idx) => {
                                                             const categoryId = category._id;
 
                                                             return (
@@ -545,9 +550,9 @@ const HomeNavbar = () => {
                                         </button>
 
                                         {/* Show products dropdown when Products is clicked and expanded */}
-                                        {link.name === 'Products' && isMobileProductsOpen && productsDropdown && productsDropdown.length > 0 && (
+                                        {link.name === 'Products' && isMobileProductsOpen && link.dropdown && link.dropdown.length > 0 && (
                                             <div className="ml-4 mt-2 pb-2 border-l-2 border-gray-100">
-                                                {productsDropdown.map((category, categoryIndex) => {
+                                                {link.dropdown.map((category, categoryIndex) => {
                                                     const categoryId = category._id;
 
                                                     return (
