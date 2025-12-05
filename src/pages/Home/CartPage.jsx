@@ -31,7 +31,8 @@ import {
     createProductOrder,
     createServiceOrder,
     clearProductCart,
-    clearServiceCart
+    clearServiceCart,
+    getWalletBalance
 } from '../../api';
 import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
@@ -69,6 +70,8 @@ const CartPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedServiceForEdit, setSelectedServiceForEdit] = useState(null);
     const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [useCredits, setUseCredits] = useState(false);
+    const [availableCredits, setAvailableCredits] = useState(0);
 
     const debounceTimeouts = useRef({});
 
@@ -80,11 +83,15 @@ const CartPage = () => {
         }
     }, [location.state]);
 
-    // Fetch cart data on mount
+    // Fetch cart data and wallet balance on mount
     useEffect(() => {
         const loadCart = async () => {
             try {
                 await fetchCartData();
+                const walletResponse = await getWalletBalance();
+                if (walletResponse?.success) {
+                    setAvailableCredits(walletResponse.data.balance || 0);
+                }
             } catch (error) {
                 toast.error('Failed to load cart data');
             }
@@ -318,11 +325,14 @@ const CartPage = () => {
                 return;
             }
 
-            const serviceOrderData = transformServiceCartToOrderData(
-                serviceCartItems,
-                requiresAddress ? defaultAddress._id : null,
-                appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
-            );
+            const serviceOrderData = {
+                ...transformServiceCartToOrderData(
+                    serviceCartItems,
+                    requiresAddress ? defaultAddress._id : null,
+                    appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
+                ),
+                useCredits
+            };
 
             console.log('Service Order Data:', JSON.stringify(serviceOrderData, null, 2));
 
@@ -393,11 +403,8 @@ const CartPage = () => {
             const orderData = createOrderData({
                 cartItems,
                 addressId: defaultAddress._id,
-                paymentDetails: {
-                    status: 'SUCCESS',
-                    paidAt: new Date().toISOString()
-                },
-                couponId: appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null
+                couponId: appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null,
+                useCredits
             });
 
             // Set loading state
@@ -516,6 +523,9 @@ const CartPage = () => {
                             activeTab={activeTab}
                             appliedCoupon={appliedCoupon}
                             onApplyCoupon={setAppliedCoupon}
+                            useCredits={useCredits}
+                            onToggleCredits={() => setUseCredits(!useCredits)}
+                            availableCredits={availableCredits}
                         />
                     ) : (
                         <div className="bg-white rounded-lg p-8 text-center">
@@ -538,6 +548,9 @@ const CartPage = () => {
                         activeTab={activeTab}
                         appliedCoupon={appliedCoupon}
                         onApplyCoupon={setAppliedCoupon}
+                        useCredits={useCredits}
+                        onToggleCredits={() => setUseCredits(!useCredits)}
+                        availableCredits={availableCredits}
                     />
                 )}
             </div>

@@ -8,7 +8,7 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import BuyNowSection from '../../components/Cart/BuyNowSection';
 import { createOrderData } from '../../utils/orderUtils';
 import { useAddress } from '../../context/AddressContext';
-import { createProductOrder, clearProductCart } from '../../api';
+import { createProductOrder, clearProductCart, getWalletBalance } from '../../api';
 import { clearCart } from '../../redux/Slices/cartSlice';
 
 const BuyNowPage = () => {
@@ -23,12 +23,22 @@ const BuyNowPage = () => {
     // Local state (UI only - no API calls for quantity changes)
     const [quantity, setQuantity] = useState(initialQuantity);
     const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [useCredits, setUseCredits] = useState(false);
+    const [availableCredits, setAvailableCredits] = useState(0);
 
-    // Redirect if no product data
+    // Redirect if no product data and fetch wallet balance
     useEffect(() => {
         if (!product) {
             toast.error('Please select a product to buy now');
             navigate('/products');
+        } else {
+            const fetchWalletBalance = async () => {
+                const walletResponse = await getWalletBalance();
+                if (walletResponse?.success) {
+                    setAvailableCredits(walletResponse.data.balance || 0);
+                }
+            };
+            fetchWalletBalance();
         }
     }, [product, navigate]);
 
@@ -51,10 +61,7 @@ const BuyNowPage = () => {
                 productId: product._id,
                 quantity,
                 addressId: defaultAddress._id,
-                paymentDetails: {
-                    status: 'SUCCESS',
-                    paidAt: new Date().toISOString()
-                }
+                useCredits
             });
 
             const response = await createProductOrder(orderData);
@@ -127,6 +134,9 @@ const BuyNowPage = () => {
                     onQuantityChange={handleQuantityChange}
                     onCheckout={handleCheckout}
                     isCreatingOrder={isCreatingOrder}
+                    useCredits={useCredits}
+                    onToggleCredits={() => setUseCredits(!useCredits)}
+                    availableCredits={availableCredits}
                 />
             </div>
         </div>
