@@ -8,11 +8,8 @@ const FilterSidebar = ({
     search,
     setSearch,
     categories = [],
-    subcategories = [],
     selectedCategories = [],
-    selectedSubcategories = [],
     toggleCategory,
-    toggleSubcategory,
     price,
     setPrice,
     minPrice = 0,
@@ -91,32 +88,6 @@ const FilterSidebar = ({
                         )}
                     </div>
                 </div>
-
-                {/* Subcategories */}
-                {selectedCategories.length > 0 && (
-                    <div className="mb-6">
-                        <h4 className="text-slate-800 font-semibold mb-2">Subcategories</h4>
-                        <div className="mt-3">
-                            {isLoading ? (
-                                <div className="space-y-2">
-                                    {[1, 2, 3].map((i) => (
-                                        <div key={i} className="h-6 bg-gray-200 animate-pulse rounded"></div>
-                                    ))}
-                                </div>
-                            ) : subcategories.length > 0 ? (
-                                <SubcategoryFilter
-                                    subcategories={subcategories.filter(sub =>
-                                        selectedCategories.includes(sub.categoryId)
-                                    )}
-                                    selectedSubcategories={selectedSubcategories}
-                                    onToggleSubcategory={toggleSubcategory}
-                                />
-                            ) : (
-                                <p className="text-sm text-gray-500">No subcategories available</p>
-                            )}
-                        </div>
-                    </div>
-                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 mt-6">
