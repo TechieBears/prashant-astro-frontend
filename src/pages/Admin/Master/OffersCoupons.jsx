@@ -6,6 +6,7 @@ import { getAllCoupons, editCoupon, deleteCoupon } from '../../../api';
 import Table from '../../../components/Table/Table';
 import TableHeader from '../../../components/Table/TableHeader';
 import CreateCouponModal from '../../../components/Modals/AdminModals/MasterModals/CreateCouponModal.jsx';
+import ViewCouponModal from '../../../components/Modals/AdminModals/MasterModals/ViewCouponModal.jsx';
 import usePagination from '../../../utils/customHooks/usePagination';
 import Switch from 'react-js-switch';
 import { TrashIcon } from 'lucide-react';
@@ -289,6 +290,7 @@ function OffersCoupons() {
 
     const actionBodyTemplate = (row) => (
         <div className="flex items-center gap-2">
+            <ViewCouponModal couponId={row?._id} />
             <CreateCouponModal edit={true} title="Edit Coupon" userData={row} setRefreshTrigger={setRefreshTrigger} />
             <button
                 onClick={() => handleDeleteCoupon(row?._id)}

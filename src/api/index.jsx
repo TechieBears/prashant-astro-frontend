@@ -1600,8 +1600,17 @@ export const getOurServiceCategories = async () => {
 };
 
 // ==================== Active Products Api ====================
-export const getActiveProducts = async () => {
-    const url = `${environment.baseUrl}product/public/active`;
+export const getActiveProducts = async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.category) queryParams.append('category', params.category);
+    if (params.subcategory) queryParams.append('subcategory', params.subcategory);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice);
+    if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice);
+    if (params.inStock !== undefined) queryParams.append('inStock', params.inStock);
+    
+    const url = `${environment.baseUrl}product/public/active${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     try {
         const response = await axios.get(url);
         return response.data;
@@ -2479,5 +2488,16 @@ export const getAllAstrologerCalls = async () => {
     } catch (err) {
         console.log("==========error in getAllAstrologerCalls api", err);
         return err?.response?.data;
+    }
+}
+
+export const getSingleCoupon = async (id) => {
+    try {
+        const url = `${environment.baseUrl}coupon/get-single?id=${id}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching single coupon:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch coupon' };
     }
 }

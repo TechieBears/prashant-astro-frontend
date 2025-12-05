@@ -18,7 +18,10 @@ const ProductsSection = ({
     isCreatingOrder = false,
     activeTab,
     appliedCoupon,
-    onApplyCoupon
+    onApplyCoupon,
+    useCredits = false,
+    onToggleCredits = () => { },
+    availableCredits = 0
 }) => {
     const navigate = useNavigate();
 
@@ -108,6 +111,9 @@ const ProductsSection = ({
                             appliedCoupon={appliedCoupon}
                             onApplyCoupon={onApplyCoupon}
                             cartItems={cartItems}
+                            useCredits={useCredits}
+                            onToggleCredits={onToggleCredits}
+                            availableCredits={availableCredits}
                         />
                     </div>
                 </div>

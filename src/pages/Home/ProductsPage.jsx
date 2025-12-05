@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
@@ -23,6 +23,8 @@ const ProductsPage = () => {
     const [selectedCategories, setSelectedCategories] = useState([])
     const [selectedSubcategories, setSelectedSubcategories] = useState([])
     const [price, setPrice] = useState([200, 6800])
+    const [debouncedPrice, setDebouncedPrice] = useState([200, 6800])
+    const priceDebounceTimer = useRef(null)
     const [currentPage, setCurrentPage] = useState(1)
     const PRICE_MIN = 0
     const PRICE_MAX = 10000
@@ -83,25 +85,43 @@ const ProductsPage = () => {
         }
     }, [location.state, filterData.categories]);
 
-    // Fetch products
+    // Debounce price changes
+    useEffect(() => {
+        if (priceDebounceTimer.current) {
+            clearTimeout(priceDebounceTimer.current)
+        }
+        
+        priceDebounceTimer.current = setTimeout(() => {
+            setDebouncedPrice(price)
+        }, 500)
+        
+        return () => {
+            if (priceDebounceTimer.current) {
+                clearTimeout(priceDebounceTimer.current)
+            }
+        }
+    }, [price])
+
+    // Fetch products with filters
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 setLoading(true)
                 setError(null)
-                const response = await getActiveProducts()
+                
+                const params = {}
+                if (selectedCategories.length > 0) params.category = selectedCategories.join(',')
+                if (selectedSubcategories.length > 0) params.subcategory = selectedSubcategories.join(',')
+                if (search) params.search = search
+                if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
+                    params.minPrice = debouncedPrice[0]
+                    params.maxPrice = debouncedPrice[1]
+                }
+                
+                const response = await getActiveProducts(params)
 
                 if (response.success) {
                     setProducts(response.data || [])
-
-                    if (response.data.length > 0) {
-                        const prices = response.data.map(p => p.sellingPrice).filter(Boolean)
-                        if (prices.length > 0) {
-                            const minPrice = Math.min(...prices)
-                            const maxPrice = Math.max(...prices)
-                            setPrice([minPrice, maxPrice])
-                        }
-                    }
                 } else {
                     setError(response.message || 'Failed to fetch products')
                 }
@@ -114,7 +134,7 @@ const ProductsPage = () => {
         }
 
         fetchProducts()
-    }, [])
+    }, [selectedCategories, selectedSubcategories, search, debouncedPrice])
 
     const toggleCategory = (categoryId) => {
         const isDeselecting = selectedCategories.includes(categoryId)
@@ -148,52 +168,17 @@ const ProductsPage = () => {
         setSearch('')
         setSelectedCategories([])
         setSelectedSubcategories([])
-
-        if (products.length > 0) {
-            const prices = products.map(p => p.sellingPrice).filter(Boolean)
-            if (prices.length > 0) {
-                const minPrice = Math.min(...prices)
-                const maxPrice = Math.max(...prices)
-                setPrice([minPrice, maxPrice])
-                return
-            }
-        }
         setPrice([PRICE_MIN, PRICE_MAX])
+        setDebouncedPrice([PRICE_MIN, PRICE_MAX])
     }
 
     const filteredProducts = useMemo(() => {
-        if (!Array.isArray(products)) return [];
-
-        return products.filter((product) => {
-            // Filter by search term
-            const matchesSearch =
-                !search ||
-                (product.name && product.name.toLowerCase().includes(search.toLowerCase())) ||
-                (product.description && product.description.toLowerCase().includes(search.toLowerCase()));
-
-            // Filter by selected categories
-            const matchesCategory =
-                selectedCategories.length === 0 ||
-                (product.category && selectedCategories.includes(product.category._id)) ||
-                (product.categoryId && selectedCategories.includes(product.categoryId));
-
-            // Filter by selected subcategories
-            const matchesSubcategory =
-                selectedSubcategories.length === 0 ||
-                (product.subcategory && selectedSubcategories.includes(product.subcategory._id)) ||
-                (product.subcategoryId && selectedSubcategories.includes(product.subcategoryId));
-
-            // Filter by price range
-            const productPrice = product.sellingPrice || 0;
-            const matchesPrice = productPrice >= price[0] && productPrice <= price[1];
-
-            return matchesSearch && matchesCategory && matchesSubcategory && matchesPrice;
-        });
-    }, [products, search, selectedCategories, selectedSubcategories, price])
+        return Array.isArray(products) ? products : [];
+    }, [products])
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, selectedCategories, selectedSubcategories, price]);
+    }, [products]);
 
     const totalPages = useMemo(() => {
         return Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);

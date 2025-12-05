@@ -13,7 +13,10 @@ const ServicesSection = ({
     activeTab,
     appliedCoupon,
     onApplyCoupon,
-    isCreatingOrder
+    isCreatingOrder,
+    useCredits = false,
+    onToggleCredits = () => { },
+    availableCredits = 0
 }) => {
 
     return (
@@ -104,6 +107,9 @@ const ServicesSection = ({
                                     appliedCoupon={appliedCoupon}
                                     onApplyCoupon={onApplyCoupon}
                                     isCreatingOrder={isCreatingOrder}
+                                    useCredits={useCredits}
+                                    onToggleCredits={onToggleCredits}
+                                    availableCredits={availableCredits}
                                 />
                             </div>
                         </div>

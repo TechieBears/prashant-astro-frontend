@@ -105,6 +105,8 @@ const PaymentSuccess = () => {
             services={transformedServiceData.services}
             orderId={transformedServiceData.orderId}
             totalAmount={transformedServiceData.totalAmount}
+            subtotal={transformedServiceData.subtotal}
+            discount={transformedServiceData.discount}
             onViewDetails={handleServiceViewDetails}
           />
         </div>

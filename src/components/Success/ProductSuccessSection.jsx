@@ -87,19 +87,32 @@ const ProductSuccessSection = ({ orderItems, subtotal, totalDiscount, total, ord
                                 </div>
                             </div>
 
-                            {/* Price and Tags */}
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                                <span className="text-sm sm:text-base font-semibold text-green-600">
-                                    Total: ₹{(item.price * item.quantity).toLocaleString()}
+                            {/* Tags */}
+                            <div className="flex justify-end">
+                                <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                    Pending
                                 </span>
-                                <div className="flex gap-2">
-                                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-                                        Pending
-                                    </span>
-                                </div>
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal:</span>
+                    <span className="font-medium">₹{subtotal.toLocaleString()}</span>
+                </div>
+                {totalDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                        <span>Discount:</span>
+                        <span className="font-medium">-₹{totalDiscount.toLocaleString()}</span>
+                    </div>
+                )}
+                <div className="border-t border-gray-300 pt-2 flex justify-between text-base font-semibold text-gray-900">
+                    <span>Total Paid:</span>
+                    <span>₹{total.toLocaleString()}</span>
                 </div>
             </div>
 

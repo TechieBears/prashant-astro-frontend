@@ -25,13 +25,8 @@ function ServiceBookingViewModal({ bookingData }) {
     };
 
     const calculateDiscountAmount = () => {
-        if (!bookingData?.coupon) return 0;
-
-        if (bookingData?.coupon?.discountIn === 'percent') {
-            return (bookingData?.totalAmount - bookingData?.coupon?.discount);
-        } else {
-            return bookingData?.coupon?.discount;
-        }
+        if (!bookingData?.isCoupon || !bookingData?.coupon) return 0;
+        return bookingData?.totalAmount - bookingData?.payingAmount;
     };
 
     const getStatusColor = (status) => {
@@ -374,9 +369,9 @@ function ServiceBookingViewModal({ bookingData }) {
                                                         )}
 
                                                         <div className={`flex justify-between items-center ${bookingData?.isCoupon && bookingData?.coupon ? 'pt-3 border-t border-gray-300' : ''}`}>
-                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Final Amount:</span>
-                                                            <span className="text-lg font-bold text-gray-900 font-tbPop">
-                                                                <PriceFormater price={bookingData?.finalAmount} />
+                                                            <span className="text-sm font-medium text-gray-600 font-tbLex">Amount to Pay:</span>
+                                                            <span className="text-lg font-bold text-green-600 font-tbPop">
+                                                                <PriceFormater price={bookingData?.payingAmount} />
                                                             </span>
                                                         </div>
 

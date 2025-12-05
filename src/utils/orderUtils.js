@@ -60,10 +60,9 @@ const createDefaultPaymentDetails = (overrides = {}) => ({
  * @param {number} [options.quantity] - Quantity for a single product
  * @param {Array} [options.cartItems] - Array of cart items (use either this or productId/quantity)
  * @param {string} options.addressId - Shipping address ID
- * @param {Object} [options.paymentDetails] - Optional payment details
  * @param {string} [options.paymentMethod='UPI'] - Payment method (default: 'UPI')
- * @param {string} [options.paymentProvider='PhonePe'] - Payment provider (default: 'PhonePe')
  * @param {string} [options.couponId] - Optional coupon ID to apply
+ * @param {boolean} [options.useCredits=false] - Whether to use credits for payment
  * @returns {Object} Formatted order data
  */
 export const createOrderData = ({
@@ -71,10 +70,9 @@ export const createOrderData = ({
     quantity,
     cartItems,
     addressId,
-    paymentDetails = {},
     paymentMethod = 'UPI',
-    paymentProvider = 'PhonePe',
-    couponId
+    couponId,
+    useCredits = false
 }) => {
     if (!addressId) throw new Error('addressId is required');
     if (!cartItems && (!productId || quantity === undefined)) {
@@ -92,10 +90,7 @@ export const createOrderData = ({
         items,
         address: addressId,
         paymentMethod,
-        paymentDetails: createDefaultPaymentDetails({
-            provider: paymentProvider,
-            ...paymentDetails
-        })
+        useCredits
     };
 
     // Add coupon if provided
@@ -133,7 +128,7 @@ export const transformProductOrderData = (apiData) => {
     }));
 
     const subtotal = order.amount?.basePrice || order.totalAmount || 0;
-    const total = order.finalAmount || order.totalAmount || 0;
+    const total = order.payingAmount || order.finalAmount || order.totalAmount || 0;
     const totalDiscount = Math.max(0, subtotal - total);
 
     return { orderItems, subtotal, totalDiscount, total, orderId: order._id };
@@ -181,12 +176,16 @@ export const transformServiceOrderData = (serviceOrderData) => {
         return {
             services: [createDefaultServiceData()],
             orderId: null,
-            totalAmount: 0
+            totalAmount: 0,
+            subtotal: 0,
+            discount: 0
         };
     }
 
     const orderId = serviceOrderData._id || `SRV-${Date.now()}`;
-    const totalAmount = serviceOrderData.finalAmount || serviceOrderData.totalAmount || serviceOrderData.payingAmount || 0;
+    const subtotal = serviceOrderData.totalAmount || 0;
+    const totalAmount = serviceOrderData.payingAmount || serviceOrderData.finalAmount || serviceOrderData.totalAmount || 0;
+    const discount = Math.max(0, subtotal - totalAmount);
     const services = [];
 
     if (Array.isArray(serviceOrderData.services)) {
@@ -209,7 +208,7 @@ export const transformServiceOrderData = (serviceOrderData) => {
         services.push(createDefaultServiceData());
     }
 
-    return { services, orderId, totalAmount };
+    return { services, orderId, totalAmount, subtotal, discount };
 };
 
 /**
@@ -220,9 +219,8 @@ export const transformServiceOrderData = (serviceOrderData) => {
  * @param {string} [options.astrologerId] - Astrologer ID (for single service)
  * @param {string} [options.bookingDate] - Booking date (YYYY-MM-DD format, for single service)
  * @param {string} [options.startTime] - Start time (HH:MM format, for single service)
- * @param {string} [options.paymentType='COD'] - Payment type (default: 'COD')
+ * @param {string} [options.paymentType='UPI'] - Payment type (default: 'UPI')
  * @param {string} [options.address] - Address ID (optional, for non-online services)
- * @param {Object} [options.paymentDetails] - Optional payment details
  * @returns {Object} Formatted service order data
  */
 export const createServiceOrderData = ({
@@ -231,9 +229,8 @@ export const createServiceOrderData = ({
     astrologerId,
     bookingDate,
     startTime,
-    paymentType = 'UPI', // Changed default from 'COD' to 'UPI'
-    address,
-    paymentDetails = {}
+    paymentType = 'UPI',
+    address
 }) => {
     if (!services && (!serviceId || !astrologerId || !bookingDate || !startTime)) {
         throw new Error('Either services array or serviceId, astrologerId, bookingDate, and startTime are required');
@@ -243,18 +240,11 @@ export const createServiceOrderData = ({
         throw new Error('Services array cannot be empty');
     }
 
-    const defaultPaymentDetails = {
-        note: "Cash will be collected at time of service",
-        ...paymentDetails
-    };
-
-    // Generate payment ID
-    const paymentId = `COD-${new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)}`;
+    const paymentId = `UPI-${new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)}`;
 
     const orderData = {
         paymentType,
-        paymentId,
-        paymentDetails: defaultPaymentDetails
+        paymentId
     };
 
     // Handle multiple services
@@ -374,10 +364,7 @@ export const transformServiceCartToOrderData = (serviceCartItems, addressId = nu
     // Create the order data with serviceItems directly
     const orderData = {
         paymentType: 'UPI',
-        paymentId: `COD-${new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)}`,
-        paymentDetails: {
-            note: "Cash will be collected at time of service"
-        },
+        paymentId: `UPI-${new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14)}`,
         serviceItems: services.map(service => {
             const serviceItem = {
                 serviceId: service.serviceId,
