@@ -156,10 +156,30 @@ const ServiceBookings = () => {
         //     style: true, sortable: false
         // },
         {
-            field: 'finalAmount',
+            field: 'coupon',
+            header: 'Coupon',
+            body: (row) => row?.isCoupon && row?.coupon ? (
+                <div className="text-sm space-y-1">
+                    <div className="font-medium text-purple-600">{row?.coupon?.couponCode}</div>
+                    <div className="text-xs text-gray-500">
+                        {row?.coupon?.discountIn === 'percent' 
+                            ? `${row?.coupon?.discount}% OFF` 
+                            : `₹${row?.coupon?.discount} OFF`}
+                    </div>
+                </div>
+            ) : <span className="text-xs text-gray-400">-- No Coupon --</span>,
+            style: true, sortable: false
+        },
+        {
+            field: 'payingAmount',
             header: 'Total Amount',
             body: (row) => (
-                <div className="font-bold text-green-600">₹{row?.finalAmount}</div>
+                <div className="space-y-1">
+                    {row?.isCoupon && row?.finalAmount !== row?.payingAmount && (
+                        <div className="text-xs text-gray-400 line-through">₹{row?.finalAmount}</div>
+                    )}
+                    <div className="font-bold text-green-600">₹{row?.payingAmount}</div>
+                </div>
             ),
             style: true, sortable: true
         },
