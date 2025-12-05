@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AddressSelector from '../Address/AddressSelector';
 import { useAddress } from '../../context/AddressContext';
 import UserCouponModal from '../Modals/CouponModal/UserCouponModal';
+import UseCreditsToggle from '../Common/UseCreditsToggle';
 import { getUserCoupons, applyProductCoupon, applyServiceCoupon } from '../../api';
 
 
@@ -17,7 +18,10 @@ const PaymentSummary = ({
     serviceIds = [],
     appliedCoupon,
     onApplyCoupon,
-    cartItems = []
+    cartItems = [],
+    useCredits = false,
+    onToggleCredits = () => { },
+    availableCredits = 0
 }) => {
     const { defaultAddress } = useAddress();
 
@@ -122,6 +126,13 @@ const PaymentSummary = ({
                         </span>
                     </div>
                 </div>
+
+                {/* Use Credits Toggle */}
+                <UseCreditsToggle
+                    useCredits={useCredits}
+                    onToggle={onToggleCredits}
+                    availableCredits={availableCredits}
+                />
 
                 {/* Address Selection - Only for products */}
                 {activeTab === 'products' && (

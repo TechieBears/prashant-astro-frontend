@@ -62,17 +62,18 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 couponName: data.couponName,
                 couponCode: data.couponCode,
                 couponType: data.couponType,
-                applicableType: data.applicableType || '',
                 discountIn: data.discountIn,
                 discount: Number(data.discount),
                 activationDate: data.activationDate,
                 expiryDate: data.expiryDate,
                 redemptionPerUser: Number(data.redemptionPerUser),
                 totalRedemptions: Number(data.totalRedemptions),
-                applicableServices: data.services || [],
-                applicableServiceCategories: data.serviceCategories || [],
-                applicableProducts: data.products || [],
-                applicableProductCategories: data.productCategories || []
+                applyAllServices: data.applicableType === 'allServices',
+                applicableServices: data.applicableType === 'service' ? (data.services || []) : [],
+                applicableServiceCategories: data.applicableType === 'serviceCategory' ? (data.serviceCategories || []) : [],
+                applyAllProducts: data.applicableType === 'allProducts',
+                applicableProducts: data.applicableType === 'product' ? (data.products || []) : [],
+                applicableProductCategories: data.applicableType === 'category' ? (data.productCategories || []) : []
             };
 
             const apiCall = edit
@@ -257,10 +258,12 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                                 options={
                                                                     couponType === 'products'
                                                                         ? [
+                                                                            { value: 'allProducts', label: 'All Products' },
                                                                             { value: 'product', label: 'Select Product' },
                                                                             { value: 'category', label: 'Select Category' },
                                                                         ]
                                                                         : [
+                                                                            { value: 'allServices', label: 'All Services' },
                                                                             { value: 'service', label: 'Service' },
                                                                             { value: 'serviceCategory', label: 'Service Category' },
                                                                         ]

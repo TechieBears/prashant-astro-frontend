@@ -3,7 +3,7 @@ import PaymentSummary from './PaymentSummary';
 import ProductImage from '../Common/ProductImage';
 import QuantityCounter from '../Common/QuantityCounter';
 
-const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCreatingOrder = false }) => {
+const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCreatingOrder = false, useCredits = false, onToggleCredits = () => {}, availableCredits = 0 }) => {
     if (!product) return null;
 
     // Calculate totals
@@ -89,6 +89,10 @@ const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCrea
                         buttonText="Continue to Pay"
                         onCheckout={onCheckout}
                         isCreatingOrder={isCreatingOrder}
+                        activeTab="products"
+                        useCredits={useCredits}
+                        onToggleCredits={onToggleCredits}
+                        availableCredits={availableCredits}
                     />
                 </div>
             </div>

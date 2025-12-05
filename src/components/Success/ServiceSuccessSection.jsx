@@ -7,6 +7,8 @@ const ServiceSuccessSection = ({
     services,
     orderId,
     totalAmount,
+    subtotal,
+    discount,
     onViewDetails
 }) => {
 
@@ -55,8 +57,8 @@ const ServiceSuccessSection = ({
             <div className="border-t border-gray-200 mb-3 sm:mb-4"></div>
 
             {/* Service Type Section */}
-            <div className="bg-[#F8F8FF] rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 sm:h-64 overflow-y-auto sleek-scrollbar">
-                <div className="space-y-6 sm:space-y-8">
+            <div className="bg-[#F8F8FF] rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 max-h-64 overflow-y-auto sleek-scrollbar">
+                <div className="space-y-4 sm:space-y-6">
                     {serviceList.map((service, index) => (
                         <div key={index} className="space-y-2 sm:space-y-3 rounded-lg">
                             {/* Service Type Header */}
@@ -65,7 +67,7 @@ const ServiceSuccessSection = ({
                             </h3>
 
                             {/* Grid Layout for Service Details */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm pb-3 sm:pb-4 border-b border-gray-200">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm pb-2 sm:pb-3 border-b border-gray-200">
                                 <div className="flex items-center gap-2">
                                     <FaClock className="w-4 h-4 text-gray-400 flex-shrink-0" />
                                     <span className="text-gray-600">
@@ -92,22 +94,35 @@ const ServiceSuccessSection = ({
                                 </div>
                             </div>
 
-                            {/* Price and Tags */}
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                                <span className="text-sm sm:text-base font-semibold text-green-600">
-                                    Price: ₹{totalAmount || 800}
+                            {/* Tags */}
+                            <div className="flex gap-2 justify-end">
+                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                    online
                                 </span>
-                                <div className="flex gap-2">
-                                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                        online
-                                    </span>
-                                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
-                                        Pending
-                                    </span>
-                                </div>
+                                <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                    Pending
+                                </span>
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal:</span>
+                    <span className="font-medium">₹{(subtotal || totalAmount || 0).toLocaleString()}</span>
+                </div>
+                {discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                        <span>Discount:</span>
+                        <span className="font-medium">-₹{discount.toLocaleString()}</span>
+                    </div>
+                )}
+                <div className="border-t border-gray-300 pt-2 flex justify-between text-base font-semibold text-gray-900">
+                    <span>Total Paid:</span>
+                    <span>₹{(totalAmount || 0).toLocaleString()}</span>
                 </div>
             </div>
 
