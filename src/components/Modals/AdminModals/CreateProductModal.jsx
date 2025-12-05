@@ -98,6 +98,10 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
 
     useEffect(() => {
         if (edit && userData) {
+            const parsedSpecification = typeof userData?.specification === 'string' 
+                ? JSON.parse(userData.specification) 
+                : userData?.specification || [];
+            
             reset({
                 name: userData?.name,
                 category: userData?.category?._id,
@@ -108,7 +112,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                 sellingPrice: userData?.sellingPrice,
                 images: userData?.images || [],
                 mrpPrice: userData?.mrpPrice,
-                specification: userData?.specification || []
+                specification: parsedSpecification
             });
         } else {
             reset({
