@@ -293,8 +293,6 @@ const HomeNavbar = () => {
                                                                 <div
                                                                     key={idx}
                                                                     className="relative px-1"
-                                                                    onMouseEnter={() => setHoveredCategory(idx)}
-                                                                    onMouseLeave={() => setHoveredCategory(null)}
                                                                 >
                                                                     <p
                                                                         className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md cursor-pointer"
@@ -313,29 +311,6 @@ const HomeNavbar = () => {
                                                                             {category.name}
                                                                         </span>
                                                                     </p>
-
-                                                                    {hoveredCategory === idx && category.products && category.products.length > 0 && (
-                                                                        <div
-                                                                            className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-1 min-w-[200px] border-l-2 border-white/20"
-                                                                            onMouseEnter={() => setHoveredCategory(idx)}
-                                                                            onMouseLeave={() => setHoveredCategory(null)}
-                                                                        >
-                                                                            <ul className="space-y-1">
-                                                                                {category.products.map((product, j) => (
-                                                                                    <li key={j}>
-                                                                                        <NavLink
-                                                                                            to={`/products/${product._id}`}
-                                                                                            className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
-                                                                                        >
-                                                                                            <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
-                                                                                                {product.name}
-                                                                                            </span>
-                                                                                        </NavLink>
-                                                                                    </li>
-                                                                                ))}
-                                                                            </ul>
-                                                                        </div>
-                                                                    )}
                                                                 </div>
                                                             );
                                                         })}
@@ -377,22 +352,26 @@ const HomeNavbar = () => {
                                                                     </p>
 
                                                                     {hoveredCategory === idx && category.services && category.services.length > 0 && (
-                                                                        <div className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-1 min-w-[200px] border-l-2 border-white/20">
-                                                                            <ul className="space-y-1">
-                                                                                {category.services.map((service, j) => (
-                                                                                    <li key={j}>
-                                                                                        <NavLink
-                                                                                            to={`/services/${service._id}`}
-                                                                                            className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
-                                                                                        >
-                                                                                            <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
-                                                                                                {service.name}
-                                                                                            </span>
-                                                                                        </NavLink>
-                                                                                    </li>
-                                                                                ))}
-                                                                            </ul>
-                                                                        </div>
+                                                                        <>
+                                                                            {/* Bridge element to prevent gap */}
+                                                                            <div className="absolute left-full top-0 w-2 h-full" />
+                                                                            <div className="absolute left-full top-0 ml-1 bg-primary shadow-lg rounded-md w-max z-50 py-1 min-w-[200px] border-l-2 border-white/20">
+                                                                                <ul className="space-y-1">
+                                                                                    {category.services.map((service, j) => (
+                                                                                        <li key={j}>
+                                                                                            <NavLink
+                                                                                                to={`/services/${service._id}`}
+                                                                                                className="text-white text-sm hover:bg-[#FFFFFF26] p-2 px-3 rounded-md block transition-all duration-200"
+                                                                                            >
+                                                                                                <span className="inline-block transform transition-transform duration-300 hover:translate-x-1">
+                                                                                                    {service.name}
+                                                                                                </span>
+                                                                                            </NavLink>
+                                                                                        </li>
+                                                                                    ))}
+                                                                                </ul>
+                                                                            </div>
+                                                                        </>
                                                                     )}
                                                                 </div>
                                                             );
