@@ -1,27 +1,24 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
 import Pagination from '../../components/Common/Pagination';
 import { PulseLoader } from 'react-spinners';
-import { getActiveProducts, getProductFilters } from '../../api';
+import { getActiveProducts } from '../../api';
 
 const ProductsPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { productsDropdown } = useSelector(state => state.nav);
     const [products, setProducts] = useState([])
-    const [filterData, setFilterData] = useState({
-        categories: [],
-        subcategories: []
-    })
     const [loading, setLoading] = useState(true)
-    const [filtersLoading, setFiltersLoading] = useState(true)
     const [error, setError] = useState(null)
     const [search, setSearch] = useState('')
     const [selectedCategories, setSelectedCategories] = useState([])
-    const [selectedSubcategories, setSelectedSubcategories] = useState([])
+
     const [price, setPrice] = useState([200, 6800])
     const [debouncedPrice, setDebouncedPrice] = useState([200, 6800])
     const priceDebounceTimer = useRef(null)
@@ -30,47 +27,15 @@ const ProductsPage = () => {
     const PRICE_MAX = 10000
     const ITEMS_PER_PAGE = 24
 
-    // Fetch filter data
-    useEffect(() => {
-        const fetchFilters = async () => {
-            try {
-                setFiltersLoading(true)
-                const response = await getProductFilters()
-
-                if (response.success) {
-                    const categories = response.data?.category || []
-                    const subcategories = []
-
-                    categories.forEach(category => {
-                        if (category.subcategories && category.subcategories.length > 0) {
-                            subcategories.push(...category.subcategories.map(sub => ({
-                                ...sub,
-                                categoryId: category._id,
-                                categoryName: category.name
-                            })))
-                        }
-                    })
-
-                    setFilterData({
-                        categories: categories.map(cat => ({
-                            _id: cat._id,
-                            name: cat.name,
-                            image: cat.image,
-                            count: subcategories.filter(sub => sub.categoryId === cat._id).length
-                        })),
-                        subcategories: subcategories
-                    })
-                }
-            } catch (err) {
-                console.error('Error fetching filters:', err)
-                setError('Failed to load filters. Please try again.')
-            } finally {
-                setFiltersLoading(false)
-            }
-        }
-
-        fetchFilters()
-    }, [])
+    // Filter categories to only show those with products and add count
+    const filterData = useMemo(() => ({
+        categories: (productsDropdown || [])
+            .filter(cat => cat.products && cat.products.length > 0)
+            .map(cat => ({
+                ...cat,
+                count: cat.products.length
+            }))
+    }), [productsDropdown]);
 
     // Handle pre-selected category from navigation
     useEffect(() => {
@@ -109,21 +74,46 @@ const ProductsPage = () => {
                 setLoading(true)
                 setError(null)
                 
-                const params = {}
-                if (selectedCategories.length > 0) params.category = selectedCategories.join(',')
-                if (selectedSubcategories.length > 0) params.subcategory = selectedSubcategories.join(',')
-                if (search) params.search = search
-                if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
-                    params.minPrice = debouncedPrice[0]
-                    params.maxPrice = debouncedPrice[1]
-                }
-                
-                const response = await getActiveProducts(params)
-
-                if (response.success) {
-                    setProducts(response.data || [])
+                if (selectedCategories.length === 0) {
+                    // No categories selected, fetch all products
+                    const params = {}
+                    if (search) params.search = search
+                    if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
+                        params.minPrice = debouncedPrice[0]
+                        params.maxPrice = debouncedPrice[1]
+                    }
+                    
+                    const response = await getActiveProducts(params)
+                    if (response.success) {
+                        setProducts(response.data || [])
+                    } else {
+                        setError(response.message || 'Failed to fetch products')
+                    }
                 } else {
-                    setError(response.message || 'Failed to fetch products')
+                    // Multiple categories selected, fetch for each and merge
+                    const allProducts = []
+                    const productIds = new Set()
+                    
+                    for (const categoryId of selectedCategories) {
+                        const params = { category: categoryId }
+                        if (search) params.search = search
+                        if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
+                            params.minPrice = debouncedPrice[0]
+                            params.maxPrice = debouncedPrice[1]
+                        }
+                        
+                        const response = await getActiveProducts(params)
+                        if (response.success && response.data) {
+                            response.data.forEach(product => {
+                                if (!productIds.has(product._id)) {
+                                    productIds.add(product._id)
+                                    allProducts.push(product)
+                                }
+                            })
+                        }
+                    }
+                    
+                    setProducts(allProducts)
                 }
             } catch (err) {
                 console.error('Error fetching products:', err)
@@ -134,40 +124,21 @@ const ProductsPage = () => {
         }
 
         fetchProducts()
-    }, [selectedCategories, selectedSubcategories, search, debouncedPrice])
+    }, [selectedCategories, search, debouncedPrice])
 
     const toggleCategory = (categoryId) => {
-        const isDeselecting = selectedCategories.includes(categoryId)
-
         setSelectedCategories(prev =>
             prev.includes(categoryId)
                 ? prev.filter(id => id !== categoryId)
                 : [...prev, categoryId]
         )
-
-        if (isDeselecting) {
-            const subIds = filterData.subcategories
-                .filter(sub => sub.categoryId === categoryId)
-                .map(sub => sub._id)
-
-            setSelectedSubcategories(prev =>
-                prev.filter(id => !subIds.includes(id))
-            )
-        }
     }
 
-    const toggleSubcategory = (subcategoryId) => {
-        setSelectedSubcategories(prev =>
-            prev.includes(subcategoryId)
-                ? prev.filter(id => id !== subcategoryId)
-                : [...prev, subcategoryId]
-        )
-    }
+
 
     const resetFilters = () => {
         setSearch('')
         setSelectedCategories([])
-        setSelectedSubcategories([])
         setPrice([PRICE_MIN, PRICE_MAX])
         setDebouncedPrice([PRICE_MIN, PRICE_MAX])
     }
@@ -300,22 +271,19 @@ const ProductsPage = () => {
 
                     {/* Filter Sidebar */}
                     <aside className="lg:col-span-3 order-1 lg:order-2">
-                        <div className="sticky top-14">
+                        <div>
                             <FilterSidebar
                                 search={search}
                                 setSearch={setSearch}
                                 categories={filterData.categories}
-                                subcategories={filterData.subcategories}
                                 selectedCategories={selectedCategories}
-                                selectedSubcategories={selectedSubcategories}
                                 toggleCategory={toggleCategory}
-                                toggleSubcategory={toggleSubcategory}
                                 price={price}
                                 setPrice={setPrice}
                                 minPrice={PRICE_MIN}
                                 maxPrice={PRICE_MAX}
                                 resetFilters={resetFilters}
-                                isLoading={filtersLoading}
+                                isLoading={!productsDropdown}
                             />
                         </div>
                     </aside>
