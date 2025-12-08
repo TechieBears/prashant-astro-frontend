@@ -185,17 +185,21 @@ const Testimonials = () => {
     const formattedData = useMemo(() =>
         testimonials.map(item => {
             const mediaArray = item.media || [];
-            const isVideo = (url) => url && (
-                url.includes('.mp4') ||
-                url.includes('.mov') ||
-                url.includes('.webm') ||
-                url.includes('video/upload')
-            );
+            const isVideo = (url) => {
+                if (!url || typeof url !== 'string') return false;
+                return url.includes('.mp4') ||
+                    url.includes('.mov') ||
+                    url.includes('.webm') ||
+                    url.includes('video/upload');
+            };
 
-            const processedMedia = mediaArray.map(url => ({
-                url,
-                type: isVideo(url) ? 'video' : 'image'
-            }));
+            const processedMedia = mediaArray.map(mediaItem => {
+                const url = typeof mediaItem === 'string' ? mediaItem : mediaItem?.url || '';
+                return {
+                    url,
+                    type: isVideo(url) ? 'video' : 'image'
+                };
+            });
 
             return {
                 name: (item.user?.firstName || "Anonymous") + " " + (item.user?.lastName || ""),

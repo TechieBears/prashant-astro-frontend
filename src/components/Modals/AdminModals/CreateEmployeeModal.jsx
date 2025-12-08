@@ -14,6 +14,7 @@ import { Controller } from 'react-hook-form';
 // import ImageUploadInput from '../../TextInput/ImageUploadInput';
 import SelectTextInput from '../../TextInput/SelectTextInput';
 import ImageCropUpload from '../../TextInput/ImageCropUpload';
+import { parseArray } from '../../../utils/parseUtils';
 
 function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const { register, handleSubmit, control, watch, reset, setValue, formState: { errors } } = useForm();
@@ -100,13 +101,13 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('lastName', userData?.profile?.lastName);
             setValue('email', userData?.email);
             setValue('mobileNo', userData?.mobileNo);
-            setValue('skills', userData?.profile?.skills);
-            setValue('languages', userData?.profile?.languages);
+            setValue('skills', parseArray(userData?.profile?.skills));
+            setValue('languages', parseArray(userData?.profile?.languages));
             setValue('experience', userData?.profile?.experience);
-            setValue('days', userData?.profile?.days);
+            setValue('days', parseArray(userData?.profile?.days));
             setValue('startTime', userData?.profile?.startTime);
             setValue('endTime', userData?.profile?.endTime);
-            setValue('profileImage', userData?.profile?.profileImage);
+            setValue('profileImage', userData?.profileImage);
         } else {
             reset({
                 employeeType: '',

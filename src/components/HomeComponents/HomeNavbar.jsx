@@ -14,7 +14,7 @@ import { logoutUser } from "../../api";
 import { clearCart } from "../../redux/Slices/cartSlice";
 import toast from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
-import { ChevronDown, User } from 'lucide-react';
+import { ChevronDown, User, Wallet } from 'lucide-react';
 
 const HomeNavbar = () => {
     const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
@@ -413,23 +413,25 @@ const HomeNavbar = () => {
                                 )}
                             </div>
                             {login ? (
-                                <NavLink to={'/profile'}>
-                                    <img
-                                        alt="profile"
-                                        src={
-                                            user?.profileImage ||
-                                            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
-                                        }
-                                        onClick={() => {
-                                            setCard(!card);
-                                        }}
-                                        onError={(e) => {
-                                            e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
-                                        }}
-                                        className="size-7 rounded-full border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200"
-                                    />
-                                </NavLink>
-
+                                <>
+                                    <NavLink to={'/profile'}>
+                                        <img
+                                            alt="profile"
+                                            src={
+                                                user?.profileImage ||
+                                                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                                            }
+                                            onClick={() => {
+                                                setCard(!card);
+                                            }}
+                                            onError={(e) => {
+                                                e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                                            }}
+                                            className="size-7 rounded-full border-2 border-white cursor-pointer hover:scale-110 transition-transform duration-200"
+                                        />
+                                    </NavLink>
+                                    <Wallet size={20} className="cursor-pointer hover:scale-110 transition-transform duration-200" onClick={() => navigate("/wallet")} />
+                                </>
                             ) : (
                                 <button
                                     className={`bg-transparent text-white`}
@@ -438,6 +440,7 @@ const HomeNavbar = () => {
                                     Login
                                 </button>
                             )}
+
                         </div>
                     </div>
 
@@ -748,6 +751,7 @@ const HomeNavbar = () => {
                                 Logout
                             </button>
                         )}
+
                     </div>
                 </div>
             </nav>

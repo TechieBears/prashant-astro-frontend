@@ -12,6 +12,7 @@ import { formBtn1, tableBtn } from '../../../utils/CustomClass'
 import { validateAlphabets } from '../../../utils/validateFunction';
 import CreateEmployeeModal from '../../../components/Modals/AdminModals/CreateEmployeeModal';
 import TableHeader from '../../../components/Table/TableHeader';
+import { parseArray } from '../../../utils/parseUtils';
 
 const initialFilterState = {
     name: ''
@@ -127,7 +128,7 @@ const Employees = () => {
     };
 
     const skillsBody = (row) => {
-        const skills = row?.profile?.skills || [];
+        const skills = parseArray(row?.profile?.skills);
 
         if (skills.length === 0) {
             return <span className="text-xs text-gray-400">No skills added</span>;
@@ -152,7 +153,7 @@ const Employees = () => {
     };
 
     const languagesBody = (row) => {
-        const languages = row?.profile?.languages || [];
+        const languages = parseArray(row?.profile?.languages);
 
         if (languages.length === 0) {
             return <span className="text-xs text-gray-400">No languages</span>;
@@ -192,7 +193,7 @@ const Employees = () => {
     };
 
     const availabilityBody = (row) => {
-        const days = row?.profile?.days || [];
+        const days = parseArray(row?.profile?.days);
         const startTime = row?.profile?.startTime;
         const endTime = row?.profile?.endTime;
 
