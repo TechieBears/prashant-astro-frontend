@@ -13,7 +13,7 @@ import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
 import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
 import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
 
-const TalkWithAstrologer = () => {
+const CallAstrologer = () => {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [selectedLanguages, setSelectedLanguages] = useState([]);
@@ -130,10 +130,10 @@ const TalkWithAstrologer = () => {
     return (
         <div className='bg-slate1'>
             <BackgroundTitle
-                title="Talk With Astrologer"
+                title="Call Astrologer"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
-                    { label: "Talk With Astrologer", href: null }
+                    { label: "Call Astrologer", href: null }
                 ]}
                 backgroundImage={bannerImage}
                 backgroundPosition="center 73%"
@@ -283,4 +283,4 @@ const TalkWithAstrologer = () => {
     );
 };
 
-export default TalkWithAstrologer;
+export default CallAstrologer;

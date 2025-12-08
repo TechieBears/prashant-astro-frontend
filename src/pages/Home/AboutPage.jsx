@@ -208,7 +208,7 @@ const AboutPage = () => {
                                         <div className="w-full overflow-hidden relative" style={{ aspectRatio: '3/4' }}>
                                             <img
                                                 src={astrologer?.profileImage}
-                                                alt={astrologer.fullName}
+                                                alt={`${astrologer?.profile?.firstName} ${astrologer?.profile?.lastName}`}
                                                 className="w-full h-full object-cover"
                                                 loading="lazy"
                                             />
@@ -216,7 +216,7 @@ const AboutPage = () => {
                                             <div className={`absolute left-4 right-4 bg-black/40 backdrop-blur-sm rounded border border-white/20 cursor-pointer transition-all duration-500 ease-in-out ${hoveredCard === astrologer?._id ? 'bottom-4 p-2' : 'bottom-4 p-2'}`}>
                                                 <div className="flex items-center justify-between w-full">
                                                     <h3 className="text-base font-medium text-white truncate pr-2">
-                                                        {astrologer.fullName}
+                                                        {astrologer?.profile?.firstName} {astrologer?.profile?.lastName}
                                                     </h3>
                                                     <ArrowRight02Icon size={20} className='text-white group-hover:-rotate-45 transition-all duration-500 ease-in-out' />
                                                 </div>
@@ -228,7 +228,7 @@ const AboutPage = () => {
                                                         <div className="flex items-center gap-2">
                                                             <Calendar03Icon size={14} className="text-blue-300" />
                                                             <span className="text-sm">
-                                                                Experience: {astrologer?.experience} {astrologer?.experience === 1 ? 'Year' : 'Years'}
+                                                                Experience: {astrologer?.profile?.experience} {astrologer?.profile?.experience === 1 ? 'Year' : 'Years'}
                                                             </span>
                                                         </div>
 
@@ -236,9 +236,10 @@ const AboutPage = () => {
                                                         <div className="text-sm">
                                                             <p className="font-medium mb-1">Skills:</p>
                                                             <p className="text-xs opacity-90">
-                                                                {astrologer?.skills?.map(skill =>
-                                                                    skill.charAt(0).toUpperCase() + skill.slice(1)
-                                                                ).join(', ')}
+                                                                {astrologer?.profile?.skills?.[0] ? 
+                                                                    JSON.parse(astrologer.profile.skills[0]).join(', ') : 
+                                                                    'N/A'
+                                                                }
                                                             </p>
                                                         </div>
 
@@ -246,9 +247,12 @@ const AboutPage = () => {
                                                         <div className="text-sm">
                                                             <p className="font-medium mb-1">Languages:</p>
                                                             <p className="text-xs opacity-90">
-                                                                {astrologer?.languages?.map(language =>
-                                                                    language.charAt(0).toUpperCase() + language.slice(1)
-                                                                ).join(', ')}
+                                                                {astrologer?.profile?.languages?.[0] ? 
+                                                                    JSON.parse(astrologer.profile.languages[0]).map(lang => 
+                                                                        lang.charAt(0).toUpperCase() + lang.slice(1)
+                                                                    ).join(', ') : 
+                                                                    'N/A'
+                                                                }
                                                             </p>
                                                         </div>
                                                     </div>

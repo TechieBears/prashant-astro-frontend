@@ -75,13 +75,13 @@ const CartPage = () => {
 
     const debounceTimeouts = useRef({});
 
-    // Set active tab based on navigation state
+    // Set active tab based on navigation state or cart contents
     useEffect(() => {
-        const navigationTab = location.state?.activeTab;
-        if (navigationTab) {
-            setActiveTab(navigationTab);
-        }
-    }, [location.state]);
+        setActiveTab(
+            location.state?.activeTab || 
+            (serviceCartItems.length > cartItems.length ? 'services' : 'products')
+        );
+    }, [location.state, cartItems.length, serviceCartItems.length]);
 
     // Fetch cart data and wallet balance on mount
     useEffect(() => {
@@ -476,8 +476,7 @@ const CartPage = () => {
                 title="Cart"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
-                    { label: "Products", href: "/products" },
-                    { label: "Rudraksha", href: null }
+                    { label: "Cart", href: null }
                 ]}
                 backgroundImage={bannerImage}
                 backgroundPosition="center 73%"

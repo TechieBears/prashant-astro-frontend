@@ -77,8 +77,8 @@ const HomeNavbar = () => {
                 dropdown: filteredProductsDropdown,
             },
             {
-                name: 'Talk With Astrologer',
-                path: '/talk-with-astrologer',
+                name: 'Call Astrologer',
+                path: '/call-astrologer',
             },
             { name: 'Contact', path: '/contact' },
         ].filter(Boolean);
