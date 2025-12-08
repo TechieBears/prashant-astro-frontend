@@ -148,12 +148,8 @@ const ImageCropUpload = ({
 
             if (!crop || !canvas || !ctx) return;
 
-            const pixelRatio = window.devicePixelRatio;
-            canvas.width = crop.width * pixelRatio;
-            canvas.height = crop.height * pixelRatio;
-
-            ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-            ctx.imageSmoothingQuality = "high";
+            const scaleX = image.naturalWidth / image.width;
+            const scaleY = image.naturalHeight / image.height;
 
             const imgDisplayWidth = image.width * zoom;
             const imgDisplayHeight = image.height * zoom;
@@ -166,23 +162,31 @@ const ImageCropUpload = ({
             const adjustedCropWidth = crop.width / zoom;
             const adjustedCropHeight = crop.height / zoom;
 
-            const scaleX = image.naturalWidth / image.width;
-            const scaleY = image.naturalHeight / image.height;
+            // Use actual cropped dimensions from source image
+            const sourceWidth = adjustedCropWidth * scaleX;
+            const sourceHeight = adjustedCropHeight * scaleY;
+
+            // Set canvas to source dimensions (no upscaling)
+            canvas.width = sourceWidth;
+            canvas.height = sourceHeight;
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
 
             ctx.drawImage(
                 image,
                 adjustedCropX * scaleX,
                 adjustedCropY * scaleY,
-                adjustedCropWidth * scaleX,
-                adjustedCropHeight * scaleY,
+                sourceWidth,
+                sourceHeight,
                 0,
                 0,
-                crop.width,
-                crop.height
+                sourceWidth,
+                sourceHeight
             );
 
             return new Promise((resolve) => {
-                canvas.toBlob(resolve, "image/jpeg", 0.9);
+                canvas.toBlob(resolve, "image/jpeg", 0.95);
             });
         },
         [zoom]
