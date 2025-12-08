@@ -158,31 +158,26 @@ function TestimonialModal({ open, setOpen }) {
         try {
             setLoader(true);
 
-            // Upload media files to cloudinary
-            let mediaUrls = [];
-            if (mediaFiles.length > 0) {
-                setUploadingMedia(true);
-                toast.loading('Uploading media files...');
+            // Create FormData
+            const formData = new FormData();
+            formData.append('user_id', loggedUserDetails?._id);
+            formData.append('service_id', data.service_id || '');
+            formData.append('product_id', data.product_id || '');
+            formData.append('message', data.message);
+            formData.append('city', data.city);
+            formData.append('state', data.state);
+            formData.append('country', data.country);
 
-                const uploadPromises = mediaFiles.map(file => uploadToCloudinary(file));
-                mediaUrls = await Promise.all(uploadPromises);
+            // Separate images and videos
+            mediaFiles.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    formData.append('images', file);
+                } else if (file.type.startsWith('video/')) {
+                    formData.append('videos', file);
+                }
+            });
 
-                toast.dismiss();
-                setUploadingMedia(false);
-            }
-
-            const testimonialData = {
-                user_id: loggedUserDetails?._id,
-                service_id: data.service_id || null,
-                product_id: data.product_id || null,
-                message: data.message,
-                media: mediaUrls,
-                city: data.city,
-                state: data.state,
-                country: data.country
-            };
-
-            const res = await createTestimonial(testimonialData);
+            const res = await createTestimonial(formData);
 
             if (res?.success) {
                 toast.success(res?.message || 'Thank you for sharing your experience!');
@@ -195,8 +190,6 @@ function TestimonialModal({ open, setOpen }) {
         } catch (error) {
             console.error('Error submitting testimonial:', error);
             setLoader(false);
-            setUploadingMedia(false);
-            toast.dismiss();
             toast.error('Failed to submit testimonial');
         }
     };
