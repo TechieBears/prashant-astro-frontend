@@ -4,6 +4,16 @@ import toast from "react-hot-toast";
 
 axios.defaults.withCredentials = environment?.production;
 
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+    } catch {
+        return true;
+    }
+};
+
 const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem("persist:root");
@@ -16,6 +26,10 @@ axios.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
+            if (isTokenExpired(token)) {
+                handleLogout();
+                return Promise.reject(new Error('Token expired'));
+            }
             config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
@@ -26,25 +40,11 @@ axios.interceptors.request.use(
 );
 
 axios.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            const errorMessage = error.response?.data?.message || error.response?.data?.error || '';
-
-            if (errorMessage.toLowerCase().includes('token') &&
-                (errorMessage.toLowerCase().includes('expired') ||
-                    errorMessage.toLowerCase().includes('invalid') ||
-                    errorMessage.toLowerCase().includes('unauthorized'))) {
-
-                const token = localStorage.getItem('token');
-                if (token) {
-                    handleLogout();
-                }
-            }
+        if (error.response?.status === 401 && error.message !== 'Token expired') {
+            handleLogout();
         }
-
         return Promise.reject(error);
     }
 );
@@ -196,18 +196,6 @@ export const updateServiceCartItem = async (itemId, updateData) => {
 };
 
 
-axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
 // ==================== Regiter Api===================
 
 export const registerUserOld = async (data) => {
