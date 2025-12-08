@@ -55,7 +55,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import VenueCalendar from '../pages/Admin/Bookings/AdminBookingsCalender';
 import ReferAndEarn from '../pages/Home/Profile/ReferAndEarn';
 import ZoomMeeting from '../pages/Meeting/ZoomMeeting';
-import TalkWithAstrologer from '../pages/Home/TalkWithAstrologer';
+import CallAstrologer from '../pages/Home/CallAstrologer';
 import AstrologerDetail from '../pages/Home/AstrologerDetail';
 import Wallet from '../pages/Wallet/Wallet';
 import CallHistory from '../pages/Home/Profile/CallHistory';
@@ -270,7 +270,7 @@ const ProjectRoutes = () => {
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/contact" element={<ContactPage />} />
                             <Route path="/products" element={<ProductsPage />} />
-                            <Route path="/talk-with-astrologer" element={<TalkWithAstrologer />} />
+                            <Route path="/call-astrologer" element={<CallAstrologer />} />
                             <Route path="/astrologer/:id" element={<AstrologerDetail />} />
                             <Route path="/wallet" element={<Wallet />} />
                             <Route path="/products/:id" element={<ProductDetail />} />
