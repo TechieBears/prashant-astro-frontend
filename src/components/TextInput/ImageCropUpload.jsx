@@ -113,7 +113,7 @@ const ImageCropUpload = ({
 
             // Calculate crop dimensions based on aspect ratio
             let calculatedWidth, calculatedHeight;
-            
+
             if (width / height > cropAspectRatio) {
                 // Image is wider than crop ratio
                 calculatedHeight = Math.min(height, cropHeight);
@@ -435,7 +435,7 @@ const ImageCropUpload = ({
                                             type="range"
                                             min="0.1"
                                             max="5"
-                                            step="0.1"
+                                            step="0.010"
                                             value={zoom}
                                             onChange={(e) => setZoom(parseFloat(e.target.value))}
                                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
