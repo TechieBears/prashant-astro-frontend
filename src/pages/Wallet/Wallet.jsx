@@ -9,7 +9,6 @@ const Wallet = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { requiredAmount = 0, callTime, astrologerName } = location.state || {};
-
     const [currentBalance, setCurrentBalance] = useState(0);
 
     useEffect(() => {
