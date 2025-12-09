@@ -14,11 +14,7 @@ import Flower from '../../assets/elements/flower.svg';
 import GooglePlay from '../../assets/user/home/googleplay.png';
 import Mobile from '../../assets/user/home/mobile.png';
 import Group from '../../assets/user/home/Group.png';
-import Service1 from '../../assets/user/home/services/service-homepage (1).png';
 import Preloaders from '../../components/Loader/Preloaders';
-import Service2 from '../../assets/user/home/services/service-homepage (2).png';
-import Service3 from '../../assets/user/home/services/service-homepage (3).png';
-import Service4 from '../../assets/user/home/services/service-homepage (4).png';
 import { getActiveBanners, getOurProducts, getOurServiceCategories } from "../../api";
 import { environment } from "../../env";
 import { Medal06Icon, FavouriteIcon, FaceIdIcon } from 'hugeicons-react';
@@ -146,26 +142,16 @@ const HomePage = () => {
             try {
                 const response = await getOurServiceCategories();
                 if (response.success && response.data?.length > 0) {
-                    // Transform API data to match UI structure
-                    const fallbackImages = [Service1, Service2, Service3, Service4];
-                    const fallbackDescriptions = [
-                        "The cards have a message to share for you.",
-                        "Your hands hold the story of your life.",
-                        "The stars have a story to tell about you.",
-                        "Your hands hold the story of your life."
-                    ];
-
-                    const transformedData = response.data.map((category, index) => ({
+                    const transformedData = response.data.map((category) => ({
                         id: category._id,
                         title: category.name,
-                        description: fallbackDescriptions[index % fallbackDescriptions.length],
+                        description: category.description,
                         category: category.name,
-                        image: fallbackImages[index % fallbackImages.length],
+                        image: category.image,
                         alt: `${category.name} Service`
                     }));
 
                     setServicesData(transformedData);
-                    // Store original service categories in Redux for footer and other components
                     dispatch(setServiceCategories(response.data));
                 } else {
                     setServicesData([]);

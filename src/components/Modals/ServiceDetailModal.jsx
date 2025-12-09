@@ -7,7 +7,6 @@ import UserReviews from '../Common/UserReviews';
 import OrderIdCopy from '../Common/OrderIdCopy';
 import Preloaders from '../Loader/Preloaders';
 import downloadIcon from '../../assets/user/orders/download.svg';
-import fallbackServiceImage from '../../assets/user/home/services/service-homepage (1).png';
 import ProductImage from '../Common/ProductImage';
 
 const formatDate = (d) => !d ? 'Date will be confirmed' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1,21,31].includes(day) ? 'st' : [2,22].includes(day) ? 'nd' : [3,23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
@@ -29,7 +28,7 @@ const ServiceItem = ({ serviceData, handleReviewSuccess, reviews, loadingReviews
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
             <div className="relative h-28 sm:h-32 bg-gray-100">
-                <ProductImage images={serviceData.serviceImage} name={serviceData.serviceName || "Service"} containerClassName="w-full h-full" imgClassName="w-full h-full object-cover" fallbackClassName="w-full h-full flex items-center justify-center bg-gray-100" fallbackContent={<img src={fallbackServiceImage} alt="Fallback Service" className="w-full h-full object-cover" />} />
+                <ProductImage images={serviceData.serviceImage} name={serviceData.serviceName || "Service"} containerClassName="w-full h-full" imgClassName="w-full h-full object-cover" fallbackClassName="w-full h-full flex items-center justify-center bg-gray-100" />
                 <div className={`absolute top-2 right-2 ${statusInfo.textColor} ${statusInfo.bgColor} px-2 py-0.5 sm:py-1 rounded-md text-xs font-medium`}>{statusInfo.shortText}</div>
             </div>
             <div className="p-2.5 sm:p-3">
