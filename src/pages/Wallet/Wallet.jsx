@@ -19,7 +19,6 @@ const Wallet = () => {
         fetchWalletBalance();
     }, []);
     const [depositAmount, setDepositAmount] = useState(requiredAmount || 500);
-
     const quickAmounts = ["+20", "+50", "+100", "+200", "+500", "+1000"];
 
     const transactions = [
