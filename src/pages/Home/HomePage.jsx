@@ -717,7 +717,6 @@ const HomePage = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* Flower positioned between sections - mobile only */}
                 <div className="relative">
                     <img
