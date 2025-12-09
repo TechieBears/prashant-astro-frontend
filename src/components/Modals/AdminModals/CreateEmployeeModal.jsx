@@ -32,7 +32,6 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
         try {
             setLoader(true);
             const formData = new FormData();
-            formData.append('preBooking', true);
             formData.append('employeeType', data?.employeeType);
             formData.append('firstName', data?.firstName);
             formData.append('lastName', data?.lastName);
@@ -50,14 +49,27 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             if (data?.experience) {
                 formData.append('experience', data?.experience);
             }
-            if (data?.days && data?.days.length > 0) {
-                formData.append('days', JSON.stringify(data?.days));
+            // call_astrologer specific fields
+            if (data?.employeeType === 'call_astrologer') {
+                if (data?.about) {
+                    formData.append('about', data?.about);
+                }
+                if (data?.priceCharge) {
+                    formData.append('priceCharge', data?.priceCharge);
+                }
             }
-            if (data?.startTime) {
-                formData.append('startTime', data?.startTime);
-            }
-            if (data?.endTime) {
-                formData.append('endTime', data?.endTime);
+            // astrologer specific fields
+            if (data?.employeeType === 'astrologer') {
+                formData.append('preBooking', true);
+                if (data?.days && data?.days.length > 0) {
+                    formData.append('days', JSON.stringify(data?.days));
+                }
+                if (data?.startTime) {
+                    formData.append('startTime', data?.startTime);
+                }
+                if (data?.endTime) {
+                    formData.append('endTime', data?.endTime);
+                }
             }
             if (edit) {
                 await editEmployee(userData?._id, formData).then(res => {
@@ -104,6 +116,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('skills', parseArray(userData?.profile?.skills));
             setValue('languages', parseArray(userData?.profile?.languages));
             setValue('experience', userData?.profile?.experience);
+            setValue('about', userData?.profile?.about);
+            setValue('priceCharge', userData?.profile?.priceCharge);
             setValue('days', parseArray(userData?.profile?.days));
             setValue('startTime', userData?.profile?.startTime);
             setValue('endTime', userData?.profile?.endTime);
@@ -118,6 +132,8 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                 skills: [],
                 languages: [],
                 experience: '',
+                about: '',
+                priceCharge: '',
                 days: [],
                 startTime: '',
                 endTime: '',
@@ -195,6 +211,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             registerName="employeeType"
                                                             options={[
                                                                 { value: 'astrologer', label: 'Astrologer' },
+                                                                { value: 'call_astrologer', label: 'Call Astrologer' },
                                                                 { value: 'employee', label: 'Employee' },
                                                             ]}
                                                             disabled={edit}
@@ -291,7 +308,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     />
                                                 </div>
 
-                                                {employeeType === 'astrologer' && <div>
+                                                {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -314,7 +331,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                 </div>}
-                                                {employeeType === 'astrologer' && <div>
+                                                {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -329,22 +346,21 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                                     label="Select Languages"
                                                                     options={
                                                                         [
-                                                                            { value: 'hindi', label: 'Hindi' },
-                                                                            { value: 'bengali', label: 'Bengali' },
-                                                                            { value: 'marathi', label: 'Marathi' },
-                                                                            { value: 'telugu', label: 'Telugu' },
-                                                                            { value: 'tamil', label: 'Tamil' },
-                                                                            { value: 'gujarati', label: 'Gujarati' },
-                                                                            { value: 'urdu', label: 'Urdu' },
-                                                                            { value: 'kannada', label: 'Kannada' },
-                                                                            { value: 'odia', label: 'Odia' },
-                                                                            { value: 'malayalam', label: 'Malayalam' },
-                                                                            { value: 'punjabi', label: 'Punjabi' },
-                                                                            { value: 'assamese', label: 'Assamese' },
-                                                                            { value: 'maithili', label: 'Maithili' },
-                                                                            { value: 'santali', label: 'Santali' },
-                                                                            { value: 'kashmiri', label: 'Kashmiri' },
-                                                                            { value: 'english', label: 'English' },
+                                                                            { value: 'Hindi', label: 'Hindi' },
+                                                                            { value: 'Bengali', label: 'Bengali' },
+                                                                            { value: 'Marathi', label: 'Marathi' },
+                                                                            { value: 'Telugu', label: 'Telugu' },
+                                                                            { value: 'Tamil', label: 'Tamil' },
+                                                                            { value: 'Gujarati', label: 'Gujarati' },
+                                                                            { value: 'Urdu', label: 'Urdu' },
+                                                                            { value: 'Kannada', label: 'Kannada' },
+                                                                            { value: 'Malayalam', label: 'Malayalam' },
+                                                                            { value: 'Punjabi', label: 'Punjabi' },
+                                                                            { value: 'Assamese', label: 'Assamese' },
+                                                                            { value: 'Maithili', label: 'Maithili' },
+                                                                            { value: 'Santali', label: 'Santali' },
+                                                                            { value: 'Kashmiri', label: 'Kashmiri' },
+                                                                            { value: 'English', label: 'English' },
                                                                         ]
                                                                     }
                                                                     key={'languages'}
@@ -356,21 +372,50 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         />
                                                     </div>
                                                 </div>}
-                                                {employeeType === 'astrologer' && <div>
+                                                {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
-                                                        Experience
+                                                        Experience (Years)
                                                     </h4>
                                                     <TextInput
-                                                        label="Enter Your Experience"
-                                                        placeholder="Enter Your Experience"
+                                                        label="Enter Experience in Years"
+                                                        placeholder="Enter Experience"
                                                         type="tel"
                                                         maxLength={2}
                                                         minLength={1}
                                                         registerName="experience"
                                                         props={{ ...register('experience', { validate: validateCommision }), maxLength: 2, minLength: 1 }}
                                                         errors={errors.experience}
+                                                    />
+                                                </div>}
+                                                {employeeType === 'call_astrologer' && <div className="col-span-2">
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        About
+                                                    </h4>
+                                                    <textarea
+                                                        placeholder="Enter description about the astrologer"
+                                                        className="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        rows={3}
+                                                        {...register('about')}
+                                                    />
+                                                    {errors.about && <p className="text-red-500 text-xs mt-1">{errors.about.message}</p>}
+                                                </div>}
+                                                {employeeType === 'call_astrologer' && <div>
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        Price Charge (₹/min)
+                                                    </h4>
+                                                    <TextInput
+                                                        label="Enter Price per Minute"
+                                                        placeholder="Enter Price"
+                                                        type="number"
+                                                        registerName="priceCharge"
+                                                        props={{ ...register('priceCharge', { validate: validateCommision }), min: 1 }}
+                                                        errors={errors.priceCharge}
                                                     />
                                                 </div>}
                                                 {employeeType === 'astrologer' && <div>

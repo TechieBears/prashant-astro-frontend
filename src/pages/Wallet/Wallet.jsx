@@ -1,12 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getWalletBalance } from '../../api';
 
 const Wallet = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { requiredAmount = 0, callTime, astrologerName } = location.state || {};
 
-    const [currentBalance] = useState(500);
+    const [currentBalance, setCurrentBalance] = useState(0);
+
+    useEffect(() => {
+        const fetchWalletBalance = async () => {
+            const res = await getWalletBalance();
+            if (res?.success) {
+                setCurrentBalance(res?.data?.balance || 0);
+            }
+        };
+        fetchWalletBalance();
+    }, []);
     const [depositAmount, setDepositAmount] = useState(requiredAmount || 500);
 
     const quickAmounts = ["+20", "+50", "+100", "+200", "+500", "+1000"];

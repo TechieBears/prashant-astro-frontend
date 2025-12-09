@@ -120,7 +120,7 @@ const AstrologerFilterSidebar = ({
 
                 {/* Categories */}
                 <div className="mb-6">
-                    <h4 className="text-slate-800 font-semibold mb-2">Categories</h4>
+                    <h4 className="text-slate-800 font-semibold mb-2">Skills</h4>
                     <div className="mt-3">
                         <ul className="space-y-3">
                             {categories.map((category) => {

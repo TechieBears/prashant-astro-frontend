@@ -1590,14 +1590,14 @@ export const getOurServiceCategories = async () => {
 // ==================== Active Products Api ====================
 export const getActiveProducts = async (params = {}) => {
     const queryParams = new URLSearchParams();
-    
+
     if (params.category) queryParams.append('category', params.category);
     if (params.subcategory) queryParams.append('subcategory', params.subcategory);
     if (params.search) queryParams.append('search', params.search);
     if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice);
     if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice);
     if (params.inStock !== undefined) queryParams.append('inStock', params.inStock);
-    
+
     const url = `${environment.baseUrl}product/public/active${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     try {
         const response = await axios.get(url);
@@ -1789,7 +1789,7 @@ export const registerUser = async (data) => {
 export const forgetUserPassword = async ({ email }) => {
     try {
         const response = await axios.post(
-            `${environment.baseUrl}customer-users/forgot-password`,
+            `${environment.baseUrl}customer-users/forgot-password-otp`,
             { email },
             { headers: { "Content-Type": "application/json" } }
         );
@@ -2475,6 +2475,17 @@ export const getAllAstrologerCalls = async () => {
 
     } catch (err) {
         console.log("==========error in getAllAstrologerCalls api", err);
+        return err?.response?.data;
+    }
+}
+
+export const getCallFilters = async () => {
+    try {
+        const url = `${environment.baseUrl}call/public/get-filters`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getCallFilters api", err);
         return err?.response?.data;
     }
 }

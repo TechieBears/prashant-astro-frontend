@@ -5,7 +5,7 @@ import AstrologerFilterSidebar from '../../components/Astrologer/AstrologerFilte
 import CallButton from '../../components/Common/CallButton';
 import Tabs from '../../components/Common/Tabs';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
-import { getAllAstrologerCalls } from '../../api';
+import { getAllAstrologerCalls, getCallFilters } from '../../api';
 import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
 import astrologer2 from '../../assets/Astrologer/panditcall2.jpg';
 import astrologer3 from '../../assets/Astrologer/panditcall3.jpg';
@@ -22,11 +22,11 @@ const CallAstrologer = () => {
     const [price, setPrice] = useState([500, 3000]);
     const [activeTab, setActiveTab] = useState('all');
     const [calls, setCalls] = useState([]);
-
-    // Static data as requested
-    const languages = ['Hindi', 'English', 'Telugu', 'Marathi'];
-    const categories = ['Amulets', 'Candles', 'Divination', 'Gemstone', 'Uncategorized'];
-    const experience = ['Up to 2 years', 'Up to 5 years', 'Above 5 years'];
+    const [languages, setLanguages] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [experience, setExperience] = useState([]);
+    const [minPrice, setMinPrice] = useState(500);
+    const [maxPrice, setMaxPrice] = useState(5000);
 
     // Astrologer data
     const astrologersData = [
@@ -117,14 +117,30 @@ const CallAstrologer = () => {
         try {
             const response = await getAllAstrologerCalls();
             console.log("response in astrologer calls api", response);
-
         } catch (error) {
+            console.error("Error fetching astrologer calls", error);
         }
+    };
 
+    const fetchFilters = async () => {
+        try {
+            const response = await getCallFilters();
+            if (response?.success && response?.data) {
+                setLanguages(response.data.languages || []);
+                setCategories(response.data.skills || []);
+                setExperience(response.data.experiences || []);
+                setMinPrice(response.data.priceRange?.min || 500);
+                setMaxPrice(response.data.priceRange?.max || 5000);
+                setPrice([response.data.priceRange?.min || 500, response.data.priceRange?.max || 5000]);
+            }
+        } catch (error) {
+            console.error("Error fetching filters", error);
+        }
     };
 
     useEffect(() => {
         fetchAstrologerCalls();
+        fetchFilters();
     }, [])
 
     return (
@@ -160,8 +176,8 @@ const CallAstrologer = () => {
                                 toggleExperience={toggleExperience}
                                 price={price}
                                 setPrice={setPrice}
-                                minPrice={500}
-                                maxPrice={5000}
+                                minPrice={minPrice}
+                                maxPrice={maxPrice}
                                 resetFilters={resetFilters}
                                 isLoading={false}
                             />
