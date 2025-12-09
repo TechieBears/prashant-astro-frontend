@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getWalletBalance } from '../../api';
+import shadowImg from '../../assets/wallet/shadow.png';
+import objectsImg from '../../assets/wallet/OBJECTS.png';
+import phoneImg from '../../assets/wallet/phone.png';
 
 const Wallet = () => {
     const location = useLocation();
@@ -63,7 +66,7 @@ const Wallet = () => {
                         <div className="bg-button-vertical-gradient-orange rounded-xl p-6 shadow-md text-white relative">
                             {/* Shadow Image */}
                             <img
-                                src="/src/assets/Wallet/shadow.png"
+                                src={shadowImg}
                                 alt="shadow"
                                 className="absolute inset-0 w-full h-full object-cover rounded-xl opacity-50"
                             />
@@ -75,7 +78,7 @@ const Wallet = () => {
 
                             {/* Money Bag Image */}
                             <img
-                                src="/src/assets/Wallet/OBJECTS.png"
+                                src={objectsImg}
                                 alt="money"
                                 className="w-28 absolute right-14 top-20 z-20"
                             />
@@ -128,7 +131,7 @@ const Wallet = () => {
                             <h3 className="font-semibold text-gray-800 text-xl">Download Our Mobile App</h3>
                             <p className="text-sm text-gray-500 max-w-xs mt-2">For a same less experience, download our apps on your phone</p>
                             <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="w-40 mt-2" />
-                            <img src="/src/assets/Wallet/phone.png" alt="phone" className="absolute bottom-0 right-6 h-[8.5rem]" />
+                            <img src={phoneImg} alt="phone" className="absolute bottom-0 right-6 h-[8.5rem]" />
                         </div>
                     </div>
 
