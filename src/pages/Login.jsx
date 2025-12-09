@@ -233,13 +233,12 @@ const Login = () => {
                                 Remember me
                             </label>
                         </div>
-                        {/* <button
-                            type="button"
-                            onClick={() => setShowForgetPasswordModal(true)}
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        <NavLink
+                            to="/forget-password"
+                            className="font-medium bg-gradient-orange bg-clip-text text-transparent hover:opacity-80"
                         >
                             Forgot Password?
-                        </button> */}
+                        </NavLink>
                     </div>
 
                     {/* Login Button */}
