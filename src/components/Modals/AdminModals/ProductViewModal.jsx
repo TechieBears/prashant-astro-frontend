@@ -35,11 +35,24 @@ function ProductViewModal({ product, isOpen, onClose }) {
         return { label: 'Out of Stock', color: 'text-red-600 bg-red-50', icon: '●' };
     };
 
+    // Parse specification string
+    const parseSpecification = (spec) => {
+        if (!spec) return [];
+        if (Array.isArray(spec)) return spec;
+        try {
+            const parsed = JSON.parse(spec);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    };
+
     if (!product) return null;
 
     const discount = calculateDiscount(product.mrpPrice, product.sellingPrice);
     const savings = product.mrpPrice - product.sellingPrice;
     const stockStatus = getStockStatus(product.stock || 0);
+    const specifications = parseSpecification(product.specification);
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -255,27 +268,19 @@ function ProductViewModal({ product, isOpen, onClose }) {
                                                 )}
 
                                                 {/* Specifications */}
-                                                {product.specification && (
+                                                {specifications.length > 0 && (
                                                     <div className="bg-white rounded-xl p-6 border border-gray-200">
                                                         <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-800 mb-4">
                                                             <Tag size={20} className="text-gray-600" />
                                                             <span>Specifications</span>
                                                         </h3>
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            {Array.isArray(product.specification) ?
-                                                                product.specification.map((spec, index) => (
-                                                                    <div key={index} className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
-                                                                        <span className="font-medium text-gray-700">{spec?.key}</span>
-                                                                        <span className="text-gray-900 font-medium">{spec?.value}</span>
-                                                                    </div>
-                                                                )) :
-                                                                Object.entries(product.specification).map(([key, value], index) => (
-                                                                    <div key={index} className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
-                                                                        <span className="font-medium text-gray-700">{key}</span>
-                                                                        <span className="text-gray-900 font-medium">{value}</span>
-                                                                    </div>
-                                                                ))
-                                                            }
+                                                            {specifications.map((spec, index) => (
+                                                                <div key={index} className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-lg">
+                                                                    <span className="font-medium text-gray-700">{spec?.key}</span>
+                                                                    <span className="text-gray-900 font-medium">{spec?.value}</span>
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
                                                 )}
