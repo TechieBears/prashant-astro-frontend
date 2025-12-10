@@ -211,14 +211,14 @@ const PriceRangeSlider = ({ min, max, value, onChange }) => {
         </div>
       </div>
 
-      <div className="absolute -bottom-3 w-full">
-        <div 
+      <div className="absolute w-full">
+        <div
           className="absolute px-2 py-0.5 rounded-md text-white text-xs bg-orange-500 shadow"
           style={{ left: `${minP}%`, transform: 'translateX(-50%)' }}
         >
           {value[0].toLocaleString()}
         </div>
-        <div 
+        <div
           className="absolute px-2 py-0.5 rounded-md text-white text-xs bg-orange-500 shadow"
           style={{ left: `${Math.min(maxP, 100)}%`, transform: 'translateX(-50%)' }}
         >

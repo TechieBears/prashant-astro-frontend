@@ -7,6 +7,7 @@ import Switch from "react-js-switch";
 import { getAllEmployees, editEmployee } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TextInput from '../../../components/TextInput/TextInput'
+import SelectTextInput from '../../../components/TextInput/SelectTextInput'
 import usePagination from '../../../utils/customHooks/usePagination'
 import { formBtn1, tableBtn } from '../../../utils/CustomClass'
 import { validateAlphabets } from '../../../utils/validateFunction';
@@ -15,7 +16,8 @@ import TableHeader from '../../../components/Table/TableHeader';
 import { parseArray } from '../../../utils/parseUtils';
 
 const initialFilterState = {
-    name: ''
+    name: '',
+    employeeType: ''
 };
 
 const Employees = () => {
@@ -43,7 +45,11 @@ const Employees = () => {
     }, [error]);
 
     const handleFilterSubmit = (data) => {
-        setFilterCriteria(data);
+        const filters = { name: data.name };
+        if (data.employeeType) {
+            filters.role = data.employeeType === 'Call Astrologer' ? 'astrologer' : data.employeeType.toLowerCase();
+        }
+        setFilterCriteria(filters);
         pageChangeHandler(1);
         toast.success('Filters applied');
     };
@@ -123,6 +129,19 @@ const Employees = () => {
         return (
             <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${colorClass}`}>
                 {employeeType}
+            </span>
+        );
+    };
+
+    const roleBody = (row) => {
+        const roleColors = {
+            'astrologer': 'bg-orange-100 text-orange-800',
+            'employee': 'bg-teal-100 text-teal-800'
+        };
+        const role = row?.role || "-----";
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>
+                {role}
             </span>
         );
     };
@@ -287,6 +306,13 @@ const Employees = () => {
             sortable: true
         },
         {
+            field: 'role',
+            header: 'Role',
+            body: roleBody,
+            style: true,
+            sortable: true
+        },
+        {
             field: 'employeeType',
             header: 'Employee Type',
             body: employeeTypeBody,
@@ -350,13 +376,25 @@ const Employees = () => {
             {/* Filter Form */}
             <div className="bg-white p-4 sm:m-5 rounded-xl">
                 <form onSubmit={handleSubmit(handleFilterSubmit)} className="flex flex-col lg:flex-row gap-2">
-                    <div className="grid grid-cols-1 w-full gap-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-2">
                         <TextInput
                             label="Enter Full Name*"
                             placeholder="Enter Full Name"
                             type="text"
                             registerName="name"
                             props={{ ...register('name', { validate: validateAlphabets }) }}
+                        />
+                        <SelectTextInput
+                            label="Employee Type"
+                            placeholder="Select Employee Type"
+                            registerName="employeeType"
+                            props={{ ...register('employeeType') }}
+                            options={[
+                                { value: '', label: 'All' },
+                                { value: 'Astrologer', label: 'Astrologer' },
+                                { value: 'Employee', label: 'Employee' },
+                                { value: 'Call Astrologer', label: 'Call Astrologer' }
+                            ]}
                         />
                     </div>
                     <div className="flex space-x-2">
