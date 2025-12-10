@@ -1137,7 +1137,7 @@ export const deleteProduct = async (id) => {
 
 export const getAllEmployees = async (data) => {
     try {
-        const url = `${environment.baseUrl}employee-users/get-all?name=${data?.name}&page=${data?.p}&limit=${data?.records}`;
+        const url = `${environment.baseUrl}employee-users/get-all?name=${data?.name || ''}&page=${data?.p}&limit=${data?.records}${data?.role ? `&role=${data?.role}` : ''}`;
         const response = await axios.get(url)
         return response.data
     }
