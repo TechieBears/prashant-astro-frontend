@@ -19,7 +19,7 @@ const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { fetchCartData } = useCart();
+
 
     // Redux state
     const { productItems: cartItems } = useSelector(state => state.cart);
@@ -119,18 +119,7 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id]);
 
-    // Fetch cart data on component mount
-    useEffect(() => {
-        const loadCart = async () => {
-            try {
-                await fetchCartData();
-            } catch (error) {
-                console.error('Failed to fetch cart data:', error);
-            }
-        };
 
-        loadCart();
-    }, [fetchCartData]);
 
     // Check if product is in cart when product or cart data changes
     useEffect(() => {
@@ -262,18 +251,6 @@ const ProductDetail = () => {
                     </span>
                 </div>
 
-                {/* Additional Information */}
-                {product.additionalInfo && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
-                            Specifications:
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                            {product.additionalInfo}
-                        </p>
-                    </div>
-                )}
-
                 {/* Product Description */}
                 <div className="mt-6 flex items-center gap-4">
                     {/* Quantity Selector */}
@@ -317,6 +294,34 @@ const ProductDetail = () => {
                         cartItemId={cartItemId}
                     />
                 </div>
+
+                {/* Specifications */}
+                {product.specification && (
+                    <div className="mt-6">
+                        <h3 className="font-semibold text-gray-900 mb-3 text-sm sm:text-base">
+                            Specifications:
+                        </h3>
+                        <div className="space-y-2">
+                            {(() => {
+                                try {
+                                    const specs = typeof product.specification === 'string' 
+                                        ? JSON.parse(product.specification) 
+                                        : product.specification;
+                                    return specs.map((spec, index) => (
+                                        <div key={index} className="border-b border-gray-100 pb-2">
+                                            <span className="font-medium text-gray-700 text-sm">
+                                                {spec.key}
+                                            </span>
+                                            <span className="text-gray-600 text-sm"> {spec.value}</span>
+                                        </div>
+                                    ));
+                                } catch (e) {
+                                    return null;
+                                }
+                            })()}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };
@@ -473,22 +478,7 @@ const ProductDetail = () => {
                         {activeTab === 'additional' && (
                             <div className="text-gray-600 leading-relaxed text-sm sm:text-base">
                                 {product?.additionalInfo ? (
-                                    <div>
-                                        {typeof product.additionalInfo === 'string' ? (
-                                            <p>{product.additionalInfo}</p>
-                                        ) : (
-                                            <div className="space-y-3">
-                                                {Object.entries(product.additionalInfo).map(([key, value]) => (
-                                                    <div key={key} className="flex justify-between border-b border-gray-100 pb-2">
-                                                        <span className="font-medium text-gray-700 capitalize">
-                                                            {key.replace(/([A-Z])/g, ' $1').trim()}:
-                                                        </span>
-                                                        <span className="text-gray-600">{value}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
+                                    <p>{product.additionalInfo}</p>
                                 ) : (
                                     <p>No additional information available for this product.</p>
                                 )}
