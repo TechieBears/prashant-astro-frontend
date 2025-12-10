@@ -7,7 +7,7 @@ import UserReviews from '../../components/Common/UserReviews';
 import CallButton from '../../components/Common/CallButton';
 import WalletModal from '../../components/Modals/WalletModal';
 import TalkSessionModal from '../../components/Modals/TalkSessionModal';
-import { getFilteredReviews } from '../../api';
+import { getFilteredReviews, getSingleCallAstrologer } from '../../api';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
@@ -30,6 +30,8 @@ const AstrologerDetail = () => {
     const [showWalletModal, setShowWalletModal] = useState(false);
     const [showTalkSessionModal, setShowTalkSessionModal] = useState(false);
     const [userBalance] = useState(200); // Mock balance - set lower to test modal
+    const [astrologer, setAstrologer] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const incrementTime = (amount) => {
         setCallTime((prev) => Math.max(5, prev + amount));
@@ -40,7 +42,8 @@ const AstrologerDetail = () => {
     };
 
     const handleCallRequired = () => {
-        const requiredAmount = callTime * 10; // Assuming ₹10 per minute
+        const pricePerMin = astrologer?.pricePerMin || 10;
+        const requiredAmount = callTime * pricePerMin;
         console.log('Button clicked! Balance:', userBalance, 'Required:', requiredAmount);
         if (userBalance < requiredAmount) {
             console.log('Opening wallet modal...');
@@ -70,37 +73,55 @@ const AstrologerDetail = () => {
         }
     }, [id]);
 
+    // Fetch astrologer data
+    const fetchAstrologerData = useCallback(async () => {
+        if (!id) return;
+        try {
+            setLoading(true);
+            const response = await getSingleCallAstrologer(id);
+            if (response?.success && response?.data) {
+                const data = response.data;
+                setAstrologer({
+                    id: data._id,
+                    name: data.fullName || 'N/A',
+                    image: data.profileImage || astrologer1,
+                    status: 'Online',
+                    skills: data.skills?.join(', ') || 'N/A',
+                    languages: data.languages?.join(', ') || 'N/A',
+                    experience: `${data.experience || 0} Years Experience`,
+                    rate: `₹${data.priceCharge || 0}/Min`,
+                    pricePerMin: data.priceCharge || 10,
+                    description: data.about || 'No description available',
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching astrologer data", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [id]);
+
     // Fetch reviews when component mounts
     useEffect(() => {
+        fetchAstrologerData();
         fetchAstrologerReviews();
-    }, [fetchAstrologerReviews]);
+    }, [fetchAstrologerData, fetchAstrologerReviews]);
 
-    // Static astrologer data (in real app, fetch by ID)
-    const astrologer = {
-        id: id,
-        name: 'Tarott Chandni',
-        image: astrologer1,
-        status: 'Online',
-        skills: 'Vedic Astrology, Vastu Shastra, Tarot Reading, Yoga & Meditation, Numerology, Palmistry',
-        languages: 'Hindi, Marathi, English, Telugu',
-        experience: '10 Years Experience',
-        rate: '₹10/Min',
-        rating: 4.8,
-        totalConsultations: 2500,
-        description: 'I am a professional astrologer with over 10 years of experience in Vedic astrology, tarot reading, and spiritual guidance. I help people find clarity in their lives through ancient wisdom and modern insights.',
-        specializations: [
-            'Love & Relationships',
-            'Career & Business',
-            'Health & Wellness',
-            'Marriage & Family',
-            'Financial Growth',
-            'Spiritual Guidance'
-        ],
-        availability: {
-            today: '10:00 AM - 8:00 PM',
-            tomorrow: '9:00 AM - 9:00 PM'
-        }
-    };
+    if (loading) {
+        return (
+            <div className='bg-slate1 min-h-screen flex items-center justify-center'>
+                <p className="text-gray-500">Loading astrologer details...</p>
+            </div>
+        );
+    }
+
+    if (!astrologer) {
+        return (
+            <div className='bg-slate1 min-h-screen flex items-center justify-center'>
+                <p className="text-gray-500">Astrologer not found</p>
+            </div>
+        );
+    }
 
     const statusColors = {
         'Online': 'text-green-500',
@@ -266,14 +287,14 @@ const AstrologerDetail = () => {
                                         <div className="text-xs flex justify-between items-center">
                                             <div>
                                                 <span className="text-slate-600">Wallet Balance: </span>
-                                                <span className={`font-semibold ${userBalance < callTime * 10 ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
+                                                <span className={`font-semibold ${userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
                                             </div>
                                             <div>
                                                 <span className="text-slate-600">Call Price: </span>
-                                                <span className="font-semibold text-orange-600">₹{callTime * 10}</span>
+                                                <span className="font-semibold text-orange-600">₹{callTime * (astrologer?.pricePerMin || 10)}</span>
                                             </div>
                                         </div>
-                                        {userBalance < callTime * 10 && (
+                                        {userBalance < callTime * (astrologer?.pricePerMin || 10) && (
                                             <p className="text-red-500 text-xs font-medium text-center mt-2">
                                                 You don't have enough balance
                                             </p>
@@ -288,14 +309,14 @@ const AstrologerDetail = () => {
                                                     You don't have enough balance
                                                 </p>
                                                 <p className="text-[#1D293D] font-poppins text-md font-medium">
-                                                    Need to add balance ₹{callTime * 10 - userBalance}
+                                                    Need to add balance ₹{callTime * (astrologer?.pricePerMin || 10) - userBalance}
                                                 </p>
                                             </div>
 
                                             {/* Amount and Recharge Button */}
                                             <div className="flex items-center gap-3 border border-black-500 rounded-lg p-1">
                                                 <div className="flex-1 text-[#1D293D] font-poppins text-2xl font-medium">
-                                                    ₹ {callTime * 10 - userBalance}
+                                                    ₹ {callTime * (astrologer?.pricePerMin || 10) - userBalance}
                                                 </div>
                                                 <button className="px-4 py-1 rounded-[10px] bg-gradient-to-b from-[#FFBF12] via-[#FF8835] to-[#FF5858] text-white font-poppins text-base font-medium hover:opacity-90 transition-opacity">
                                                     Recharger
@@ -306,12 +327,12 @@ const AstrologerDetail = () => {
 
                                     {/* Call Required Button */}
                                     <CallButton
-                                        status={userBalance < callTime * 10 ? 'Busy' : 'Online'}
+                                        status={userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'Busy' : 'Online'}
                                         onClick={handleCallRequired}
                                         allowClickWhenBusy={true}
                                         className="py-[9px] font-poppins text-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400"
                                     >
-                                        {userBalance < callTime * 10 ? 'Recharge' : 'Call Required'}
+                                        {userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'Recharge' : 'Call Required'}
                                     </CallButton>
                                 </div>
                             </div>
@@ -324,9 +345,9 @@ const AstrologerDetail = () => {
             <WalletModal
                 isOpen={showWalletModal}
                 onClose={() => setShowWalletModal(false)}
-                requiredAmount={callTime * 10 - userBalance}
+                requiredAmount={callTime * (astrologer?.pricePerMin || 10) - userBalance}
                 callTime={callTime}
-                astrologerName={astrologer.name}
+                astrologerName={astrologer?.name}
             />
 
             {/* Talk Session Modal */}
@@ -334,7 +355,7 @@ const AstrologerDetail = () => {
                 isOpen={showTalkSessionModal}
                 onClose={() => setShowTalkSessionModal(false)}
                 callTime={callTime}
-                astrologerName={astrologer.name}
+                astrologerName={astrologer?.name}
             />
         </div>
     );

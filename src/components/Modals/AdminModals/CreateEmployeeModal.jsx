@@ -32,6 +32,10 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
         try {
             setLoader(true);
             const formData = new FormData();
+            // Add userType for call_astrologer
+            if (data?.employeeType === 'call_astrologer') {
+                formData.append('userType', 'astrologer');
+            }
             formData.append('employeeType', data?.employeeType);
             formData.append('firstName', data?.firstName);
             formData.append('lastName', data?.lastName);
