@@ -42,6 +42,7 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false, onModal
             };
 
             reset(formData);
+            // If profile is incomplete, force profile screen
             if (forceProfileScreen) {
                 setShowOnlyReferral(false);
             } else {
@@ -132,8 +133,8 @@ function ReferralPromptModal({ open, toggle, forceProfileScreen = false, onModal
         return phoneRegex.test(value) || 'Phone number must be 10 digits';
     };
 
-    // Don't show modal if isRegistered is false
-    if (!isRegistered) {
+    // Show modal if isRegistered is true OR if forceProfileScreen is true (for incomplete profiles)
+    if (!isRegistered && !forceProfileScreen) {
         return null;
     }
 

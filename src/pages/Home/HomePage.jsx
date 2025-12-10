@@ -46,20 +46,28 @@ const HomePage = () => {
 
     const toggle = () => setOpen(!open);
 
-    // Auto-show modal when user logs in
+    // Check if profile is complete - check for empty strings and missing values
+    const isProfileComplete = !!(user?.firstName?.trim() && user?.lastName?.trim() && user?.mobileNo?.trim() && user?.gender?.trim());
+
     useEffect(() => {
         if (isLogged && user) {
-            const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
             const dontShow = localStorage.getItem(`dontShowReferralModal_${user._id}`);
 
-            // Only show modal if profile is incomplete OR if profile is complete but user hasn't opted out of referral modal
+            console.log('Profile check:', {
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                mobileNo: user?.mobileNo,
+                gender: user?.gender,
+                isProfileComplete,
+                dontShow
+            });
+
+            // Show modal if profile is incomplete OR if profile is complete but user hasn't opted out of referral modal
             if (!isProfileComplete || (!dontShow && isProfileComplete)) {
                 setOpen(true);
             }
         }
-    }, [isLogged, user]);
-
-    const isProfileComplete = user?.firstName && user?.lastName && user?.mobileNo && user?.gender;
+    }, [isLogged, user, isProfileComplete]);
 
     useEffect(() => {
         const fetchSlides = async () => {
