@@ -2467,9 +2467,21 @@ export const getZoomSignature = async (meetingNumber, role = 0) => {
     }
 };
 
-export const getAllAstrologerCalls = async () => {
+export const getAllAstrologerCalls = async (params = {}) => {
     try {
-        const url = `${environment.baseUrl}call/public/get-all`;
+        const queryParams = new URLSearchParams();
+        
+        if (params.page) queryParams.append('page', params.page);
+        if (params.limit) queryParams.append('limit', params.limit);
+        if (params.languages?.length) queryParams.append('languages', params.languages.join(','));
+        if (params.skills?.length) queryParams.append('skills', params.skills.join(','));
+        if (params.minPrice) queryParams.append('minPrice', params.minPrice);
+        if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
+        if (params.experience?.length) queryParams.append('experience', params.experience.join(','));
+        if (params.search) queryParams.append('search', params.search);
+        if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+        
+        const url = `${environment.baseUrl}call/public/get-all-call-astrologers${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
         const response = await axios.get(url);
         return response.data;
 
@@ -2486,6 +2498,17 @@ export const getCallFilters = async () => {
         return response.data;
     } catch (err) {
         console.log("==========error in getCallFilters api", err);
+        return err?.response?.data;
+    }
+}
+
+export const getSingleCallAstrologer = async (id) => {
+    try {
+        const url = `${environment.baseUrl}call/public/get-single-call-astrologer?id=${id}`;
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.log("==========error in getSingleCallAstrologer api", err);
         return err?.response?.data;
     }
 }
