@@ -293,30 +293,21 @@ const Testimonials = () => {
 
             {/* Section Header */}
             <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
-                {/* <SectionHeader prefix="Our" highlight="Testimonials" /> */}
                 <div className="flex items-center gap-2 justify-center">
                     <SectionHeader prefix="What" highlight="Our" suffix="Clients Say" showImage={false} />
                 </div>
-                <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-10">
+                <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-6">
                     Read the Testimonials by our clients and find more about our services.
                 </p>
-            </div>
-
-            {/* Share Experience Section */}
-            <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto">
-                <div className="text-center">
-                    {/* <SectionHeader
-                        prefix="Share your experience"
-                        highlight="with us"
-                    /> */}
-                    <div className="mb-2 sm:mb-12 md:mb-10">
-                        <button
-                            onClick={handleShareExperience}
-                            className="bg-button-diagonal-gradient-orange text-white px-8 sm:px-12 md:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90 whitespace-nowrap"
-                        >
-                            Share Your Experience with us
-                        </button>
-                    </div>
+                
+                {/* Share Experience Button */}
+                <div className="text-center relative z-20">
+                    <button
+                        onClick={handleShareExperience}
+                        className="bg-button-diagonal-gradient-orange text-white px-8 sm:px-12 md:px-16 py-2.5 md:py-3 rounded-full font-medium transition-opacity shadow-md text-sm md:text-base hover:opacity-90 whitespace-nowrap"
+                    >
+                        Share Your Experience with us
+                    </button>
                 </div>
             </div>
 
