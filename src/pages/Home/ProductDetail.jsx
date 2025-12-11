@@ -61,7 +61,7 @@ const ProductDetail = () => {
 
     // Check if product is in cart and set initial quantity
     const checkProductInCart = useCallback(() => {
-        if (!product || !cartItems.length) return;
+        if (!product || !cartItems || !cartItems.length) return;
 
         const cartItem = cartItems.find(item =>
             item.productId === product._id ||
@@ -345,7 +345,7 @@ const ProductDetail = () => {
                 <div className="lg:flex gap-6">
                     {/* Left - Thumbnails */}
                     <div className="hidden lg:flex flex-col space-y-4 w-24">
-                        {product.images.map((img, index) => (
+                        {product.images && product.images.map((img, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentImageIndex(index)}
