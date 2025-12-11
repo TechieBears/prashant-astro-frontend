@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { addToCart } from '../../api';
 import { updateProductQuantitySuccess, optimisticUpdateQuantity } from '../../redux/Slices/cartSlice';
@@ -21,12 +21,13 @@ const AddToCartButton = ({
     const navigate = useNavigate();
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const { fetchCartData } = useCart();
+    const { isLogged } = useSelector(state => state.user);
 
     const handleAddToCart = async () => {
         if (!productId) return toast.error('Product ID is missing');
 
-        const token = localStorage.getItem('token');
-        if (!token) {
+        // Check if user is logged in
+        if (!isLogged) {
             toast.error('Please login to add items to cart');
             navigate('/login', { state: { from: window.location.pathname } });
             return;
