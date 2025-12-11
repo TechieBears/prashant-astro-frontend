@@ -8,12 +8,12 @@ export const environment = {
     // production: false
 
     // // -------------------- Devlopment Server Api URL --------------------
-    baseUrl: 'https://prashant-astro-backend.vercel.app/api/',
-    production: false,
+    // baseUrl: 'https://prashant-astro-backend.vercel.app/api/',
+    // production: false,
 
     // -------------------- Live Server Api URL --------------------
 
-    // baseUrl: 'https://api.astroguid.com/api/',
-    // production: true,
+    baseUrl: 'https://api.astroguid.com/api/',
+    production: true,
 
 }
