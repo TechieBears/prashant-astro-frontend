@@ -108,17 +108,6 @@ function ViewTestimonialModal({ testimonial, isOpen, onClose }) {
                                                 {testimonial.product?.name || testimonial.service?.title || 'N/A'}
                                             </span>
                                         </InfoCard>
-
-                                        {testimonial.rating && (
-                                            <InfoCard title="Rating">
-                                                <div className="flex items-center gap-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star1 key={i} size={20} variant={i < testimonial.rating ? 'Bold' : 'Outline'} color={i < testimonial.rating ? '#FFD700' : '#E5E7EB'} />
-                                                    ))}
-                                                    <span className="ml-2 text-sm font-medium text-gray-700">({testimonial.rating}/5)</span>
-                                                </div>
-                                            </InfoCard>
-                                        )}
                                     </div>
 
                                     <InfoCard title="Message" className="mb-3">
