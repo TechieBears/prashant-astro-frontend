@@ -45,10 +45,12 @@ const CouponModal = ({ onClose, onApply, coupons = [], amount, serviceIds = [], 
 
             if (response.success) {
                 const couponDetails = response.data;
-                setSelectedCoupon({
+                onApply({
                     ...couponDetails,
                     couponCode: couponCode
                 });
+                toast.success('Coupon applied successfully!', { position: 'top-right' });
+                onClose();
             } else {
                 toast.error(response.message || 'Invalid coupon code', { position: 'top-right' });
             }
