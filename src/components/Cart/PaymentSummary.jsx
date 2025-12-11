@@ -54,11 +54,11 @@ const PaymentSummary = ({
         if (appliedCoupon.discountIn === 'percent') {
             discountAmount = (subtotal * appliedCoupon.discount) / 100;
         } else {
-            discountAmount = appliedCoupon.discount;
+            discountAmount = appliedCoupon.discount || 0;
         }
     }
 
-    const finalTotal = Math.max(subtotal - discountAmount, 0).toFixed(2);
+    const finalTotal = Math.max(subtotal - (discountAmount || 0), 0).toFixed(2);
 
     return (
         <div className="lg:col-span-5">
@@ -112,7 +112,7 @@ const PaymentSummary = ({
                         <div className="flex justify-between items-center text-green-700">
                             <span className="text-sm md:text-base">Discount</span>
                             <span className="text-sm md:text-base">
-                                - ₹ {discountAmount.toFixed(2)}
+                                - ₹ {(discountAmount || 0).toFixed(2)}
                             </span>
                         </div>
                     )}
