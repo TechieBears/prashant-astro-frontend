@@ -3,13 +3,13 @@ import { getAuth } from "firebase/auth";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: "astroguid-1.firebaseapp.com",
-    projectId: "astroguid-1",
-    storageBucket: "astroguid-1.firebasestorage.app",
-    messagingSenderId: "765854749850",
-    appId: "1:765854749850:web:7533627e7c0530246dfb23",
-    measurementId: "G-CR95Q3HXZR"
+  apiKey: "AIzaSyD75yuin8lFEkJ74D-L_I6zUlWy3jjWCzY",
+  authDomain: "astroguid-1.firebaseapp.com",
+  projectId: "astroguid-1",
+  storageBucket: "astroguid-1.firebasestorage.app",
+  messagingSenderId: "765854749850",
+  appId: "1:765854749850:web:7533627e7c0530246dfb23",
+  measurementId: "G-CR95Q3HXZR"
 };
 
 

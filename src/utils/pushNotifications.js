@@ -1,6 +1,7 @@
 import { messaging, getToken, onMessage } from './firebase/firebase.js';
+import toast from 'react-hot-toast';
 
-const VAPID_KEY = import.meta.env.VITE_VAPID_KEY_API_KEY;
+const VAPID_KEY = "BDtrEch9i_uYphA_T6YFw_6iAA74IkPcklqFVM3th59bt9ZlnIT8FPtqoZezAEmGqa8Hlje_eVebKmiSFtzrerU";
 
 // Global variable to track if listener is already set up
 let isListenerSetup = false;
@@ -54,9 +55,32 @@ export const getFCMToken = async () => {
             return null;
         }
 
-        const token = await getToken(messaging, {
+        // Check if VAPID key is available
+        if (!VAPID_KEY) {
+            console.error('VAPID key is missing. Please set VITE_VAPID_KEY_API_KEY in your environment variables.');
+            return null;
+        }
+
+        // Ensure service worker is ready before requesting token
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                if (!registration) {
+                    console.error('Service worker is not ready');
+                    return null;
+                }
+                console.log('Service worker is ready:', registration.scope);
+            } catch (swError) {
+                console.error('Error waiting for service worker:', swError);
+                return null;
+            }
+        }
+
+        const tokenOptions = {
             vapidKey: VAPID_KEY
-        });
+        };
+
+        const token = await getToken(messaging, tokenOptions);
 
         if (token) {
             console.log('FCM Token:', token);
@@ -68,6 +92,14 @@ export const getFCMToken = async () => {
         }
     } catch (error) {
         console.error('An error occurred while retrieving token:', error);
+        // Provide more helpful error messages
+        if (error.code === 'messaging/token-subscribe-failed' || error.code === 'messaging/failed-service-worker-registration') {
+            console.error('Token subscription failed. This usually means:');
+            console.error('1. The VAPID key is incorrect or missing');
+            console.error('2. Firebase project configuration mismatch between app and service worker');
+            console.error('3. Service worker is not properly registered or active');
+            console.error('4. The VAPID key does not match the Firebase project');
+        }
         return null;
     }
 };

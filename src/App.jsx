@@ -6,7 +6,6 @@ import { PersistGate } from "redux-persist/integration/react";
 let persistor = persistStore(store);
 import { PrimeReactProvider } from 'primereact/api';
 import ProjectRoutes from "./routes/ProjectRoutes";
-import { Toaster } from 'react-hot-toast';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -18,70 +17,56 @@ import {
     initializePushNotifications,
     requestNotificationPermission,
 } from './utils/pushNotifications';
-import { useEffect, useState } from "react";
-import { useLocation } from 'react-router-dom';
-import ComingSoonModal from './components/Modals/ComingSoonModal';
-import { getHomeModalStatus } from './api';
+import { useEffect } from "react";
+// import ComingSoonModal from "./components/Modals/ComingSoonModal";
 
 const App = () => {
     gsap.registerPlugin(SplitText, ScrollTrigger);
 
-    const [homeModalStatus, setHomeModalStatus] = useState(false);
-
     useEffect(() => {
-        async function initializeNotifications() {
+        const initNotifications = async () => {
+            // Wait a bit to ensure service worker is registered
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.ready;
+                } catch (error) {
+                    console.warn('Service worker not ready yet:', error);
+                }
+            }
+
             const support = checkNotificationSupport();
-            if (support.isSupported && support.hasServiceWorker && support.hasMessaging && support.permission === 'granted') {
-                initializePushNotifications();
+
+            // If permission is already granted, initialize notifications
+            if (support.permission === 'granted' && support.hasServiceWorker && support.hasMessaging) {
+                const initialized = await initializePushNotifications();
+                if (initialized) {
+                    console.log('Push notifications initialized');
+                }
             }
-
-            const fcmToken = await requestNotificationPermission();
-            if (fcmToken) {
-                console.log("⚡️🤯 ~ App.jsx ~ useEffect ~ fcmToken:", fcmToken)
-            } else {
-                console.log('Failed to enable push notifications');
-            }
-        }
-
-        initializeNotifications();
-    }, []);
-    const { pathname } = useLocation();
-
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'instant',
-        });
-    }, [pathname]);
-
-    useEffect(() => {
-        const fetchHomeModalStatus = async () => {
-            const response = await getHomeModalStatus();
-            if (response.success) {
-                setHomeModalStatus(response?.data?.data?.coming_soon ? true : false);
+            // Otherwise, request permission (this handles the 'default' case)
+            else if (support.permission === 'default' && support.hasServiceWorker && support.hasMessaging) {
+                const fcmToken = await requestNotificationPermission();
+                if (fcmToken) {
+                    console.log("⚡️🤯 ~ App.jsx ~ useEffect ~ fcmToken:", fcmToken);
+                    await initializePushNotifications();
+                } else {
+                    console.log('Failed to enable push notifications - permission denied or dismissed');
+                }
             }
         };
-        fetchHomeModalStatus();
-    }, []);
 
+        initNotifications();
+    }, []);
     return (
         <>
             <Provider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
+                    {/* <ComingSoonModal isVisible={true} /> */}
                     <PrimeReactProvider>
-                        <div className={homeModalStatus ? 'blur-sm pointer-events-none' : ''}>
-                            <ProjectRoutes />
-                        </div>
-                        <Toaster
-                            position="top-right"
-                            reverseOrder={false}
-                            gutter={8}
-                            containerClassName=""
-                            containerStyle={{}}
-                        />
-                        <ComingSoonModal isVisible={homeModalStatus} />
+                        <ProjectRoutes />
                     </PrimeReactProvider>
                 </PersistGate>
+
             </Provider>
         </>
     )
