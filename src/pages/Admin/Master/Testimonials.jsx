@@ -1,4 +1,4 @@
-import { ArrowLeft2, ArrowRight2, Star1 } from 'iconsax-reactjs';
+import { ArrowLeft2, ArrowRight2, Star1, Eye } from 'iconsax-reactjs';
 import moment from 'moment'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -10,6 +10,7 @@ import usePagination from '../../../utils/customHooks/usePagination'
 import TextInput from '../../../components/TextInput/TextInput'
 import { formBtn1 } from '../../../utils/CustomClass'
 import { useForm } from 'react-hook-form'
+import ViewTestimonialModal from '../../../components/Modals/AdminModals/ViewTestimonialModal'
 
 const StarRating = ({ rating, maxStars = 5 }) => {
     return (
@@ -35,6 +36,8 @@ export default function Testimonials() {
     const { register, handleSubmit, reset, watch } = useForm({ defaultValues: initialFilterState });
     const [filterCriteria, setFilterCriteria] = useState(initialFilterState);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [selectedTestimonial, setSelectedTestimonial] = useState(null);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const combinedFilters = useMemo(() => ({
         ...filterCriteria,
         refresh: refreshTrigger
@@ -95,6 +98,19 @@ export default function Testimonials() {
         />
     )
 
+    const actionBody = (row) => (
+        <button 
+            onClick={() => {
+                setSelectedTestimonial(row);
+                setIsViewModalOpen(true);
+            }}
+            className='p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors'
+            title="View Testimonial Details"
+        >
+            <Eye size={16} />
+        </button>
+    )
+
     const columns = [
         {
             field: 'user',
@@ -149,6 +165,7 @@ export default function Testimonials() {
         },
         { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true, sortable: true },
         { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
+        { field: "action", header: "Action", body: actionBody, sortable: true, style: true },
     ];
 
     return (
@@ -201,6 +218,12 @@ export default function Testimonials() {
                     </div>
                 </div>
             </div>
+            
+            <ViewTestimonialModal 
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                testimonial={selectedTestimonial}
+            />
         </div>
     )
 }
