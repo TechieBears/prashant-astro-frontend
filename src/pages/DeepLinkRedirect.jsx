@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 
-const APP_SCHEME = 'hamax://';
+const APP_SCHEME = 'astroguid://';
 const ANDROID_INTENT_PREFIX = 'intent://';
 
-const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.hamax';
-const APP_STORE_URL = 'https://apps.apple.com/app/id0000000000';
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.astroguid';
+const APP_STORE_URL = 'https://apps.apple.com/app/id6767417176';
 
 const isAndroid = () => /Android/i.test(navigator.userAgent);
 const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 const openWithIntentOnAndroid = (path) => {
-    const intentUrl = `${ANDROID_INTENT_PREFIX}${path.replace(/^\//, '')}#Intent;scheme=hamax;package=com.hamax;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+    const intentUrl = `${ANDROID_INTENT_PREFIX}${path.replace(/^\//, '')}#Intent;scheme=astroguid;package=com.astroguid;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
     window.location.href = intentUrl;
 };
 
@@ -41,7 +41,7 @@ const tryOpenAppOrStore = (entityType, entityId) => {
 const DeepLinkRedirect = () => {
     const { id } = useParams();
     const location = useLocation();
-    const pathFirstSegment = location.pathname.split('/').filter(Boolean)[0] || 'actor';
+    const pathFirstSegment = location.pathname.split('/').filter(Boolean)[0] || 'referral';
     const [countdown, setCountdown] = useState(3);
     const userAgent = navigator.userAgent || '';
     const fallbackIOS = APP_STORE_URL;
@@ -49,8 +49,8 @@ const DeepLinkRedirect = () => {
 
     useEffect(() => {
         if (!id) return;
-        const allowed = ['actor', 'casting'];
-        const entityType = allowed.includes(pathFirstSegment) ? pathFirstSegment : 'actor';
+        const allowed = ['referral'];
+        const entityType = allowed.includes(pathFirstSegment) ? pathFirstSegment : 'referral';
         tryOpenAppOrStore(entityType, id);
     }, [id, pathFirstSegment]);
 
@@ -69,7 +69,7 @@ const DeepLinkRedirect = () => {
                     <span className="text-3xl font-bold text-white">🎾</span>
                 </div>
 
-                <h1 className="text-2xl font-semibold mb-2">Launching Pi Play...</h1>
+                <h1 className="text-2xl font-semibold mb-2">Launching astroguid...</h1>
                 <p className="text-sm text-white/80 mb-6">Please wait while we redirect you to the app</p>
 
                 {/* Countdown Number */}

@@ -59,6 +59,7 @@ import CallAstrologer from '../pages/Home/CallAstrologer';
 import AstrologerDetail from '../pages/Home/AstrologerDetail';
 import Wallet from '../pages/Wallet/Wallet';
 import CallHistory from '../pages/Home/Profile/CallHistory';
+import DeepLinkRedirect from '../pages/DeepLinkRedirect';
 
 const ProjectRoutes = () => {
     const [loading, setLoading] = useState(true);
@@ -306,6 +307,7 @@ const ProjectRoutes = () => {
                                 </ProtectedRoute>
                             } />
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/referral/:id" element={<DeepLinkRedirect />} />
                             <Route path="/forget-password" element={<ForgetPassword />} />
                             <Route path="/password/reset/:token" element={<ResetPassword />} />
                             <Route path="/register" element={<Register />} />
