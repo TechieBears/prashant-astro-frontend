@@ -1,0 +1,14 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "YXC85Y9NLN.com.astroguid",
+                "paths": [
+                    "/referral/*",
+                    "/*"
+                ]
+            }
+        ]
+    }
+}

@@ -1,6 +1,6 @@
 export const environment = {
     // -------------------- Local Server Api URL --------------------
-    // baseUrl: 'http://192.168.1.126:3000/api/',
+    // baseUrl: 'http://192.168.0.134:6022/api/',
     // production: false,
 
     // -------------------- Ngrok Server Api URL --------------------
@@ -8,7 +8,7 @@ export const environment = {
     // production: false
 
     // // -------------------- Devlopment Server Api URL --------------------
-    // baseUrl: 'https://prashant-astro-backend.vercel.app/api/',
+    // baseUrl: 'https://dev-api.astroguid.com/api/',
     // production: false,
 
     // -------------------- Live Server Api URL --------------------
