@@ -8,12 +8,12 @@ export const environment = {
     // production: false
 
     // // -------------------- Devlopment Server Api URL --------------------
-    baseUrl: 'https://dev-api.astroguid.com/api/',
-    production: false,
+    // baseUrl: 'https://dev-api.astroguid.com/api/',
+    // production: false,
 
     // -------------------- Live Server Api URL --------------------
 
-    // baseUrl: 'https://api.astroguid.com/api/',
-    // production: true,
+    baseUrl: 'https://api.astroguid.com/api/',
+    production: true,
 
 }
