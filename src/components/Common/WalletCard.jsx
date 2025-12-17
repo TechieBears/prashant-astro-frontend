@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import shadowImg from '../../assets/Wallet/shadow.png';
+import moneyBagImg from '../../assets/Wallet/OBJECTS.png';
 
 const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
     const [depositAmount, setDepositAmount] = useState(Math.max(requiredAmount || 50, 50));
@@ -19,7 +21,7 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
         <div className="bg-button-vertical-gradient-orange rounded-xl p-6 shadow-md text-white relative">
             {/* Shadow Image */}
             <img
-                src="/src/assets/Wallet/shadow.png"
+                src={shadowImg}
                 alt="shadow"
                 className="absolute inset-0 w-full h-full object-cover rounded-xl opacity-50"
             />
@@ -31,7 +33,7 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
 
             {/* Money Bag Image */}
             <img
-                src="/src/assets/Wallet/OBJECTS.png"
+                src={moneyBagImg}
                 alt="money"
                 className="w-24 absolute right-14 top-20 z-20"
             />
