@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import UserReviews from '../../components/Common/UserReviews';
-import CallButton from '../../components/Common/CallButton';
+import CallSetupPanel from '../../components/Common/CallSetupPanel';
 import WalletModal from '../../components/Modals/WalletModal';
 import TalkSessionModal from '../../components/Modals/TalkSessionModal';
-import { getFilteredReviews, getSingleCallAstrologer } from '../../api';
+import { getFilteredReviews, getSingleCallAstrologer, initiateCall, getWalletBalance } from '../../api';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
@@ -21,7 +21,7 @@ const AstrologerDetail = () => {
     const userId = loggedUserDetails?._id;
 
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [callTime, setCallTime] = useState(10);
+    const [callTime, setCallTime] = useState(1);
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [totalReviews, setTotalReviews] = useState(0);
@@ -29,27 +29,52 @@ const AstrologerDetail = () => {
     const [showLowBalance, setShowLowBalance] = useState(false);
     const [showWalletModal, setShowWalletModal] = useState(false);
     const [showTalkSessionModal, setShowTalkSessionModal] = useState(false);
-    const [userBalance] = useState(200); // Mock balance - set lower to test modal
+    const [userBalance, setUserBalance] = useState(0);
     const [astrologer, setAstrologer] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const incrementTime = (amount) => {
-        setCallTime((prev) => Math.max(5, prev + amount));
-    };
+    // Check if balance is low whenever callTime or userBalance changes
+    useEffect(() => {
+        const requiredAmount = callTime * (astrologer?.pricePerMin || 10);
+        setShowLowBalance(userBalance < requiredAmount);
+    }, [callTime, userBalance, astrologer?.pricePerMin]);
 
-    const decrementTime = () => {
-        setCallTime((prev) => Math.max(5, prev - 1));
-    };
-
-    const handleCallRequired = () => {
+    const handleCallRequired = async () => {
         const pricePerMin = astrologer?.pricePerMin || 10;
         const requiredAmount = callTime * pricePerMin;
-        console.log('Button clicked! Balance:', userBalance, 'Required:', requiredAmount);
+
+        if (!phoneNumber || phoneNumber.trim() === '') {
+            toast.error('Please enter a phone number');
+            return;
+        }
+
         if (userBalance < requiredAmount) {
-            console.log('Opening wallet modal...');
             setShowWalletModal(true);
-        } else {
-            setShowTalkSessionModal(true);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const payload = {
+                astrologerId: id,
+                agentId: astrologer?.agentId || '9999999999999',
+                phoneNumber: phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`,
+                callDuration: callTime * 60
+            };
+
+            const response = await initiateCall(payload);
+
+            if (response?.success) {
+                toast.success('Call initiated successfully!');
+                setShowTalkSessionModal(true);
+            } else {
+                toast.error(response?.message || 'Failed to initiate call');
+            }
+        } catch (error) {
+            console.error('Error initiating call:', error);
+            toast.error('Failed to initiate call');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -73,6 +98,17 @@ const AstrologerDetail = () => {
         }
     }, [id]);
 
+    // Helper function to parse stringified arrays
+    const parseArrayField = (field) => {
+        if (!field || !Array.isArray(field) || field.length === 0) return 'N/A';
+        try {
+            const parsed = typeof field[0] === 'string' ? JSON.parse(field[0]) : field;
+            return Array.isArray(parsed) ? parsed.join(', ') : 'N/A';
+        } catch {
+            return Array.isArray(field) ? field.join(', ') : 'N/A';
+        }
+    };
+
     // Fetch astrologer data
     const fetchAstrologerData = useCallback(async () => {
         if (!id) return;
@@ -81,13 +117,16 @@ const AstrologerDetail = () => {
             const response = await getSingleCallAstrologer(id);
             if (response?.success && response?.data) {
                 const data = response.data;
+                console.log('API Response - priceCharge:', data.priceCharge);
+
                 setAstrologer({
                     id: data._id,
+                    agentId: data.agentId || '9999999999999',
                     name: data.fullName || 'N/A',
                     image: data.profileImage || astrologer1,
                     status: 'Online',
-                    skills: data.skills?.join(', ') || 'N/A',
-                    languages: data.languages?.join(', ') || 'N/A',
+                    skills: parseArrayField(data.skills),
+                    languages: parseArrayField(data.languages),
                     experience: `${data.experience || 0} Years Experience`,
                     rate: `₹${data.priceCharge || 0}/Min`,
                     pricePerMin: data.priceCharge || 10,
@@ -101,11 +140,24 @@ const AstrologerDetail = () => {
         }
     }, [id]);
 
+    // Fetch wallet balance
+    const fetchWalletBalance = useCallback(async () => {
+        try {
+            const res = await getWalletBalance();
+            if (res?.success) {
+                setUserBalance(res?.data?.balance || 0);
+            }
+        } catch (error) {
+            console.error('Error fetching wallet balance:', error);
+        }
+    }, []);
+
     // Fetch reviews when component mounts
     useEffect(() => {
         fetchAstrologerData();
         fetchAstrologerReviews();
-    }, [fetchAstrologerData, fetchAstrologerReviews]);
+        fetchWalletBalance();
+    }, [fetchAstrologerData, fetchAstrologerReviews, fetchWalletBalance]);
 
     if (loading) {
         return (
@@ -207,137 +259,16 @@ const AstrologerDetail = () => {
                     </div>
 
                     {/* Right Column - Call Setup Panel */}
-                    <div className="lg:col-span-1">
-                        <div className="w-full max-w-[305px] mx-auto">
-                            <div className="bg-white rounded-[15px] border border-black/15 p-4 pb-[22px] shadow-sm">
-                                <div className="flex flex-col gap-[14px]">
-                                    {/* Phone Number Section */}
-                                    <div className="flex flex-col gap-[4px]">
-                                        <label
-                                            htmlFor="phone"
-                                            className="text-slate-700 font-poppins text-base font-medium"
-                                        >
-                                            Phone Number
-                                        </label>
-                                        <input
-                                            id="phone"
-                                            type="tel"
-                                            value={phoneNumber}
-                                            onChange={(e) => setPhoneNumber(e.target.value)}
-                                            placeholder="Enter phone number"
-                                            className="h-10 px-5 rounded-[5px] border border-black/15 bg-white text-sm font-medium text-slate-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all"
-                                        />
-                                    </div>
-
-                                    {/* Maximum Call Time Section */}
-                                    <div className="flex flex-col gap-[4px]">
-                                        <label className="text-slate-700 font-poppins text-base font-medium">
-                                            Maximum Call Time
-                                        </label>
-                                        <div className="h-10 px-5 rounded-[5px] border border-black/15 bg-white flex items-center justify-between">
-                                            <button
-                                                onClick={decrementTime}
-                                                className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none"
-                                                aria-label="Decrease time"
-                                            >
-                                                <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
-                                            </button>
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-[#1D293D] font-poppins text-sm font-medium">
-                                                    {callTime}
-                                                </span>
-                                                <span className="text-slate-500 font-poppins text-sm font-medium">
-                                                    Min
-                                                </span>
-                                            </div>
-                                            <button
-                                                onClick={() => incrementTime(1)}
-                                                className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none"
-                                                aria-label="Increase time"
-                                            >
-                                                <ChevronRight className="w-6 h-6" strokeWidth={1.5} />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Time Increment Buttons */}
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => incrementTime(5)}
-                                            className="flex-1 py-2.5 px-2 rounded-lg border border-black/15 bg-slate-50 text-slate-500 font-poppins text-sm font-medium text-center hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300 whitespace-nowrap"
-                                        >
-                                            +5 Min
-                                        </button>
-                                        <button
-                                            onClick={() => incrementTime(10)}
-                                            className="flex-1 py-2.5 px-2 rounded-lg border border-black/15 bg-slate-50 text-slate-500 font-poppins text-sm font-medium text-center hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300 whitespace-nowrap"
-                                        >
-                                            +10 Min
-                                        </button>
-                                        <button
-                                            onClick={() => incrementTime(20)}
-                                            className="flex-1 py-2.5 px-2 rounded-lg border border-black/15 bg-slate-50 text-slate-500 font-poppins text-sm font-medium text-center hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300 whitespace-nowrap"
-                                        >
-                                            +20 Min
-                                        </button>
-                                    </div>
-
-                                    {/* Balance and Price Display */}
-                                    <div className="bg-gray-50 rounded-lg">
-                                        <div className="text-xs flex justify-between items-center">
-                                            <div>
-                                                <span className="text-slate-600">Wallet Balance: </span>
-                                                <span className={`font-semibold ${userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
-                                            </div>
-                                            <div>
-                                                <span className="text-slate-600">Call Price: </span>
-                                                <span className="font-semibold text-orange-600">₹{callTime * (astrologer?.pricePerMin || 10)}</span>
-                                            </div>
-                                        </div>
-                                        {userBalance < callTime * (astrologer?.pricePerMin || 10) && (
-                                            <p className="text-red-500 text-xs font-medium text-center mt-2">
-                                                You don't have enough balance
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Low Balance Message and Recharge Section */}
-                                    {showLowBalance && (
-                                        <>
-                                            <div className="text-left">
-                                                <p className="text-red-500 font-poppins text-xs font-medium mb-1">
-                                                    You don't have enough balance
-                                                </p>
-                                                <p className="text-[#1D293D] font-poppins text-md font-medium">
-                                                    Need to add balance ₹{callTime * (astrologer?.pricePerMin || 10) - userBalance}
-                                                </p>
-                                            </div>
-
-                                            {/* Amount and Recharge Button */}
-                                            <div className="flex items-center gap-3 border border-black-500 rounded-lg p-1">
-                                                <div className="flex-1 text-[#1D293D] font-poppins text-2xl font-medium">
-                                                    ₹ {callTime * (astrologer?.pricePerMin || 10) - userBalance}
-                                                </div>
-                                                <button className="px-4 py-1 rounded-[10px] bg-gradient-to-b from-[#FFBF12] via-[#FF8835] to-[#FF5858] text-white font-poppins text-base font-medium hover:opacity-90 transition-opacity">
-                                                    Recharger
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {/* Call Required Button */}
-                                    <CallButton
-                                        status={userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'Busy' : 'Online'}
-                                        onClick={handleCallRequired}
-                                        allowClickWhenBusy={true}
-                                        className="py-[9px] font-poppins text-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400"
-                                    >
-                                        {userBalance < callTime * (astrologer?.pricePerMin || 10) ? 'Recharge' : 'Call Required'}
-                                    </CallButton>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <CallSetupPanel
+                        phoneNumber={phoneNumber}
+                        setPhoneNumber={setPhoneNumber}
+                        callTime={callTime}
+                        setCallTime={setCallTime}
+                        astrologer={astrologer}
+                        userBalance={userBalance}
+                        onCallRequired={handleCallRequired}
+                        onRecharge={() => setShowWalletModal(true)}
+                    />
                 </div>
             </div>
 

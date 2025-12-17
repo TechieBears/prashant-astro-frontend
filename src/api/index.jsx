@@ -2470,7 +2470,7 @@ export const getZoomSignature = async (meetingNumber, role = 0) => {
 export const getAllAstrologerCalls = async (params = {}) => {
     try {
         const queryParams = new URLSearchParams();
-        
+
         if (params.page) queryParams.append('page', params.page);
         if (params.limit) queryParams.append('limit', params.limit);
         if (params.languages?.length) queryParams.append('languages', params.languages.join(','));
@@ -2480,7 +2480,7 @@ export const getAllAstrologerCalls = async (params = {}) => {
         if (params.experience?.length) queryParams.append('experience', params.experience.join(','));
         if (params.search) queryParams.append('search', params.search);
         if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-        
+
         const url = `${environment.baseUrl}call/public/get-all-call-astrologers${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
         const response = await axios.get(url);
         return response.data;
@@ -2521,5 +2521,16 @@ export const getSingleCoupon = async (id) => {
     } catch (err) {
         console.error('Error fetching single coupon:', err);
         return err?.response?.data || { success: false, message: 'Failed to fetch coupon' };
+    }
+}
+
+export const initiateCall = async (data) => {
+    const url = `${environment.baseUrl}call/initiate`;
+    try {
+        const response = await axios.post(url, data);
+        return response.data;
+    } catch (err) {
+        console.error('Error initiating call:', err);
+        return err?.response?.data || { success: false, message: 'Failed to initiate call' };
     }
 }
