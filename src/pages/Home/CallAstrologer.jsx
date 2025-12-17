@@ -100,16 +100,40 @@ const CallAstrologer = () => {
 
             const response = await getAllAstrologerCalls(params);
             if (response?.success && response?.data) {
-                const mappedData = response.data.map(astrologer => ({
-                    id: astrologer._id,
-                    name: astrologer.profile?.fullName || 'N/A',
-                    image: astrologer.profileImage,
-                    status: 'Online',
-                    skills: astrologer.profile?.skills?.join(', ') || 'N/A',
-                    languages: astrologer.profile?.languages?.join(', ') || 'N/A',
-                    experience: `${astrologer.profile?.experience || 0} Years Experience`,
-                    rate: `₹${astrologer.profile?.priceCharge || 0}/Min`
-                }));
+                const mappedData = response.data.map(astrologer => {
+                    // Parse skills - handle double stringified arrays
+                    let parsedSkills = 'N/A';
+                    if (astrologer.profile?.skills && Array.isArray(astrologer.profile.skills) && astrologer.profile.skills.length > 0) {
+                        try {
+                            const skillsArray = typeof astrologer.profile.skills[0] === 'string' ? JSON.parse(astrologer.profile.skills[0]) : astrologer.profile.skills;
+                            parsedSkills = Array.isArray(skillsArray) ? skillsArray.join(', ') : 'N/A';
+                        } catch (e) {
+                            parsedSkills = Array.isArray(astrologer.profile.skills) ? astrologer.profile.skills.join(', ') : 'N/A';
+                        }
+                    }
+                    
+                    // Parse languages - handle double stringified arrays
+                    let parsedLanguages = 'N/A';
+                    if (astrologer.profile?.languages && Array.isArray(astrologer.profile.languages) && astrologer.profile.languages.length > 0) {
+                        try {
+                            const languagesArray = typeof astrologer.profile.languages[0] === 'string' ? JSON.parse(astrologer.profile.languages[0]) : astrologer.profile.languages;
+                            parsedLanguages = Array.isArray(languagesArray) ? languagesArray.join(', ') : 'N/A';
+                        } catch (e) {
+                            parsedLanguages = Array.isArray(astrologer.profile.languages) ? astrologer.profile.languages.join(', ') : 'N/A';
+                        }
+                    }
+                    
+                    return {
+                        id: astrologer._id,
+                        name: astrologer.profile?.fullName || 'N/A',
+                        image: astrologer.profileImage,
+                        status: 'Online',
+                        skills: parsedSkills,
+                        languages: parsedLanguages,
+                        experience: `${astrologer.profile?.experience || 0} Years Experience`,
+                        rate: `₹${astrologer.profile?.priceCharge || 0}/Min`
+                    };
+                });
                 setAstrologers(mappedData);
             }
         } catch (error) {

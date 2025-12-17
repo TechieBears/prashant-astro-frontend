@@ -41,6 +41,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             formData.append('lastName', data?.lastName);
             formData.append('email', data?.email);
             formData.append('mobileNo', data?.mobileNo);
+            if (data?.agentId) {
+                formData.append('agentId', data?.agentId);
+            }
             if (data?.profileImage instanceof File) {
                 formData.append('image', data?.profileImage);
             }
@@ -126,6 +129,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('startTime', userData?.profile?.startTime);
             setValue('endTime', userData?.profile?.endTime);
             setValue('profileImage', userData?.profileImage);
+            setValue('agentId', userData?.profile?.agentId);
         } else {
             reset({
                 employeeType: '',
@@ -142,6 +146,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                 startTime: '',
                 endTime: '',
                 profileImage: '',
+                agentId: '',
             });
         }
     }, [edit, userData, reset, setValue, open]);
@@ -216,7 +221,6 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                             options={[
                                                                 { value: 'astrologer', label: 'Astrologer' },
                                                                 { value: 'call_astrologer', label: 'Call Astrologer' },
-                                                                { value: 'employee', label: 'Employee' },
                                                             ]}
                                                             disabled={edit}
                                                             placeholder="Select Employee Type"
@@ -309,6 +313,21 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         registerName="mobileNo"
                                                         props={{ ...register('mobileNo', { validate: validatePhoneNumber, required: true }), maxLength: 10, minLength: 10 }}
                                                         errors={errors.mobileNo}
+                                                    />
+                                                </div>
+                                                <div className="">
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        Agent ID
+                                                    </h4>
+                                                    <TextInput
+                                                        label="Enter Agent ID"
+                                                        placeholder="Enter Agent ID"
+                                                        type="text"
+                                                        registerName="agentId"
+                                                        props={{ ...register('agentId') }}
+                                                        errors={errors.agentId}
                                                     />
                                                 </div>
 

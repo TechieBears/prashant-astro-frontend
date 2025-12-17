@@ -1,74 +1,54 @@
 import { FaClock, FaCalendarAlt, FaPhone } from 'react-icons/fa';
-import { useState } from 'react';
-import astrologer1 from '../../../assets/Astrologer/panditcall1.jpg';
-import astrologer2 from '../../../assets/Astrologer/panditcall2.jpg';
-import astrologer3 from '../../../assets/Astrologer/panditcall3.jpg';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CallHistory = () => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCallHistory, setSelectedCallHistory] = useState(null);
-    const callHistoryData = [
-        {
-            id: 1,
-            name: "Kalidas",
-            image: astrologer1,
-            specialties: "Vedic, Nadi, Vastu, Prashana, Life Coach",
-            languages: "English, Tamil",
-            experience: "Exp: 10 Years",
-            calls: [
-                { date: "08/10/2025-", status: "request", label: "Request" },
-                { date: "05/10/2025-", status: "completed", label: "10 min call done" },
-                { date: "02/10/2025-", status: "rejected", label: "Call Reject" }
-            ],
-            buttonText: "Requested",
-            buttonStyle: "blue"
-        },
-        {
-            id: 2,
-            name: "Kalidas",
-            image: astrologer2,
-            specialties: "Vedic, Nadi, Vastu, Prashana, Life Coach",
-            languages: "English, Tamil",
-            experience: "Exp: 10 Years",
-            calls: [
-                { date: "03/10/2025-", status: "completed", label: "8 min call done" },
-                { date: "02/10/2025-", status: "completed", label: "20 min call done" },
-                { date: "12/10/2025-", status: "rejected", label: "Call Reject" }
-            ],
-            buttonText: "Call Again",
-            buttonStyle: "orange"
-        },
-        {
-            id: 3,
-            name: "Kalidas",
-            image: astrologer3,
-            specialties: "Vedic, Nadi, Vastu, Prashana, Life Coach",
-            languages: "English, Tamil",
-            experience: "Exp: 10 Years",
-            calls: [
-                { date: "19/10/2025-", status: "completed", label: "5 min call done" },
-                { date: "24/10/2025-", status: "completed", label: "12 min call done" },
-                { date: "25/10/2025-", status: "rejected", label: "Call Reject" }
-            ],
-            buttonText: "Call Again",
-            buttonStyle: "orange"
-        },
-        {
-            id: 4,
-            name: "Kalidas",
-            image: astrologer1,
-            specialties: "Vedic, Nadi, Vastu, Prashana, Life Coach",
-            languages: "English, Tamil",
-            experience: "Exp: 10 Years",
-            calls: [
-                { date: "14/10/2025-", status: "completed", label: "2 min call done" },
-                { date: "20/10/2025-", status: "completed", label: "7 min call done" },
-                { date: "22/10/2025-", status: "rejected", label: "Call Reject" }
-            ],
-            buttonText: "Call Again",
-            buttonStyle: "orange"
+    const [callHistoryData, setCallHistoryData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchCallHistory();
+    }, []);
+
+    const fetchCallHistory = async () => {
+        try {
+            const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.astroguid.com';
+            const response = await axios.get(`${baseURL}/api/call/public/get-all-calls-history`);
+            
+            if (response.data.success) {
+                const transformedData = response.data.data.map((item) => {
+                    const profile = item.astrologerId?.profile || {};
+                    const skills = profile.skills?.[0] ? JSON.parse(profile.skills[0]).join(', ') : 'Vedic, Astrology';
+                    const languages = profile.languages?.[0] ? JSON.parse(profile.languages[0]).join(', ') : 'English, Hindi';
+                    
+                    return {
+                        id: item._id,
+                        astrologerId: item.astrologerId?._id,
+                        name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Astrologer',
+                        image: item.astrologerId?.profileImage || 'https://via.placeholder.com/80',
+                        specialties: skills,
+                        languages: languages,
+                        experience: `Exp: ${profile.experience || 5} Years`,
+                        date: new Date(item.date).toLocaleDateString('en-GB'),
+                        status: item.status,
+                        duration: item.duration,
+                        amountCharged: item.amountCharged,
+                        buttonText: item.status === 'accepted' ? 'Call Again' : 'Requested',
+                        buttonStyle: item.status === 'accepted' ? 'orange' : 'blue'
+                    };
+                });
+                setCallHistoryData(transformedData);
+            }
+        } catch (error) {
+            console.error('Error fetching call history:', error);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
 
     const CallCard = ({ call }) => (
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
@@ -86,34 +66,25 @@ const CallHistory = () => {
 
             <div className="flex items-end justify-between gap-3">
                 <div className="flex-1 space-y-1">
-                    {call.calls.map((callItem, index) => (
-                        <div key={index} className="text-xs flex items-center gap-1">
-                            <span className="text-gray-700 whitespace-nowrap">{callItem.date}</span>
-                            <span className={`${callItem.status === 'request' ? 'text-blue-500' :
-                                callItem.status === 'completed' ? 'text-green-500' :
-                                    'text-red-500'
-                                }`}>
-                                {callItem.label}
-                            </span>
+                    <div className="text-xs flex items-center gap-1">
+                        <span className="text-gray-700 whitespace-nowrap">{call.date} - </span>
+                        <span className={`${call.status === 'accepted' ? 'text-green-500' : call.status === 'rejected' ? 'text-red-500' : 'text-blue-500'}`}>
+                            {call.status === 'accepted' ? `${call.duration} min call done` : call.status}
+                        </span>
+                    </div>
+                    {call.amountCharged && (
+                        <div className="text-xs text-gray-600">
+                            Amount: ₹{call.amountCharged.toFixed(2)}
                         </div>
-                    ))}
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                    {call.buttonText === 'Requested' && (
-                        <button 
-                            onClick={() => {
-                                setSelectedCallHistory(call.calls);
-                                setIsModalOpen(true);
-                            }}
-                            className="text-gray-500 text-xs hover:text-gray-700"
-                        >
-                            View More
-                        </button>
-                    )}
-                    <button className={`px-4 py-1.5 rounded-lg font-medium text-xs text-white transition-all ${call.buttonStyle === 'blue'
-                        ? 'bg-blue-500 hover:bg-blue-600'
-                        : 'bg-button-vertical-gradient-orange hover:opacity-90'
+                    <button 
+                        onClick={() => navigate(`/astrologer/${call.astrologerId}`)}
+                        className={`px-4 py-1.5 rounded-lg font-medium text-xs text-white transition-all ${call.buttonStyle === 'blue'
+                            ? 'bg-blue-500 hover:bg-blue-600'
+                            : 'bg-button-vertical-gradient-orange hover:opacity-90'
                         }`}>
                         {call.buttonText}
                     </button>
@@ -129,36 +100,24 @@ const CallHistory = () => {
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Call History</h1>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {callHistoryData.map((call) => (
-                        <CallCard key={call.id} call={call} />
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-gray-600">Loading...</div>
+                    </div>
+                ) : callHistoryData.length === 0 ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-gray-600">No call history found</div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {callHistoryData.map((call) => (
+                            <CallCard key={call.id} call={call} />
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setIsModalOpen(false)}>
-                    <div className="bg-gray-50 rounded-2xl max-w-md w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="text-lg font-semibold text-gray-800 mb-3 px-6 pt-4 bg-white rounded-t-2xl">Call History</h2>
-                        <div className="border-t border-gray-300 mb-4"></div>
-                        <div className="px-6 pb-6">
-                            <div className="bg-white rounded-xl p-4 space-y-2 border border-gray-300">
-                                {selectedCallHistory?.map((callItem, index) => (
-                                    <div key={index} className="text-sm">
-                                        <span className="text-gray-700">{callItem.date} </span>
-                                        <span className={`font-medium ${callItem.status === 'request' ? 'text-blue-500' :
-                                            callItem.status === 'completed' ? 'text-green-500' :
-                                                'text-red-500'
-                                            }`}>
-                                            {callItem.label}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+
         </>
     );
 };
