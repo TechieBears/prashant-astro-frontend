@@ -52,11 +52,10 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
             />
 
             <div className="flex items-end relative z-10 mb-2">
-                <div className={`font-extrabold leading-none ${
-                    currentBalance.toString().length <= 2 ? 'text-[60px] sm:text-[80px] md:text-[100px]' :
+                <div className={`font-extrabold leading-none ${currentBalance.toString().length <= 2 ? 'text-[60px] sm:text-[80px] md:text-[100px]' :
                     currentBalance.toString().length <= 3 ? 'text-[50px] sm:text-[65px] md:text-[80px]' :
-                    currentBalance.toString().length <= 4 ? 'text-[40px] sm:text-[50px] md:text-[60px]' : 'text-[35px] sm:text-[40px] md:text-[50px]'
-                }`}>₹{currentBalance}</div>
+                        currentBalance.toString().length <= 4 ? 'text-[40px] sm:text-[50px] md:text-[60px]' : 'text-[35px] sm:text-[40px] md:text-[50px]'
+                    }`}>₹{currentBalance}</div>
                 <div className="text-[10px] sm:text-xs pb-1 md:pb-2 ml-1">Total Balance</div>
             </div>
 
@@ -64,7 +63,7 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
             <img
                 src={moneyBagImg}
                 alt="money"
-                className="w-16 sm:w-20 md:w-24 absolute right-4 sm:right-8 md:right-14 top-12 sm:top-16 md:top-20 z-20"
+                className="w-16 sm:w-20 md:w-24 absolute right-4 sm:right-8 md:right-14 top-12 sm:top-16 md:top-8 z-20"
             />
 
             {/* Inner Card */}
