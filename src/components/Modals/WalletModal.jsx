@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import WalletCard from '../Common/WalletCard';
+import { getWalletBalance } from '../../api';
 
 const WalletModal = ({ isOpen, onClose, requiredAmount = 0, callTime, astrologerName }) => {
-    const [currentBalance] = useState(500);
+    const [currentBalance, setCurrentBalance] = useState(0);
+
+    useEffect(() => {
+        if (isOpen) {
+            getWalletBalance().then(result => {
+                if (result?.success) setCurrentBalance(result?.data?.balance || 0);
+            });
+        }
+    }, [isOpen]);
 
     const handleDepositMoney = (amount) => {
         console.log('Depositing amount:', amount);

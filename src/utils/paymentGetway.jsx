@@ -26,4 +26,43 @@ export const getCashfree = async () => {
     return cashfree;
 };
 
+export const openRazorpay = (orderData, onSuccess, onFailure) => {
+    const { razorpay, order, transaction } = orderData;
+    
+    if (!razorpay || !razorpay.orderId) {
+        console.error('Invalid razorpay data:', orderData);
+        onFailure && onFailure('Invalid payment data');
+        return;
+    }
+    
+    const options = {
+        key: environment?.razorpayKey || 'YOUR_RAZORPAY_KEY',
+        amount: razorpay.amount,
+        currency: razorpay.currency,
+        order_id: razorpay.orderId,
+        name: 'Astroguid',
+        description: order ? 'Order Payment' : 'Payment',
+        handler: function (response) {
+            onSuccess({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId: order?._id,
+                transactionId: transaction?._id
+            });
+        },
+        modal: {
+            ondismiss: function() {
+                onFailure && onFailure('Payment cancelled by user');
+            }
+        },
+        theme: {
+            color: '#F37254'
+        }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+};
+
 export default cashfree;

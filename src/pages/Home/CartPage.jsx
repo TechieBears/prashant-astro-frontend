@@ -36,6 +36,7 @@ import {
 } from '../../api';
 import { useCart } from '../../hooks/useCart';
 import { useAddress } from '../../context/AddressContext';
+import { openRazorpay } from '../../utils/paymentGetway';
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -344,31 +345,28 @@ const CartPage = () => {
             const response = await createServiceOrder(serviceOrderData);
 
             if (response.success) {
-                toast.dismiss();
-                toast.success('Service order created successfully!');
-
-                // Clear service cart
-                try {
-                    await clearServiceCart();
-                    dispatch(clearCart());
-                    console.log('Service cart cleared successfully');
-                } catch (clearError) {
-                    console.error('Error clearing service cart:', clearError);
-                }
-
-                // Navigate immediately without delay
-                try {
-                    navigate('/payment-success', {
-                        state: {
-                            orderData: response.order,
-                            orderType: 'services'
+                openRazorpay(
+                    response,
+                    async (paymentResponse) => {
+                        try {
+                            await clearServiceCart();
+                            dispatch(clearCart());
+                        } catch (clearError) {
+                            console.error('Error clearing cart:', clearError);
                         }
-                    });
-                } catch (navError) {
-                    console.error('Navigation failed:', navError);
-                    // Fallback: force navigation
-                    window.location.href = '/payment-success';
-                }
+                        navigate('/payment-success', {
+                            state: {
+                                orderData: response.order,
+                                orderType: 'services',
+                                paymentResponse
+                            }
+                        });
+                    },
+                    (error) => {
+                        toast.error('Payment cancelled or failed');
+                        setIsCreatingOrder(false);
+                    }
+                );
             } else {
                 setOrderError(response.message || 'Failed to create service order');
                 toast.dismiss();
@@ -415,27 +413,29 @@ const CartPage = () => {
             const response = await createProductOrder(orderData);
 
             if (response.success) {
-                setAppliedCoupon(null);
-                toast.dismiss();
-                toast.success('Product order created successfully!');
-
-                // Clear product cart
-                try {
-                    await clearProductCart();
-                    dispatch(clearCart());
-                    console.log('Product cart cleared successfully');
-                } catch (clearError) {
-                    console.error('Error clearing product cart:', clearError);
-                }
-
-                setTimeout(() => {
-                    navigate('/payment-success', {
-                        state: {
-                            orderData: response.data,
-                            orderType: 'products'
+                openRazorpay(
+                    response.data,
+                    async (paymentResponse) => {
+                        setAppliedCoupon(null);
+                        try {
+                            await clearProductCart();
+                            dispatch(clearCart());
+                        } catch (clearError) {
+                            console.error('Error clearing cart:', clearError);
                         }
-                    });
-                }, 100);
+                        navigate('/payment-success', {
+                            state: {
+                                orderData: response.data,
+                                orderType: 'products',
+                                paymentResponse
+                            }
+                        });
+                    },
+                    (error) => {
+                        toast.error('Payment cancelled or failed');
+                        setIsCreatingOrder(false);
+                    }
+                );
             } else {
                 setOrderError(response.message || 'Failed to create order');
                 toast.dismiss();

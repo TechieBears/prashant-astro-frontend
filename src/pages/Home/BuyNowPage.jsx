@@ -10,6 +10,7 @@ import { createOrderData } from '../../utils/orderUtils';
 import { useAddress } from '../../context/AddressContext';
 import { createProductOrder, clearProductCart, getWalletBalance } from '../../api';
 import { clearCart } from '../../redux/Slices/cartSlice';
+import { openRazorpay } from '../../utils/paymentGetway';
 
 const BuyNowPage = () => {
     const navigate = useNavigate();
@@ -67,20 +68,30 @@ const BuyNowPage = () => {
             const response = await createProductOrder(orderData);
 
             if (response.success) {
-                // Clear product cart after successful order
-                try {
-                    await clearProductCart();
-                    dispatch(clearCart());
-                } catch (clearError) {
-                    console.error('Error clearing product cart:', clearError);
-                }
+                openRazorpay(
+                    response.data,
+                    async (paymentResponse) => {
+                        // Clear cart on payment success
+                        try {
+                            await clearProductCart();
+                            dispatch(clearCart());
+                        } catch (clearError) {
+                            console.error('Error clearing cart:', clearError);
+                        }
 
-                navigate('/payment-success', {
-                    state: {
-                        orderData: response.data,
-                        orderType: 'products'
+                        navigate('/payment-success', {
+                            state: {
+                                orderData: response.data,
+                                orderType: 'products',
+                                paymentResponse
+                            }
+                        });
+                    },
+                    (error) => {
+                        toast.error('Payment cancelled or failed');
+                        setIsCreatingOrder(false);
                     }
-                });
+                );
             } else {
                 toast.error(response.message || 'Failed to create order');
             }

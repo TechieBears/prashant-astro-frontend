@@ -7,7 +7,7 @@ import TextInput from '../../TextInput/TextInput';
 import { validateAlphabets, validateEmail, validatePhoneNumber, validateCommision } from '../../../utils/validateFunction';
 import toast from 'react-hot-toast';
 import { Edit } from 'iconsax-reactjs';
-import { addEmployee, editEmployee, getPublicServicesDropdown } from '../../../api';
+import { addEmployee, editEmployee, getPublicServicesDropdown, getServiceCategories } from '../../../api';
 import { TableTitle } from '../../../helper/Helper';
 import MultiSelectTextInput from '../../TextInput/MultiSelectTextInput';
 import { Controller } from 'react-hook-form';
@@ -23,6 +23,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
     const [loader, setLoader] = useState(false);
 
     const [serviceSkills, setServiceSkills] = useState([]);
+    const [serviceCategories, setServiceCategories] = useState([]);
 
     const employeeType = watch('employeeType');
 
@@ -55,6 +56,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             }
             if (data?.experience) {
                 formData.append('experience', data?.experience);
+            }
+            if (data?.serviceCategory && data?.serviceCategory.length > 0) {
+                formData.append('serviceCategory', JSON.stringify(data?.serviceCategory));
             }
             // call_astrologer specific fields
             if (data?.employeeType === 'call_astrologer') {
@@ -130,6 +134,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('endTime', userData?.profile?.endTime);
             setValue('profileImage', userData?.profileImage);
             setValue('agentId', userData?.profile?.agentId);
+            setValue('serviceCategory', parseArray(userData?.profile?.serviceCategory));
         } else {
             reset({
                 employeeType: '',
@@ -147,6 +152,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                 endTime: '',
                 profileImage: '',
                 agentId: '',
+                serviceCategory: [],
             });
         }
     }, [edit, userData, reset, setValue, open]);
@@ -157,6 +163,9 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             const apiCall = async () => {
                 const response = await getPublicServicesDropdown();
                 setServiceSkills(response?.data?.map(item => ({ value: item?.name, label: item?.name })))
+                
+                const categoriesResponse = await getServiceCategories({ name: '', p: 1, records: 100 });
+                setServiceCategories(categoriesResponse?.data?.map(item => ({ value: item?._id, label: item?.name })) || []);
             }
             apiCall();
         }
@@ -349,6 +358,29 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                                     value={value || []}
                                                                     onChange={onChange}
                                                                     errors={errors.skills}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </div>
+                                                </div>}
+                                                {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
+                                                        Service Category (Multiple)
+                                                    </h4>
+                                                    <div className="">
+                                                        <Controller
+                                                            name="serviceCategory"
+                                                            control={control}
+                                                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                                                <MultiSelectTextInput
+                                                                    label="Select Service Categories"
+                                                                    options={serviceCategories}
+                                                                    key={'serviceCategory'}
+                                                                    value={value || []}
+                                                                    onChange={onChange}
+                                                                    errors={errors.serviceCategory}
                                                                 />
                                                             )}
                                                         />
