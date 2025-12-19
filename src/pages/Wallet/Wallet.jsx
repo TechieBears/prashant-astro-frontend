@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getWalletBalance, getWalletTransactions } from '../../api';
 import WalletCard from '../../components/Common/WalletCard';
+import phoneImg from '../../assets/Wallet/phone.png';
 
 const TRANSACTION_LABELS = {
     deposit: 'Deposit by razorpay',
@@ -106,7 +107,7 @@ const Wallet = () => {
                             <h3 className="font-semibold text-gray-800 text-lg md:text-xl">Download Our Mobile App</h3>
                             <p className="text-xs md:text-sm text-gray-500 max-w-xs mt-2">For a same less experience, download our apps on your phone</p>
                             <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="w-32 md:w-40 mt-2" />
-                            <img src="/src/assets/Wallet/phone.png" alt="phone" className="absolute bottom-0 right-4 md:right-6 h-[7.5rem] md:h-[8.5rem]" />
+                            <img src={phoneImg} alt="phone" className="absolute bottom-0 right-4 md:right-6 h-[7.5rem] md:h-[8.5rem]" />
                         </div>
                     </div>
 
