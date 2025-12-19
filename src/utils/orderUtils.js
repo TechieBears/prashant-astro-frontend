@@ -60,7 +60,7 @@ const createDefaultPaymentDetails = (overrides = {}) => ({
  * @param {number} [options.quantity] - Quantity for a single product
  * @param {Array} [options.cartItems] - Array of cart items (use either this or productId/quantity)
  * @param {string} options.addressId - Shipping address ID
- * @param {string} [options.paymentMethod='UPI'] - Payment method (default: 'UPI')
+ * @param {string} [options.paymentMethod='CARD'] - Payment method (default: 'CARD')
  * @param {string} [options.couponId] - Optional coupon ID to apply
  * @param {boolean} [options.useCredits=false] - Whether to use credits for payment
  * @returns {Object} Formatted order data
@@ -70,7 +70,7 @@ export const createOrderData = ({
     quantity,
     cartItems,
     addressId,
-    paymentMethod = 'UPI',
+    paymentMethod = 'CARD',
     couponId,
     useCredits = false
 }) => {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { getWalletBalance } from '../../api';
+import { getWalletBalance, getWalletTransactions } from '../../api';
 import WalletCard from '../../components/Common/WalletCard';
 
 const TRANSACTION_LABELS = {
@@ -44,16 +43,17 @@ const Wallet = () => {
     useEffect(() => {
         const fetchWalletData = async () => {
             try {
-                const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.astroguid.com';
                 const [balanceRes, transactionsRes] = await Promise.all([
                     getWalletBalance(),
-                    axios.get(`${baseURL}/api/wallet/get-transactions-history`)
+                    getWalletTransactions()
                 ]);
 
-                if (balanceRes?.success) setCurrentBalance(balanceRes.data.balance || 0);
+                if (balanceRes?.success) {
+                    setCurrentBalance(balanceRes.data.balance || 0);
+                }
 
-                if (transactionsRes?.data?.success) {
-                    setTransactions(transactionsRes.data.data.transactions.map(txn => ({
+                if (transactionsRes?.success && transactionsRes.data?.transactions) {
+                    setTransactions(transactionsRes.data.transactions.map(txn => ({
                         id: txn._id,
                         type: ['deposit', 'referral_bonus'].includes(txn.type) ? 'received' : 'sent',
                         description: TRANSACTION_LABELS[txn.type] || txn.type,
@@ -83,12 +83,12 @@ const Wallet = () => {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-3 sm:gap-0">
                     <h1 className="text-lg md:text-xl font-bold text-gray-700">My Wallet</h1>
-                    <button
+                    {/* <button
                         onClick={() => navigate(-1)}
                         className="px-6 md:px-10 py-2 bg-button-vertical-gradient-orange text-white rounded-md text-sm font-semibold shadow w-full sm:w-auto"
                     >
                         Add Balance
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Wallet Card and Transaction History */}
@@ -99,7 +99,6 @@ const Wallet = () => {
                         <WalletCard
                             currentBalance={currentBalance}
                             requiredAmount={requiredAmount}
-                            onDeposit={(amount) => console.log('Depositing amount:', amount)}
                         />
 
                         {/* Empty Card */}
