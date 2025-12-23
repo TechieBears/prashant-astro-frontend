@@ -16,5 +16,5 @@ export const environment = {
     // baseUrl: 'https://api.astroguid.com/api/',
     // production: true,
 
-    razorpayKey: 'rzp_test_Rrortplwh1QdwU'
+    razorpayKey: 'rzp_test_Rufkt1nYns8XZT'
 }
