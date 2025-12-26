@@ -43,6 +43,11 @@ const HomeFooter = () => {
     // Get service categories from Redux store (already fetched in HomePage)
     const serviceCategories = useSelector(state => state.appRoot.serviceCategories);
 
+    const handleNavigation = (path) => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        navigate(path);
+    };
+
     return (
         <footer
             className="relative w-full text-white bg-cover bg-center"
@@ -56,7 +61,7 @@ const HomeFooter = () => {
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={() => handleNavigation("/")}
                             className="flex items-center gap-2"
                         >
                             <img src={footerData.company.logo} alt="logo" className="h-10 md:h-12" />
@@ -79,7 +84,7 @@ const HomeFooter = () => {
                         {footerData.quickLinks.map((link, index) => (
                             <li key={index}>
                                 <button
-                                    onClick={() => navigate(link.path)}
+                                    onClick={() => handleNavigation(link.path)}
                                     className="hover:text-white"
                                 >
                                     {link.label}
@@ -97,7 +102,7 @@ const HomeFooter = () => {
                             serviceCategories?.map((category) => (
                                 <li key={category._id}>
                                     <button
-                                        onClick={() => navigate(`/services?category=${encodeURIComponent(category.name)}`)}
+                                        onClick={() => handleNavigation(`/services?category=${encodeURIComponent(category.name)}`)}
                                         className="hover:text-white transition-colors text-left"
                                     >
                                         {category.name}
@@ -136,7 +141,7 @@ const HomeFooter = () => {
                         </li>
                     </ul>
                     <button
-                        onClick={() => navigate(footerData.ctaButton.path)}
+                        onClick={() => handleNavigation(footerData.ctaButton.path)}
                         className="mt-4 w-full bg-white/20 text-white py-2.5 rounded-md font-medium border border-white/30 hover:bg-white/30 transition"
                     >
                         {footerData.ctaButton.text}
@@ -153,7 +158,7 @@ const HomeFooter = () => {
                         {footerData.legalLinks.map((link, index) => (
                             <button
                                 key={index}
-                                onClick={() => navigate(link.path)}
+                                onClick={() => handleNavigation(link.path)}
                                 className="hover:text-white"
                             >
                                 {link.label}
