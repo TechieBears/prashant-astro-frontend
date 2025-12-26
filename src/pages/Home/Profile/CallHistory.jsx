@@ -1,7 +1,7 @@
 import { FaClock, FaCalendarAlt, FaPhone } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getAllCallsHistory } from '../../../api';
 
 const CallHistory = () => {
     const navigate = useNavigate();
@@ -16,14 +16,13 @@ const CallHistory = () => {
 
     const fetchCallHistory = async () => {
         try {
-            const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.astroguid.com';
-            const response = await axios.get(`${baseURL}/api/call/public/get-all-calls-history`);
+            const response = await getAllCallsHistory();
             
-            if (response.data.success) {
-                const transformedData = response.data.data.map((item) => {
+            if (response.success) {
+                const transformedData = response.data.map((item) => {
                     const profile = item.astrologerId?.profile || {};
-                    const skills = profile.skills?.[0] ? JSON.parse(profile.skills[0]).join(', ') : 'Vedic, Astrology';
-                    const languages = profile.languages?.[0] ? JSON.parse(profile.languages[0]).join(', ') : 'English, Hindi';
+                    const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : 'Vedic, Astrology';
+                    const languages = Array.isArray(profile.languages) ? profile.languages.join(', ') : 'English, Hindi';
                     
                     return {
                         id: item._id,
