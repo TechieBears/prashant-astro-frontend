@@ -27,9 +27,9 @@ const CallSetupPanel = ({
             setPhoneError('Phone number is required');
             return false;
         }
-        const phoneRegex = /^[+]?[0-9]{10,15}$/;
-        if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-            setPhoneError('Please enter a valid phone number (10-15 digits)');
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(value)) {
+            setPhoneError('Please enter a valid 10-digit phone number');
             return false;
         }
         setPhoneError('');
@@ -37,7 +37,7 @@ const CallSetupPanel = ({
     };
 
     const handlePhoneChange = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
         setPhoneNumber(value);
         if (value) validatePhone(value);
         else setPhoneError('');
@@ -67,17 +67,22 @@ const CallSetupPanel = ({
                             >
                                 Phone Number
                             </label>
-                            <input
-                                id="phone"
-                                type="tel"
-                                value={phoneNumber}
-                                onChange={handlePhoneChange}
-                                onBlur={() => phoneNumber && validatePhone(phoneNumber)}
-                                placeholder="Enter phone number"
-                                className={`h-10 px-5 rounded-[5px] border bg-white text-sm font-medium text-slate-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-all ${
-                                    phoneError ? 'border-red-500 focus:ring-red-300' : 'border-black/15 focus:ring-slate-300'
-                                }`}
-                            />
+                            <div className="relative">
+                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-700">
+                                    +91
+                                </span>
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    value={phoneNumber}
+                                    onChange={handlePhoneChange}
+                                    onBlur={() => phoneNumber && validatePhone(phoneNumber)}
+                                    placeholder="Enter 10-digit number"
+                                    maxLength="10"
+                                    className={`h-10 pl-14 pr-5 rounded-[5px] border bg-white text-sm font-medium text-slate-700 placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-all ${phoneError ? 'border-red-500 focus:ring-red-300' : 'border-black/15 focus:ring-slate-300'
+                                        }`}
+                                />
+                            </div>
                             {phoneError && (
                                 <p className="text-red-500 text-xs mt-1">{phoneError}</p>
                             )}
@@ -90,7 +95,7 @@ const CallSetupPanel = ({
                                     Maximum Call Time
                                 </label>
                                 <button
-                                    onClick={() => setCallTime(1)}
+                                    onClick={() => setCallTime(2)}
                                     className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none"
                                     aria-label="Reset time"
                                     title="Reset to 1 min"
