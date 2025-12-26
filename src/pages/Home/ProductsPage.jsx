@@ -18,6 +18,7 @@ const ProductsPage = () => {
     const [error, setError] = useState(null)
     const [search, setSearch] = useState('')
     const [selectedCategories, setSelectedCategories] = useState([])
+    const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 })
 
     const [price, setPrice] = useState([200, 6800])
     const [debouncedPrice, setDebouncedPrice] = useState([200, 6800])
@@ -25,7 +26,6 @@ const ProductsPage = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const PRICE_MIN = 0
     const PRICE_MAX = 10000
-    const ITEMS_PER_PAGE = 24
 
     // Filter categories to only show those with products and add count
     const filterData = useMemo(() => ({
@@ -74,46 +74,22 @@ const ProductsPage = () => {
                 setLoading(true)
                 setError(null)
                 
-                if (selectedCategories.length === 0) {
-                    // No categories selected, fetch all products
-                    const params = {}
-                    if (search) params.search = search
-                    if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
-                        params.minPrice = debouncedPrice[0]
-                        params.maxPrice = debouncedPrice[1]
-                    }
-                    
-                    const response = await getActiveProducts(params)
-                    if (response.success) {
-                        setProducts(response.data || [])
-                    } else {
-                        setError(response.message || 'Failed to fetch products')
-                    }
+                const params = { page: currentPage, limit: 10 }
+                if (search) params.search = search
+                if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
+                    params.minPrice = debouncedPrice[0]
+                    params.maxPrice = debouncedPrice[1]
+                }
+                if (selectedCategories.length > 0) {
+                    params.category = selectedCategories.join(',')
+                }
+                
+                const response = await getActiveProducts(params)
+                if (response.success) {
+                    setProducts(response.data || [])
+                    setPagination(response.pagination || { page: 1, limit: 10, total: 0, pages: 0 })
                 } else {
-                    // Multiple categories selected, fetch for each and merge
-                    const allProducts = []
-                    const productIds = new Set()
-                    
-                    for (const categoryId of selectedCategories) {
-                        const params = { category: categoryId }
-                        if (search) params.search = search
-                        if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
-                            params.minPrice = debouncedPrice[0]
-                            params.maxPrice = debouncedPrice[1]
-                        }
-                        
-                        const response = await getActiveProducts(params)
-                        if (response.success && response.data) {
-                            response.data.forEach(product => {
-                                if (!productIds.has(product._id)) {
-                                    productIds.add(product._id)
-                                    allProducts.push(product)
-                                }
-                            })
-                        }
-                    }
-                    
-                    setProducts(allProducts)
+                    setError(response.message || 'Failed to fetch products')
                 }
             } catch (err) {
                 console.error('Error fetching products:', err)
@@ -124,7 +100,7 @@ const ProductsPage = () => {
         }
 
         fetchProducts()
-    }, [selectedCategories, search, debouncedPrice])
+    }, [selectedCategories, search, debouncedPrice, currentPage])
 
     const toggleCategory = (categoryId) => {
         setSelectedCategories(prev =>
@@ -143,22 +119,9 @@ const ProductsPage = () => {
         setDebouncedPrice([PRICE_MIN, PRICE_MAX])
     }
 
-    const filteredProducts = useMemo(() => {
-        return Array.isArray(products) ? products : [];
-    }, [products])
-
     useEffect(() => {
         setCurrentPage(1);
-    }, [products]);
-
-    const totalPages = useMemo(() => {
-        return Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-    }, [filteredProducts]);
-
-    const paginatedProducts = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    }, [filteredProducts, currentPage]);
+    }, [selectedCategories, search, debouncedPrice]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -167,13 +130,15 @@ const ProductsPage = () => {
 
     const handlePreviousPage = () => {
         if (currentPage > 1) {
-            handlePageChange(currentPage - 1);
+            setCurrentPage(prev => prev - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
     const handleNextPage = () => {
-        if (currentPage < totalPages) {
-            handlePageChange(currentPage + 1);
+        if (currentPage < pagination.pages) {
+            setCurrentPage(prev => prev + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -211,19 +176,19 @@ const ProductsPage = () => {
                             </div>
                         ) : (
                             <>
-                                {/* Results Count - Only show when there are multiple pages or many products */}
-                                {filteredProducts.length > 0 && totalPages > 1 && (
+                                {/* Results Count */}
+                                {pagination.total > 0 && (
                                     <div className="mb-4 flex justify-between items-center">
                                         <p className="text-slate-600 text-sm sm:text-base">
-                                            Showing <span className="font-semibold">{((currentPage - 1) * ITEMS_PER_PAGE) + 1}</span> to{' '}
-                                            <span className="font-semibold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)}</span> of{' '}
-                                            <span className="font-semibold">{filteredProducts.length}</span> products
+                                            Showing <span className="font-semibold">{((pagination.page - 1) * pagination.limit) + 1}</span> to{' '}
+                                            <span className="font-semibold">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{' '}
+                                            <span className="font-semibold">{pagination.total}</span> products
                                         </p>
                                     </div>
                                 )}
 
                                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
-                                    {paginatedProducts.map((product) => (
+                                    {products.map((product) => (
                                         <div
                                             key={product._id || product.id}
                                             className="h-full cursor-pointer"
@@ -240,7 +205,7 @@ const ProductsPage = () => {
                                     ))}
                                 </div>
 
-                                {filteredProducts.length === 0 && !loading && (
+                                {products.length === 0 && !loading && (
                                     <div className="text-center py-10">
                                         <p className="text-gray-500 text-lg">No products found matching your filters.</p>
                                         <button
@@ -253,11 +218,11 @@ const ProductsPage = () => {
                                 )}
 
                                 {/* Pagination */}
-                                {totalPages > 1 && (
+                                {pagination.pages > 1 && (
                                     <div className="mt-8">
                                         <Pagination
                                             currentPage={currentPage}
-                                            totalPages={totalPages}
+                                            totalPages={pagination.pages}
                                             onPageChange={handlePageChange}
                                             onPreviousPage={handlePreviousPage}
                                             onNextPage={handleNextPage}

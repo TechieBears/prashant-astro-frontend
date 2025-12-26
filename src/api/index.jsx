@@ -1597,6 +1597,8 @@ export const getActiveProducts = async (params = {}) => {
     if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice);
     if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice);
     if (params.inStock !== undefined) queryParams.append('inStock', params.inStock);
+    if (params.page !== undefined) queryParams.append('page', params.page);
+    if (params.limit !== undefined) queryParams.append('limit', params.limit);
 
     const url = `${environment.baseUrl}product/public/active${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
     try {
