@@ -205,7 +205,7 @@ const HomePage = () => {
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: '95% Accuracy Rate',
+            title: 'High Accuracy Rate',
             description:
                 'Proven track record with highly accurate predictions and effective remedies',
         },
@@ -223,7 +223,7 @@ const HomePage = () => {
         },
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: '2000+ Happy Clients',
+            title: '10k+ Happy Clients',
             description:
                 'Trusted by clients for life-changing guidance and solutions',
         },
