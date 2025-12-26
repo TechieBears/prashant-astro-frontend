@@ -2394,7 +2394,7 @@ export const getNotificationsDropdown = async () => {
 }
 export const getNotificationsDropdownCustomer = async () => {
     try {
-        const url = `${environment.baseUrl}notifications/dropdown-customer`;
+        const url = `${environment.baseUrl}notification/dropdown-customer`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
@@ -2477,6 +2477,23 @@ export const getZoomSignature = async (meetingNumber, role = 0) => {
         };
     }
 };
+
+export const getAllCallsHistory = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        const url = `${environment.baseUrl}call/public/get-all-calls-history`;
+        const response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching call history:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch call history' };
+    }
+}
 
 export const getAllAstrologerCalls = async (params = {}) => {
     try {
