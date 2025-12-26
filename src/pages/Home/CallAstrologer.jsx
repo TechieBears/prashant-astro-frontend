@@ -8,9 +8,6 @@ import Tabs from '../../components/Common/Tabs';
 import WalletModal from '../../components/Modals/WalletModal';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getAllAstrologerCalls, getCallFilters } from '../../api';
-import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
-import astrologer2 from '../../assets/Astrologer/panditcall2.jpg';
-import astrologer3 from '../../assets/Astrologer/panditcall3.jpg';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
 import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
 import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
@@ -35,17 +32,21 @@ const CallAstrologer = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [showWalletModal, setShowWalletModal] = useState(false);
+    const [requestedAstrologerId, setRequestedAstrologerId] = useState(null);
     const userBalance = loggedUserDetails?.walletBalance || 50;
 
-    const statusColors = {
-        'Online': 'text-green-500',
-        'Busy': 'text-red-500'
-    };
+    useEffect(() => {
+        const requestedId = localStorage.getItem('requestedAstrologerId');
+        if (requestedId) {
+            setRequestedAstrologerId(requestedId);
+            setTimeout(() => {
+                setRequestedAstrologerId(null);
+                localStorage.removeItem('requestedAstrologerId');
+            }, 10000);
+        }
+    }, []);
 
-    const buttonColors = {
-        'Online': 'bg-button-vertical-gradient-orange text-white hover:opacity-90',
-        'Busy': 'bg-gradient-to-b from-gray-300 to-gray-500 text-white cursor-not-allowed'
-    };
+
 
     const toggleLanguage = (language) => {
         setSelectedLanguages(prev =>
@@ -111,7 +112,7 @@ const CallAstrologer = () => {
                             parsedSkills = Array.isArray(astrologer.profile.skills) ? astrologer.profile.skills.join(', ') : 'N/A';
                         }
                     }
-                    
+
                     // Parse languages - handle double stringified arrays
                     let parsedLanguages = 'N/A';
                     if (astrologer.profile?.languages && Array.isArray(astrologer.profile.languages) && astrologer.profile.languages.length > 0) {
@@ -122,12 +123,13 @@ const CallAstrologer = () => {
                             parsedLanguages = Array.isArray(astrologer.profile.languages) ? astrologer.profile.languages.join(', ') : 'N/A';
                         }
                     }
-                    
+
                     return {
                         id: astrologer._id,
                         name: astrologer.profile?.fullName || 'N/A',
                         image: astrologer.profileImage,
-                        status: 'Online',
+                        isBusy: astrologer.profile?.isBusy || false,
+                        isRequested: astrologer._id === requestedAstrologerId,
                         skills: parsedSkills,
                         languages: parsedLanguages,
                         experience: `${astrologer.profile?.experience || 0} Years Experience`,
@@ -165,7 +167,7 @@ const CallAstrologer = () => {
 
     useEffect(() => {
         fetchAstrologerCalls();
-    }, [page, selectedLanguages, selectedCategories, selectedExperience, price, search, sortBy, activeTab])
+    }, [page, selectedLanguages, selectedCategories, selectedExperience, price, search, sortBy, activeTab, requestedAstrologerId])
 
     return (
         <div className='bg-slate1'>
@@ -290,17 +292,14 @@ const CallAstrologer = () => {
                                 </div>
                             ) : astrologers.map((astrologer) => (
                                 <div key={astrologer.id} className="bg-white rounded-lg p-4 sm:p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col">
-                                    {/* Requested Ribbon */}
-                                    {astrologer.status === 'Call Requested' && (
-                                        <div className="absolute -top-2 -left-8 bg-blue-500 text-white text-xs font-medium px-8 py-1 rotate-[-45deg] transform origin-center">
+                                    {astrologer.isRequested && (
+                                        <div className="absolute -left-7 bg-blue-500 text-white text-xs font-medium px-8 py-1 rotate-[-45deg] transform origin-center z-10">
                                             Requested
                                         </div>
                                     )}
-                                    {/* Header with centered profile and status */}
                                     <div className="relative mb-3 sm:mb-4">
-                                        {/* Status - positioned absolute top right */}
-                                        <span className={`absolute top-0 right-0 text-xs sm:text-sm font-medium ${statusColors[astrologer.status]}`}>
-                                            {astrologer.status}
+                                        <span className={`absolute top-0 right-0 text-xs sm:text-sm font-medium ${astrologer.isBusy ? 'text-red-500' : 'text-green-500'}`}>
+                                            {astrologer.isBusy ? 'Busy' : 'Available'}
                                         </span>
 
                                         {/* Profile Image and Name - Centered */}
@@ -343,7 +342,7 @@ const CallAstrologer = () => {
                                     {/* Call button */}
                                     <div className="mt-auto">
                                         <CallButton
-                                            status={astrologer.status}
+                                            status={astrologer.isBusy ? 'Busy' : 'Online'}
                                             rate={astrologer.rate}
                                             onClick={() => handleAstrologerClick(astrologer.id)}
                                         />
