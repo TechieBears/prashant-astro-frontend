@@ -183,7 +183,7 @@ const HomePage = () => {
                 "Recognized astrologer with proven track record.",
         },
         {
-            title: "500+ Clients",
+            title: "10k+ Clients",
             image: clients,
             content:
                 "Satisfied clients across the globe",
@@ -199,7 +199,7 @@ const HomePage = () => {
     const whyData = [
         {
             icon: <Medal06Icon size={36} className="text-white" />,
-            title: '21+ Years Experience',
+            title: '16+ Years Experience',
             description:
                 'Extensive experience in Vedic astrology with thousands of successful consultations',
         },

@@ -56,10 +56,7 @@ const HomeFooter = () => {
                 <div>
                     <div className="flex items-center gap-2 mb-4">
                         <button
-                            onClick={() => {
-                                navigate("/");
-                                window.scrollTo(0, 0, { behavior: "smooth" });
-                            }}
+                            onClick={() => navigate("/")}
                             className="flex items-center gap-2"
                         >
                             <img src={footerData.company.logo} alt="logo" className="h-10 md:h-12" />

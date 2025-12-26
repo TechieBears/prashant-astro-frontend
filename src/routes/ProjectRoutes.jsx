@@ -75,6 +75,11 @@ const ProjectRoutes = () => {
         setTimeout(() => setLoading(false), 2800);
     }, []);
 
+    // ================ scroll to top on route change ================
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
+
     useEffect(() => {
         const updateNetworkStatus = () => {
             navigator.onLine ? toast.success('You are Online') : toast.error('You are Offline')
