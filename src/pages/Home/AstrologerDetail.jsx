@@ -21,7 +21,7 @@ const AstrologerDetail = () => {
     const userId = loggedUserDetails?._id;
 
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [callTime, setCallTime] = useState(1);
+    const [callTime, setCallTime] = useState(2);
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [totalReviews, setTotalReviews] = useState(0);
@@ -66,7 +66,9 @@ const AstrologerDetail = () => {
 
             if (response?.success) {
                 toast.success('Call initiated successfully!');
-                setShowTalkSessionModal(true);
+                // Store the astrologer ID in localStorage to show requested badge
+                localStorage.setItem('requestedAstrologerId', id);
+                navigate('/call-astrologer');
             } else {
                 toast.error(response?.message || 'Failed to initiate call');
             }
@@ -191,7 +193,7 @@ const AstrologerDetail = () => {
                 title="Astrologer Details"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
-                    { label: "Talk With Astrologer", href: "/talk-with-astrologer" },
+                    { label: "Call Astrologer", href: "/talk-with-astrologer" },
                     { label: astrologer.name, href: null }
                 ]}
                 backgroundImage={bannerImage}
