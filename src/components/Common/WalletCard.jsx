@@ -55,7 +55,7 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
                 <div className={`font-extrabold leading-none ${currentBalance.toString().length <= 2 ? 'text-[60px] sm:text-[80px] md:text-[100px]' :
                     currentBalance.toString().length <= 3 ? 'text-[50px] sm:text-[65px] md:text-[80px]' :
                         currentBalance.toString().length <= 4 ? 'text-[40px] sm:text-[50px] md:text-[60px]' : 'text-[35px] sm:text-[40px] md:text-[50px]'
-                    }`}>₹{currentBalance}</div>
+                    }`}>₹{Number(currentBalance).toFixed(2).replace(/\.00$/, '')}</div>
                 <div className="text-[10px] sm:text-xs pb-1 md:pb-2 ml-1">Total Balance</div>
             </div>
 
