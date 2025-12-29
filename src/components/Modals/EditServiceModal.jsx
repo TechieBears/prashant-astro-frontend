@@ -44,7 +44,7 @@ const EditServiceModal = ({
     // Memoized options
     const serviceModeOptions = useMemo(() => [
         { value: 'online', label: 'Consult Online' },
-        { value: 'pandit_center', label: 'Consult at Astrologer location' },
+        { value: 'pandit_center', label: 'Consult at Pandit\'s location' },
         { value: 'pooja_at_home', label: 'Pooja at Home' }
     ], []);
 

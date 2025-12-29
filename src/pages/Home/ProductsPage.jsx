@@ -1,41 +1,65 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
 import Pagination from '../../components/Common/Pagination';
 import { PulseLoader } from 'react-spinners';
-import { getActiveProducts } from '../../api';
+import { getActiveProducts, getProductFilters } from '../../api';
 
 const ProductsPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { productsDropdown } = useSelector(state => state.nav);
     const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [search, setSearch] = useState('')
     const [selectedCategories, setSelectedCategories] = useState([])
     const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 })
+    const [filterCategories, setFilterCategories] = useState([])
+    const [filtersLoading, setFiltersLoading] = useState(true)
+    const [priceRange, setPriceRange] = useState({ minPrice: 0, maxPrice: 10000 })
 
-    const [price, setPrice] = useState([200, 6800])
-    const [debouncedPrice, setDebouncedPrice] = useState([200, 6800])
+    const [price, setPrice] = useState([0, 10000])
+    const [debouncedPrice, setDebouncedPrice] = useState([0, 10000])
     const priceDebounceTimer = useRef(null)
     const [currentPage, setCurrentPage] = useState(1)
-    const PRICE_MIN = 0
-    const PRICE_MAX = 10000
 
-    // Filter categories to only show those with products and add count
+    // Fetch filter categories
+    useEffect(() => {
+        const fetchFilters = async () => {
+            try {
+                setFiltersLoading(true)
+                const response = await getProductFilters()
+                if (response.success) {
+                    const categories = response.data.category || []
+                    const { minPrice = 0, maxPrice = 10000 } = response.data.priceRange || {}
+                    
+                    setFilterCategories(categories)
+                    setPriceRange({ minPrice, maxPrice })
+                    setPrice([minPrice, maxPrice])
+                    setDebouncedPrice([minPrice, maxPrice])
+                }
+            } catch (err) {
+                console.error('Error fetching filters:', err)
+            } finally {
+                setFiltersLoading(false)
+            }
+        }
+        fetchFilters()
+    }, [])
+
     const filterData = useMemo(() => ({
-        categories: (productsDropdown || [])
-            .filter(cat => cat.products && cat.products.length > 0)
+        categories: filterCategories
+            .filter(cat => cat.productCount > 0)
             .map(cat => ({
-                ...cat,
-                count: cat.products.length
+                _id: cat._id,
+                name: cat.name,
+                image: cat.image,
+                count: cat.productCount
             }))
-    }), [productsDropdown]);
+    }), [filterCategories]);
 
     // Handle pre-selected category from navigation
     useEffect(() => {
@@ -46,7 +70,7 @@ const ProductsPage = () => {
                 setSelectedCategories([categoryId]);
             }
 
-            window.history.replaceState({}, document.title);
+            navigate(location.pathname, { replace: true });
         }
     }, [location.state, filterData.categories]);
 
@@ -76,7 +100,7 @@ const ProductsPage = () => {
                 
                 const params = { page: currentPage, limit: 10 }
                 if (search) params.search = search
-                if (debouncedPrice[0] !== PRICE_MIN || debouncedPrice[1] !== PRICE_MAX) {
+                if (debouncedPrice[0] !== priceRange.minPrice || debouncedPrice[1] !== priceRange.maxPrice) {
                     params.minPrice = debouncedPrice[0]
                     params.maxPrice = debouncedPrice[1]
                 }
@@ -115,9 +139,11 @@ const ProductsPage = () => {
     const resetFilters = () => {
         setSearch('')
         setSelectedCategories([])
-        setPrice([PRICE_MIN, PRICE_MAX])
-        setDebouncedPrice([PRICE_MIN, PRICE_MAX])
+        setPrice([priceRange.minPrice, priceRange.maxPrice])
+        setDebouncedPrice([priceRange.minPrice, priceRange.maxPrice])
     }
+
+    const contentRef = useRef(null);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -125,20 +151,27 @@ const ProductsPage = () => {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        requestAnimationFrame(() => {
+            if (contentRef.current) {
+                const elementPosition = contentRef.current.getBoundingClientRect().top + window.pageYOffset;
+                const offsetPosition = elementPosition - 120;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
     };
 
     const handlePreviousPage = () => {
         if (currentPage > 1) {
-            setCurrentPage(prev => prev - 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            handlePageChange(currentPage - 1);
         }
     };
 
     const handleNextPage = () => {
         if (currentPage < pagination.pages) {
-            setCurrentPage(prev => prev + 1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            handlePageChange(currentPage + 1);
         }
     };
 
@@ -159,7 +192,7 @@ const ProductsPage = () => {
             <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-16 py-10 sm:py-12 md:py-14">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                     {/* Products Grid */}
-                    <div className="lg:col-span-9 order-2 lg:order-1">
+                    <div className="lg:col-span-9 order-2 lg:order-1" ref={contentRef}>
                         {loading ? (
                             <div className="flex justify-center items-center py-20">
                                 <PulseLoader color="#F97316" size={15} />
@@ -245,10 +278,10 @@ const ProductsPage = () => {
                                 toggleCategory={toggleCategory}
                                 price={price}
                                 setPrice={setPrice}
-                                minPrice={PRICE_MIN}
-                                maxPrice={PRICE_MAX}
+                                minPrice={priceRange.minPrice}
+                                maxPrice={priceRange.maxPrice}
                                 resetFilters={resetFilters}
-                                isLoading={!productsDropdown}
+                                isLoading={filtersLoading}
                             />
                         </div>
                     </aside>

@@ -7,7 +7,7 @@ export const SERVICE_MODES = {
     },
     pandit_center: {
         value: 'pandit_center',
-        label: 'Consult at Astrologer location',
+        label: 'Consult at Pandit\'s location',
         type: 'online'
     },
     pooja_at_home: {

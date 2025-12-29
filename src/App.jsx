@@ -18,6 +18,7 @@ import {
     requestNotificationPermission,
 } from './utils/pushNotifications';
 import { useEffect } from "react";
+import { Toaster } from 'react-hot-toast';
 // import ComingSoonModal from "./components/Modals/ComingSoonModal";
 
 const App = () => {
@@ -63,6 +64,7 @@ const App = () => {
                 <PersistGate loading={null} persistor={persistor}>
                     {/* <ComingSoonModal isVisible={true} /> */}
                     <PrimeReactProvider>
+                        <Toaster position="top-right" />
                         <ProjectRoutes />
                     </PrimeReactProvider>
                 </PersistGate>
