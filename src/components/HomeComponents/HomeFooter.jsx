@@ -22,7 +22,7 @@ const footerData = {
         { label: "Contact", path: "/contact" }
     ],
     contactInfo: {
-        phone: "+91 86930 00900",
+        phone: "+91 75062 22216",
         email: "services@astroguid.com",
         location: "Online Consultations Available"
     },

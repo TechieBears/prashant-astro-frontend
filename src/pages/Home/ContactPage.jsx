@@ -42,7 +42,7 @@ const ContactPage = () => {
         },
         {
             name: "WhatsApp",
-            value: "+91 86930 00900",
+            value: "+91 75062 22216",
             icon: <WhatsappIcon size={20} className="text-white" />
         },
         {
