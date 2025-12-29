@@ -1566,7 +1566,7 @@ export const getCategoriesList = async (data) => {
 // ==================== Our Products Api ====================
 export const getOurProducts = async () => {
     try {
-        const url = `${environment.baseUrl}product/public/our-products/v2`;
+        const url = `${environment.baseUrl}product/public/our-products/v3`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
