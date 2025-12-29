@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { formBtn1, tableBtn } from '../../../utils/CustomClass';
 import LoadBox from '../../Loader/LoadBox';
@@ -27,6 +27,7 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     const toggle = () => { setOpen(!open), reset(), setDeletedImages([]) };
     const [loader, setLoader] = useState(false);
     const [deletedImages, setDeletedImages] = useState([]);
+    const hasInitialized = useRef(false);
     const { fields, append, remove } = useFieldArray({
         control,
         name: "specification"
@@ -36,8 +37,10 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
 
     const formSubmit = async (data) => {
         try {
-            // Validate images
-            if (!data.images || (Array.isArray(data.images) && data.images.length === 0)) {
+            // Validate images - check both data.images and watch('images')
+            const images = data.images || watch('images');
+
+            if (!images || (Array.isArray(images) && images.length === 0)) {
                 toast.error("Please upload at least one product image");
                 return;
             }
@@ -97,38 +100,44 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
     }
 
     useEffect(() => {
-        if (edit && userData) {
-            const parsedSpecification = typeof userData?.specification === 'string' 
-                ? JSON.parse(userData.specification) 
-                : userData?.specification || [];
-            
-            reset({
-                name: userData?.name,
-                category: userData?.category?._id,
-                description: userData?.description,
-                highlights: userData?.highlights,
-                additionalInfo: userData?.additionalInfo,
-                stock: userData?.stock,
-                sellingPrice: userData?.sellingPrice,
-                images: userData?.images || [],
-                mrpPrice: userData?.mrpPrice,
-                specification: parsedSpecification
-            });
-        } else {
-            reset({
-                category: '',
-                name: '',
-                description: '',
-                highlights: '',
-                additionalInfo: '',
-                stock: '',
-                sellingPrice: '',
-                mrpPrice: '',
-                images: [],
-                specification: []
-            });
+        if (open && !hasInitialized.current) {
+            hasInitialized.current = true;
+            if (edit && userData) {
+                const parsedSpecification = typeof userData?.specification === 'string'
+                    ? JSON.parse(userData.specification)
+                    : userData?.specification || [];
+
+                reset({
+                    name: userData?.name,
+                    category: userData?.category?._id,
+                    description: userData?.description,
+                    highlights: userData?.highlights,
+                    additionalInfo: userData?.additionalInfo,
+                    stock: userData?.stock,
+                    sellingPrice: userData?.sellingPrice,
+                    images: userData?.images || [],
+                    mrpPrice: userData?.mrpPrice,
+                    specification: parsedSpecification
+                });
+            } else if (!edit) {
+                reset({
+                    category: '',
+                    name: '',
+                    description: '',
+                    highlights: '',
+                    additionalInfo: '',
+                    stock: '',
+                    sellingPrice: '',
+                    mrpPrice: '',
+                    images: [],
+                    specification: []
+                });
+            }
         }
-    }, [edit, userData, reset, setValue, open]);
+        if (!open) {
+            hasInitialized.current = false;
+        }
+    }, [edit, userData, reset, open]);
 
     const dispatch = useDispatch();
 
@@ -241,7 +250,6 @@ function CreateProductModal({ edit, userData, setRefreshTrigger }) {
                                                             defaultValue={edit ? userData?.images : []}
                                                             onDelete={(url) => setDeletedImages(prev => [...prev, url])}
                                                         />
-                                                        {errors.images && <Error message="Product images are required" />}
                                                     </div>
 
                                                     <div className="">
