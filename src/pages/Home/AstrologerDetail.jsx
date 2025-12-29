@@ -33,6 +33,14 @@ const AstrologerDetail = () => {
     const [astrologer, setAstrologer] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Auto-fill phone number from logged-in user
+    useEffect(() => {
+        if (loggedUserDetails?.mobileNo) {
+            const mobile = loggedUserDetails.mobileNo.replace(/^\+91/, '');
+            setPhoneNumber(mobile);
+        }
+    }, [loggedUserDetails]);
+
     // Check if balance is low whenever callTime or userBalance changes
     useEffect(() => {
         const requiredAmount = callTime * (astrologer?.pricePerMin || 10);
