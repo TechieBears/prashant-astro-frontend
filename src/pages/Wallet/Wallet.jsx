@@ -106,7 +106,10 @@ const Wallet = () => {
                         <div className="h-[160px] md:h-[180px] bg-gradient-to-b from-[#FFF5E6] to-[#FFE8F0] rounded-xl border border-black/15 relative p-3 md:p-4 hidden lg:block">
                             <h3 className="font-semibold text-gray-800 text-lg md:text-xl">Download Our Mobile App</h3>
                             <p className="text-xs md:text-sm text-gray-500 max-w-xs mt-2">For a same less experience, download our apps on your phone</p>
-                            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="w-32 md:w-40 mt-2" />
+                            <div className="flex gap-2 mt-2">
+                                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" className="w-28 md:w-32" />
+                                <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="App Store" className="w-20 md:w-27 object-contain" />
+                            </div>
                             <img src={phoneImg} alt="phone" className="absolute bottom-0 right-4 md:right-6 h-[7.5rem] md:h-[8.5rem]" />
                         </div>
                     </div>

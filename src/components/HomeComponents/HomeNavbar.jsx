@@ -416,6 +416,7 @@ const HomeNavbar = () => {
                                 <>
                                     <NavLink to={'/profile'}>
                                         <img
+                                            key={user?.profileImage}
                                             alt="profile"
                                             src={
                                                 user?.profileImage ||
@@ -487,6 +488,7 @@ const HomeNavbar = () => {
                                     <div className="flex items-center gap-3 sm:gap-4 relative z-10">
                                         <div className="relative flex-shrink-0">
                                             <img
+                                                key={user?.profileImage}
                                                 alt="profile"
                                                 src={
                                                     user?.profileImage ||
