@@ -746,8 +746,8 @@ const HomePage = () => {
                     <div className="px-4 sm:px-6 lg:px-16 w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-10 h-full">
                         <div className="flex-1 flex flex-col items-center justify-center h-full text-center order-2 lg:order-1">
                             <SectionHeader
-                                prefix={<>Mobile app coming soon<br />stay tuned.</>}
-                                prefixClass="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
+                                prefix={<>Experience Astroguid services seamlessly<br />on your mobile - stay tuned.</>}
+                                prefixClass="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl 2xl:text-3xl -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
                                 showImage={false}
                             />
                             <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
