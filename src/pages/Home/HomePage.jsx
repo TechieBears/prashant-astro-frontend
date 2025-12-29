@@ -750,14 +750,14 @@ const HomePage = () => {
                                 prefixClass="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl 2xl:text-3xl -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
                                 showImage={false}
                             />
-                            <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
+                            {/* <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
                                 For seamless experience, download our apps on your phone
-                            </p>
+                            </p> */}
                             <div className="flex gap-3 justify-center mt-3 md:mt-4 lg:mt-6">
-                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                <a href="https://play.google.com/" target="_blank" rel="noopener noreferrer">
                                     <img src={PlayStore} alt="Google Play" className="h-10 lg:h-14 object-contain" />
                                 </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                <a href="https://www.apple.com/in/app-store/" target="_blank" rel="noopener noreferrer">
                                     <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="App Store" className="h-10 lg:h-14 object-contain" />
                                 </a>
                             </div>
