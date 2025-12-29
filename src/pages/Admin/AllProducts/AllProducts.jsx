@@ -80,10 +80,39 @@ function AllUserProfiles() {
         }
     }
 
+    const handleShowOnHomeChange = async (id, showOnHome) => {
+        try {
+            const updatedData = {
+                showOnHome: !showOnHome
+            }
+            await editProduct(id, updatedData).then(res => {
+                if (res?.message == "Product updated successfully") {
+                    toast.success('Show on home updated');
+                } else {
+                    toast.error(res?.message);
+                }
+            });
+            setRefreshTrigger(prev => prev + 1);
+        } catch (error) {
+            console.log('error', error)
+            toast.error('Update failed');
+        }
+    }
+
     const activeBody = (row) => {
         return <Switch
             value={row?.isActive}
             onChange={() => handleActiveChange(row?._id, row?.isActive)}
+            size={50}
+            backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+            borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+        />
+    }
+
+    const showOnHomeBody = (row) => {
+        return <Switch
+            value={row?.showOnHome}
+            onChange={() => handleShowOnHomeChange(row?._id, row?.showOnHome)}
             size={50}
             backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
             borderColor={{ on: "#86d993", off: "#c6c6c6" }}
@@ -187,6 +216,12 @@ function AllUserProfiles() {
             field: 'isActive',
             header: 'Status',
             body: activeBody,
+            style: true, sortable: true
+        },
+        {
+            field: 'showOnHome',
+            header: 'Show on Home',
+            body: showOnHomeBody,
             style: true, sortable: true
         },
         { field: "action", header: "Actions", body: actionBodyTemplate, style: true, sortable: false }

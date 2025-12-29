@@ -191,7 +191,7 @@ const AboutPage = () => {
                         <div className='flex items-center flex-col gap-5 mb-12'>
                             <SectionHeader
                                 prefix="Our"
-                                highlight="Astrologer"
+                                highlight="Pandits"
                             />
                         </div>
 
@@ -236,11 +236,11 @@ const AboutPage = () => {
                                                         <div className="text-sm">
                                                             <p className="font-medium mb-1">Skills:</p>
                                                             <p className="text-xs opacity-90">
-                                                                {astrologer?.profile?.skills?.[0] ? 
-                                                                    (typeof astrologer.profile.skills[0] === 'string' && astrologer.profile.skills[0].startsWith('[') ? 
-                                                                        JSON.parse(astrologer.profile.skills[0]).join(', ') : 
+                                                                {astrologer?.profile?.skills?.[0] ?
+                                                                    (typeof astrologer.profile.skills[0] === 'string' && astrologer.profile.skills[0].startsWith('[') ?
+                                                                        JSON.parse(astrologer.profile.skills[0]).join(', ') :
                                                                         Array.isArray(astrologer.profile.skills) ? astrologer.profile.skills.join(', ') : astrologer.profile.skills[0]
-                                                                    ) : 
+                                                                    ) :
                                                                     'N/A'
                                                                 }
                                                             </p>
@@ -250,15 +250,15 @@ const AboutPage = () => {
                                                         <div className="text-sm">
                                                             <p className="font-medium mb-1">Languages:</p>
                                                             <p className="text-xs opacity-90">
-                                                                {astrologer?.profile?.languages?.[0] ? 
-                                                                    (typeof astrologer.profile.languages[0] === 'string' && astrologer.profile.languages[0].startsWith('[') ? 
-                                                                        JSON.parse(astrologer.profile.languages[0]).map(lang => 
+                                                                {astrologer?.profile?.languages?.[0] ?
+                                                                    (typeof astrologer.profile.languages[0] === 'string' && astrologer.profile.languages[0].startsWith('[') ?
+                                                                        JSON.parse(astrologer.profile.languages[0]).map(lang =>
                                                                             lang.charAt(0).toUpperCase() + lang.slice(1)
-                                                                        ).join(', ') : 
-                                                                        Array.isArray(astrologer.profile.languages) ? 
-                                                                            astrologer.profile.languages.map(lang => lang.charAt(0).toUpperCase() + lang.slice(1)).join(', ') : 
+                                                                        ).join(', ') :
+                                                                        Array.isArray(astrologer.profile.languages) ?
+                                                                            astrologer.profile.languages.map(lang => lang.charAt(0).toUpperCase() + lang.slice(1)).join(', ') :
                                                                             astrologer.profile.languages[0]
-                                                                    ) : 
+                                                                    ) :
                                                                     'N/A'
                                                                 }
                                                             </p>

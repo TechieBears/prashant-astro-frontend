@@ -232,13 +232,13 @@ const BookingCalendar = () => {
                     const response = await getSelectedService(watchedServiceType);
                     if (response?.success && response?.data) {
                         setSelectedService(response.data);
-                        const serviceMode = Array.isArray(response.data.serviceType) && response.data.serviceType.length > 0 
-                            ? response.data.serviceType[0] 
+                        const serviceMode = Array.isArray(response.data.serviceType) && response.data.serviceType.length > 0
+                            ? response.data.serviceType[0]
                             : 'online';
                         setValue('serviceMode', serviceMode);
                     } else {
-                        const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0 
-                            ? serviceFromList.serviceType[0] 
+                        const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0
+                            ? serviceFromList.serviceType[0]
                             : 'online';
                         setValue('serviceMode', serviceMode);
                         setSelectedService(serviceFromList);
@@ -251,8 +251,8 @@ const BookingCalendar = () => {
                 // Fallback to list data on error
                 const serviceFromList = allServicesData.find(service => service._id === watchedServiceType);
                 if (serviceFromList) {
-                    const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0 
-                        ? serviceFromList.serviceType[0] 
+                    const serviceMode = Array.isArray(serviceFromList.serviceType) && serviceFromList.serviceType.length > 0
+                        ? serviceFromList.serviceType[0]
                         : 'online';
                     setValue('serviceMode', serviceMode);
                     setSelectedService(serviceFromList);
@@ -504,7 +504,7 @@ const BookingCalendar = () => {
                                     rules={{ required: 'Service Mode is required' }}
                                     render={({ field }) => {
                                         const availableServiceTypes = selectedService?.serviceType || [];
-                                        
+
                                         return (
                                             <div>
                                                 <label className="block text-sm font-medium mb-3" style={{ color: '#62748E' }}>
@@ -513,7 +513,7 @@ const BookingCalendar = () => {
                                                 <div className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto pb-2">
                                                     {serviceModeOptions.map((option) => {
                                                         const isAvailable = availableServiceTypes.includes(option.value);
-                                                        
+
                                                         return (
                                                             <label key={option.value} className={`flex items-center whitespace-nowrap flex-shrink-0 ${isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
                                                                 <div className="relative flex items-center">
@@ -545,7 +545,7 @@ const BookingCalendar = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.serviceMode.message}</p>
                                 )}
 
-                                {/* Select Astrologer */}
+                                {/* Select Pandit */}
                                 <Controller
                                     name="astrologer"
                                     control={control}
@@ -553,12 +553,12 @@ const BookingCalendar = () => {
                                     render={({ field }) => (
                                         <Select
                                             id="astrologer"
-                                            label="Select Astrologer"
+                                            label="Select Pandit"
                                             value={field.value}
                                             onChange={field.onChange}
                                             options={AstrologerOptions}
                                             required
-                                            placeholder="Select a astrologer"
+                                            placeholder="Select a Pandit"
                                             disabled={isAstrologersLoading}
                                             isLoading={isAstrologersLoading}
                                         />

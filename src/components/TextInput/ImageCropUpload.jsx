@@ -39,9 +39,13 @@ const ImageCropUpload = ({
     const [zoom, setZoom] = useState(1);
     const imgRef = useRef(null);
     const canvasRef = useRef(null);
+    const hasLoadedDefault = useRef(false);
+    const prevDefaultValue = useRef(defaultValue);
 
     useEffect(() => {
-        if (defaultValue) {
+        if (defaultValue && !hasLoadedDefault.current) {
+            hasLoadedDefault.current = true;
+            prevDefaultValue.current = defaultValue;
             if (multiple && Array.isArray(defaultValue)) {
                 const dummyFiles = defaultValue.map((url) => ({
                     name: url.split("/").pop(),
@@ -217,7 +221,8 @@ const ImageCropUpload = ({
                 setFileName(`${newFiles.length} files selected`);
                 setValue(
                     registerName,
-                    newFiles.map((f) => f.file)
+                    newFiles.map((f) => f.file),
+                    { shouldValidate: false, shouldDirty: true }
                 );
 
                 if (
