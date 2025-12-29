@@ -1589,18 +1589,20 @@ export const getOurServiceCategories = async () => {
 
 // ==================== Active Products Api ====================
 export const getActiveProducts = async (params = {}) => {
-    const queryParams = new URLSearchParams();
-
-    if (params.category) queryParams.append('category', params.category);
-    if (params.subcategory) queryParams.append('subcategory', params.subcategory);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice);
-    if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice);
-    if (params.inStock !== undefined) queryParams.append('inStock', params.inStock);
-    if (params.page !== undefined) queryParams.append('page', params.page);
-    if (params.limit !== undefined) queryParams.append('limit', params.limit);
-
-    const url = `${environment.baseUrl}product/public/active${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const queryParts = [];
+    
+    if (params.page !== undefined) queryParts.push(`page=${params.page}`);
+    if (params.limit !== undefined) queryParts.push(`limit=${params.limit}`);
+    if (params.category) queryParts.push(`category=${params.category}`);
+    if (params.subcategory) queryParts.push(`subcategory=${params.subcategory}`);
+    if (params.minPrice !== undefined) queryParts.push(`minPrice=${params.minPrice}`);
+    if (params.maxPrice !== undefined) queryParts.push(`maxPrice=${params.maxPrice}`);
+    if (params.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+    if (params.inStock !== undefined) queryParts.push(`inStock=${params.inStock}`);
+    
+    const queryString = queryParts.length > 0 ? '?' + queryParts.join('&') : '';
+    const url = `${environment.baseUrl}product/public/active${queryString}`;
+    
     try {
         const response = await axios.get(url);
         return response.data;
