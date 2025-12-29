@@ -103,14 +103,14 @@ const CallSetupPanel = ({
                                     <RotateCcw className="w-4 h-4" />
                                 </button>
                             </div>
-                            <div className="h-10 px-5 rounded-[5px] border border-black/15 bg-white flex items-center justify-between">
-                                <button
+                            <div className="h-10 px-5 rounded-[5px] border border-black/15 bg-white flex items-center justify-center">
+                                {/* <button
                                     onClick={decrementTime}
                                     className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none"
                                     aria-label="Decrease time"
                                 >
                                     <ChevronLeft className="w-6 h-6" strokeWidth={1.5} />
-                                </button>
+                                </button> */}
                                 <div className="flex items-center gap-1">
                                     <span className="text-[#1D293D] font-poppins text-sm font-medium">
                                         {callTime}
@@ -119,13 +119,13 @@ const CallSetupPanel = ({
                                         Min
                                     </span>
                                 </div>
-                                <button
+                                {/* <button
                                     onClick={() => incrementTime(1)}
                                     className="text-slate-500 hover:text-slate-700 transition-colors focus:outline-none"
                                     aria-label="Increase time"
                                 >
                                     <ChevronRight className="w-6 h-6" strokeWidth={1.5} />
-                                </button>
+                                </button> */}
                             </div>
                         </div>
 
@@ -158,15 +158,15 @@ const CallSetupPanel = ({
                                 <span className="text-xs font-semibold text-slate-900">₹{pricePerMin}/min</span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-600">Wallet</span>
+                                <span className="text-xs text-slate-600">Calling cost</span>
+                                <span className="text-xs font-semibold text-slate-900">₹{totalAmount}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs text-slate-600">Wallet amt</span>
                                 <span className={`text-xs font-semibold ${hasInsufficientBalance ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
                             </div>
-                            <div className="border-t border-black/10 pt-1 flex justify-between items-center">
-                                <span className="text-xs font-medium text-slate-700">Total</span>
-                                <span className={`text-sm font-bold ${hasInsufficientBalance ? 'text-red-600' : 'text-green-600'}`}>₹{totalAmount}</span>
-                            </div>
                             {hasInsufficientBalance && (
-                                <p className="text-red-500 text-[10px] font-medium text-center">
+                                <p className="text-red-500 text-[10px] font-medium text-center pt-1">
                                     Insufficient balance
                                 </p>
                             )}

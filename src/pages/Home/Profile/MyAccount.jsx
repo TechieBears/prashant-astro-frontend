@@ -74,7 +74,7 @@ const MyAccount = () => {
                 const updatedUserData = response.data.user;
 
                 dispatch(setLoggedUserDetails(updatedUserData));
-                dispatch(setUserDetails(updatedUserData));  // ✅ Store user directly, not nested
+                dispatch(setUserDetails(updatedUserData));
 
                 toast.success('Profile updated successfully!', { id: toastId });
             } else {
