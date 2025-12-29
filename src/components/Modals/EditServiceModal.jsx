@@ -394,21 +394,21 @@ const EditServiceModal = ({
                             </div>
                         </div>
 
-                        {/* Astrologer Selection */}
+                        {/* Pandit Selection */}
                         <Controller
                             name="astrologer"
                             control={control}
-                            rules={{ required: 'Astrologer selection is required' }}
+                            rules={{ required: 'Pandit selection is required' }}
                             render={({ field }) => (
                                 <Select
                                     key={`astrologer-${astrologers.length}-${serviceData?.id || 'new'}`}
                                     id="astrologer"
-                                    label="Select Astrologer"
+                                    label="Select Pandit"
                                     value={field.value}
                                     onChange={field.onChange}
                                     options={astrologerOptions}
                                     required
-                                    placeholder="Select an astrologer"
+                                    placeholder="Select an Pandit"
                                     disabled={isLoading}
                                     isLoading={isLoading}
                                 />
