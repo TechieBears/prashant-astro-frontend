@@ -277,7 +277,7 @@ const ProjectRoutes = () => {
                             <Route path="/contact" element={<ContactPage />} />
                             <Route path="/products" element={<ProductsPage />} />
                             <Route path="/call-astrologer" element={<CallAstrologer />} />
-                            <Route path="/astrologer/:id" element={<AstrologerDetail />} />
+                            <Route path="/astrologer/:id" element={<ProtectedRoute><AstrologerDetail /></ProtectedRoute>} />
                             <Route path="/wallet" element={<Wallet />} />
                             <Route path="/products/:id" element={<ProductDetail />} />
                             <Route
