@@ -12,6 +12,7 @@ import multipleLanguage from '../../assets/user/home/multipleLanguage.png';
 import Flowers from '../../assets/user/home/flowers.png';
 import Flower from '../../assets/elements/flower.svg';
 import GooglePlay from '../../assets/user/home/googleplay.png';
+import PlayStore from '../../assets/google-play-black.png';
 import Mobile from '../../assets/user/home/mobile.png';
 import Group from '../../assets/user/home/Group.png';
 import Preloaders from '../../components/Loader/Preloaders';
@@ -749,12 +750,17 @@ const HomePage = () => {
                                 prefixClass="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8"
                                 showImage={false}
                             />
-                            {/* <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
+                            <p className="mt-3 md:mt-4 w-full md:w-8/12 text-center text-xs sm:text-sm md:text-base text-slate-600">
                                 For seamless experience, download our apps on your phone
-                            </p> */}
-                            {/* <div className="mt-3 md:mt-4 lg:mt-6">
-                                <img src={GooglePlay} className="w-32 sm:w-36 md:w-40 lg:w-44" />
-                            </div> */}
+                            </p>
+                            <div className="flex gap-3 justify-center mt-3 md:mt-4 lg:mt-6">
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src={PlayStore} alt="Google Play" className="h-10 lg:h-14 object-contain" />
+                                </a>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="App Store" className="h-10 lg:h-14 object-contain" />
+                                </a>
+                            </div>
                         </div>
                         <div className="flex-1 flex justify-center lg:justify-end relative mt-4 sm:mt-6 md:mt-8 lg:mt-0 order-1 lg:order-2">
                             <div className="relative flex items-end">
