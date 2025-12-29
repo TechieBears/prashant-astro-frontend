@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BackgroundTitle from '../../components/Titles/BackgroundTitle';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
@@ -134,8 +134,6 @@ const ProductsPage = () => {
         )
     }
 
-
-
     const resetFilters = () => {
         setSearch('')
         setSelectedCategories([])
@@ -161,18 +159,6 @@ const ProductsPage = () => {
                 });
             }
         });
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 1) {
-            handlePageChange(currentPage - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (currentPage < pagination.pages) {
-            handlePageChange(currentPage + 1);
-        }
     };
 
     return (
@@ -257,8 +243,6 @@ const ProductsPage = () => {
                                             currentPage={currentPage}
                                             totalPages={pagination.pages}
                                             onPageChange={handlePageChange}
-                                            onPreviousPage={handlePreviousPage}
-                                            onNextPage={handleNextPage}
                                             maxVisiblePages={5}
                                         />
                                     </div>
@@ -269,21 +253,19 @@ const ProductsPage = () => {
 
                     {/* Filter Sidebar */}
                     <aside className="lg:col-span-3 order-1 lg:order-2">
-                        <div>
-                            <FilterSidebar
-                                search={search}
-                                setSearch={setSearch}
-                                categories={filterData.categories}
-                                selectedCategories={selectedCategories}
-                                toggleCategory={toggleCategory}
-                                price={price}
-                                setPrice={setPrice}
-                                minPrice={priceRange.minPrice}
-                                maxPrice={priceRange.maxPrice}
-                                resetFilters={resetFilters}
-                                isLoading={filtersLoading}
-                            />
-                        </div>
+                        <FilterSidebar
+                            search={search}
+                            setSearch={setSearch}
+                            categories={filterData.categories}
+                            selectedCategories={selectedCategories}
+                            toggleCategory={toggleCategory}
+                            price={price}
+                            setPrice={setPrice}
+                            minPrice={priceRange.minPrice}
+                            maxPrice={priceRange.maxPrice}
+                            resetFilters={resetFilters}
+                            isLoading={filtersLoading}
+                        />
                     </aside>
                 </div>
             </div>
