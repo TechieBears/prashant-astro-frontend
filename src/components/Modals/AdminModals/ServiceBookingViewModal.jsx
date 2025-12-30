@@ -286,8 +286,13 @@ function ServiceBookingViewModal({ bookingData }) {
                                                                         <span className="text-sm font-medium text-gray-600 font-tbLex">Zoom Link:</span>
                                                                         <button
                                                                             onClick={() => {
-                                                                                const zoomUrl = encodeURIComponent(service?.zoomLink);
-                                                                                window.open(`/meeting?zoomUrl=${zoomUrl}`, '_blank');
+                                                                                let cleanZoomUrl = service?.zoomLink;
+                                                                                if (cleanZoomUrl.includes('&uname=') || cleanZoomUrl.includes('?uname=')) {
+                                                                                    cleanZoomUrl = cleanZoomUrl.replace(/[?&]uname=[^&]*/, '');
+                                                                                }
+                                                                                const zoomUrl = encodeURIComponent(cleanZoomUrl);
+                                                                                const userName = encodeURIComponent(service?.astrologerName || 'Astrologer');
+                                                                                window.open(`/meeting?zoomUrl=${zoomUrl}&userName=${userName}`, '_blank');
                                                                             }}
                                                                             className="text-sm text-blue-600 hover:text-blue-800 underline font-tbPop bg-transparent border-none cursor-pointer"
                                                                         >

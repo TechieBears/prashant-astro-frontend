@@ -21,7 +21,7 @@ const ZoomMeeting = () => {
             // Parse Zoom URL for SDK
             const parsed = parseZoomUrl(zoomUrl);
             if (parsed.isValid) {
-                setMeetingData(parsed);
+                setMeetingData({ ...parsed, userName });
             } else {
                 setError('Invalid Zoom meeting URL');
             }

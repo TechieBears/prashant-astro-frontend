@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import ZoomMtgEmbedded from '@zoom/meetingsdk/embedded';
 import { getZoomSignature } from '../../api/index';
 import './ZoomSDKEmbed.css';
 
 const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
+    const { roleIs } = useSelector((state) => state.user);
     const [loading, setLoading] = useState(true);
     const [leaving, setLeaving] = useState(false);
     const [error, setError] = useState(null);
@@ -32,8 +34,11 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
             }
 
             try {
-                console.log('Getting signature for meeting:', meetingNumber);
-                const signatureResponse = await getZoomSignature(meetingNumber, 0);
+                const role = localStorage.getItem('role') || roleIs;
+                const zoomRole = (role === 'admin' || role === 'employee') ? 1 : 0;
+                
+                console.log('Getting signature for meeting:', meetingNumber, 'with role:', zoomRole);
+                const signatureResponse = await getZoomSignature(meetingNumber, zoomRole);
                 console.log('Signature response:', signatureResponse);
 
                 if (!mounted) return;

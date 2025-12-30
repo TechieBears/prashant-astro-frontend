@@ -262,7 +262,11 @@ const ProjectRoutes = () => {
                                 </ProtectedRoute>
                             }
                         />
-                        <Route path="/meeting" element={<ZoomMeeting />} />
+                        <Route path="/meeting" element={
+                            <ProtectedRoute>
+                                <ZoomMeeting />
+                            </ProtectedRoute>
+                        } />
                         <Route path="*" element={<ErrorPage />} />
                     </Routes>
                 </Sidebar>
@@ -340,7 +344,11 @@ const ProjectRoutes = () => {
                                     </ProtectedRoute>
                                 }
                             />
-                            <Route path="/meeting" element={<ZoomMeeting />} />
+                            <Route path="/meeting" element={
+                                <ProtectedRoute>
+                                    <ZoomMeeting />
+                                </ProtectedRoute>
+                            } />
 
                             <Route path='*' element={<ErrorPage />} />
                         </Routes>
