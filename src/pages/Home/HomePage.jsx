@@ -330,18 +330,18 @@ const HomePage = () => {
                     />
 
                     {/* Content */}
-                    <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8 lg:gap-12 z-10 relative">
+                    <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8 lg:gap-12 z-10 relative mt-6 sm:mt-8 lg:mt-10">
                         {/* Left: Image */}
-                        <div className="w-full lg:w-1/2 order-2 lg:order-1">
+                        <div className="w-full lg:w-2/5 order-2 lg:order-1 h-full">
                             <img
                                 src={aboutImg}
                                 alt="Home Banner"
-                                className="w-full h-auto object-cover rounded-lg"
+                                className="w-full h-full object-cover rounded-lg"
                             />
                         </div>
 
                         {/* Right: Text & Cards */}
-                        <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6 text-center lg:text-left order-1 lg:order-2">
+                        <div className="w-full lg:w-3/5 space-y-4 sm:space-y-6 text-center lg:text-left order-1 lg:order-2">
                             <h2 className="text-lg sm:text-lg md:text-xl font-semibold text-slate-800">
                                 16 Years of Spiritual Guidance
                             </h2>
