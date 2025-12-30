@@ -7,6 +7,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { CloseCircle, DocumentUpload } from 'iconsax-reactjs';
 import LoadBox from '../Loader/LoadBox';
 import TextInput from '../TextInput/TextInput';
+import ImageCropUploadWeb from '../TextInput/ImageCropUploadWeb';
 import { createTestimonial, getServiceDropdown, getProductCategoriesWithProductsPublic, uploadToCloudinary } from '../../api';
 import { formBtn1 } from '../../utils/CustomClass';
 
@@ -168,14 +169,24 @@ function TestimonialModal({ open, setOpen }) {
             formData.append('state', data.state);
             formData.append('country', data.country);
 
-            // Separate images and videos
-            mediaFiles.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    formData.append('images', file);
-                } else if (file.type.startsWith('video/')) {
-                    formData.append('videos', file);
+            // Get media files from form data
+            const mediaFiles = data.media;
+            if (mediaFiles && Array.isArray(mediaFiles)) {
+                mediaFiles.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        formData.append('images', file);
+                    } else if (file.type.startsWith('video/')) {
+                        formData.append('videos', file);
+                    }
+                });
+            } else if (mediaFiles && mediaFiles.type) {
+                // Single file
+                if (mediaFiles.type.startsWith('image/')) {
+                    formData.append('images', mediaFiles);
+                } else if (mediaFiles.type.startsWith('video/')) {
+                    formData.append('videos', mediaFiles);
                 }
-            });
+            }
 
             const res = await createTestimonial(formData);
 
@@ -336,54 +347,20 @@ function TestimonialModal({ open, setOpen }) {
                                             )}
                                         </div>
 
-                                        {/* Media Upload */}
+                                        {/* Media Upload with Crop */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Upload Photos/Videos (Optional)
+                                                Upload Photos (Optional - Landscape Format)
                                             </label>
-                                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-400 transition-colors">
-                                                <label className="flex flex-col items-center justify-center cursor-pointer">
-                                                    <DocumentUpload size={32} className="text-gray-400 mb-2" />
-                                                    <span className="text-sm text-gray-600">Click to upload images or videos</span>
-                                                    <span className="text-xs text-gray-400 mt-1">PNG, JPG, MP4, MOV up to 10MB</span>
-                                                    <input
-                                                        type="file"
-                                                        multiple
-                                                        accept="image/*,video/*"
-                                                        onChange={handleMediaChange}
-                                                        className="hidden"
-                                                    />
-                                                </label>
-                                            </div>
-
-                                            {/* Media Previews */}
-                                            {mediaPreviews.length > 0 && (
-                                                <div className="mt-4 grid grid-cols-3 gap-3">
-                                                    {mediaPreviews.map((preview, index) => (
-                                                        <div key={index} className="relative group">
-                                                            {preview.type === 'image' ? (
-                                                                <img
-                                                                    src={preview.url}
-                                                                    alt={`Preview ${index + 1}`}
-                                                                    className="w-full h-24 object-cover rounded-lg"
-                                                                />
-                                                            ) : (
-                                                                <video
-                                                                    src={preview.url}
-                                                                    className="w-full h-24 object-cover rounded-lg"
-                                                                />
-                                                            )}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => removeMedia(index)}
-                                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <CloseCircle size={20} variant="Bold" />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            <ImageCropUploadWeb
+                                                label="Upload Testimonial Images"
+                                                registerName="media"
+                                                register={register}
+                                                setValue={setValue}
+                                                errors={errors.media}
+                                                multiple={true}
+                                                style="border-2 border-gray-300"
+                                            />
                                         </div>
 
                                         {/* City, State and Country */}
