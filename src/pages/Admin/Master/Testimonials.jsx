@@ -99,7 +99,7 @@ export default function Testimonials() {
     )
 
     const actionBody = (row) => (
-        <button 
+        <button
             onClick={() => {
                 setSelectedTestimonial(row);
                 setIsViewModalOpen(true);
@@ -164,7 +164,7 @@ export default function Testimonials() {
             sortable: true
         },
         { field: 'message', header: 'Message', body: (row) => <div className='capitalize overflow-y-scroll w-[20rem] h-[5rem] text-wrap bg-slate-100 rounded-md px-2 py-1'>{row?.message || "---- -----"}</div>, style: true, sortable: true },
-        { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
+        { field: "isactive", header: "Visible On Website/App", body: activeBody, sortable: true, style: true },
         { field: "action", header: "Action", body: actionBody, sortable: true, style: true },
     ];
 
@@ -218,8 +218,8 @@ export default function Testimonials() {
                     </div>
                 </div>
             </div>
-            
-            <ViewTestimonialModal 
+
+            <ViewTestimonialModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
                 testimonial={selectedTestimonial}
