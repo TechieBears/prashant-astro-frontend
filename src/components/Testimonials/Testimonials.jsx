@@ -288,8 +288,8 @@ const Testimonials = () => {
     return (
         <div className="relative bg-[#F7E8D4] w-full mt-8 sm:mt-12 md:mt-16 lg:mt-20">
             {/* Flowers */}
-            <img src={Flowers} alt="Flowers left" className="absolute left-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80" />
-            <img src={Flowers} alt="Flowers right" className="absolute right-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]" />
+            <img src={Flowers} alt="Flowers left" className="absolute left-0 sm:left-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80" />
+            <img src={Flowers} alt="Flowers right" className="absolute right-0 sm:right-4 top-0 w-16 sm:w-32 md:w-[15%] opacity-80 scale-x-[-1]" />
 
             {/* Section Header */}
             <div className="px-4 sm:px-6 lg:px-16 pt-16 pb-6 max-w-[1280px] mx-auto space-y-4 relative z-10">
