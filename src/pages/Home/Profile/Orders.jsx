@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Tabs from '../../../components/Common/Tabs';
 import Pagination from '../../../components/Common/Pagination';
 import OrderIdCopy from '../../../components/Common/OrderIdCopy';
@@ -15,6 +16,8 @@ import ProductImage from '../../../components/Common/ProductImage';
 
 const Orders = () => {
   const location = useLocation();
+  const userDetails = useSelector((state) => state.user.userDetails);
+  const loggedUserDetails = useSelector((state) => state.user.loggedUserDetails);
   const [activeTab, setActiveTab] = useState('services');
   const [orders, setOrders] = useState([]);
   const [serviceOrders, setServiceOrders] = useState([]);
@@ -162,7 +165,8 @@ const Orders = () => {
           astrologerName: service.astrologerName,
           bookingStatus: service.bookingStatus,
           astrologerStatus: service.astrologerStatus,
-          serviceCount: order.services.length
+          serviceCount: order.services.length,
+          customerName: `${service.cust?.firstName || ''} ${service.cust?.lastName || ''}`.trim() || 'Customer'
         });
       }
     });
@@ -378,7 +382,13 @@ const Orders = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(`/meeting?zoomUrl=${encodeURIComponent(service.zoomLink)}`, '_blank');
+                let cleanZoomUrl = service.zoomLink;
+                if (cleanZoomUrl.includes('&uname=') || cleanZoomUrl.includes('?uname=')) {
+                  cleanZoomUrl = cleanZoomUrl.replace(/[?&]uname=[^&]*/, '');
+                }
+                const customerName = `${userDetails?.firstName || loggedUserDetails?.firstName || ''} ${userDetails?.lastName || loggedUserDetails?.lastName || ''}`.trim() || 'Customer';
+                const userName = encodeURIComponent(service.customerName || customerName);
+                window.open(`/meeting?zoomUrl=${encodeURIComponent(cleanZoomUrl)}&userName=${userName}`, '_blank');
               }}
               className="text-blue-600 hover:text-blue-800 underline font-medium text-xs sm:text-sm transition-colors bg-transparent border-none cursor-pointer"
             >
@@ -441,7 +451,13 @@ const Orders = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              window.open(`/meeting?zoomUrl=${encodeURIComponent(service.zoomLink)}`, '_blank');
+              let cleanZoomUrl = service.zoomLink;
+              if (cleanZoomUrl.includes('&uname=') || cleanZoomUrl.includes('?uname=')) {
+                cleanZoomUrl = cleanZoomUrl.replace(/[?&]uname=[^&]*/, '');
+              }
+              const customerName = `${userDetails?.firstName || loggedUserDetails?.firstName || ''} ${userDetails?.lastName || loggedUserDetails?.lastName || ''}`.trim() || 'Customer';
+              const userName = encodeURIComponent(service.customerName || customerName);
+              window.open(`/meeting?zoomUrl=${encodeURIComponent(cleanZoomUrl)}&userName=${userName}`, '_blank');
             }}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
           >
