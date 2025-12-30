@@ -174,14 +174,14 @@ const ServicesPage = () => {
                                                 <div
                                                     key={service._id}
                                                     onClick={() => handleServiceClick(service._id)}
-                                                    className="relative rounded-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300"
+                                                    className="relative rounded-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 h-84 md:h-72 lg:h-96"
                                                 >
                                                     {/* Service Image with Gradient Overlay */}
-                                                    <div className="relative">
+                                                    <div className="relative h-full">
                                                         <img
                                                             src={service.image}
                                                             alt={service.title || service.name}
-                                                            className="w-full h-64 md:h-72 lg:h-80 object-cover"
+                                                            className="w-full h-full object-cover"
                                                         />
 
                                                         {/* Gradient Overlay */}
