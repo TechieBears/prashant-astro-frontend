@@ -299,7 +299,7 @@ const Testimonials = () => {
                 <p className="w-11/12 md:w-6/12 mx-auto text-center text-sm sm:text-base text-slate-600 mb-6">
                     Read the Testimonials by our clients and find more about our services.
                 </p>
-                
+
                 {/* Share Experience Button */}
                 <div className="text-center relative z-20">
                     <button
@@ -316,7 +316,7 @@ const Testimonials = () => {
 
             {/* Cards */}
             <div className="mt-2 px-4 sm:px-6 lg:px-16 py-8 relative z-10 max-w-[1280px] mx-auto pt-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="flex flex-wrap justify-center">
                     {getCurrentSlides().map((item, index) => {
                         const globalIndex = currentGroup * slidesPerGroup + index;
                         const isExpanded = expandedIndexes.includes(globalIndex);
@@ -326,7 +326,7 @@ const Testimonials = () => {
                             : item.description.slice(0, DESCRIPTION_LIMIT) + (shouldTruncate ? '...' : '');
 
                         return (
-                            <div key={`${currentGroup}-${index}`} className="mx-2 sm:mx-6 relative transform transition-all duration-300 ease-in-out">
+                            <div key={`${currentGroup}-${index}`} className="mx-2 sm:mx-4 relative transform transition-all duration-300 ease-in-out">
                                 <img src={Comment} alt="Comment" className="absolute top-2 right-1 sm:top-3 sm:right-1 w-8 h-8 sm:w-10 sm:h-10 z-20" />
                                 <div className="relative bg-white rounded-lg p-3 sm:p-4 md:p-6 mt-4 sm:mt-6 shadow-md w-full hover:shadow-lg transition-shadow duration-200 min-h-[320px] sm:min-h-[340px] md:min-h-[360px] flex flex-col">
 

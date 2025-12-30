@@ -375,8 +375,15 @@ function BookingDetailsModal({ open, toggle, bookingDatas, refetch }) {
                                                             </div>
                                                             <button
                                                                 onClick={() => {
-                                                                    const zoomUrl = encodeURIComponent(bookingData?.item?.zoomLink);
-                                                                    window.open(`/meeting?zoomUrl=${zoomUrl}`, '_blank');
+                                                                    // Remove existing uname parameter from zoom link
+                                                                    let cleanZoomUrl = bookingData?.item?.zoomLink;
+                                                                    if (cleanZoomUrl.includes('&uname=') || cleanZoomUrl.includes('?uname=')) {
+                                                                        cleanZoomUrl = cleanZoomUrl.replace(/[?&]uname=[^&]*/, '');
+                                                                    }
+                                                                    const zoomUrl = encodeURIComponent(cleanZoomUrl);
+                                                                    const astrologerName = `${bookingData?.itemData?.[0]?.astrologer?.firstName || ''} ${bookingData?.itemData?.[0]?.astrologer?.lastName || ''}`.trim() || 'Astrologer';
+                                                                    const userName = encodeURIComponent(astrologerName);
+                                                                    window.open(`/meeting?zoomUrl=${zoomUrl}&userName=${userName}`, '_blank');
                                                                     toggle();
                                                                 }}
                                                                 className="text-sm text-emerald-600 hover:text-emerald-700 underline font-tbPop bg-transparent border-none cursor-pointer"

@@ -179,7 +179,7 @@ const CallSetupPanel = ({
                             allowClickWhenBusy={true}
                             className="py-[9px] font-poppins text-lg font-medium focus:outline-none focus:ring-2 focus:ring-orange-400"
                         >
-                            {hasInsufficientBalance ? 'Recharge' : 'Call Required'}
+                            {hasInsufficientBalance ? 'Recharge' : 'Request a Call'}
                         </CallButton>
                     </div>
                 </div>
