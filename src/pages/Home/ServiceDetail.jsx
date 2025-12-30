@@ -225,18 +225,18 @@ const ServiceDetail = () => {
                     {/* Right Column - Service Details */}
                     <div className="lg:col-span-2">
                         {/* Service Image and Book Your Session - Side by Side */}
-                        <div className="flex flex-col md:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+                        <div className="flex flex-col md:flex-row md:items-start gap-2 sm:gap-4 mb-4 sm:mb-6">
                             {/* Main Service Image */}
-                            <div className="w-full md:w-[230px] lg:w-[280px] xl:w-[320px] flex-shrink-0 h-fit">
+                            <div className="w-full md:w-[230px] lg:w-[280px] xl:w-[320px] flex-shrink-0">
                                 <img
                                     src={selectedService.image}
                                     alt={selectedService.name}
-                                    className="w-full h-auto max-h-[300px] object-cover rounded-lg shadow-lg"
+                                    className="w-full aspect-[3/4] object-cover rounded-lg shadow-lg"
                                 />
                             </div>
 
                             {/* Book Your Session Card */}
-                            <div ref={cardRef} className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6 flex-1 min-w-0">
+                            <div ref={cardRef} className="bg-[#F7E8D4] rounded-lg shadow-lg p-4 sm:p-6 flex-1 min-w-0 self-start">
                                 <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 bg-button-gradient-orange bg-clip-text text-transparent">
                                     Book Your Session
                                 </h2>
@@ -246,25 +246,23 @@ const ServiceDetail = () => {
                                 </p>
 
                                 {/* Session Details */}
-                                <div className="mb-2">
-                                    <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-3">
-                                        <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
-                                        <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
-                                    </div>
-
-                                    <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-4">
-                                        <ShareKnowledgeIcon size={18} color='#000' className="flex-shrink-0" />
-                                        <span className="font-medium text-sm sm:text-base">Mode: {selectedService.serviceType}</span>
-                                    </div>
-
-                                    {/* Check Availability Button */}
-                                    <button
-                                        onClick={handleCheckAvailability}
-                                        className="bg-button-diagonal-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-sm font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base w-full"
-                                    >
-                                        Check Availability
-                                    </button>
+                                <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-3">
+                                    <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
+                                    <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
                                 </div>
+
+                                <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-4">
+                                    <ShareKnowledgeIcon size={18} color='#000' className="flex-shrink-0" />
+                                    <span className="font-medium text-sm sm:text-base">Mode: {selectedService.serviceType}</span>
+                                </div>
+
+                                {/* Check Availability Button */}
+                                <button
+                                    onClick={handleCheckAvailability}
+                                    className="bg-button-diagonal-gradient-orange text-white px-4 sm:px-6 py-2 sm:py-3 rounded-sm font-medium hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base w-full"
+                                >
+                                    Check Availability
+                                </button>
                             </div>
                         </div>
                         <div className='mt-4 sm:mt-6 prose max-w-none prose-sm sm:prose-base' dangerouslySetInnerHTML={{ __html: selectedService.htmlContent }} />
