@@ -148,7 +148,7 @@ export default function Reviews() {
             , sortable: true
         },
         { field: 'message', header: 'Message', body: (row) => <textarea className='capitalize overflow-y-auto w-[20rem] h-[5rem] text-wrap rounded-md px-2 py-1 resize-none cursor-default' value={row?.message || "---- -----"} readOnly />, style: true, sortable: true },
-        { field: "isactive", header: "Visible On Website", body: activeBody, sortable: true, style: true },
+        { field: "isactive", header: "Visible On Website/App", body: activeBody, sortable: true, style: true },
     ];
 
     return (
