@@ -77,7 +77,7 @@ const CallAstrologer = () => {
         setSelectedLanguages([]);
         setSelectedCategories([]);
         setSelectedExperience([]);
-        setPrice([500, 3000]);
+        setPrice([minPrice, maxPrice]);
     };
 
     const handleAstrologerClick = (astrologerId) => {
@@ -101,7 +101,7 @@ const CallAstrologer = () => {
 
             const response = await getAllAstrologerCalls(params);
             if (response?.success && response?.data) {
-                const mappedData = response.data.map(astrologer => {
+                let mappedData = response.data.map(astrologer => {
                     // Parse skills - handle double stringified arrays
                     let parsedSkills = 'N/A';
                     if (astrologer.profile?.skills && Array.isArray(astrologer.profile.skills) && astrologer.profile.skills.length > 0) {
@@ -136,6 +136,12 @@ const CallAstrologer = () => {
                         rate: `₹${astrologer.profile?.priceCharge || 0}/Min`
                     };
                 });
+                
+                // Filter based on activeTab
+                if (activeTab === 'online') {
+                    mappedData = mappedData.filter(astrologer => !astrologer.isBusy);
+                }
+                
                 setAstrologers(mappedData);
             }
         } catch (error) {
@@ -234,12 +240,12 @@ const CallAstrologer = () => {
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center sm:justify-between">
                                 {/* Left side: Add Balance and Tabs */}
                                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 w-full sm:w-auto">
-                                    <button
+                                    {/* <button
                                         onClick={() => setShowWalletModal(true)}
                                         className="w-full sm:w-auto px-4 py-2 bg-button-vertical-gradient-orange text-white rounded-lg hover:opacity-90 transition-all whitespace-nowrap text-sm sm:text-base"
                                     >
                                         <span className="font-normal mr-2 sm:mr-4">Add Balance</span> <span className="font-bold">₹{userBalance}</span>
-                                    </button>
+                                    </button> */}
                                     <div className="w-full sm:w-auto">
                                         <Tabs
                                             tabs={[
