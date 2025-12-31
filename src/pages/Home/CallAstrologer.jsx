@@ -271,7 +271,7 @@ const CallAstrologer = () => {
                                     <select
                                         value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value)}
-                                        className="flex-1 sm:flex-none bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        className="flex-1 sm:w-64 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     >
                                         <option value="">Default</option>
                                         <option value="newest">Newest</option>
