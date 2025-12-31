@@ -73,11 +73,8 @@ const WalletCard = ({ currentBalance, requiredAmount = 0, onDeposit }) => {
                     <input
                         type="text"
                         value={`₹ ${depositAmount}`}
-                        onChange={(e) => {
-                            const value = e.target.value.replace('₹ ', '');
-                            setDepositAmount(parseInt(value) || 50);
-                        }}
-                        className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                        readOnly
+                        className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50 cursor-default"
                     />
                 </div>
 

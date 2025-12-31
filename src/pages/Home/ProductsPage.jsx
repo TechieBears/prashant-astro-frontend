@@ -5,6 +5,7 @@ import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import ProductCard from '../../components/Products/ProductCard';
 import FilterSidebar from '../../components/Products/FilterSidebar';
 import Pagination from '../../components/Common/Pagination';
+import useListingPagination from '../../utils/customHooks/useListingPagination';
 import { PulseLoader } from 'react-spinners';
 import { getActiveProducts, getProductFilters } from '../../api';
 
@@ -16,7 +17,7 @@ const ProductsPage = () => {
     const [error, setError] = useState(null)
     const [search, setSearch] = useState('')
     const [selectedCategories, setSelectedCategories] = useState([])
-    const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 0 })
+    const { page: currentPage, pagination, setPagination, contentRef, resetToFirstPage, handlePageChange } = useListingPagination(1, 10);
     const [filterCategories, setFilterCategories] = useState([])
     const [filtersLoading, setFiltersLoading] = useState(true)
     const [priceRange, setPriceRange] = useState({ minPrice: 0, maxPrice: 10000 })
@@ -24,7 +25,6 @@ const ProductsPage = () => {
     const [price, setPrice] = useState([0, 10000])
     const [debouncedPrice, setDebouncedPrice] = useState([0, 10000])
     const priceDebounceTimer = useRef(null)
-    const [currentPage, setCurrentPage] = useState(1)
 
     // Fetch filter categories
     useEffect(() => {
@@ -141,25 +141,9 @@ const ProductsPage = () => {
         setDebouncedPrice([priceRange.minPrice, priceRange.maxPrice])
     }
 
-    const contentRef = useRef(null);
-
     useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedCategories, search, debouncedPrice]);
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-        requestAnimationFrame(() => {
-            if (contentRef.current) {
-                const elementPosition = contentRef.current.getBoundingClientRect().top + window.pageYOffset;
-                const offsetPosition = elementPosition - 120;
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    };
+        resetToFirstPage();
+    }, [selectedCategories, search, debouncedPrice, resetToFirstPage]);
 
     return (
         <div className='bg-slate1'>
@@ -243,6 +227,8 @@ const ProductsPage = () => {
                                             currentPage={currentPage}
                                             totalPages={pagination.pages}
                                             onPageChange={handlePageChange}
+                                            onPreviousPage={() => handlePageChange(currentPage - 1)}
+                                            onNextPage={() => handlePageChange(currentPage + 1)}
                                             maxVisiblePages={5}
                                         />
                                     </div>
