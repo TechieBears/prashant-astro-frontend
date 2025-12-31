@@ -6,6 +6,8 @@ import AstrologerFilterSidebar from '../../components/Astrologer/AstrologerFilte
 import CallButton from '../../components/Common/CallButton';
 import Tabs from '../../components/Common/Tabs';
 import WalletModal from '../../components/Modals/WalletModal';
+import Pagination from '../../components/Common/Pagination';
+import useListingPagination from '../../utils/customHooks/useListingPagination';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getAllAstrologerCalls, getCallFilters } from '../../api';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
@@ -29,8 +31,8 @@ const CallAstrologer = () => {
     const [maxPrice, setMaxPrice] = useState(5000);
     const [loading, setLoading] = useState(false);
     const [sortBy, setSortBy] = useState('');
-    const [page, setPage] = useState(1);
     const [limit] = useState(10);
+    const { page, pagination, setPagination, contentRef, resetToFirstPage, handlePageChange } = useListingPagination(1, 10);
     const [showWalletModal, setShowWalletModal] = useState(false);
     const [requestedAstrologerId, setRequestedAstrologerId] = useState(null);
     const userBalance = loggedUserDetails?.walletBalance || 50;
@@ -77,7 +79,7 @@ const CallAstrologer = () => {
         setSelectedLanguages([]);
         setSelectedCategories([]);
         setSelectedExperience([]);
-        setPrice([500, 3000]);
+        setPrice([minPrice, maxPrice]);
     };
 
     const handleAstrologerClick = (astrologerId) => {
@@ -101,7 +103,7 @@ const CallAstrologer = () => {
 
             const response = await getAllAstrologerCalls(params);
             if (response?.success && response?.data) {
-                const mappedData = response.data.map(astrologer => {
+                let mappedData = response.data.map(astrologer => {
                     // Parse skills - handle double stringified arrays
                     let parsedSkills = 'N/A';
                     if (astrologer.profile?.skills && Array.isArray(astrologer.profile.skills) && astrologer.profile.skills.length > 0) {
@@ -136,7 +138,14 @@ const CallAstrologer = () => {
                         rate: `₹${astrologer.profile?.priceCharge || 0}/Min`
                     };
                 });
+                
+                // Filter based on activeTab
+                if (activeTab === 'online') {
+                    mappedData = mappedData.filter(astrologer => !astrologer.isBusy);
+                }
+                
                 setAstrologers(mappedData);
+                setPagination(response.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
             }
         } catch (error) {
             console.error("Error fetching astrologer calls", error);
@@ -164,6 +173,10 @@ const CallAstrologer = () => {
     useEffect(() => {
         fetchFilters();
     }, [])
+
+    useEffect(() => {
+        resetToFirstPage();
+    }, [selectedLanguages, selectedCategories, selectedExperience, price, search, sortBy, activeTab, resetToFirstPage]);
 
     useEffect(() => {
         fetchAstrologerCalls();
@@ -211,7 +224,7 @@ const CallAstrologer = () => {
                     </aside>
 
                     {/* Astrologers Grid */}
-                    <div className="lg:col-span-9 order-2 lg:order-2">
+                    <div className="lg:col-span-9 order-2 lg:order-2" ref={contentRef}>
                         {/* Top Filter Bar */}
                         <div className="flex flex-col gap-4 mb-6">
                             {/* Search Bar - Mobile only */}
@@ -234,12 +247,12 @@ const CallAstrologer = () => {
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center sm:justify-between">
                                 {/* Left side: Add Balance and Tabs */}
                                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 w-full sm:w-auto">
-                                    <button
+                                    {/* <button
                                         onClick={() => setShowWalletModal(true)}
                                         className="w-full sm:w-auto px-4 py-2 bg-button-vertical-gradient-orange text-white rounded-lg hover:opacity-90 transition-all whitespace-nowrap text-sm sm:text-base"
                                     >
                                         <span className="font-normal mr-2 sm:mr-4">Add Balance</span> <span className="font-bold">₹{userBalance}</span>
-                                    </button>
+                                    </button> */}
                                     <div className="w-full sm:w-auto">
                                         <Tabs
                                             tabs={[
@@ -258,7 +271,7 @@ const CallAstrologer = () => {
                                     <select
                                         value={sortBy}
                                         onChange={(e) => setSortBy(e.target.value)}
-                                        className="flex-1 sm:flex-none bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                        className="flex-1 sm:w-64 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     >
                                         <option value="">Default</option>
                                         <option value="newest">Newest</option>
@@ -279,6 +292,17 @@ const CallAstrologer = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Results Count */}
+                        {pagination.total > 0 && (
+                            <div className="mb-4">
+                                <p className="text-slate-600 text-sm sm:text-base">
+                                    Showing <span className="font-semibold">{((pagination.page - 1) * pagination.limit) + 1}</span> to{' '}
+                                    <span className="font-semibold">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{' '}
+                                    <span className="font-semibold">{pagination.total}</span> astrologers
+                                </p>
+                            </div>
+                        )}
 
                         {/* Astrologers Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
@@ -350,6 +374,20 @@ const CallAstrologer = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        {pagination.totalPages > 1 && (
+                            <div className="mt-8">
+                                <Pagination
+                                    currentPage={page}
+                                    totalPages={pagination.totalPages}
+                                    onPageChange={handlePageChange}
+                                    onPreviousPage={() => handlePageChange(page - 1)}
+                                    onNextPage={() => handlePageChange(page + 1)}
+                                    maxVisiblePages={5}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

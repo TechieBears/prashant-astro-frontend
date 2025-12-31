@@ -18,6 +18,27 @@ import SelectTextInput from '../../../TextInput/SelectTextInput';
 import MultiSelectTextInput from '../../../TextInput/MultiSelectTextInput';
 import { TableTitle } from '../../../../helper/Helper';
 
+const APPLICABLE_TO = {
+    ALL_PRODUCTS: 'all_products',
+    SINGLE_PRODUCT: 'single_product',
+    PRODUCT_CATEGORY: 'product_category',
+    ALL_SERVICES: 'all_services',
+    SINGLE_SERVICE: 'single_service',
+    SERVICE_CATEGORY: 'service_category'
+};
+
+const getApplicableOptions = (type) => {
+    return type === 'products' ? [
+        { value: APPLICABLE_TO.ALL_PRODUCTS, label: 'All Products' },
+        { value: APPLICABLE_TO.SINGLE_PRODUCT, label: 'Select Product' },
+        { value: APPLICABLE_TO.PRODUCT_CATEGORY, label: 'Select Category' }
+    ] : [
+        { value: APPLICABLE_TO.ALL_SERVICES, label: 'All Services' },
+        { value: APPLICABLE_TO.SINGLE_SERVICE, label: 'Service' },
+        { value: APPLICABLE_TO.SERVICE_CATEGORY, label: 'Service Category' }
+    ];
+};
+
 function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
     const [open, setOpen] = useState(false);
     const toggle = () => {
@@ -62,18 +83,19 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 couponName: data.couponName,
                 couponCode: data.couponCode,
                 couponType: data.couponType,
+                applicableTo: data.applicableType,
                 discountIn: data.discountIn,
                 discount: Number(data.discount),
                 activationDate: data.activationDate,
                 expiryDate: data.expiryDate,
                 redemptionPerUser: Number(data.redemptionPerUser),
                 totalRedemptions: Number(data.totalRedemptions),
-                applyAllServices: data.applicableType === 'allServices',
-                applicableServices: data.applicableType === 'service' ? (data.services || []) : [],
-                applicableServiceCategories: data.applicableType === 'serviceCategory' ? (data.serviceCategories || []) : [],
-                applyAllProducts: data.applicableType === 'allProducts',
-                applicableProducts: data.applicableType === 'product' ? (data.products || []) : [],
-                applicableProductCategories: data.applicableType === 'category' ? (data.productCategories || []) : []
+                applyAllServices: data.applicableType === APPLICABLE_TO.ALL_SERVICES,
+                applicableServices: data.applicableType === APPLICABLE_TO.SINGLE_SERVICE ? (data.services || []) : [],
+                applicableServiceCategories: data.applicableType === APPLICABLE_TO.SERVICE_CATEGORY ? (data.serviceCategories || []) : [],
+                applyAllProducts: data.applicableType === APPLICABLE_TO.ALL_PRODUCTS,
+                applicableProducts: data.applicableType === APPLICABLE_TO.SINGLE_PRODUCT ? (data.products || []) : [],
+                applicableProductCategories: data.applicableType === APPLICABLE_TO.PRODUCT_CATEGORY ? (data.productCategories || []) : []
             };
 
             const apiCall = edit
@@ -143,20 +165,41 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                 couponName: userData?.couponName || '',
                 couponCode: userData?.couponCode || '',
                 couponType: userData?.couponType || '',
-                applicableType: userData?.applicableType || '',
+                applicableType: userData?.applicableTo || '',
                 discountIn: userData?.discountIn || '',
                 discount: userData?.discount || '',
                 activationDate: userData?.activationDate?.split('T')[0] || '',
                 expiryDate: userData?.expiryDate?.split('T')[0] || '',
                 redemptionPerUser: userData?.redemptionPerUser || '',
                 totalRedemptions: userData?.totalRedemptions || '',
-                services: userData?.applicableServices || [],
-                serviceCategories: userData?.applicableServiceCategories || [],
-                products: userData?.applicableProducts || [],
-                productCategories: userData?.applicableProductCategories || []
+                services: userData?.applicableServices?.map(s => s._id || s) || [],
+                serviceCategories: userData?.applicableServiceCategories?.map(sc => sc._id || sc) || [],
+                products: userData?.applicableProducts?.map(p => p._id || p) || [],
+                productCategories: userData?.applicableProductCategories?.map(pc => pc._id || pc) || []
             });
         }
     }, [edit, userData, open, reset]);
+
+    // Reset applicable fields when couponType changes
+    useEffect(() => {
+        if (couponType) {
+            setValue('applicableType', '');
+            setValue('services', []);
+            setValue('serviceCategories', []);
+            setValue('products', []);
+            setValue('productCategories', []);
+        }
+    }, [couponType, setValue]);
+
+    // Reset selection fields when applicableType changes
+    useEffect(() => {
+        if (applicableType) {
+            setValue('services', []);
+            setValue('serviceCategories', []);
+            setValue('products', []);
+            setValue('productCategories', []);
+        }
+    }, [applicableType, setValue]);
 
     return (
         <>
@@ -255,19 +298,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                             <SelectTextInput
                                                                 label="Select Applicable Type"
                                                                 registerName="applicableType"
-                                                                options={
-                                                                    couponType === 'products'
-                                                                        ? [
-                                                                            { value: 'allProducts', label: 'All Products' },
-                                                                            { value: 'product', label: 'Select Product' },
-                                                                            { value: 'category', label: 'Select Category' },
-                                                                        ]
-                                                                        : [
-                                                                            { value: 'allServices', label: 'All Services' },
-                                                                            { value: 'service', label: 'Service' },
-                                                                            { value: 'serviceCategory', label: 'Service Category' },
-                                                                        ]
-                                                                }
+                                                                options={getApplicableOptions(couponType)}
                                                                 placeholder="Select Applicable Type"
                                                                 props={{ ...register('applicableType', { required: true }) }}
                                                                 errors={errors.applicableType}
@@ -275,7 +306,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                             />
                                                         </div>
                                                     )}
-                                                    {couponType === 'services' && applicableType === 'service' && (
+                                                    {couponType === 'services' && applicableType === APPLICABLE_TO.SINGLE_SERVICE && (
                                                         <div>
                                                             <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Services</h4>
                                                             <Controller
@@ -295,7 +326,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                         </div>
                                                     )}
 
-                                                    {couponType === 'services' && applicableType === 'serviceCategory' && (
+                                                    {couponType === 'services' && applicableType === APPLICABLE_TO.SERVICE_CATEGORY && (
                                                         <div>
                                                             <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Service Categories</h4>
                                                             <Controller
@@ -315,7 +346,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                         </div>
                                                     )}
 
-                                                    {couponType === 'products' && applicableType === 'category' && (
+                                                    {couponType === 'products' && applicableType === APPLICABLE_TO.PRODUCT_CATEGORY && (
                                                         <div>
                                                             <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Product Categories</h4>
                                                             <Controller
@@ -335,7 +366,7 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
                                                         </div>
                                                     )}
 
-                                                    {couponType === 'products' && applicableType === 'product' && (
+                                                    {couponType === 'products' && applicableType === APPLICABLE_TO.SINGLE_PRODUCT && (
                                                         <div>
                                                             <h4 className="text-sm font-tbLex font-normal text-slate-400 pb-2.5">Applicable Products</h4>
                                                             <Controller

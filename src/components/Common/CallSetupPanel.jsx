@@ -163,7 +163,7 @@ const CallSetupPanel = ({
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-slate-600">Wallet amt</span>
-                                <span className={`text-xs font-semibold ${hasInsufficientBalance ? 'text-red-500' : 'text-green-600'}`}>₹{userBalance}</span>
+                                <span className={`text-xs font-semibold ${hasInsufficientBalance ? 'text-red-500' : 'text-green-600'}`}>₹{Number(userBalance).toFixed(2)}</span>
                             </div>
                             {hasInsufficientBalance && (
                                 <p className="text-red-500 text-[10px] font-medium text-center pt-1">
