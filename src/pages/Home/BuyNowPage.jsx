@@ -24,6 +24,7 @@ const BuyNowPage = () => {
     // Local state (UI only - no API calls for quantity changes)
     const [quantity, setQuantity] = useState(initialQuantity);
     const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [useCredits, setUseCredits] = useState(false);
     const [availableCredits, setAvailableCredits] = useState(0);
 
@@ -62,6 +63,7 @@ const BuyNowPage = () => {
                 productId: product._id,
                 quantity,
                 addressId: defaultAddress._id,
+                couponId: appliedCoupon ? (appliedCoupon._id || appliedCoupon.id) : null,
                 useCredits
             });
 
@@ -71,6 +73,7 @@ const BuyNowPage = () => {
                 openRazorpay(
                     response.data,
                     async (paymentResponse) => {
+                        setAppliedCoupon(null);
                         // Clear cart on payment success
                         try {
                             await clearProductCart();
@@ -145,6 +148,8 @@ const BuyNowPage = () => {
                     onQuantityChange={handleQuantityChange}
                     onCheckout={handleCheckout}
                     isCreatingOrder={isCreatingOrder}
+                    appliedCoupon={appliedCoupon}
+                    onApplyCoupon={setAppliedCoupon}
                     useCredits={useCredits}
                     onToggleCredits={() => setUseCredits(!useCredits)}
                     availableCredits={availableCredits}
