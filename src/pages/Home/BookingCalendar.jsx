@@ -59,7 +59,7 @@ const BookingCalendar = () => {
     const watchedServiceType = watch('serviceType');
     const watchedBookingType = watch('bookingType');
 
-    // Get address context for default address
+    // Get address context - must be called before any returns
     const { defaultAddress } = useAddress();
 
     // User details population
