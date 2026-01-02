@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AddressSelector from '../Address/AddressSelector';
 import { useAddress } from '../../context/AddressContext';
 import UserCouponModal from '../Modals/CouponModal/UserCouponModal';
@@ -29,23 +29,27 @@ const PaymentSummary = ({
     const [coupons, setCoupons] = useState([]);
 
     // Extract product IDs for coupon API
-    const productIdsForCoupon = cartItems.map(item => item.productId || item._id || item.id);
-
+    const productIdsForCoupon = useMemo(
+        () => cartItems.map(item => item.productId || item._id || item.id),
+        [cartItems]
+    );
 
     useEffect(() => {
         const fetchCoupons = async () => {
-            const data = await getUserCoupons(activeTab);
+            const data = await getUserCoupons({
+                couponType: activeTab,
+                productIds: activeTab === 'products' ? productIdsForCoupon.join(',') : ''
+            });
             if (data?.success) {
                 setCoupons(data?.data);
-                console.log('Fetched Coupons:', data);
             } else {
                 console.log('Fetched Coupons false:', data);
             }
         };
-        fetchCoupons();
-    }, [activeTab]);
-
-    console.log('subtotal:', subtotal);
+        if (showCouponModal) {
+            fetchCoupons();
+        }
+    }, [activeTab, showCouponModal, productIdsForCoupon]);
 
     // Calculate discount
     let discountAmount = 0;
