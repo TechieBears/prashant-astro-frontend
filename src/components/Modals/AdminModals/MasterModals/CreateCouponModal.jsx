@@ -180,26 +180,26 @@ function CreateCouponModal({ edit, userData, setRefreshTrigger }) {
         }
     }, [edit, userData, open, reset]);
 
-    // Reset applicable fields when couponType changes
+    // Reset applicable fields when couponType changes (only in create mode)
     useEffect(() => {
-        if (couponType) {
+        if (couponType && !edit) {
             setValue('applicableType', '');
             setValue('services', []);
             setValue('serviceCategories', []);
             setValue('products', []);
             setValue('productCategories', []);
         }
-    }, [couponType, setValue]);
+    }, [couponType, setValue, edit]);
 
-    // Reset selection fields when applicableType changes
+    // Reset selection fields when applicableType changes (only in create mode)
     useEffect(() => {
-        if (applicableType) {
+        if (applicableType && !edit) {
             setValue('services', []);
             setValue('serviceCategories', []);
             setValue('products', []);
             setValue('productCategories', []);
         }
-    }, [applicableType, setValue]);
+    }, [applicableType, setValue, edit]);
 
     return (
         <>

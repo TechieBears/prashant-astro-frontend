@@ -990,7 +990,7 @@ export const getProductSubCategoriesDropdown = async () => {
 
 export const getProductsDropdown = async () => {
     try {
-        const url = `${environment.baseUrl}product/get-dropdown`;
+        const url = `${environment.baseUrl}product/public/get-all-dropdown`;
         const response = await axios.get(url)
         return response.data
     }
@@ -1590,7 +1590,7 @@ export const getOurServiceCategories = async () => {
 // ==================== Active Products Api ====================
 export const getActiveProducts = async (params = {}) => {
     const queryParts = [];
-    
+
     if (params.page !== undefined) queryParts.push(`page=${params.page}`);
     if (params.limit !== undefined) queryParts.push(`limit=${params.limit}`);
     if (params.category) queryParts.push(`category=${params.category}`);
@@ -1599,10 +1599,10 @@ export const getActiveProducts = async (params = {}) => {
     if (params.maxPrice !== undefined) queryParts.push(`maxPrice=${params.maxPrice}`);
     if (params.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
     if (params.inStock !== undefined) queryParts.push(`inStock=${params.inStock}`);
-    
+
     const queryString = queryParts.length > 0 ? '?' + queryParts.join('&') : '';
     const url = `${environment.baseUrl}product/public/active${queryString}`;
-    
+
     try {
         const response = await axios.get(url);
         return response.data;
@@ -2266,9 +2266,12 @@ export const clearServiceCart = async () => {
 }
 
 // get all coupons list for user
-export const getUserCoupons = async (type) => {
-    const url = `${environment.baseUrl}coupon/public/get-all?couponType=${type}`;
+export const getUserCoupons = async (params = {}) => {
     try {
+        const queryParams = new URLSearchParams({ couponType: params.couponType || '' });
+        if (params.productIds) queryParams.append('productIds', params.productIds);
+        if (params.serviceIds) queryParams.append('serviceIds', params.serviceIds);
+        const url = `${environment.baseUrl}coupon/public/get-all?${queryParams.toString()}`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
