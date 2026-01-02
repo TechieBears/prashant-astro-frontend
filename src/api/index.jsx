@@ -39,10 +39,14 @@ axios.interceptors.request.use(
     }
 );
 
+// Endpoints that should not trigger auto-logout on 401
+const AUTH_ENDPOINTS = ['/auth/login', '/customer-users/register', '/customer-users/forgot-password', '/reviews/filter', '/service/public/get-single'];
+
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401 && error.message !== 'Token expired') {
+        const isAuthEndpoint = AUTH_ENDPOINTS.some(endpoint => error.config?.url?.includes(endpoint));
+        if (error.response?.status === 401 && !isAuthEndpoint) {
             handleLogout();
         }
         return Promise.reject(error);

@@ -18,6 +18,11 @@ const ServiceDetail = () => {
     }));
     const userId = loggedUserDetails?._id;
 
+    const formatServiceType = (type) => {
+        const typeMap = { online: 'Online', pandit_center: 'Pandit Center' };
+        return typeMap[type] || type;
+    };
+
     const [selectedService, setSelectedService] = useState({});
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
@@ -121,6 +126,8 @@ const ServiceDetail = () => {
             }
         } catch (err) {
             console.error('Error fetching service reviews:', err);
+            setReviews([]);
+            setTotalReviews(0);
         } finally {
             setLoadingReviews(false);
         }
@@ -245,15 +252,29 @@ const ServiceDetail = () => {
                                     {selectedService.subTitle}
                                 </p>
 
+                                {/* Price */}
+                                {selectedService.price && (
+                                    <div className="mb-4 sm:mb-6">
+                                        <span className="text-2xl sm:text-3xl font-bold text-orange-600">₹{selectedService.price}</span>
+                                    </div>
+                                )}
+
                                 {/* Session Details */}
                                 <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-3">
                                     <Clock05Icon size={18} color='#000' className="flex-shrink-0" />
                                     <span className="font-medium text-sm sm:text-base">Session Duration: {selectedService.durationInMinutes}</span>
                                 </div>
 
-                                <div className="flex items-center text-gray-700 gap-3 sm:gap-4 mb-4">
+                                <div className="flex items-center gap-2 mb-4">
                                     <ShareKnowledgeIcon size={18} color='#000' className="flex-shrink-0" />
-                                    <span className="font-medium text-sm sm:text-base">Mode: {selectedService.serviceType}</span>
+                                    <span className="font-medium text-sm sm:text-base text-gray-700">Mode:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedService.serviceType?.map((type, i) => (
+                                            <span key={i} className="px-3 py-1 bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 rounded-full text-xs sm:text-sm font-medium border border-orange-200">
+                                                {formatServiceType(type)}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 {/* Check Availability Button */}
@@ -340,7 +361,6 @@ const ServiceDetail = () => {
                                 productId={null}
                                 serviceId={currentServiceId}
                                 isLogged={isLogged}
-                                onLoginClick={() => navigate('/login')}
                             />
                         </div>
                     </div>
