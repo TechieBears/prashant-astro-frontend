@@ -35,21 +35,20 @@ const PaymentSummary = ({
     );
 
     useEffect(() => {
+        if (!showCouponModal) return;
+        
         const fetchCoupons = async () => {
             const data = await getUserCoupons({
                 couponType: activeTab,
-                productIds: activeTab === 'products' ? productIdsForCoupon.join(',') : ''
+                productIds: activeTab === 'products' ? productIdsForCoupon.join(',') : '',
+                serviceIds: activeTab === 'services' ? serviceIds.join(',') : ''
             });
             if (data?.success) {
                 setCoupons(data?.data);
-            } else {
-                console.log('Fetched Coupons false:', data);
             }
         };
-        if (showCouponModal) {
-            fetchCoupons();
-        }
-    }, [activeTab, showCouponModal, productIdsForCoupon]);
+        fetchCoupons();
+    }, [showCouponModal, activeTab]);
 
     // Calculate discount
     let discountAmount = 0;

@@ -2268,7 +2268,10 @@ export const clearServiceCart = async () => {
 // get all coupons list for user
 export const getUserCoupons = async (params = {}) => {
     try {
-        const url = `${environment.baseUrl}coupon/public/get-all?couponType=${params.couponType || ''}&productIds=${params.productIds || ''}`;
+        const queryParams = new URLSearchParams({ couponType: params.couponType || '' });
+        if (params.productIds) queryParams.append('productIds', params.productIds);
+        if (params.serviceIds) queryParams.append('serviceIds', params.serviceIds);
+        const url = `${environment.baseUrl}coupon/public/get-all?${queryParams.toString()}`;
         const response = await axios.get(url);
         return response.data;
     } catch (err) {
