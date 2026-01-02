@@ -1,27 +1,28 @@
 [
-    {
-        "relation": [
-            "delegate_permission/common.handle_all_urls"
-        ],
-        "target": {
-            "namespace": "android_app",
-            "package_name": "com.astroguid",
-            "sha256_cert_fingerprints": [
-                "FAC61745DC0903786FB9EDE62A962B399F7348F0BB6F899B8332667591033B9C"
-            ]
-        }
-    },
-    {
-        "relation": [
-            "delegate_permission/common.handle_all_urls",
-            "delegate_permission/common.get_login_creds"
-        ],
-        "target": {
-            "namespace": "android_app",
-            "package_name": "com.astroguid",
-            "sha256_cert_fingerprints": [
-                "FAC61745DC0903786FB9EDE62A962B399F7348F0BB6F899B8332667591033B9C"
-            ]
-        }
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.astroguid",
+      "sha256_cert_fingerprints": [
+        "FAC61745DC0903786FB9EDE62A962B399F7348F0BB6F899B8332667591033B9C",
+        "3B:F6:45:22:F6:22:66:41:3F:2D:52:F3:B3:D7:03:F5:1E:30:5E:7F:B3:58:1D:6C:A9:65:75:0F:90:04:73:25"
+      ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.astroguid",
+      "sha256_cert_fingerprints": [
+        "FAC61745DC0903786FB9EDE62A962B399F7348F0BB6F899B8332667591033B9C"
+      ]
+    }
+  }
 ]
