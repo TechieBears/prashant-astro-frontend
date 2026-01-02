@@ -40,7 +40,7 @@ axios.interceptors.request.use(
 );
 
 // Endpoints that should not trigger auto-logout on 401
-const AUTH_ENDPOINTS = ['/auth/login', '/customer-users/register', '/customer-users/forgot-password'];
+const AUTH_ENDPOINTS = ['/auth/login', '/customer-users/register', '/customer-users/forgot-password', '/reviews/filter', '/service/public/get-single'];
 
 axios.interceptors.response.use(
     (response) => response,
