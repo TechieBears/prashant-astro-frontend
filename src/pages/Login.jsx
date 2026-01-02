@@ -79,15 +79,12 @@ const Login = () => {
                 toast.success("Login Successfully 🥳");
                 navigate('/', { replace: true });
             } else {
-                toast.error(response?.message || response?.error || 'Login failed');
+                toast.error(response?.message || response?.error || 'Invalid credentials. Please try again.');
             }
         } catch (error) {
             console.error('Login error:', error);
-            if (error.code === 'ERR_NETWORK') {
-                toast.error('Network error. Please check your connection or try again later.');
-            } else {
-                toast.error(error || 'Something went wrong. Please try again.');
-            }
+            const errorMessage = error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
