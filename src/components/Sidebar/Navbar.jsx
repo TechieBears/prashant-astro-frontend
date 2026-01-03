@@ -286,13 +286,13 @@ const NotificationSection = () => {
                                     </span>
                                 </div>
 
-                                <div data-simplebar="init" className="max-h-80 mt-3 overflow-y-scroll">
+                                <div data-simplebar="init" className="max-h-80 mt-3 overflow-y-scroll" style={{ scrollbarWidth: 'none' }}>
                                     <div
                                         className="simplebar-content-wrapper"
                                         tabIndex="0"
                                         role="region"
                                         aria-label="scrollable content"
-                                        style={{ height: 'auto', overflow: ' scroll' }}
+                                        style={{ height: 'auto', overflow: 'scroll', scrollbarWidth: 'none' }}
                                     >
                                         <div className="simplebar-content" style={{ padding: '0px' }}>
                                             {notificationsDropdown?.map((item, i) => (

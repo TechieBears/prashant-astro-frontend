@@ -443,7 +443,10 @@ const ImageCropUpload = ({
                                             step="0.010"
                                             value={zoom}
                                             onChange={(e) => setZoom(parseFloat(e.target.value))}
-                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                                            style={{
+                                                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((zoom - 0.1) / (5 - 0.1)) * 100}%, #e5e7eb ${((zoom - 0.1) / (5 - 0.1)) * 100}%, #e5e7eb 100%)`
+                                            }}
                                         />
                                     </div>
                                     <div className="bg-gray-50 px-6 py-4 flex justify-center items-center">
