@@ -115,6 +115,7 @@ const ServiceDetail = () => {
     // Fetch reviews for the service
     const fetchServiceReviews = useCallback(async () => {
         if (!currentServiceId) return;
+        const scrollPosition = window.scrollY;
         try {
             setLoadingReviews(true);
             const response = await getFilteredReviews({
@@ -130,6 +131,9 @@ const ServiceDetail = () => {
             setTotalReviews(0);
         } finally {
             setLoadingReviews(false);
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPosition);
+            });
         }
     }, [currentServiceId]);
 
@@ -292,13 +296,18 @@ const ServiceDetail = () => {
                             <div className="mt-8 sm:mt-10">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                     {selectedService.videoUrl.map((video, index) => {
-                                        const getYouTubeThumbnail = (url) => {
+                                        const getYouTubeVideoId = (url) => {
                                             if (!url || typeof url !== 'string') return null;
-                                            const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
-                                            return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
+                                            const cleanUrl = url.trim();
+                                            if (cleanUrl.includes('youtu.be/')) return cleanUrl.split('youtu.be/')[1]?.split(/[?&]/)[0];
+                                            if (cleanUrl.includes('/shorts/')) return cleanUrl.split('/shorts/')[1]?.split(/[?&]/)[0];
+                                            if (cleanUrl.includes('/embed/')) return cleanUrl.split('/embed/')[1]?.split(/[?&]/)[0];
+                                            if (cleanUrl.includes('watch?v=')) return cleanUrl.split('watch?v=')[1]?.split('&')[0];
+                                            return null;
                                         };
 
-                                        const thumbnailUrl = getYouTubeThumbnail(video?.videoUrl);
+                                        const videoId = getYouTubeVideoId(video?.videoUrl);
+                                        const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null;
 
                                         return (
                                             <div key={video._id || index} className="relative group">
