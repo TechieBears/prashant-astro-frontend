@@ -3,8 +3,31 @@ import PaymentSummary from './PaymentSummary';
 import ProductImage from '../Common/ProductImage';
 import QuantityCounter from '../Common/QuantityCounter';
 
-const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCreatingOrder = false, useCredits = false, onToggleCredits = () => {}, availableCredits = 0 }) => {
+const BuyNowSection = ({ 
+    product, 
+    quantity, 
+    onQuantityChange, 
+    onCheckout, 
+    isCreatingOrder = false, 
+    appliedCoupon, 
+    onApplyCoupon, 
+    useCredits = false, 
+    onToggleCredits = () => {}, 
+    availableCredits = 0 
+}) => {
     if (!product) return null;
+
+    // Create cartItems array with single product for coupon API
+    const cartItems = React.useMemo(() => [
+        {
+            _id: product._id,
+            productId: product._id,
+            id: product._id,
+            name: product.name,
+            price: product.sellingPrice,
+            quantity: quantity
+        }
+    ], [product, quantity]);
 
     // Calculate totals
     const subtotal = (product.sellingPrice || 0) * quantity;
@@ -79,7 +102,6 @@ const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCrea
                     </div>
                 </div>
 
-                {/* Payment Summary */}
                 <div className="lg:col-span-5">
                     <PaymentSummary
                         itemCount={quantity}
@@ -90,6 +112,9 @@ const BuyNowSection = ({ product, quantity, onQuantityChange, onCheckout, isCrea
                         onCheckout={onCheckout}
                         isCreatingOrder={isCreatingOrder}
                         activeTab="products"
+                        cartItems={cartItems}
+                        appliedCoupon={appliedCoupon}
+                        onApplyCoupon={onApplyCoupon}
                         useCredits={useCredits}
                         onToggleCredits={onToggleCredits}
                         availableCredits={availableCredits}
