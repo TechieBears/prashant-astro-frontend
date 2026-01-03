@@ -115,6 +115,7 @@ const ServiceDetail = () => {
     // Fetch reviews for the service
     const fetchServiceReviews = useCallback(async () => {
         if (!currentServiceId) return;
+        const scrollPosition = window.scrollY;
         try {
             setLoadingReviews(true);
             const response = await getFilteredReviews({
@@ -130,6 +131,9 @@ const ServiceDetail = () => {
             setTotalReviews(0);
         } finally {
             setLoadingReviews(false);
+            requestAnimationFrame(() => {
+                window.scrollTo(0, scrollPosition);
+            });
         }
     }, [currentServiceId]);
 
