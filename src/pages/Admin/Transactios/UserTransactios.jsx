@@ -3,7 +3,7 @@ import moment from 'moment';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { adminTransactionPagination } from '../../../api';
+import { getAllTransactions } from '../../../api';
 import Table from '../../../components/Table/Table';
 import SelectTextInput from '../../../components/TextInput/SelectTextInput';
 import TextInput from '../../../components/TextInput/TextInput';
@@ -37,7 +37,7 @@ const UserTransactios = () => {
         recordChangeHandler,
         records,
         error
-    } = usePagination(1, 10, adminTransactionPagination, combinedFilters);
+    } = usePagination(1, 10, getAllTransactions, combinedFilters);
     console.log('filteredData=================', filterData)
     // Handle API errors
     useEffect(() => {
@@ -60,44 +60,47 @@ const UserTransactios = () => {
 
     const columns = [
         {
-            field: 'orderId',
+            field: 'paymentId',
             header: 'Transaction ID',
-            body: (row) => <>{row?.paymentDetails?.order?.order_id}</>,
+            body: (row) => <>{row?.paymentId}</>,
             style: true
         },
         {
             field: 'fullName',
             header: 'Name',
+            body: (row) => <>{row?.customer?.fullName}</>,
             style: true
         },
         {
             field: 'email',
             header: 'Email',
+            body: (row) => <>{row?.customer?.email}</>,
             style: true
         },
         {
             field: 'phoneNumber',
             header: 'Phone No',
+            body: (row) => <>{row?.customer?.mobileNo}</>,
             style: true
         },
         {
             field: 'amount',
             header: 'Amount (₹)',
-            body: (row) => <>{row?.paymentDetails?.order?.order_amount}</>,
+            body: (row) => <>{row?.amount}</>,
             style: true
         },
         {
             field: 'status',
             header: 'Status',
             body: (row) => <>
-                <h4 className={`${row?.paymentStatus === 'success' ? 'text-green-500 bg-green-100' : row?.paymentStatus === 'failed' ? 'text-red-500 bg-red-100' : 'text-yellow-500 bg-yellow-100'} self-center p-2 px-4 rounded-full capitalize font-tbPop`}>{row?.paymentStatus}</h4>
+                <h4 className={`${row?.status === 'paid' ? 'text-green-500 bg-green-100' : row?.status === 'failed' ? 'text-red-500 bg-red-100' : 'text-yellow-500 bg-yellow-100'} p-2 px-4 rounded-full capitalize font-tbPop text-center`}>{row?.status}</h4>
             </>,
             style: true
         },
         {
             field: 'createdAt',
             header: 'Transaction Date',
-            body: (row) => <>{moment(row?.paymentDetails?.createdAt).format('DD-MM-YYYY hh:mm A')}</>,
+            body: (row) => <>{moment(row?.createdAt).format('DD-MM-YYYY hh:mm A')}</>,
             style: true
         }
     ];

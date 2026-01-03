@@ -787,6 +787,17 @@ export const adminTransactionPagination = async (data) => {
     }
 }
 
+export const getAllTransactions = async (data) => {
+    const url = `${environment.baseUrl}transactions/get-all?page=${data?.p || 1}&limit=${data?.records || 10}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching transactions:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch transactions' };
+    }
+}
+
 // ====================Get All User Api===================
 export const getAllRejectedUser = async (data) => {
     try {
