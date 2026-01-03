@@ -22,9 +22,9 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            
+
             const formData = new FormData();
-            
+
             // Append all fields to FormData
             formData.append('title', data.title);
             formData.append('description', data.description);
@@ -32,11 +32,11 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
             formData.append('position', data.position);
             formData.append('startDate', data.startDate);
             formData.append('endDate', data.endDate);
-            
+
             if (data.type === 'app' && data.bannerFor) {
                 formData.append('bannerFor', data.bannerFor);
             }
-            
+
             // Append image with key "image"
             if (data.image) {
                 if (data.image instanceof File) {
@@ -45,7 +45,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                     formData.append('image', data.image);
                 }
             }
-            
+
             if (edit) {
                 console.log("FINAL PAYLOAD SENT ===>", formData);
                 await editBanner(userData?._id, formData).then(res => {
@@ -163,7 +163,7 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             setValue={setValue}
                                                             control={control}
                                                             defaultValue={userData?.image}
-                                                            cropAspectRatio={2048/930}
+                                                            cropAspectRatio={2048 / 930}
                                                             cropWidth={2048}
                                                             cropHeight={930}
                                                         />
@@ -237,14 +237,14 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                             </h4>
 
                                                             <SelectTextInput
-                                                                label="Select Banner For"
+                                                                label="Select Banner For (Mobile App)"
                                                                 registerName="bannerFor"
                                                                 options={[
                                                                     { value: 'home', label: 'Home' },
                                                                     { value: 'products', label: 'Products' },
                                                                     { value: 'services', label: 'Services' },
                                                                 ]}
-                                                                placeholder="Select Banner For"
+                                                                placeholder="Select Banner For (Mobile App)"
                                                                 props={{
                                                                     ...register('bannerFor', {
                                                                         required: watch('type') === 'app' ? "Banner For is required" : false
