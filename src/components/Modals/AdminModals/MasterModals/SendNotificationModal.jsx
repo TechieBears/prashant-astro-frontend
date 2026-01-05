@@ -23,20 +23,28 @@ function SendNotificationModal({ setRefreshTrigger }) {
     const formSubmit = async (data) => {
         try {
             setLoader(true);
-            const updatedData = {
-                title: data?.title,
-                description: data?.description,
-                image: data?.image,
-                notificationType: data?.notificationType,
-                redirectionUrl: data?.redirectionUrl,
-                redirectId: data?.redirectId,
-                userType: data?.userType,
-                userIds: data?.userType === 'specific-customer' ? customerUsersDropdown?.map(item => item?.value) : [],
-                scheduledAt: data?.scheduledAt,
-                expiryDate: data?.expiryDate
+            const formData = new FormData();
+            
+            formData.append('title', data?.title);
+            formData.append('description', data?.description);
+            formData.append('notificationType', data?.notificationType);
+            formData.append('userType', data?.userType);
+            
+            if (data?.redirectionUrl) formData.append('redirectionUrl', data?.redirectionUrl);
+            if (data?.redirectId) formData.append('redirectId', data?.redirectId);
+            if (data?.scheduledAt) formData.append('scheduledAt', data?.scheduledAt);
+            if (data?.expiryDate) formData.append('expiryDate', data?.expiryDate);
+            
+            // Handle image file
+            if (data?.image && data?.image[0]) {
+                formData.append('image', data?.image[0]);
             }
+            
+            // Handle userIds array
+            const userIds = data?.userType === 'specific-customer' ? customerUsersDropdown?.map(item => item?.value) : [];
+            formData.append('userIds', JSON.stringify(userIds));
 
-            await addNotification(updatedData).then(res => {
+            await addNotification(formData).then(res => {
                 if (res?.success) {
                     setLoader(false);
                     reset();

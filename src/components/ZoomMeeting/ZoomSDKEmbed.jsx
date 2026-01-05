@@ -116,9 +116,9 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
     }, [meetingNumber, password, userName]);
 
     return (
-        <div className="w-full">
+        <div className="w-full h-screen relative">
             {leaving && (
-                <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-gray-600">Meeting ended. Redirecting...</p>
@@ -126,7 +126,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
                 </div>
             )}
             {loading && !leaving && (
-                <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                         <p className="text-gray-600">Loading Zoom meeting...</p>
@@ -134,7 +134,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
                 </div>
             )}
             {error && (
-                <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
                     <div className="text-center">
                         <div className="text-red-500 text-xl mb-4">⚠️</div>
                         <p className="text-red-600 mb-4">{error}</p>
@@ -149,12 +149,8 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
             )}
             <div 
                 ref={meetingSDKElement} 
-                className="w-full" 
-                style={{ 
-                    display: loading || error || leaving ? 'none' : 'block',
-                    minHeight: '800px',
-                    marginBottom: '60px'
-                }}
+                className="zoom-meeting-container"
+                style={{ display: loading || error || leaving ? 'none' : 'block' }}
             ></div>
         </div>
     );
