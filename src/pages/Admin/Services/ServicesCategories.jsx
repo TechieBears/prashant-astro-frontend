@@ -171,13 +171,13 @@ const ServicesCategories = () => {
             style: true,
             sortable: true
         },
-        // {
-        //     field: 'status',
-        //     header: 'Status',
-        //     body: statusBody,
-        //     style: true,
-        //     sortable: true
-        // },
+        {
+            field: 'status',
+            header: 'Status',
+            body: statusBody,
+            style: true,
+            sortable: true
+        },
         {
             field: 'action',
             header: 'Action',
