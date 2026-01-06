@@ -17,13 +17,13 @@ const CallHistory = () => {
     const fetchCallHistory = async () => {
         try {
             const response = await getAllCallsHistory();
-            
+
             if (response.success) {
                 const transformedData = response.data.map((item) => {
                     const profile = item.astrologerId?.profile || {};
                     const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : 'Vedic, Astrology';
                     const languages = Array.isArray(profile.languages) ? profile.languages.join(', ') : 'English, Hindi';
-                    
+
                     return {
                         id: item._id,
                         astrologerId: item.astrologerId?._id,
@@ -66,10 +66,10 @@ const CallHistory = () => {
             <div className="flex items-end justify-between gap-3">
                 <div className="flex-1 space-y-1">
                     <div className="text-xs flex items-center gap-1">
-                        <span className="text-gray-700 whitespace-nowrap">{call.date} - </span>
-                        <span className={`${call.status === 'accepted' ? 'text-green-500' : call.status === 'rejected' ? 'text-red-500' : 'text-blue-500'}`}>
+                        <span className="text-gray-700 whitespace-nowrap">Date: {call.date}</span>
+                        {/* <span className={`${call.status === 'accepted' ? 'text-green-500' : call.status === 'rejected' ? 'text-red-500' : 'text-blue-500'}`}>
                             {call.status === 'accepted' ? `${call.duration} min call done` : call.status}
-                        </span>
+                        </span> */}
                     </div>
                     {call.amountCharged && (
                         <div className="text-xs text-gray-600">
@@ -79,12 +79,12 @@ const CallHistory = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                    <button 
+                    <button
                         onClick={() => navigate(`/astrologer/${call.astrologerId}`)}
                         className={`px-4 py-1.5 rounded-lg font-medium text-xs text-white transition-all ${call.buttonStyle === 'blue'
                             ? 'bg-blue-500 hover:bg-blue-600'
                             : 'bg-button-vertical-gradient-orange hover:opacity-90'
-                        }`}>
+                            }`}>
                         {call.buttonText}
                     </button>
                 </div>
