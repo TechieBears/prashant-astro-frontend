@@ -240,7 +240,6 @@ function CreateBannersModal({ edit, userData, setRefreshTrigger }) {
                                                                 label="Select Banner For (Mobile App)"
                                                                 registerName="bannerFor"
                                                                 options={[
-                                                                    { value: 'home', label: 'Home' },
                                                                     { value: 'products', label: 'Products' },
                                                                     { value: 'services', label: 'Services' },
                                                                 ]}
