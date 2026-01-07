@@ -110,7 +110,7 @@ const Register = () => {
                         <h4 className="text-sm font-tbLex font-normal text-black-400 pb-2.5">
                             Title *
                         </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex gap-1 sm:gap-2">
                             {["Mr", "Mrs", "Miss", "Baby", "Master"].map((type) => (
                                 <Controller
                                     key={type}
@@ -123,7 +123,7 @@ const Register = () => {
                                         <button
                                             type="button"
                                             onClick={() => onChange(type)}
-                                            className={`flex-1 min-w-[70px] sm:min-w-[80px] px-3 sm:px-4 md:px-5 font-tbLex py-2 sm:py-2.5 md:py-3 rounded-md text-xs sm:text-sm font-medium ${value === type
+                                            className={`flex-1 px-2 sm:px-3 md:px-4 font-tbLex py-2 sm:py-2.5 md:py-3 rounded-md text-xs sm:text-sm font-medium ${value === type
                                                 ? "bg-gradient-orange text-white"
                                                 : "bg-slate-100 text-slate-700 hover:bg-button-gradient-orange hover:text-white"
                                                 }`}
