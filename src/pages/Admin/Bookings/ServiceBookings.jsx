@@ -173,8 +173,8 @@ const ServiceBookings = () => {
                 <div className="text-sm space-y-1">
                     <div className="font-medium text-purple-600">{row?.coupon?.couponCode}</div>
                     <div className="text-xs text-gray-500">
-                        {row?.coupon?.discountIn === 'percent' 
-                            ? `${row?.coupon?.discount}% OFF` 
+                        {row?.coupon?.discountIn === 'percent'
+                            ? `${row?.coupon?.discount}% OFF`
                             : `₹${row?.coupon?.discount} OFF`}
                     </div>
                 </div>
@@ -208,6 +208,29 @@ const ServiceBookings = () => {
             field: 'paymentStatus',
             header: 'Payment Status',
             body: paymentStatusBody,
+            style: true, sortable: true
+        },
+        {
+            field: 'astrologerStatus',
+            header: 'Astrologer Status',
+            body: (row) => (
+                <div className="space-y-6">
+                    {row?.services?.map((service, index) => {
+                        const astrologerStatus = service?.astrologerStatus || 'PENDING';
+                        const statusColor =
+                            astrologerStatus === 'ACCEPTED' ? 'text-green-600 bg-green-100' :
+                                astrologerStatus === 'REJECTED' ? 'text-red-600 bg-red-100' :
+                                    'text-yellow-600 bg-yellow-100';
+                        return (
+                            <div key={index}>
+                                <span className={`px-4 py-2 rounded-full text-xs font-tbLex tracking-tight font-medium ${statusColor}`}>
+                                    {astrologerStatus}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            ),
             style: true, sortable: true
         },
         {
