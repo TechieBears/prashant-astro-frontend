@@ -64,7 +64,7 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex items-start pt-12 pb-4 justify-center bg-yellow-50 min-h-[calc(60vh-2rem)] px-4">
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mt-4">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md mt-16 md:mt-6">
                 {!showOtpForm ? (
                     <>
                         <h2 className="text-xl font-bold text-center mb-1 text-primary">
