@@ -92,25 +92,25 @@ const Register = () => {
 
     return (
         <div className="h-full bg-[#FFF9EF] py-24 flex items-center justify-center  px-4">
-            <div className="card w-full max-w-2xl bg-white p-8 rounded-xl shadow-md">
+            <div className="card w-full max-w-2xl bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-md">
                 {/* Title */}
                 <div className="text-center mb-6">
-                    <h2 className="text-3xl font-extrabold text-center text-p">
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-center text-p">
                         Register
                     </h2>
                 </div>
 
                 {/* Form */}
                 <form
-                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
                     onSubmit={handleSubmit(onSubmit)}
                 >
-                    {/* First Name */}
-                    <div className="col-span-2">
+                    {/* Title */}
+                    <div className="col-span-1 md:col-span-2">
                         <h4 className="text-sm font-tbLex font-normal text-black-400 pb-2.5">
                             Title *
                         </h4>
-                        <div className="sm:flex sm:gap-2 space-x-2 space-y-2 sm:space-y-0">
+                        <div className="flex flex-wrap gap-2">
                             {["Mr", "Mrs", "Miss", "Baby", "Master"].map((type) => (
                                 <Controller
                                     key={type}
@@ -123,7 +123,7 @@ const Register = () => {
                                         <button
                                             type="button"
                                             onClick={() => onChange(type)}
-                                            className={`px-5 font-tbLex py-3 rounded-md text-sm font-medium ${value === type
+                                            className={`flex-1 min-w-[70px] sm:min-w-[80px] px-3 sm:px-4 md:px-5 font-tbLex py-2 sm:py-2.5 md:py-3 rounded-md text-xs sm:text-sm font-medium ${value === type
                                                 ? "bg-gradient-orange text-white"
                                                 : "bg-slate-100 text-slate-700 hover:bg-button-gradient-orange hover:text-white"
                                                 }`}
@@ -331,10 +331,10 @@ const Register = () => {
                     </div>
 
                     {/* Button */}
-                    <div className="md:col-span-2 mt-2">
-                        {loader ? <LoadBox className={`${formBtn3} !rounded bg-gradient-orange text-white`} /> : <button
+                    <div className="col-span-1 md:col-span-2 mt-2">
+                        {loader ? <LoadBox className={`${formBtn3} !rounded bg-gradient-orange text-white w-full`} /> : <button
                             type="submit"
-                            className={`${formBtn3} !rounded bg-gradient-orange text-white`}
+                            className={`${formBtn3} !rounded bg-gradient-orange text-white w-full`}
                         >
                             Register
                         </button>}

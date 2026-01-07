@@ -76,6 +76,7 @@ const Login = () => {
                 }));
                 await fetchCartData();
                 saveCredentials(data.email, data.password, rememberMe);
+
                 toast.success("Login Successfully 🥳");
                 navigate('/', { replace: true });
             } else {
@@ -128,6 +129,7 @@ const Login = () => {
                         role: response.data.user.role
                     }));
                     await fetchCartData();
+
                     toast.success("Login Successfully 🥳");
                     navigate('/', { replace: true });
                 } else {
@@ -176,7 +178,7 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen  flex items-center justify-center bg-[#FFF9EF] px-4">
+        <div className="min-h-screen pt-24 md:pt-28 pb-12 md:pb-28 flex items-center justify-center bg-[#FFF9EF] px-4">
             <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 card">
                 {/* Title */}
                 <h2 className="text-3xl font-extrabold text-center text-p">
