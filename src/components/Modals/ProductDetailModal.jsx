@@ -107,25 +107,25 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
 
     const downloadInvoicePDF = useCallback(() => {
         if (!invoiceData || !invoiceRef.current) return;
-        
+
         const options = {
             margin: [0.5, 0.5, 0.5, 0.5],
             filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
+            html2canvas: {
                 scale: 1,
                 useCORS: true,
                 letterRendering: true,
                 width: 794,
                 height: 1123
             },
-            jsPDF: { 
-                unit: 'pt', 
-                format: 'a4', 
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4',
                 orientation: 'portrait'
             }
         };
-        
+
         html2pdf().set(options).from(invoiceRef.current).save();
     }, [invoiceData]);
 
@@ -141,7 +141,6 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
     const formattedAddress = useMemo(() => formatAddress(orderData?.shippingAddress), [orderData?.shippingAddress]);
 
     if (!isOpen) return null;
-
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 md:p-6 pt-16 sm:pt-20 md:pt-24" style={{ zIndex: 9999 }}>
             <div className="bg-white rounded-lg max-w-5xl w-full max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-8rem)] md:max-h-[calc(100vh-10rem)] overflow-y-auto">
