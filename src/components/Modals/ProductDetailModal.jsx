@@ -49,7 +49,6 @@ const ProductItem = ({ item, handleReviewSuccess, reviews, loadingReviews }) => 
         </div>
     );
 };
-
 const InfoRow = ({ label, value, className = "" }) => <div><p className="text-xs text-gray-500 mb-0.5">{label}</p><div className={`text-xs sm:text-sm font-medium text-gray-800 ${className}`}>{value}</div></div>;
 const PriceRow = ({ label, value, className = "text-gray-800" }) => <div className="flex justify-between items-center"><span className="text-xs sm:text-sm text-gray-600">{label}</span><span className={`text-xs sm:text-sm font-medium ${className}`}>{value}</span></div>;
 

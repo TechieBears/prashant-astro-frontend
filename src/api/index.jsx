@@ -2596,7 +2596,6 @@ export const addWalletBalance = async (amount, paymentMethod) => {
     }
 }
 
-// ==================== Get Invoice by Service Order ID ====================
 export const getInvoiceByServiceOrderId = async (serviceOrderId) => {
     const url = `${environment.baseUrl}invoice/get-details?serviceOrderId=${serviceOrderId}`;
     try {
@@ -2608,7 +2607,6 @@ export const getInvoiceByServiceOrderId = async (serviceOrderId) => {
     }
 }
 
-// ==================== Get Invoice by Product Order ID ====================
 export const getInvoiceByProductOrderId = async (productOrderId) => {
     const url = `${environment.baseUrl}invoice/get-details?productOrderId=${productOrderId}`;
     try {
