@@ -3,12 +3,15 @@ import { useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import UserReviews from '../Common/UserReviews';
 import OrderIdCopy from '../Common/OrderIdCopy';
-import { getSingleProductOrder, getFilteredReviews } from '../../api';
+import { getSingleProductOrder, getFilteredReviews, getInvoiceByProductOrderId } from '../../api';
 import Preloaders from '../Loader/Preloaders';
 import OrderStatusBar from '../Common/OrderStatusBar';
 import downloadIcon from '../../assets/user/orders/download.svg';
+import html2pdf from 'html2pdf.js';
+import { useRef } from 'react';
+import InvoiceTemplate from '../Invoices/InvoiceTemplate';
 
-const formatDate = (d) => !d ? 'N/A' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1,21,31].includes(day) ? 'st' : [2,22].includes(day) ? 'nd' : [3,23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
+const formatDate = (d) => !d ? 'N/A' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1, 21, 31].includes(day) ? 'st' : [2, 22].includes(day) ? 'nd' : [3, 23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
 const formatAddress = (a) => !a ? null : typeof a === 'string' ? a : [a.street, a.city, a.state, a.pincode].filter(Boolean).join(', ');
 const getPaymentColor = (s) => s === 'completed' || s === 'paid' ? 'text-green-600' : s === 'pending' ? 'text-yellow-600' : 'text-red-600';
 
@@ -47,7 +50,7 @@ const ProductItem = ({ item, handleReviewSuccess, reviews, loadingReviews }) => 
     );
 };
 
-const InfoRow = ({ label, value, className = "" }) => <div><p className="text-xs text-gray-500 mb-0.5">{label}</p><p className={`text-xs sm:text-sm font-medium text-gray-800 ${className}`}>{value}</p></div>;
+const InfoRow = ({ label, value, className = "" }) => <div><p className="text-xs text-gray-500 mb-0.5">{label}</p><div className={`text-xs sm:text-sm font-medium text-gray-800 ${className}`}>{value}</div></div>;
 const PriceRow = ({ label, value, className = "text-gray-800" }) => <div className="flex justify-between items-center"><span className="text-xs sm:text-sm text-gray-600">{label}</span><span className={`text-xs sm:text-sm font-medium ${className}`}>{value}</span></div>;
 
 const OrderSummary = ({ orderData, totalItems, formattedAddress }) => (
@@ -87,6 +90,8 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
     const [error, setError] = useState(null);
     const [productReviews, setProductReviews] = useState({});
     const [loadingReviews, setLoadingReviews] = useState(false);
+    const [invoiceData, setInvoiceData] = useState(null);
+    const invoiceRef = useRef();
 
     useEffect(() => { if (!isOpen) return; const handleEsc = (e) => e.key === 'Escape' && onClose(); document.addEventListener('keydown', handleEsc); return () => document.removeEventListener('keydown', handleEsc); }, [isOpen, onClose]);
 
@@ -96,10 +101,38 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
         try { const res = await getFilteredReviews({ userId, productId }); if (res.success) setProductReviews(prev => ({ ...prev, [productId]: res.data || [] })); } catch (err) { console.error('Error fetching reviews:', err); } finally { setLoadingReviews(false); }
     }, [userId]);
 
+    const fetchInvoiceDetails = useCallback(async (productOrderId) => {
+        try { const res = await getInvoiceByProductOrderId(productOrderId); if (res.success) setInvoiceData(res.data); } catch (err) { console.error('Error fetching invoice:', err); }
+    }, []);
+
+    const downloadInvoicePDF = useCallback(() => {
+        if (!invoiceData || !invoiceRef.current) return;
+        
+        const options = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 1,
+                useCORS: true,
+                letterRendering: true,
+                width: 794,
+                height: 1123
+            },
+            jsPDF: { 
+                unit: 'pt', 
+                format: 'a4', 
+                orientation: 'portrait'
+            }
+        };
+        
+        html2pdf().set(options).from(invoiceRef.current).save();
+    }, [invoiceData]);
+
     const fetchOrderDetails = useCallback(async () => {
         setLoading(true); setError(null);
-        try { const res = await getSingleProductOrder(product.orderId); if (res.success) { setOrderData(res.data); res.data?.items?.forEach(item => item.product?._id && userId && fetchProductReviews(item.product._id)); } else setError(res.message || 'Failed to fetch order details'); } catch (err) { console.error('Error:', err); setError('Failed to fetch order details'); } finally { setLoading(false); }
-    }, [product?.orderId, userId, fetchProductReviews]);
+        try { const res = await getSingleProductOrder(product.orderId); if (res.success) { setOrderData(res.data); res.data?.items?.forEach(item => item.product?._id && userId && fetchProductReviews(item.product._id)); fetchInvoiceDetails(product.orderId); } else setError(res.message || 'Failed to fetch order details'); } catch (err) { console.error('Error:', err); setError('Failed to fetch order details'); } finally { setLoading(false); }
+    }, [product?.orderId, userId, fetchProductReviews, fetchInvoiceDetails]);
 
     useEffect(() => { if (isOpen && product?.orderId) fetchOrderDetails(); }, [isOpen, product?.orderId, fetchOrderDetails]);
 
@@ -116,11 +149,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                     <button onClick={onClose} className="absolute top-3 sm:top-4 right-3 sm:right-4 md:right-6 text-gray-500 hover:text-gray-700 transition-colors p-1"><FaTimes className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3 pr-8 sm:pr-10 md:pr-12">
                         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">Order Details</h2>
-                        <button className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium" style={{ backgroundColor: '#4200981A' }}>
-                            <img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span className="hidden sm:inline">Download Invoice</span>
-                            <span className="sm:hidden">Invoice</span>
-                        </button>
+                        {orderData && invoiceData && <button onClick={downloadInvoicePDF} className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium" style={{ backgroundColor: '#4200981A' }}><img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" /><span className="hidden sm:inline">Download Invoice</span><span className="sm:hidden">Invoice</span></button>}
                     </div>
                 </div>
                 <div className="px-3 sm:px-4 md:px-8 lg:px-20 py-3 sm:py-4 md:py-6">
@@ -142,6 +171,9 @@ const ProductDetailModal = ({ isOpen, onClose, product }) => {
                         </div>
                     ) : <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center"><p className="text-gray-600">No order data available</p></div>}
                 </div>
+            </div>
+            <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+                <InvoiceTemplate ref={invoiceRef} invoice={invoiceData} />
             </div>
         </div>
     );

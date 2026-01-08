@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { FaClock, FaCalendarAlt, FaDesktop, FaTimes } from 'react-icons/fa';
-import { getSingleServiceOrder, getFilteredReviews } from '../../api';
+import { getSingleServiceOrder, getFilteredReviews, getInvoiceByServiceOrderId } from '../../api';
 import { getServiceModeLabel } from '../../utils/serviceConfig';
 import UserReviews from '../Common/UserReviews';
 import OrderIdCopy from '../Common/OrderIdCopy';
 import Preloaders from '../Loader/Preloaders';
 import downloadIcon from '../../assets/user/orders/download.svg';
 import ProductImage from '../Common/ProductImage';
+import html2pdf from 'html2pdf.js';
+import InvoiceTemplate from '../Invoices/InvoiceTemplate';
 
 const formatDate = (d) => !d ? 'Date will be confirmed' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1,21,31].includes(day) ? 'st' : [2,22].includes(day) ? 'nd' : [3,23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
 const formatTime = (t) => !t ? 'Time will be confirmed' : (() => { const [h, m] = t.split(':'), hr = parseInt(h), dh = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr; return `${dh}:${m}${hr >= 12 ? 'PM' : 'AM'}`; })();
@@ -83,6 +85,8 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
     const [error, setError] = useState(null);
     const [serviceReviews, setServiceReviews] = useState({});
     const [loadingReviews, setLoadingReviews] = useState(false);
+    const [invoiceData, setInvoiceData] = useState(null);
+    const invoiceRef = useRef();
 
     useEffect(() => { if (!isOpen) return; const handleEsc = (e) => e.key === 'Escape' && onClose(); document.addEventListener('keydown', handleEsc); return () => document.removeEventListener('keydown', handleEsc); }, [isOpen, onClose]);
 
@@ -92,11 +96,48 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
         try { const res = await getFilteredReviews({ userId, serviceId }); if (res.success) setServiceReviews(prev => ({ ...prev, [serviceId]: res.data || [] })); } catch (err) { console.error('Error fetching reviews:', err); } finally { setLoadingReviews(false); }
     }, [userId]);
 
+    const fetchInvoiceDetails = useCallback(async (serviceOrderId) => {
+        try { const res = await getInvoiceByServiceOrderId(serviceOrderId); if (res.success) setInvoiceData(res.data); } catch (err) { console.error('Error fetching invoice:', err); }
+    }, []);
+
+    const downloadInvoicePDF = useCallback(() => {
+        if (!invoiceData || !invoiceRef.current) return;
+        
+        const options = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 1,
+                useCORS: true,
+                letterRendering: true,
+                width: 794,
+                height: 1123
+            },
+            jsPDF: { 
+                unit: 'pt', 
+                format: 'a4', 
+                orientation: 'portrait'
+            }
+        };
+        
+        html2pdf().set(options).from(invoiceRef.current).outputPdf('blob').then((pdfBlob) => {
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+    }, [invoiceData]);
+
     const fetchOrderDetails = useCallback(async () => {
         if (!service?.orderId) return;
         setLoading(true); setError(null);
-        try { const res = await getSingleServiceOrder(service.orderId); if (res.success && res.data?.[0]?.services?.length > 0) { const od = res.data[0]; setOrderData(od); od.services?.forEach(sd => sd.serviceId && userId && fetchServiceReviews(sd.serviceId)); } else setError(res.message || 'Failed to fetch order details'); } catch (err) { console.error('Error:', err); setError('Failed to fetch order details'); } finally { setLoading(false); }
-    }, [service?.orderId, userId, fetchServiceReviews]);
+        try { const res = await getSingleServiceOrder(service.orderId); if (res.success && res.data?.[0]?.services?.length > 0) { const od = res.data[0]; setOrderData(od); od.services?.forEach(sd => sd.serviceId && userId && fetchServiceReviews(sd.serviceId)); fetchInvoiceDetails(service.orderId); } else setError(res.message || 'Failed to fetch order details'); } catch (err) { console.error('Error:', err); setError('Failed to fetch order details'); } finally { setLoading(false); }
+    }, [service?.orderId, userId, fetchServiceReviews, fetchInvoiceDetails]);
 
     useEffect(() => { if (isOpen && service?.orderId) fetchOrderDetails(); }, [isOpen, service?.orderId, fetchOrderDetails]);
 
@@ -109,7 +150,7 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
                     <button onClick={onClose} className="absolute top-3 sm:top-4 right-3 sm:right-4 md:right-6 text-gray-500 hover:text-gray-700 transition-colors p-1"><FaTimes className="w-4 h-4 sm:w-5 sm:h-5" /></button>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3 pr-8 sm:pr-10 md:pr-12">
                         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">Order Details</h2>
-                        {orderData && <button onClick={() => console.log('Downloading invoice:', orderData?.orderId)} className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium w-fit" style={{ backgroundColor: '#4200981A' }}><img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" /><span className="hidden sm:inline">Download Invoice</span><span className="sm:hidden">Invoice</span></button>}
+                        {orderData && invoiceData && <button onClick={downloadInvoicePDF} className="text-purple-800 px-2 sm:px-3 py-1.5 rounded-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium w-fit" style={{ backgroundColor: '#4200981A' }}><img src={downloadIcon} alt="Download" className="w-3 h-3 sm:w-4 sm:h-4" /><span className="hidden sm:inline">Download Invoice</span><span className="sm:hidden">Invoice</span></button>}
                     </div>
                 </div>
                 <div className="px-3 sm:px-4 md:px-8 lg:px-20 py-3 sm:py-4 md:py-6">
@@ -130,6 +171,9 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
                         </div>
                     ) : <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center"><p className="text-gray-600">No order data available</p></div>}
                 </div>
+            </div>
+            <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+                <InvoiceTemplate ref={invoiceRef} invoice={invoiceData} />
             </div>
         </div>
     );
