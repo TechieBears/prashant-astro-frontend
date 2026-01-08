@@ -11,7 +11,7 @@ import ProductImage from '../Common/ProductImage';
 import html2pdf from 'html2pdf.js';
 import InvoiceTemplate from '../Invoices/InvoiceTemplate';
 
-const formatDate = (d) => !d ? 'Date will be confirmed' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1,21,31].includes(day) ? 'st' : [2,22].includes(day) ? 'nd' : [3,23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
+const formatDate = (d) => !d ? 'Date will be confirmed' : (() => { const dt = new Date(d), day = dt.getDate(), sfx = [1, 21, 31].includes(day) ? 'st' : [2, 22].includes(day) ? 'nd' : [3, 23].includes(day) ? 'rd' : 'th'; return `${day}${sfx} ${dt.toLocaleString('default', { month: 'short' })}, ${dt.getFullYear()}`; })();
 const formatTime = (t) => !t ? 'Time will be confirmed' : (() => { const [h, m] = t.split(':'), hr = parseInt(h), dh = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr; return `${dh}:${m}${hr >= 12 ? 'PM' : 'AM'}`; })();
 const getStatusInfo = (s) => ({ completed: { shortText: 'Completed', textColor: 'text-white', bgColor: 'bg-green-600' }, delivered: { shortText: 'Completed', textColor: 'text-white', bgColor: 'bg-green-600' }, pending: { shortText: 'Pending', textColor: 'text-yellow-900', bgColor: 'bg-yellow-400' }, cancelled: { shortText: 'Cancelled', textColor: 'text-white', bgColor: 'bg-red-600' }, in_progress: { shortText: 'Ongoing', textColor: 'text-white', bgColor: 'bg-blue-600' }, ongoing: { shortText: 'Ongoing', textColor: 'text-white', bgColor: 'bg-blue-600' } }[s?.toLowerCase()] || { shortText: 'Status', textColor: 'text-gray-800', bgColor: 'bg-gray-300' });
 const getPaymentColor = (s) => s === 'completed' || s === 'paid' ? 'text-green-600' : s === 'pending' ? 'text-yellow-600' : 'text-red-600';
@@ -102,25 +102,24 @@ const ServiceDetailModal = ({ isOpen, onClose, service }) => {
 
     const downloadInvoicePDF = useCallback(() => {
         if (!invoiceData || !invoiceRef.current) return;
-        
+
         const options = {
             margin: [0.5, 0.5, 0.5, 0.5],
             filename: `invoice-${invoiceData.invoiceNumber}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
+            html2canvas: {
                 scale: 1,
                 useCORS: true,
                 letterRendering: true,
                 width: 794,
                 height: 1123
             },
-            jsPDF: { 
-                unit: 'pt', 
-                format: 'a4', 
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4',
                 orientation: 'portrait'
             }
         };
-        
         html2pdf().set(options).from(invoiceRef.current).outputPdf('blob').then((pdfBlob) => {
             const url = URL.createObjectURL(pdfBlob);
             const link = document.createElement('a');

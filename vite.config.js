@@ -7,5 +7,17 @@ export default defineConfig({
   define: {
     // Ensure environment variables are available
     'import.meta.env': JSON.stringify(process.env)
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['html2pdf.js']
   }
 })

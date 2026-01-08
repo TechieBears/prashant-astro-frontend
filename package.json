@@ -35,6 +35,7 @@
         "firebase": "^12.2.1",
         "greeting-time": "^1.0.0",
         "gsap": "^3.13.0",
+        "html2pdf.js": "^0.13.0",
         "hugeicons-react": "^0.3.0",
         "iconsax-reactjs": "^0.0.8",
         "india-pincode-search": "^1.0.2",
@@ -74,6 +75,7 @@
         "react-tabs": "^6.1.0",
         "redux-persist": "^6.0.0",
         "redux-thunk": "^3.1.0",
+        "socket.io-client": "^4.8.3",
         "swiper": "^12.0.1"
     },
     "devDependencies": {

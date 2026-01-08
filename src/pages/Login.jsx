@@ -187,7 +187,6 @@ const Login = () => {
 
                 {/* Form */}
                 <form className="mt-6 space-y-5" onSubmit={handleSubmit(onSubmit)}>
-                    {/* Email */}
                     <div>
                         <label className="block text-gray-700 font-medium mb-1">
                             Email *

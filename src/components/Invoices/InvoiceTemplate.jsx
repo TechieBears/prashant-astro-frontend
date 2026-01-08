@@ -40,7 +40,7 @@ const InvoiceTemplate = React.forwardRef(({ invoice }, ref) => {
                     <div style={{ fontSize: '28px', fontWeight: 'bold' }}>INVOICE</div>
                     <div>
                         <img
-                            src="/logo.png"  // ✅ replace with your logo URL
+                            src="/logo.png"
                             alt="Logo"
                             style={{ maxHeight: '60px' }}
                         />

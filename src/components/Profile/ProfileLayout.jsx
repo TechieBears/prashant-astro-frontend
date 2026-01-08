@@ -4,7 +4,7 @@ import ProfileSidebar from "../Sidebar/ProfileSidebar";
 
 const ProfileLayout = () => {
   return (
-<div className="flex flex-col sm:flex-row px-4 sm:px-6 lg:px-16 pt-16 w-full max-w-[1280px] mx-auto gap-4 mt-10 sm:mt-0 mb-20">
+    <div className="flex flex-col sm:flex-row px-4 sm:px-6 lg:px-16 pt-16 w-full max-w-[1280px] mx-auto gap-4 mt-10 sm:mt-0 mb-20">
       <aside  >
         <ProfileSidebar />
       </aside>
@@ -14,5 +14,4 @@ const ProfileLayout = () => {
     </div>
   );
 };
-
 export default ProfileLayout;
