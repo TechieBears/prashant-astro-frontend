@@ -178,7 +178,7 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen pt-24 md:pt-28 pb-12 md:pb-28 flex items-center justify-center bg-[#FFF9EF] px-4">
+        <div className="min-h-screen pt-16 md:pt-16 pb-12 md:pb-28 flex items-center justify-center bg-[#FFF9EF] px-4">
             <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 card">
                 {/* Title */}
                 <h2 className="text-3xl font-extrabold text-center text-p">

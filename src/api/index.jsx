@@ -2595,3 +2595,27 @@ export const addWalletBalance = async (amount, paymentMethod) => {
         return err?.response?.data || { success: false, message: 'Failed to add wallet balance' };
     }
 }
+
+// ==================== Get Invoice by Service Order ID ====================
+export const getInvoiceByServiceOrderId = async (serviceOrderId) => {
+    const url = `${environment.baseUrl}invoice/get-details?serviceOrderId=${serviceOrderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching invoice details:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch invoice details' };
+    }
+}
+
+// ==================== Get Invoice by Product Order ID ====================
+export const getInvoiceByProductOrderId = async (productOrderId) => {
+    const url = `${environment.baseUrl}invoice/get-details?productOrderId=${productOrderId}`;
+    try {
+        const response = await axios.get(url);
+        return response.data;
+    } catch (err) {
+        console.error('Error fetching invoice details:', err);
+        return err?.response?.data || { success: false, message: 'Failed to fetch invoice details' };
+    }
+}
