@@ -10,6 +10,7 @@ import Pagination from '../../components/Common/Pagination';
 import useListingPagination from '../../utils/customHooks/useListingPagination';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import { getAllAstrologerCalls, getCallFilters } from '../../api';
+import socket from '../../config/socket';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
 import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
 import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
@@ -46,6 +47,30 @@ const CallAstrologer = () => {
                 localStorage.removeItem('requestedAstrologerId');
             }, 10000);
         }
+
+        // Subscribe to call-astrologers updates
+        const handleConnect = () => {
+            socket.emit('subscribe:call-astrologers');
+            console.log('📡 Subscribed to call-astrologers');
+        };
+
+        const handleUpdate = (data) => {
+            console.log('📥 Update received:', data.message);
+            fetchAstrologerCalls();
+        };
+
+        if (socket.connected) {
+            handleConnect();
+        } else {
+            socket.on('connect', handleConnect);
+        }
+
+        socket.on('call-astrologers:updated', handleUpdate);
+
+        return () => {
+            socket.off('connect', handleConnect);
+            socket.off('call-astrologers:updated', handleUpdate);
+        };
     }, []);
 
 
@@ -94,8 +119,6 @@ const CallAstrologer = () => {
                 limit,
                 languages: selectedLanguages,
                 skills: selectedCategories,
-                minPrice: price[0],
-                maxPrice: price[1],
                 experience: selectedExperience,
                 search,
                 sortBy
@@ -161,9 +184,9 @@ const CallAstrologer = () => {
                 setLanguages(response.data.languages || []);
                 setCategories(response.data.skills || []);
                 setExperience(response.data.experiences || []);
-                setMinPrice(response.data.priceRange?.min || 500);
-                setMaxPrice(response.data.priceRange?.max || 5000);
-                setPrice([response.data.priceRange?.min || 500, response.data.priceRange?.max || 5000]);
+                setMinPrice(response.data.priceRange?.min || 0);
+                setMaxPrice(response.data.priceRange?.max || 10000);
+                // Don't update price state - keep default wide range
             }
         } catch (error) {
             console.error("Error fetching filters", error);

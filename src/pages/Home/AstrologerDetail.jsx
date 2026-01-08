@@ -8,6 +8,7 @@ import CallSetupPanel from '../../components/Common/CallSetupPanel';
 import WalletModal from '../../components/Modals/WalletModal';
 import TalkSessionModal from '../../components/Modals/TalkSessionModal';
 import { getFilteredReviews, getSingleCallAstrologer, initiateCall, getWalletBalance } from '../../api';
+import socket from '../../config/socket';
 import bannerImage from '../../assets/user/home/pages_banner.jpg';
 import astrologer1 from '../../assets/Astrologer/panditcall1.jpg';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
@@ -66,15 +67,22 @@ const AstrologerDetail = () => {
             const payload = {
                 astrologerId: id,
                 agentId: astrologer?.agentId || '9999999999999',
-                phoneNumber: phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`,
+                phoneNumber: phoneNumber.replace(/^\+91/, ''),
                 callDuration: callTime * 60
             };
 
             const response = await initiateCall(payload);
 
             if (response?.success) {
+                console.log('Call initiation response:', response);
                 toast.success('Call initiated successfully!');
-                // Store the astrologer ID in localStorage to show requested badge
+
+                // Trigger WebSocket action
+                // socket.emit('webhookCallHangup', {
+                //     astrologerId: id,
+                //     phoneNumber: payload.phoneNumber
+                // });
+
                 localStorage.setItem('requestedAstrologerId', id);
                 navigate('/call-astrologer');
             } else {
