@@ -1,5 +1,6 @@
 import React from 'react';
 import AddToCartButton from './AddToCartButton';
+import BuyNowButton from './BuyNowButton';
 
 const Star = ({ filled }) => (
   <svg
@@ -113,14 +114,26 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="mt-auto">
-          <AddToCartButton
-            productId={_id || id}
-            stock={stock}
-            className="w-full mt-3"
-            size="small"
-            variant="gradient"
-            redirectToCart={false}
-          />
+          <div className="flex gap-2">
+            <BuyNowButton
+              productId={_id || id}
+              product={product}
+              quantity={1}
+              stock={stock}
+              className="flex-1"
+              size="small"
+              variant="gradient"
+            />
+            <AddToCartButton
+              productId={_id || id}
+              stock={stock}
+              className="w-8 h-8 p-0 min-w-0"
+              size="small"
+              variant="gradient"
+              redirectToCart={false}
+              iconOnly={true}
+            />
+          </div>
         </div>
       </div>
     </div>
