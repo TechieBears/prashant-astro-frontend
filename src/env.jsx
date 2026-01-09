@@ -9,6 +9,7 @@ export const environment = {
 
     // // -------------------- Devlopment Server Api URL --------------------
     baseUrl: 'https://dev-api.astroguid.com/api/',
+    socketUrl: 'https://dev-api.astroguid.com/',
     production: false,
 
     // -------------------- Live Server Api URL --------------------
