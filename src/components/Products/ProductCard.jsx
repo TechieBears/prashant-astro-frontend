@@ -12,6 +12,19 @@ const Star = ({ filled }) => (
   </svg>
 );
 
+const ProductImage = ({ src, alt, isVisible, onError, onLoad }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={`absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2 transition-opacity duration-700 ease-in-out ${
+      isVisible ? 'opacity-100' : 'opacity-0'
+    }`}
+    loading="lazy"
+    onError={onError}
+    onLoad={onLoad}
+  />
+);
+
 const ProductCard = ({ product }) => {
   const {
     _id,
@@ -26,8 +39,7 @@ const ProductCard = ({ product }) => {
     stock = true
   } = product;
 
-  // Use first image if available, otherwise use a placeholder
-  const image = images && images.length > 0 ? images[0] : null;
+  const [isHovered, setIsHovered] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
 
@@ -41,17 +53,30 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden">
+    <div 
+      className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="relative pt-[100%] ">
-        {image && !imageError ? (
-          <img
-            src={image}
-            alt={title}
-            className="absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2"
-            loading="lazy"
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-          />
+        {images?.length > 0 && !imageError ? (
+          <>
+            <ProductImage
+              src={images[0]}
+              alt={title}
+              isVisible={!(isHovered && images.length > 1)}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+            />
+            {images[1] && (
+              <ProductImage
+                src={images[1]}
+                alt={title}
+                isVisible={isHovered}
+                onError={handleImageError}
+              />
+            )}
+          </>
         ) : (
           <div className="absolute top-0 left-0 w-full rounded-2xl h-full bg-gray-200 flex items-center justify-center p-1 sm:p-2">
             <div className="text-center text-gray-500">
