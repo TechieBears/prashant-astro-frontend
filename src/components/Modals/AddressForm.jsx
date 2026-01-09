@@ -182,7 +182,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* First Name */}
                         <div className="w-full md:w-1/2">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                First Name
+                                First Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -209,7 +209,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* Last Name */}
                         <div className="w-full md:w-1/2">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Last Name
+                                Last Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -238,7 +238,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* Phone Number */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Phone Number
+                                Phone Number <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="tel"
@@ -265,16 +265,12 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* Address */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Address
+                                Address <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 {...register("address", {
-                                    required: "Address is required",
-                                    minLength: {
-                                        value: 10,
-                                        message: "Address must be at least 10 characters"
-                                    }
+                                    required: "Address is required"
                                 })}
                                 placeholder="Enter address"
                                 className={`w-full px-3 py-2 bg-form-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm ${errors.address ? 'border-red-500' : ''
@@ -292,7 +288,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* Zip Code */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Zip code / Postal Code
+                                Zip code / Postal Code <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -313,7 +309,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         </div>
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                City
+                                City <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
@@ -336,7 +332,7 @@ const AddressForm = ({ mode = "add", addressData = null, onClose, onSuccess }) =
                         {/* State */}
                         <div className="w-full">
                             <label className="block text-xs font-medium text-gray-700 mb-1">
-                                State
+                                State <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
