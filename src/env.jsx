@@ -14,6 +14,7 @@ export const environment = {
     // -------------------- Live Server Api URL --------------------
 
     baseUrl: 'https://api.astroguid.com/api/',
+    socketUrl: 'https://api.astroguid.com',
     production: true,
 
     razorpayKey: 'rzp_test_Rufkt1nYns8XZT'
