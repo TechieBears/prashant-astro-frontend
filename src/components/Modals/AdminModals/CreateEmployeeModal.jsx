@@ -324,7 +324,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         errors={errors.mobileNo}
                                                     />
                                                 </div>
-                                                <div className="">
+                                                {employeeType === 'call_astrologer' && <div className="">
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -338,7 +338,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         props={{ ...register('agentId') }}
                                                         errors={errors.agentId}
                                                     />
-                                                </div>
+                                                </div>}
 
                                                 {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
                                                     <h4
