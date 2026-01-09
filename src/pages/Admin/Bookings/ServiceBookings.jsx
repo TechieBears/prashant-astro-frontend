@@ -151,15 +151,15 @@ const ServiceBookings = () => {
                 const cust = row?.services?.[0]?.cust;
 
                 if (mainAddress) return (
-                    <div className="text-sm space-y-1">
-                        <div className="font-medium">{mainAddress.firstName} {mainAddress.lastName}</div>
-                        <div className="text-xs text-gray-500">{mainAddress.address}, {mainAddress.city}, {mainAddress.state}</div>
+                    <div className="text-sm space-y-1 max-w-48">
+                        <div className="font-medium truncate">{mainAddress.firstName} {mainAddress.lastName}</div>
+                        <div className="text-xs text-gray-500 truncate">{mainAddress.address}, {mainAddress.city}, {mainAddress.state}</div>
                     </div>
                 );
                 if (cust?.addressData) return (
-                    <div className="text-sm space-y-1">
-                        <div className="font-medium">{cust.firstName} {cust.lastName}</div>
-                        <div className="text-xs text-gray-500">{cust.addressData}</div>
+                    <div className="text-sm space-y-1 max-w-48">
+                        <div className="font-medium truncate">{cust.firstName} {cust.lastName}</div>
+                        <div className="text-xs text-gray-500 truncate">{cust.addressData}</div>
                     </div>
                 );
                 return <span className="text-xs text-gray-400">-- No Address --</span>;

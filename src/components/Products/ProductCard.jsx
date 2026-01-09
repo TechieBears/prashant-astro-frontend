@@ -1,5 +1,6 @@
 import React from 'react';
 import AddToCartButton from './AddToCartButton';
+import BuyNowButton from './BuyNowButton';
 
 const Star = ({ filled }) => (
   <svg
@@ -10,6 +11,19 @@ const Star = ({ filled }) => (
   >
     <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.4 8.164L12 18.896l-7.334 3.864 1.4-8.164L.132 9.21l8.2-1.192L12 .587z" />
   </svg>
+);
+
+const ProductImage = ({ src, alt, isVisible, onError, onLoad }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={`absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2 transition-opacity duration-700 ease-in-out ${
+      isVisible ? 'opacity-100' : 'opacity-0'
+    }`}
+    loading="lazy"
+    onError={onError}
+    onLoad={onLoad}
+  />
 );
 
 const ProductCard = ({ product }) => {
@@ -26,8 +40,7 @@ const ProductCard = ({ product }) => {
     stock = true
   } = product;
 
-  // Use first image if available, otherwise use a placeholder
-  const image = images && images.length > 0 ? images[0] : null;
+  const [isHovered, setIsHovered] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
 
@@ -41,17 +54,30 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden">
+    <div 
+      className="h-full flex flex-col bg-white rounded-lg p-1 shadow-sm transition-shadow duration-200 overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="relative pt-[100%] ">
-        {image && !imageError ? (
-          <img
-            src={image}
-            alt={title}
-            className="absolute top-0 left-0 w-full rounded-2xl h-full object-cover p-1 sm:p-2"
-            loading="lazy"
-            onError={handleImageError}
-            onLoad={handleImageLoad}
-          />
+        {images?.length > 0 && !imageError ? (
+          <>
+            <ProductImage
+              src={images[0]}
+              alt={title}
+              isVisible={!(isHovered && images.length > 1)}
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+            />
+            {images[1] && (
+              <ProductImage
+                src={images[1]}
+                alt={title}
+                isVisible={isHovered}
+                onError={handleImageError}
+              />
+            )}
+          </>
         ) : (
           <div className="absolute top-0 left-0 w-full rounded-2xl h-full bg-gray-200 flex items-center justify-center p-1 sm:p-2">
             <div className="text-center text-gray-500">
@@ -88,14 +114,26 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="mt-auto">
-          <AddToCartButton
-            productId={_id || id}
-            stock={stock}
-            className="w-full mt-3"
-            size="small"
-            variant="gradient"
-            redirectToCart={false}
-          />
+          <div className="flex gap-2">
+            <BuyNowButton
+              productId={_id || id}
+              product={product}
+              quantity={1}
+              stock={stock}
+              className="flex-1"
+              size="small"
+              variant="gradient"
+            />
+            <AddToCartButton
+              productId={_id || id}
+              stock={stock}
+              className="w-8 h-8 p-0 min-w-0"
+              size="small"
+              variant="gradient"
+              redirectToCart={false}
+              iconOnly={true}
+            />
+          </div>
         </div>
       </div>
     </div>

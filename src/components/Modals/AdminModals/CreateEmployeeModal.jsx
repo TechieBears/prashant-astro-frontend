@@ -42,6 +42,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             formData.append('lastName', data?.lastName);
             formData.append('email', data?.email);
             formData.append('mobileNo', data?.mobileNo);
+            formData.append('isActive', data?.status === 'active');
             if (data?.agentId) {
                 formData.append('agentId', data?.agentId);
             }
@@ -135,6 +136,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
             setValue('profileImage', userData?.profileImage);
             setValue('agentId', userData?.profile?.agentId);
             setValue('serviceCategory', parseArray(userData?.profile?.serviceCategory));
+            setValue('status', userData?.isActive ? 'active' : 'inactive');
         } else {
             reset({
                 employeeType: '',
@@ -153,6 +155,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                 profileImage: '',
                 agentId: '',
                 serviceCategory: [],
+                status: 'active',
             });
         }
     }, [edit, userData, reset, setValue, open]);
@@ -246,6 +249,27 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
+                                                        Status <span className="text-red-500 text-xs font-tbLex">*</span>
+                                                    </h4>
+                                                    <SelectTextInput
+                                                        label="Select Status"
+                                                        registerName="status"
+                                                        options={[
+                                                            { value: 'active', label: 'Active' },
+                                                            { value: 'inactive', label: 'Inactive' },
+                                                        ]}
+                                                        placeholder="Select Status"
+                                                        props={{
+                                                            ...register('status', { required: "Status is required" }),
+                                                            value: watch('status') || 'active'
+                                                        }}
+                                                        errors={errors.status}
+                                                    />
+                                                </div>
+                                                <div className="">
+                                                    <h4
+                                                        className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
+                                                    >
                                                         First Name <span className="text-red-500 text-xs font-tbLex">*</span>
                                                     </h4>
                                                     <TextInput
@@ -324,7 +348,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         errors={errors.mobileNo}
                                                     />
                                                 </div>
-                                                <div className="">
+                                                {employeeType === 'call_astrologer' && <div className="">
                                                     <h4
                                                         className="text-sm font-tbLex font-normal text-slate-400 pb-2.5"
                                                     >
@@ -338,7 +362,7 @@ function CreateEmployeeModal({ edit, userData, setRefreshTrigger }) {
                                                         props={{ ...register('agentId') }}
                                                         errors={errors.agentId}
                                                     />
-                                                </div>
+                                                </div>}
 
                                                 {(employeeType === 'astrologer' || employeeType === 'call_astrologer') && <div>
                                                     <h4

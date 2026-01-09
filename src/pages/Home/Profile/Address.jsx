@@ -27,9 +27,12 @@ export default function Address() {
     }));
 
     const handleAddAddress = () => {
-        setFormMode("add");
+        setShowForm(false);
         setEditingAddress(null);
-        setShowForm(true);
+        setFormMode("add");
+        setTimeout(() => {
+            setShowForm(true);
+        }, 0);
     };
 
     const handleEditAddress = (mappedAddress) => {

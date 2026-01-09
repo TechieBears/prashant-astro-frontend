@@ -14,6 +14,7 @@ import socket from '../../config/socket';
 import badge1 from '../../assets/Astrologer/Astrologerbadges (1).png';
 import badge2 from '../../assets/Astrologer/Astrologerbadges (2).png';
 import badge3 from '../../assets/Astrologer/Astrologerbadges (3).png';
+import { ASTROLOGER_STATUS, getAstrologerStatus, isAstrologerAvailable, getStatusColor } from '../../utils/astrologerStatus';
 
 const CallAstrologer = () => {
     const navigate = useNavigate();
@@ -107,7 +108,10 @@ const CallAstrologer = () => {
         setPrice([minPrice, maxPrice]);
     };
 
-    const handleAstrologerClick = (astrologerId) => {
+    const handleAstrologerClick = (astrologerId, status) => {
+        if (!isAstrologerAvailable(status)) {
+            return;
+        }
         navigate(`/astrologer/${astrologerId}`);
     };
 
@@ -149,11 +153,19 @@ const CallAstrologer = () => {
                         }
                     }
 
+                    // Determine status based on workingStatus and isBusy
+                    const status = getAstrologerStatus(
+                        astrologer.profile?.workingStatus,
+                        astrologer.profile?.isBusy
+                    );
+
                     return {
                         id: astrologer._id,
                         name: astrologer.profile?.fullName || 'N/A',
                         image: astrologer.profileImage,
-                        isBusy: astrologer.profile?.isBusy || false,
+                        status,
+                        isBusy: status === ASTROLOGER_STATUS.BUSY,
+                        isOffline: status === ASTROLOGER_STATUS.OFFLINE,
                         isRequested: astrologer._id === requestedAstrologerId,
                         skills: parsedSkills,
                         languages: parsedLanguages,
@@ -161,12 +173,12 @@ const CallAstrologer = () => {
                         rate: `₹${astrologer.profile?.priceCharge || 0}/Min`
                     };
                 });
-                
+
                 // Filter based on activeTab
                 if (activeTab === 'online') {
-                    mappedData = mappedData.filter(astrologer => !astrologer.isBusy);
+                    mappedData = mappedData.filter(astrologer => astrologer.status === ASTROLOGER_STATUS.ONLINE);
                 }
-                
+
                 setAstrologers(mappedData);
                 setPagination(response.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 });
             }
@@ -345,8 +357,8 @@ const CallAstrologer = () => {
                                         </div>
                                     )}
                                     <div className="relative mb-3 sm:mb-4">
-                                        <span className={`absolute top-0 right-0 text-xs sm:text-sm font-medium ${astrologer.isBusy ? 'text-red-500' : 'text-green-500'}`}>
-                                            {astrologer.isBusy ? 'Busy' : 'Available'}
+                                        <span className={`absolute top-0 right-0 text-xs sm:text-sm font-medium ${getStatusColor(astrologer.status)}`}>
+                                            {astrologer.status}
                                         </span>
 
                                         {/* Profile Image and Name - Centered */}
@@ -389,9 +401,9 @@ const CallAstrologer = () => {
                                     {/* Call button */}
                                     <div className="mt-auto">
                                         <CallButton
-                                            status={astrologer.isBusy ? 'Busy' : 'Online'}
+                                            status={astrologer.status}
                                             rate={astrologer.rate}
-                                            onClick={() => handleAstrologerClick(astrologer.id)}
+                                            onClick={() => handleAstrologerClick(astrologer.id, astrologer.status)}
                                         />
                                     </div>
                                 </div>
