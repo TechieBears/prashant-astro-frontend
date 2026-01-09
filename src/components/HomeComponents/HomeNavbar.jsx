@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/astroguid logo.png";
 import logoText from "../../assets/astroguid logo text.png";
@@ -15,6 +15,7 @@ import { clearCart } from "../../redux/Slices/cartSlice";
 import toast from "react-hot-toast";
 import { ArrowDown04Icon, ArrowLeft01Icon } from "hugeicons-react";
 import { ChevronDown, User, Wallet } from 'lucide-react';
+import NotificationDropdown from '../Common/NotificationDropdown';
 
 const HomeNavbar = () => {
     const { servicesDropdown, productsDropdown } = useSelector(state => state.nav);
@@ -412,6 +413,7 @@ const HomeNavbar = () => {
                                     </span>
                                 )}
                             </div>
+                            {login && <NotificationDropdown />}
                             {login ? (
                                 <>
                                     <NavLink to={'/profile'}>
@@ -761,7 +763,5 @@ const HomeNavbar = () => {
         </>
     );
 };
-
-
 
 export default HomeNavbar;

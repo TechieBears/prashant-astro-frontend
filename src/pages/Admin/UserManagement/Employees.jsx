@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import Switch from "react-js-switch";
-import { getAllEmployees, editEmployee } from '../../../api';
+import { getAllEmployees, editEmployee, updateEmployeeWorkingStatus } from '../../../api';
 import Table from '../../../components/Table/Table'
 import TextInput from '../../../components/TextInput/TextInput'
 import SelectTextInput from '../../../components/TextInput/SelectTextInput'
@@ -59,20 +59,7 @@ const Employees = () => {
         toast.success('Filters cleared');
     };
 
-    const handleActiveChange = async (id, isActive) => {
-        try {
-            const updatedData = {
-                isActive: !isActive
-            }
-            await editEmployee(id, updatedData);
-            setRefreshTrigger(prev => prev + 1);
-            toast.success('Status updated');
-        }
-        catch (error) {
-            console.log('error', error)
-            toast.error('Update failed');
-        }
-    }
+
 
     // Enhanced body templates following AllServices design pattern
     const employeeIdBody = (row) => (
@@ -244,19 +231,49 @@ const Employees = () => {
         );
     };
 
+    const handleWorkingStatusChange = async (employeeId) => {
+        try {
+            const response = await updateEmployeeWorkingStatus(employeeId);
+            if (response?.success) {
+                setRefreshTrigger(prev => prev + 1);
+                toast.success('Working status updated');
+            } else {
+                toast.error(response?.message || 'Update failed');
+            }
+        } catch (error) {
+            console.log('error', error);
+            toast.error('Update failed');
+        }
+    };
+
+    const getEmployeeStatus = (workingStatus, isBusy) => {
+        if (!workingStatus) return { status: 'Offline', colorClass: 'bg-gray-100 text-gray-800' };
+        if (isBusy) return { status: 'Busy', colorClass: 'bg-red-100 text-red-800' };
+        return { status: 'Online', colorClass: 'bg-green-100 text-green-800' };
+    };
+
     const statusBody = (row) => {
+        const { status, colorClass } = getEmployeeStatus(row?.profile?.workingStatus, row?.profile?.isBusy);
         return (
-            <div className="space-y-2">
-                <div className="flex items-center">
-                    <Switch
-                        value={row?.isActive}
-                        onChange={() => handleActiveChange(row?._id, row?.isActive)}
-                        size={50}
-                        backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
-                        borderColor={{ on: "#86d993", off: "#c6c6c6" }}
-                    />
-                </div>
-            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${colorClass}`}>
+                {status}
+            </span>
+        );
+    };
+
+    const onlineOfflineBody = (row) => {
+        if (row?.profile?.employeeType !== "call_astrologer") {
+            return <span className="text-xs text-gray-400">N/A</span>;
+        }
+        
+        return (
+            <Switch
+                value={row?.profile?.workingStatus}
+                onChange={() => handleWorkingStatusChange(row?._id)}
+                size={50}
+                backgroundColor={{ on: "#86d993", off: "#c6c6c6" }}
+                borderColor={{ on: "#86d993", off: "#c6c6c6" }}
+            />
         );
     };
 
@@ -351,6 +368,13 @@ const Employees = () => {
             field: 'status',
             header: 'Status',
             body: statusBody,
+            style: true,
+            sortable: true
+        },
+        {
+            field: 'onlineOffline',
+            header: 'Online/Offline',
+            body: onlineOfflineBody,
             style: true,
             sortable: true
         },

@@ -15,7 +15,8 @@ const AddToCartButton = ({
     variant = 'default',
     isInCart = false,
     cartItemId = null,
-    redirectToCart = true // New prop to control redirect behavior
+    redirectToCart = true, // New prop to control redirect behavior
+    iconOnly = false // New prop for icon-only display
 }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -104,7 +105,7 @@ const AddToCartButton = ({
         outline: 'text-gray-700 border-gray-300 hover:bg-gray-50'
     };
 
-    const baseButtonClasses = `rounded-[0.2rem] font-medium border flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${buttonSizeClasses[size]} ${variantClasses[variant]}`;
+    const baseButtonClasses = `rounded-[0.2rem] font-medium border flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${iconOnly ? 'p-1' : buttonSizeClasses[size]} ${variantClasses[variant]}`;
     const disabledButtonClasses = !stock ? 'text-gray-300 border-gray-300 cursor-not-allowed' :
         isAddingToCart ? 'bg-gray-100 text-gray-500 border-gray-200 cursor-wait' : '';
 
@@ -116,17 +117,30 @@ const AddToCartButton = ({
                 className={`${baseButtonClasses} ${disabledButtonClasses} w-full`}
             >
                 {isAddingToCart ? (
-                    <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-orange-500"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24">
+                    iconOnly ? (
+                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        {isInCart ? 'Adding...' : 'Adding...'}
-                    </>
-                ) : stock ? (isInCart ? 'Update Cart' : 'Add to Cart') : 'Out of Stock'}
+                    ) : (
+                        <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-orange-500"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            {isInCart ? 'Adding...' : 'Adding...'}
+                        </>
+                    )
+                ) : iconOnly ? (
+                    <svg className="h-6 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h7" />
+                    </svg>
+                ) : (
+                    stock ? (isInCart ? 'Update Cart' : 'Add to Cart') : 'Out of Stock'
+                )}
             </button>
         </div>
     );

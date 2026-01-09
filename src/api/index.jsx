@@ -2617,3 +2617,16 @@ export const getInvoiceByProductOrderId = async (productOrderId) => {
         return err?.response?.data || { success: false, message: 'Failed to fetch invoice details' };
     }
 }
+
+export const updateEmployeeWorkingStatus = async (employeeId) => {
+    const url = `${environment.baseUrl}employee-users/call-astrologer/update-working-status`;
+    try {
+        const response = await axios.get(url, {
+            params: { employeeId }
+        });
+        return response.data;
+    } catch (err) {
+        console.error('Error updating working status:', err);
+        return err?.response?.data || { success: false, message: 'Failed to update working status' };
+    }
+}
