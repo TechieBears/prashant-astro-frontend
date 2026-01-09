@@ -8,13 +8,15 @@ export const environment = {
     // production: false
 
     // // -------------------- Devlopment Server Api URL --------------------
-    baseUrl: 'https://dev-api.astroguid.com/api/',
-    production: false,
+    // baseUrl: 'https://dev-api.astroguid.com/api/',
+    // socketUrl: 'https://dev-api.astroguid.com/',
+    // production: false,
 
     // -------------------- Live Server Api URL --------------------
 
-    // baseUrl: 'https://api.astroguid.com/api/',
-    // production: true,
+    baseUrl: 'https://api.astroguid.com/api/',
+    socketUrl: 'https://api.astroguid.com/',
+    production: true,
 
     razorpayKey: 'rzp_test_Rufkt1nYns8XZT'
 }
