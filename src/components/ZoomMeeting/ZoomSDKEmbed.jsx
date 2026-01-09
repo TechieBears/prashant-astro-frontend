@@ -20,7 +20,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
         const initZoom = async () => {
             // Small delay to ensure DOM is ready
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             if (!mounted || !meetingSDKElement.current || !meetingNumber || !password) return;
 
             // Cleanup any existing client
@@ -36,7 +36,7 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
             try {
                 const role = localStorage.getItem('role') || roleIs;
                 const zoomRole = (role === 'admin' || role === 'employee') ? 1 : 0;
-                
+
                 console.log('Getting signature for meeting:', meetingNumber, 'with role:', zoomRole);
                 const signatureResponse = await getZoomSignature(meetingNumber, zoomRole);
                 console.log('Signature response:', signatureResponse);
@@ -147,8 +147,8 @@ const ZoomSDKEmbed = ({ meetingNumber, password, userName, onMeetingEnd }) => {
                     </div>
                 </div>
             )}
-            <div 
-                ref={meetingSDKElement} 
+            <div
+                ref={meetingSDKElement}
                 className="zoom-meeting-container"
                 style={{ display: loading || error || leaving ? 'none' : 'block' }}
             ></div>

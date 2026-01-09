@@ -66,6 +66,50 @@ video-player-container > div {
     z-index: 9999 !important;
 }
 
+/* Fix Zoom dialog positioning */
+.zoom-MuiPopper-root[role="dialog"][aria-label="Chat"] {
+    transform: translate3d(-350px, 84.8px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Settings"] {
+    transform: translate3d(-400px, 80px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] {
+    transform: translate3d(-380px, 80px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Caption settings"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Reactions"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Active Apps Notifier"] {
+    transform: translate3d(-400px, 87px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Meeting Information"] {
+    transform: translate3d(-420px, 0px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+.zoom-MuiPopper-root[role="dialog"][aria-label="Participants"] {
+    transform: translate3d(-380px, 0px, 0px) !important;
+    right: 0 !important;
+    left: auto !important;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
     .css-1op03nt > div[style*="position: relative"] {
@@ -76,5 +120,133 @@ video-player-container > div {
     
     video-player-container {
         min-height: 200px !important;
+    }
+    
+    /* Mobile responsive fixes for Zoom dialogs */
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Chat"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Chat"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Chat"] .ReactVirtualized__Grid {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Settings"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Settings"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Settings"] .zoom-MuiPaper-root {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+        overflow-x: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Settings"] .zoom-MuiFormControl-root {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] .zoom-MuiPaper-root {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+        overflow-x: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] .zoom-MuiFormControl-root {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Report Problem"] textarea {
+        width: 100% !important;
+        max-width: calc(100vw - 80px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Caption settings"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Active Apps Notifier"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Active Apps Notifier"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Active Apps Notifier"] .zoom-MuiPaper-root {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+        overflow-x: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Meeting Information"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Meeting Information"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Meeting Information"] .zoom-MuiPaper-root {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+        overflow-x: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Participants"] {
+        transform: none !important;
+        position: fixed !important;
+        top: 10px !important;
+        right: 10px !important;
+        left: 10px !important;
+        width: auto !important;
+        max-height: calc(100vh - 20px) !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Participants"] .react-draggable {
+        transform: none !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Participants"] .zoom-MuiPaper-root {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
+        overflow-x: auto !important;
+    }
+    .zoom-MuiPopper-root[role="dialog"][aria-label="Participants"] .ReactVirtualized__Grid {
+        width: 100% !important;
+        max-width: calc(100vw - 40px) !important;
     }
 }
